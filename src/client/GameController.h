@@ -13,7 +13,9 @@ class GameController {
 public:
     static void init(GameWindow* gameWindow);
     static void connectToServer();
-    static void updateState(game_state* gameState);
+    static void updateGameState(game_state* gameState);
+    static void startGame();
+
     static wxEvtHandler* getMainThreadEventHandler();
     static void showError(const std::string& title, const std::string& message);
     static void showStatus(const std::string& message);
@@ -26,6 +28,7 @@ private:
     static ClientNetworkThread* _networkThread;
 
     static player* _me;
+    static game_state* _currentGameState;
 
 };
 

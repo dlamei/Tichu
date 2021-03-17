@@ -1,8 +1,6 @@
 #include "MainGamePanel.h"
 #include "../uiElements/ImagePanel.h"
-
-
-
+#include "../GameController.h"
 
 
 MainGamePanel::MainGamePanel(wxWindow* parent) : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(960, 680)) {
@@ -16,7 +14,7 @@ void MainGamePanel::buildGameState(game_state* gameState, player* me) {
 
     int numberOfPlayers = gameState->get_players().size();
 
-    // find my own player object in the list of players
+    // find our own player object in the list of players
     int myPosition = -1;
     for(int i = 0; i < numberOfPlayers; i++) {
         player* lamaPlayer = gameState->get_players().at(i);
@@ -25,6 +23,12 @@ void MainGamePanel::buildGameState(game_state* gameState, player* me) {
             myPosition = i;
             break;
         }
+    }
+
+    // if we didn't find ourselves among the players, things have gone seriously wrong
+    if(myPosition == -1) {
+        GameController::showError("Game state error", "Could not find this player among players of server game.");
+        return;
     }
 
     double anglePerPlayer = MainGamePanel::twoPi / (double) numberOfPlayers;
@@ -42,49 +46,11 @@ void MainGamePanel::buildGameState(game_state* gameState, player* me) {
         this->buildOtherPlayerLabels(gameState, otherPlayer, playerAngle, side);
     }
 
-    ImagePanel* discardPile = new ImagePanel(this, "assets/lama_lama.png", wxBITMAP_TYPE_ANY, MainGamePanel::tableCenter + wxPoint(-84, -42), cardSize);
-    discardPile->SetToolTip("Discard pile");
+    // show both card piles at the center
+    this->buildCardPiles(gameState);
 
-    ImagePanel* drawPile = new ImagePanel(this, "assets/lama_back.png", wxBITMAP_TYPE_ANY, MainGamePanel::tableCenter + wxPoint(4, -42), cardSize);
-    drawPile->SetToolTip("Draw pile");
-    drawPile->SetCursor(wxCursor(wxCURSOR_HAND));
-
-    wxBoxSizer* outerLayout = new wxBoxSizer(wxHORIZONTAL);
-    this->SetSizer(outerLayout);
-
-    wxBoxSizer* innerLayout = new wxBoxSizer(wxVERTICAL);
-    outerLayout->Add(innerLayout, 1, wxALIGN_BOTTOM);
-
-    wxStaticText* playerName = new wxStaticText(this, wxID_ANY, "Playername", wxDefaultPosition, wxDefaultSize, wxTEXT_ALIGNMENT_CENTER);
-    innerLayout->Add(playerName, 0, wxALIGN_CENTER);
-
-    wxStaticText* playerPoints = new wxStaticText(this, wxID_ANY, "Minus points: 123", wxDefaultPosition, wxDefaultSize, wxTEXT_ALIGNMENT_CENTER);
-    innerLayout->Add(playerPoints, 0, wxALIGN_CENTER);
-
-    wxStaticText* playerStatus = new wxStaticText(this, wxID_ANY, "FOLDED!", wxDefaultPosition, wxSize(-1, 32), wxTEXT_ALIGNMENT_CENTER);
-    innerLayout->Add(playerStatus, 0, wxALIGN_CENTER | wxALL, 8);
-
-    wxButton* foldButton = new wxButton(this, wxID_ANY, "Fold", wxDefaultPosition, wxSize(80, 32));
-    //connectButton->Bind(wxEVT_BUTTON, &ConnectionPanel::connect, this);
-    innerLayout->Add(foldButton, 0, wxALIGN_CENTER | wxALL, 8);
-
-    wxBoxSizer* handLayout = new wxBoxSizer(wxHORIZONTAL);
-    innerLayout->Add(handLayout, 0, wxALIGN_CENTER);
-
-    int numberOfCards = 6;
-
-    // Adjust card size, if we have too many cards on our hand
-    int scaledCardWidth = std::min(cardSize.GetWidth(), (960 / numberOfCards) - 8);
-    double cardAspectRatio = (double) cardSize.GetHeight() / (double) cardSize.GetWidth();
-    int scaledCardHeight = (int) ((double) scaledCardWidth * cardAspectRatio);
-    wxSize scaledCardSize = wxSize(scaledCardWidth, scaledCardHeight);
-
-    for(int i = 0; i < numberOfCards; i++) {
-        ImagePanel* card = new ImagePanel(this, "assets/lama_" + std::to_string((i % 6) + 1) + ".png", wxBITMAP_TYPE_ANY, wxDefaultPosition, scaledCardSize);
-        card->SetToolTip("Play card");
-        card->SetCursor(wxCursor(wxCURSOR_HAND));
-        handLayout->Add(card, 0, wxLEFT | wxRIGHT, 4);
-    }
+    // show our own player
+    this->buildThisPlayer(gameState, me);
 
     // Update layout
     this->Layout();
@@ -188,13 +154,119 @@ void MainGamePanel::buildOtherPlayerLabels(game_state* gameState, player* otherP
 }
 
 
-void MainGamePanel::buildStaticText(std::string content, wxPoint position, wxSize size, long textAlignment, bool bold) {
-    wxStaticText* text = new wxStaticText(this, wxID_ANY, content, position, size, textAlignment);
-    if(bold) {
-        wxFont font = text->GetFont();
-        font.SetWeight(wxFONTWEIGHT_BOLD);
-        text->SetFont(font);
+void MainGamePanel::buildCardPiles(game_state* gameState) {
+
+    if(gameState->is_started()) {
+
+        // Show discard pile
+        const card* topCard = gameState->get_discard_pile()->get_top_card();
+        std::string cardImage = "assets/lama_" + std::to_string(topCard->get_value()) + ".png";
+
+        wxPoint discardPilePosition = MainGamePanel::tableCenter + MainGamePanel::discardPileOffset;
+
+        ImagePanel* discardPile = new ImagePanel(this, cardImage, wxBITMAP_TYPE_ANY, discardPilePosition, MainGamePanel::cardSize);
+        discardPile->SetToolTip("Discard pile");
+
+        // Show draw pile
+        wxPoint drawPilePosition = MainGamePanel::tableCenter + MainGamePanel::drawPileOffset;
+
+        ImagePanel* drawPile = new ImagePanel(this, "assets/lama_back.png", wxBITMAP_TYPE_ANY, drawPilePosition, MainGamePanel::cardSize);
+        drawPile->SetToolTip("Draw pile");
+        drawPile->SetCursor(wxCursor(wxCURSOR_HAND));
+
+    } else {
+        // if the game did not start yet, show a back side of a card in the center (only for the mood)
+        wxPoint cardPosition = MainGamePanel::tableCenter - (MainGamePanel::cardSize / 2);
+        new ImagePanel(this, "assets/lama_back.png", wxBITMAP_TYPE_ANY, cardPosition, MainGamePanel::cardSize);
     }
+
+}
+
+
+void MainGamePanel::buildThisPlayer(game_state* gameState, player* me) {
+
+    // Setup two nested box sizers, in order to align our player's UI to the bottom center
+    wxBoxSizer* outerLayout = new wxBoxSizer(wxHORIZONTAL);
+    this->SetSizer(outerLayout);
+    wxBoxSizer* innerLayout = new wxBoxSizer(wxVERTICAL);
+    outerLayout->Add(innerLayout, 1, wxALIGN_BOTTOM);
+
+    // Show the label with our player name
+    wxStaticText* playerName = buildStaticText(
+            me->get_player_name(),
+            wxDefaultPosition,
+            wxSize(200, 18),
+            wxALIGN_CENTER_HORIZONTAL,
+            true
+    );
+    innerLayout->Add(playerName, 0, wxALIGN_CENTER);
+
+
+
+
+    // if the game has not yet started we say so
+    if(!gameState->is_started()) {
+
+        wxStaticText* playerPoints = buildStaticText(
+                "waiting for game to start...",
+                wxDefaultPosition,
+                wxSize(200, 18),
+                wxALIGN_CENTER_HORIZONTAL
+        );
+        innerLayout->Add(playerPoints, 0, wxALIGN_CENTER);
+
+        // show button that allows our player to start the game
+        wxButton* startGameButton = new wxButton(this, wxID_ANY, "Start Game!", wxDefaultPosition, wxSize(160, 64));
+        startGameButton->Bind(wxEVT_BUTTON, &MainGamePanel::startGame, this);
+        innerLayout->Add(startGameButton, 0, wxALIGN_CENTER | wxALL, 8);
+
+    } else {
+
+        wxStaticText* playerPoints = buildStaticText(
+                "123 minus points", // TODO
+                wxDefaultPosition,
+                wxSize(200, 18),
+                wxALIGN_CENTER_HORIZONTAL
+        );
+        innerLayout->Add(playerPoints, 0, wxALIGN_CENTER);
+    }
+
+
+    /*wxStaticText* playerStatus = buildStaticText( "FOLDED!", wxDefaultPosition, wxSize(-1, 32), wxTEXT_ALIGNMENT_CENTER);
+    innerLayout->Add(playerStatus, 0, wxALIGN_CENTER | wxALL, 8);
+
+    wxButton* foldButton = new wxButton(this, wxID_ANY, "Fold", wxDefaultPosition, wxSize(80, 32));
+    //connectButton->Bind(wxEVT_BUTTON, &ConnectionPanel::connect, this);
+    innerLayout->Add(foldButton, 0, wxALIGN_CENTER | wxALL, 8);
+
+    wxBoxSizer* handLayout = new wxBoxSizer(wxHORIZONTAL);
+    innerLayout->Add(handLayout, 0, wxALIGN_CENTER);
+
+    int numberOfCards = 6;
+
+    // Adjust card size, if we have too many cards on our hand
+    int scaledCardWidth = std::min(MainGamePanel::cardSize.GetWidth(), (960 / numberOfCards) - 8);
+    double cardAspectRatio = (double) MainGamePanel::cardSize.GetHeight() / (double) MainGamePanel::cardSize.GetWidth();
+    int scaledCardHeight = (int) ((double) scaledCardWidth * cardAspectRatio);
+    wxSize scaledCardSize = wxSize(scaledCardWidth, scaledCardHeight);
+
+    for(int i = 0; i < numberOfCards; i++) {
+        ImagePanel* card = new ImagePanel(this, "assets/lama_" + std::to_string((i % 6) + 1) + ".png", wxBITMAP_TYPE_ANY, wxDefaultPosition, scaledCardSize);
+        card->SetToolTip("Play card");
+        card->SetCursor(wxCursor(wxCURSOR_HAND));
+        handLayout->Add(card, 0, wxLEFT | wxRIGHT, 4);
+    }*/
+}
+
+
+wxStaticText* MainGamePanel::buildStaticText(std::string content, wxPoint position, wxSize size, long textAlignment, bool bold) {
+    wxStaticText* staticText = new wxStaticText(this, wxID_ANY, content, position, size, textAlignment);
+    if(bold) {
+        wxFont font = staticText->GetFont();
+        font.SetWeight(wxFONTWEIGHT_BOLD);
+        staticText->SetFont(font);
+    }
+    return staticText;
 }
 
 
@@ -211,4 +283,9 @@ double MainGamePanel::getEdgeLengthOfRotatedSquare(double originalEdgeLength, do
 
 wxPoint MainGamePanel::getPointOnEllipse(double horizontalRadius, double verticalRadius, double angle) {
     return wxPoint((int) (sin(angle) * horizontalRadius), (int) (cos(angle) * verticalRadius));
+}
+
+
+void MainGamePanel::startGame(wxCommandEvent& event) {
+    GameController::startGame();
 }

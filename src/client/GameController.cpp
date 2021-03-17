@@ -1,13 +1,16 @@
 #include "GameController.h"
-#include "../game_state/player/player.h"
 #include "../network/requests/join_game_request.h"
+#include "../network/requests/start_game_request.h"
+
 
 // initialize static members
 GameWindow* GameController::_gameWindow = nullptr;
 ConnectionPanel* GameController::_connectionPanel = nullptr;
 MainGamePanel* GameController::_mainGamePanel = nullptr;
 ClientNetworkThread* GameController::_networkThread = nullptr;
+
 player* GameController::_me = nullptr;
+game_state* GameController::_currentGameState = nullptr;
 
 
 void GameController::init(GameWindow* gameWindow) {
@@ -79,9 +82,20 @@ void GameController::connectToServer() {
 }
 
 
-void GameController::updateState(game_state* gameState) {
+void GameController::updateGameState(game_state* gameState) {
+    std::cout << "UPDATE GAME STATE" << std::endl;
+    GameController::_currentGameState = gameState;
     GameController::_gameWindow->showPanel(GameController::_mainGamePanel);
-    GameController::_mainGamePanel->buildGameState(gameState, GameController::_me);
+    GameController::_mainGamePanel->buildGameState(GameController::_currentGameState, GameController::_me);
+}
+
+
+void GameController::startGame() {
+    // send request to start game
+    std::cout << "START GAME" << std::endl;
+    start_game_request request = start_game_request(GameController::_currentGameState->get_id(), GameController::_me->get_id());
+    std::cout << "Created Request" << std::endl;
+    GameController::_networkThread->sendRequest(request);
 }
 
 

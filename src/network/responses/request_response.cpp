@@ -77,7 +77,7 @@ void request_response::Process() const {
     if (_success) {
         if (this->_state_json != nullptr) {
             game_state* state = game_state::from_json(*_state_json);
-            GameController::updateState(state);
+            GameController::updateGameState(state);
 
         } else {
             std::cerr << "Expected a state json inside the request_response. But there was none." << std::endl;
