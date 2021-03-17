@@ -7,8 +7,10 @@
 #include "../../common/utils/LamaException.h"
 #include "../../common/utils/global_state.h"
 #include "../../common/utils/json_utils.h"
-#include "../../client/GameController.h"
 
+#ifdef LAMA_CLIENT
+#include "../../client/GameController.h"
+#endif
 
 full_state_response::full_state_response(server_response::base_class_properties props, rapidjson::Value* state_json) :
         server_response(props),

@@ -8,7 +8,7 @@
 #include <string>
 #include "../../server/game_instance_manager.h"
 #include "../../server/player_manager.h"
-#include "../../game.h"
+#include "../../server/game_instance.h"
 #endif
 
 std::string join_game_request::undefined_game_id {""};
@@ -52,7 +52,7 @@ server_response* join_game_request::execute() {
     player_manager::add_or_get_player(_player_name, _player_id, player);
 
     std::string err;
-    game* game_instance_ptr = nullptr;
+    game_instance* game_instance_ptr = nullptr;
     if (_game_id.empty()) {
         // join any game
 #ifndef USE_DIFFS

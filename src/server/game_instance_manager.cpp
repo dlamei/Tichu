@@ -5,14 +5,14 @@
 #include "game_instance_manager.h"
 
 #include "player_manager.h"
-#include "../network/server_network_manager.h"
+#include "server_network_manager.h"
 
 // Initialize static map
-std::unordered_map<std::string, game*> game_instance_manager::games_lut = {};
+std::unordered_map<std::string, game_instance*> game_instance_manager::games_lut = {};
 
-game *game_instance_manager::find_joinable_game_instance() {
+game_instance *game_instance_manager::find_joinable_game_instance() {
     std::vector<std::string> to_remove;
-    game* res = nullptr;
+    game_instance* res = nullptr;
     games_lut_lock.lock_shared();
     for (auto it = games_lut.begin(); it != games_lut.end(); it++) {
         if (it->second->is_finished()) {    // also check if there are any finished games that can be removed
@@ -40,8 +40,8 @@ game *game_instance_manager::find_joinable_game_instance() {
     return res;
 }
 
-game* game_instance_manager::create_new_game() {
-    game* new_game = new game();
+game_instance* game_instance_manager::create_new_game() {
+    game_instance* new_game = new game_instance();
     games_lut_lock.lock();  // exclusive
     game_instance_manager::games_lut.insert({new_game->get_id(), new_game});
     games_lut_lock.unlock();
@@ -49,7 +49,7 @@ game* game_instance_manager::create_new_game() {
 }
 
 
-bool game_instance_manager::try_get_game_instance(const std::string& game_id, game *&game_instance_ptr) {
+bool game_instance_manager::try_get_game_instance(const std::string& game_id, game_instance *&game_instance_ptr) {
     game_instance_ptr = nullptr;
     games_lut_lock.lock_shared();
     auto it = game_instance_manager::games_lut.find(game_id);
@@ -61,9 +61,9 @@ bool game_instance_manager::try_get_game_instance(const std::string& game_id, ga
 }
 
 bool
-game_instance_manager::try_get_player_and_game_instance(const std::string& player_id, player *&player, game *&game_instance, std::string& err) {
+game_instance_manager::try_get_player_and_game_instance(const std::string& player_id, player *&player, game_instance *&game_instance_ptr, std::string& err) {
     if (player_manager::try_get_player(player_id, player)) {
-        if (game_instance_manager::try_get_game_instance(player->get_game_id(), game_instance)) {
+        if (game_instance_manager::try_get_game_instance(player->get_game_id(), game_instance_ptr)) {
             return true;
         } else {
             err = "Could not find game_id" + player->get_game_id() + " associated with this player";
@@ -75,7 +75,7 @@ game_instance_manager::try_get_player_and_game_instance(const std::string& playe
 }
 
 #ifndef USE_DIFFS
-bool game_instance_manager::try_add_player_to_any_game(player *player, game*& game_instance_ptr, std::string& err) {
+bool game_instance_manager::try_add_player_to_any_game(player *player, game_instance*& game_instance_ptr, std::string& err) {
 
     // check that player is not already subscribed to another game
     if (player->get_game_id() != "") {
@@ -105,7 +105,7 @@ bool game_instance_manager::try_add_player_to_any_game(player *player, game*& ga
 }
 
 
-bool game_instance_manager::try_add_player(player *player, game *&game_instance_ptr, std::string& err) {
+bool game_instance_manager::try_add_player(player *player, game_instance *&game_instance_ptr, std::string& err) {
     if (player->get_game_id() != "") {
         if (player->get_game_id() != game_instance_ptr->get_id()) {
             err = "Player is already active in a different src with id " + player->get_game_id();
@@ -124,7 +124,7 @@ bool game_instance_manager::try_add_player(player *player, game *&game_instance_
 }
 
 bool game_instance_manager::try_remove_player(player *player, const std::string& game_id, std::string &err) {
-    game* game_instance_ptr = nullptr;
+    game_instance* game_instance_ptr = nullptr;
     if (try_get_game_instance(game_id, game_instance_ptr)) {
         return try_remove_player(player, game_instance_ptr, err);
     } else {
@@ -133,12 +133,12 @@ bool game_instance_manager::try_remove_player(player *player, const std::string&
     }
 }
 
-bool game_instance_manager::try_remove_player(player *player, game *&game_instance_ptr, std::string &err) {
+bool game_instance_manager::try_remove_player(player *player, game_instance *&game_instance_ptr, std::string &err) {
     return game_instance_ptr->try_remove_player(player, err);
 }
 
 #else
-bool game_instance_manager::try_add_player_to_any_game(player *player, game*& game_instance_ptr, object_diff& game_state_diff, std::string& err) {
+bool game_instance_manager::try_add_player_to_any_game(player *player, game_instance*& game_instance_ptr, object_diff& game_state_diff, std::string& err) {
 
     // check that player is not already subscribed to another game
     if (player->get_game_id() != "") {
@@ -168,7 +168,7 @@ bool game_instance_manager::try_add_player_to_any_game(player *player, game*& ga
 }
 
 
-bool game_instance_manager::try_add_player(player *player, game *&game_instance_ptr, object_diff& game_state_diff, std::string& err) {
+bool game_instance_manager::try_add_player(player *player, game_instance *&game_instance_ptr, object_diff& game_state_diff, std::string& err) {
     if (player->get_game_id() != "") {
         if (player->get_game_id() != game_instance_ptr->get_id()) {
             err = "Player is already active in a different src with id " + player->get_game_id();
@@ -196,7 +196,7 @@ bool game_instance_manager::try_remove_player(player *player, const std::string&
     }
 }
 
-bool game_instance_manager::try_remove_player(player *player, game *&game_instance_ptr,
+bool game_instance_manager::try_remove_player(player *player, game_instance *&game_instance_ptr,
                                               object_diff& game_state_diff, std::string &err) {
     return game_instance_ptr->try_remove_player(player, game_state_diff, err);
 }

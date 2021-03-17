@@ -11,9 +11,11 @@
 #include <shared_mutex>
 
 #include "sockpp/tcp_socket.h"
-#include "requests/client_request.h"
-#include "../../sockpp/include/sockpp/tcp_connector.h"
-#include "../../sockpp/include/sockpp/tcp_acceptor.h"
+#include "sockpp/tcp_connector.h"
+#include "sockpp/tcp_acceptor.h"
+
+#include "../network/requests/client_request.h"
+#include "../network/responses/server_response.h"
 #include "../reactive_state/diffs/diff.h"
 #include "../game_state/player/player.h"
 #include "../game_state/game_state.h"
