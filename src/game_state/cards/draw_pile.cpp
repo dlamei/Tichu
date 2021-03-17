@@ -87,6 +87,18 @@ bool draw_pile::draw(player* player, card*& drawn_card, std::string& err)  {
     return false;
 }
 
+card* draw_pile::remove_top(std::string& err) {
+    card* drawn_card = nullptr;
+    if (!_cards.empty()) {
+        drawn_card = _cards.back();
+        _cards.pop_back();
+    } else {
+        err = "Could not draw card because draw pile is empty.";
+    }
+    return drawn_card;
+}
+
+
 #else
 
 void draw_pile::setup_game(object_diff &pile_diff, std::string &err) {
@@ -139,6 +151,9 @@ bool draw_pile::draw(player* player, card*& drawn_card, object_diff& player_diff
 }
 
 #endif
+
+
+
 #endif
 
 
