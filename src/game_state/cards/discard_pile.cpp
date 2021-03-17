@@ -71,6 +71,15 @@ bool discard_pile::try_play(const std::string& card_id, player* player, std::str
     return false;
 }
 
+bool discard_pile::try_play(card* played_card, std::string& err) {
+    if (can_play(played_card)) {
+        _cards.push_back(played_card);
+    } else {
+        err = "The desired card with value " + std::to_string(played_card->get_value())
+              + " cannot be played on top of a card with value " + std::to_string(get_top_card()->get_value());
+    }
+}
+
 #else
 
 void discard_pile::setup_game(object_diff &pile_diff, std::string &err) {
@@ -181,6 +190,8 @@ void discard_pile::write_into_json(rapidjson::Value &json,
     reactive_object::write_into_json(json, allocator);
     json.AddMember("cards", diffable_utils::serialize_vector(_cards, allocator), allocator);
 }
+
+
 
 
 

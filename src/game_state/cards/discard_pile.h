@@ -32,6 +32,7 @@ public:
 // state update functions
     void setup_game(std::string& err);  // Clears the stack
     bool try_play(const std::string& card_id, player* player, std::string& err);
+    bool try_play(card* played_card, std::string& err);
 #else
 // state update functions with diff
     void setup_game(object_diff& pile_diff, std::string& err);  // Clears the stack

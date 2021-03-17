@@ -8,6 +8,7 @@ include_directories(sockpp/include)
 find_package(wxWidgets COMPONENTS core base net REQUIRED)
 include(${wxWidgets_USE_FILE})
 
+# define a variable CLIENT_SOURCE_FILES that contains the paths to all source files required to compile the client executable
 set(CLIENT_SOURCE_FILES
         src/client/main.cpp
         src/client/app/Lama.cpp src/client/app/Lama.h
@@ -57,7 +58,7 @@ set(CLIENT_SOURCE_FILES
         src/reactive_state/diffs/diff.cpp src/reactive_state/diffs/diff.h
         src/reactive_state/diffs/array_elem_diff.cpp src/reactive_state/diffs/array_diff.h)
 
-
+# define a variable SERVER_SOURCE_FILES that contains the paths to all source files required to compile the server executable
 set(SERVER_SOURCE_FILES
         src/server/main.cpp
         src/server/game_instance.cpp src/server/game_instance.h

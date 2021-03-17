@@ -154,6 +154,10 @@ void game_state::setup_round(std::string &err) {
             }
         }
     }
+
+    // set a first card onto the discard pile
+    card* top_card = _draw_pile->remove_top(err);
+    _discard_pile->try_play(top_card, err);
 }
 
 void game_state::wrap_up_round(std::string& err) {
