@@ -3,11 +3,13 @@
 //
 
 #include "server_network_manager.h"
-#include "../utils/json_utils.h"
-#include "responses/state_diff_response.h"
-#include "responses/full_state_response.h"
 
-#include "default.conf"
+#include "../common/utils/json_utils.h"
+#include "../network/responses/state_diff_response.h"
+#include "../network/responses/full_state_response.h"
+
+// include server address configurations
+#include "../common/network/default.conf"
 
 server_network_manager::server_network_manager() {
     if (_instance == nullptr) {
@@ -59,7 +61,8 @@ void server_network_manager::listener_loop() {
     }
 }
 
-
+// Runs in a thread and reads anything coming in on the 'socket'.
+// Once a message is fully received, the string is passed on to the 'handle_incoming_message()' function
 void server_network_manager::read_message(sockpp::tcp_socket socket, const std::function<void(const std::string&,
                                                                                               const sockpp::tcp_socket::addr_t &)> &message_handler) {
     sockpp::socket_initializer sockInit;    // initializes socket framework underneath
@@ -95,7 +98,7 @@ void server_network_manager::read_message(sockpp::tcp_socket socket, const std::
             if (msg_bytes_read == msg_length) {
                 // sanity check that really all bytes got read (possibility that count was <= 0, indicating a read error)
                 std::string msg = ss_msg.str();
-                message_handler(msg, socket.peer_address());
+                message_handler(msg, socket.peer_address());    // attempt to parse client_request from 'msg'
             } else {
                 std::cerr << "Could not read entire message. TCP stream ended before. Difference is " << msg_length - msg_bytes_read << std::endl;
             }
@@ -115,12 +118,14 @@ void server_network_manager::read_message(sockpp::tcp_socket socket, const std::
 
 void server_network_manager::handle_incoming_message(const std::string& msg, const sockpp::tcp_socket::addr_t& peer_address) {
     try {
+        // try to parse a json from the 'msg'
         rapidjson::Document req_json;
         req_json.Parse(msg.c_str());
-        client_request* req = client_request::from_json(req_json);   // create executable client request
+        // try to parse a client_request from the json
+        client_request* req = client_request::from_json(req_json);
 
+        // check if this is a connection to a new player
         std::string player_id = req->get_player_id();
-
         _rw_lock.lock_shared();
         if (_player_id_to_address.find(player_id) == _player_id_to_address.end()) {
             // save connection to this client
@@ -135,12 +140,16 @@ void server_network_manager::handle_incoming_message(const std::string& msg, con
 #ifdef PRINT_NETWORK_MESSAGES
         std::cout << "Received valid request : " << msg << std::endl;
 #endif
-        server_response* res = req->execute();   // execute client request
+        // execute client request
+        server_response* res = req->execute();
         delete req;
 
+        // transform response into a json
         rapidjson::Document* res_json = res->to_json();
         delete res;
-        write_message(json_utils::to_string(res_json), peer_address.to_string());    // send response back to client. This usually arrives after the state update
+
+        // send response back to client
+        write_message(json_utils::to_string(res_json), peer_address.to_string());
         delete res_json;
     } catch (const std::exception& e) {
         std::cerr << "Failed to execute client request. Content was :\n"

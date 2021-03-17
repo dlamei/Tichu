@@ -6,7 +6,7 @@
 
 #ifdef LAMA_SERVER
 #include "../../server/game_instance_manager.h"
-#include "../../game.h"
+#include "../../server/game_instance.h"
 #endif
 
 // Public constructor
@@ -41,17 +41,17 @@ void draw_card_request::write_into_json(rapidjson::Value &json,
 server_response* draw_card_request::execute() {
     std::string err;
     player* player;
-    game* game_instance;
-    if (game_instance_manager::try_get_player_and_game_instance(_player_id, player, game_instance, err)) {
+    game_instance* game_instance_ptr;
+    if (game_instance_manager::try_get_player_and_game_instance(_player_id, player, game_instance_ptr, err)) {
         card* drawn_card;
 #ifndef USE_DIFFS
-        if (game_instance->draw_card(player, drawn_card, err)) {
-            return new request_response(game_instance->get_id(), _req_id, true, game_instance->get_game_state()->to_json(), err);
+        if (game_instance_ptr->draw_card(player, drawn_card, err)) {
+            return new request_response(game_instance_ptr->get_id(), _req_id, true, game_instance_ptr->get_game_state()->to_json(), err);
         }
 #else   // USE_DIFFS
-        object_diff game_state_diff(game_instance->get_id(), game_instance->get_game_state()->get_name());
-        if (game_instance->draw_card(player, drawn_card, game_state_diff, err)) {
-            return new request_response(game_instance->get_id(), _req_id, true, game_state_diff.to_json(), err);
+        object_diff game_state_diff(game_instance_ptr->get_id(), game_instance_ptr->get_game_state()->get_name());
+        if (game_instance_ptr->draw_card(player, drawn_card, game_state_diff, err)) {
+            return new request_response(game_instance_ptr->get_id(), _req_id, true, game_state_diff.to_json(), err);
         }
 #endif
     }

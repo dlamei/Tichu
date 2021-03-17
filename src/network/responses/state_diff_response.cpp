@@ -8,7 +8,6 @@
 
 #include "../../common/utils/LamaException.h"
 #include "../../common/utils/json_utils.h"
-#include "../../common/utils/global_state.h"
 #include "../../reactive_state/diffs/object_diff.h"
 
 state_diff_response::state_diff_response(server_response::base_class_properties props, rapidjson::Value* diff_json) :
@@ -59,16 +58,7 @@ void state_diff_response::Process() const {
     try {
         object_diff* game_state_diff = object_diff::from_json(*_diff_json);
 
-        // TODO only for testing -> REMOVE
-        if (global_state::global_game_state == nullptr) {
-            global_state::global_game_state = game_state::from_diff(game_state_diff);
-            global_state::global_game_id = game_state_diff->get_id();
-        } else {
-            global_state::global_game_state->apply_diff(game_state_diff);
-        }
-        // TODO only for testing -> REMOVE END
-
-        // TODO update GUI with this state diff
+        // TODO update GUI with this game_state_diff
     } catch(std::exception& e) {
         std::cerr << "Failed to extract game_state from full_state_response" << std::endl
                   << e.what() << std::endl;

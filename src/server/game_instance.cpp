@@ -2,46 +2,46 @@
 // Created by Manuel on 25.01.2021.
 //
 
-#include "game.h"
+#include "game_instance.h"
 
-#include "network/server_network_manager.h"
+#include "server_network_manager.h"
 #ifndef USE_DIFFS    // NOT USE_DIFFS
-#include "network/responses/full_state_response.h"
+#include "../network/responses/full_state_response.h"
 #else   // USE_DIFFS
 #include "network/responses/state_diff_response.h"
 #endif
 
-game::game() {
+game_instance::game_instance() {
     _game_state = new game_state();
 }
 
-game_state *game::get_game_state() {
+game_state *game_instance::get_game_state() {
     return _game_state;
 }
 
-std::string game::get_id() {
+std::string game_instance::get_id() {
     return _game_state->get_id();
 }
 
-bool game::is_player_allowed_to_play(player *player) {
+bool game_instance::is_player_allowed_to_play(player *player) {
     return _game_state->is_allowed_to_play_now(player);
 }
 
-bool game::is_full() {
+bool game_instance::is_full() {
     return _game_state->is_full();
 }
 
-bool game::is_started() {
+bool game_instance::is_started() {
     return _game_state->is_started();
 }
 
-bool game::is_finished() {
+bool game_instance::is_finished() {
     return _game_state->is_finished();
 }
 
 #ifdef LAMA_SERVER
 #ifndef USE_DIFFS
-bool game::play_card(player *player, const std::string& card_id, std::string& err) {
+bool game_instance::play_card(player *player, const std::string& card_id, std::string& err) {
     modification_lock.lock();
     if (_game_state->play_card(player, card_id, err)) {
         full_state_response state_update_msg = full_state_response(this->get_id(), *_game_state);
@@ -53,7 +53,7 @@ bool game::play_card(player *player, const std::string& card_id, std::string& er
     return false;
 }
 
-bool game::draw_card(player *player, card*& drawn_card, std::string& err) {
+bool game_instance::draw_card(player *player, card*& drawn_card, std::string& err) {
     modification_lock.lock();
     if (_game_state->draw_card(player, err)) {
         full_state_response state_update_msg = full_state_response(this->get_id(), *_game_state);
@@ -66,7 +66,7 @@ bool game::draw_card(player *player, card*& drawn_card, std::string& err) {
 
 }
 
-bool game::fold(player *player, std::string& err) {
+bool game_instance::fold(player *player, std::string& err) {
     modification_lock.lock();
     if (_game_state->fold(player, err)) {
         // send state update to all other players
@@ -79,7 +79,7 @@ bool game::fold(player *player, std::string& err) {
     return false;
 }
 
-bool game::start_game(player* player, std::string &err) {
+bool game_instance::start_game(player* player, std::string &err) {
     modification_lock.lock();
     if (_game_state->start_game(err)) {
         // send state update to all other players
@@ -92,7 +92,7 @@ bool game::start_game(player* player, std::string &err) {
     return false;
 }
 
-bool game::try_remove_player(player *player, std::string &err) {
+bool game_instance::try_remove_player(player *player, std::string &err) {
     modification_lock.lock();
     if (_game_state->remove_player(player, err)) {
         player->set_game_id("");
@@ -106,7 +106,7 @@ bool game::try_remove_player(player *player, std::string &err) {
     return false;
 }
 
-bool game::try_add_player(player *new_player, std::string &err) {
+bool game_instance::try_add_player(player *new_player, std::string &err) {
     modification_lock.lock();
     if (_game_state->add_player(new_player, err)) {
         new_player->set_game_id(get_id());
@@ -122,7 +122,7 @@ bool game::try_add_player(player *new_player, std::string &err) {
 
 #else // USE_DIFFS
 
-bool game::play_card(player *player, const std::string& card_id, object_diff& game_state_diff, std::string& err) {
+bool game_instance::play_card(player *player, const std::string& card_id, object_diff& game_state_diff, std::string& err) {
     game_state_diff = object_diff(get_id(), _game_state->get_name());
     modification_lock.lock();
     if (_game_state->play_card(player, card_id, game_state_diff, err)) {
@@ -135,7 +135,7 @@ bool game::play_card(player *player, const std::string& card_id, object_diff& ga
     return false;
 }
 
-bool game::draw_card(player *player, card*& drawn_card, object_diff& game_state_diff, std::string& err) {
+bool game_instance::draw_card(player *player, card*& drawn_card, object_diff& game_state_diff, std::string& err) {
     game_state_diff = object_diff(get_id(), _game_state->get_name());
     modification_lock.lock();
     if (_game_state->draw_card(player, game_state_diff, err)) {
@@ -150,7 +150,7 @@ bool game::draw_card(player *player, card*& drawn_card, object_diff& game_state_
 
 }
 
-bool game::fold(player *player, object_diff& game_state_diff, std::string& err) {
+bool game_instance::fold(player *player, object_diff& game_state_diff, std::string& err) {
     game_state_diff = object_diff(get_id(), _game_state->get_name());
     modification_lock.lock();
     if (_game_state->fold(player, game_state_diff, err)) {
@@ -164,7 +164,7 @@ bool game::fold(player *player, object_diff& game_state_diff, std::string& err) 
     return false;
 }
 
-bool game::start_game(player* player, object_diff& game_state_diff, std::string &err) {
+bool game_instance::start_game(player* player, object_diff& game_state_diff, std::string &err) {
     game_state_diff = object_diff(get_id(), _game_state->get_name());
     modification_lock.lock();
     if (_game_state->start_game(game_state_diff, err)) {
@@ -178,7 +178,7 @@ bool game::start_game(player* player, object_diff& game_state_diff, std::string 
     return false;
 }
 
-bool game::try_remove_player(player *player, object_diff& game_state_diff, std::string &err) {
+bool game_instance::try_remove_player(player *player, object_diff& game_state_diff, std::string &err) {
     game_state_diff = object_diff(get_id(), _game_state->get_name());
     modification_lock.lock();
     if (_game_state->remove_player(player, game_state_diff, err)) {
@@ -193,7 +193,7 @@ bool game::try_remove_player(player *player, object_diff& game_state_diff, std::
     return false;
 }
 
-bool game::try_add_player(player *new_player, object_diff& game_state_diff, std::string &err) {
+bool game_instance::try_add_player(player *new_player, object_diff& game_state_diff, std::string &err) {
     game_state_diff = object_diff(get_id(), _game_state->get_name());
     modification_lock.lock();
     if (_game_state->add_player(new_player, game_state_diff, err)) {

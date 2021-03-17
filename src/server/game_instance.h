@@ -9,10 +9,10 @@
 #include <string>
 #include <mutex>
 
-#include "game_state/player/player.h"
-#include "game_state/game_state.h"
+#include "../game_state/player/player.h"
+#include "../game_state/game_state.h"
 
-class game {
+class game_instance {
 
 private:
     game_state* _game_state;
@@ -20,8 +20,8 @@ private:
     inline static std::mutex modification_lock;
 
 public:
-    game();
-    ~game() {
+    game_instance();
+    ~game_instance() {
         if (_game_state != nullptr) {
             delete _game_state;
         }
