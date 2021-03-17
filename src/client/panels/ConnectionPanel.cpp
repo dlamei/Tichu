@@ -42,7 +42,9 @@ ConnectionPanel::ConnectionPanel(wxWindow* parent) : wxPanel(parent, wxID_ANY) {
     verticalLayout->Add(this->_playerNameField, 0, wxTOP | wxLEFT | wxRIGHT, 10);
 
     wxButton* connectButton = new wxButton(this, wxID_ANY, "Connect", wxDefaultPosition, wxSize(100, 40));
-    connectButton->Bind(wxEVT_BUTTON, &ConnectionPanel::connect, this);
+    connectButton->Bind(wxEVT_BUTTON, [](wxCommandEvent& event) {
+        GameController::connectToServer();
+    });
     verticalLayout->Add(connectButton, 0, wxALIGN_RIGHT | wxALL, 10);
 
     this->SetSizerAndFit(verticalLayout);
@@ -61,9 +63,4 @@ wxString ConnectionPanel::getServerPort() {
 
 wxString ConnectionPanel::getPlayerName() {
     return this->_playerNameField->getValue();
-}
-
-
-void ConnectionPanel::connect(wxCommandEvent& event) {
-    GameController::connectToServer();
 }

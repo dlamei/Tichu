@@ -12,9 +12,13 @@ class GameController {
 
 public:
     static void init(GameWindow* gameWindow);
+
     static void connectToServer();
     static void updateGameState(game_state* gameState);
     static void startGame();
+    static void drawCard();
+    static void fold();
+    static void playCard(card* cardToPlay);
 
     static wxEvtHandler* getMainThreadEventHandler();
     static void showError(const std::string& title, const std::string& message);

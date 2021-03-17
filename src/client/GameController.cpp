@@ -1,6 +1,9 @@
 #include "GameController.h"
 #include "../network/requests/join_game_request.h"
 #include "../network/requests/start_game_request.h"
+#include "../network/requests/draw_card_request.h"
+#include "../network/requests/fold_request.h"
+#include "../network/requests/play_card_request.h"
 
 
 // initialize static members
@@ -90,8 +93,25 @@ void GameController::updateGameState(game_state* gameState) {
 
 
 void GameController::startGame() {
-    // send request to start game
     start_game_request request = start_game_request(GameController::_currentGameState->get_id(), GameController::_me->get_id());
+    GameController::_networkThread->sendRequest(request);
+}
+
+
+void GameController::drawCard() {
+    draw_card_request request = draw_card_request(GameController::_currentGameState->get_id(), GameController::_me->get_id());
+    GameController::_networkThread->sendRequest(request);
+}
+
+
+void GameController::fold() {
+    fold_request request = fold_request(GameController::_currentGameState->get_id(), GameController::_me->get_id());
+    GameController::_networkThread->sendRequest(request);
+}
+
+
+void GameController::playCard(card* cardToPlay) {
+    play_card_request request = play_card_request(GameController::_currentGameState->get_id(), GameController::_me->get_id(), cardToPlay->get_id());
     GameController::_networkThread->sendRequest(request);
 }
 

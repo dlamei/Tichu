@@ -15,8 +15,6 @@ public:
     wxString getPlayerName();
 
 private:
-    void connect(wxCommandEvent& event);
-
     InputField* _serverAddressField;
     InputField* _serverPortField;
     InputField* _playerNameField;
