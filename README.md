@@ -14,8 +14,8 @@ Execute the following commands in a console
 
 ### 1.2 Compile Code
 1. Open Clion
-2. Click `File > Open...` and there select the /sockpp folder
-3. When the project is open click `Build > Build all in 'Debug'`
+2. Click `File > Open...` and there select the /sockpp folder of this project
+3. Click `Build > Build all in 'Debug'`
 4. Wait until sockpp is compiled
 5. Click `File > Open...` select the /cse-lama-example-project folder
 6. Click `Build > Build all in 'Debug'`
