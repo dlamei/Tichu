@@ -1,9 +1,9 @@
 # Lama
 
-## Compile instructions
+## 1. Compile instructions
 This project only works on UNIX systems (Linux / MacOS). We recommend using Ubuntu 20.4.
 
-### Prepare OS Environment
+### 1.1 Prepare OS Environment
 #### Ubuntu 20.4
 Execute the following commands in a console
 1. `sudo apt-get update`
@@ -12,7 +12,7 @@ Execute the following commands in a console
 4. `sudo snap install clion --classic` this installs the latest stable CLion version
 5. `sudo apt-get install libwxgtk3.0-gtk3-dev` this installs wxWidgets (GUI library used in this project)
 
-### Compile Code
+### 1.2 Compile Code
 1. Open Clion
 2. Click `File > Open...` and there select the /sockpp folder
 3. When the project is open click `Build > Build all in 'Debug'`
@@ -21,7 +21,9 @@ Execute the following commands in a console
 6. Click `Build > Build all in 'Debug'`
 7. Wait until Lama-server and Lama-client are compiled
 
-## Run
+## 2. Run the Game
 1. Open console in the project folder, navigate into "cmake-build-debug" `cd cmake-build-debug`
 2. Run server `./Lama-server`
 3. Run as many clients as you want players `./Lama-client`
+
+## 3. Code Documentation
