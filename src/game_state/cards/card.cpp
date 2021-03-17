@@ -28,8 +28,9 @@ int card::get_value() const noexcept {
 }
 
 bool card::can_be_played_on(const card *const other) const noexcept {
-    // return true if this card has a higher or equal value OR if 'other' is Lama and this is 1
-    return (other->get_value() <= this->get_value()) || (other->get_value() == 7 && this->get_value() == 1);
+    // return true if this card has a one higher or of equal value OR if 'other' is Lama and this is 1
+    int value_delta = this->get_value() - other->get_value();
+    return value_delta == 0 || value_delta == 1 || (other->get_value() == 7 && this->get_value() == 1);
 }
 
 bool card::apply_diff_specialized(const diff* state_diff) {
