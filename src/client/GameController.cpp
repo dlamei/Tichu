@@ -83,7 +83,6 @@ void GameController::connectToServer() {
 
 
 void GameController::updateGameState(game_state* gameState) {
-    std::cout << "UPDATE GAME STATE" << std::endl;
     GameController::_currentGameState = gameState;
     GameController::_gameWindow->showPanel(GameController::_mainGamePanel);
     GameController::_mainGamePanel->buildGameState(GameController::_currentGameState, GameController::_me);
@@ -92,9 +91,7 @@ void GameController::updateGameState(game_state* gameState) {
 
 void GameController::startGame() {
     // send request to start game
-    std::cout << "START GAME" << std::endl;
     start_game_request request = start_game_request(GameController::_currentGameState->get_id(), GameController::_me->get_id());
-    std::cout << "Created Request" << std::endl;
     GameController::_networkThread->sendRequest(request);
 }
 

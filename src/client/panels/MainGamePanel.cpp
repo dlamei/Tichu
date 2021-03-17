@@ -160,12 +160,14 @@ void MainGamePanel::buildCardPiles(game_state* gameState) {
 
         // Show discard pile
         const card* topCard = gameState->get_discard_pile()->get_top_card();
-        std::string cardImage = "assets/lama_" + std::to_string(topCard->get_value()) + ".png";
+        if(topCard != nullptr) {
+            std::string cardImage = "assets/lama_" + std::to_string(topCard->get_value()) + ".png";
 
-        wxPoint discardPilePosition = MainGamePanel::tableCenter + MainGamePanel::discardPileOffset;
+            wxPoint discardPilePosition = MainGamePanel::tableCenter + MainGamePanel::discardPileOffset;
 
-        ImagePanel* discardPile = new ImagePanel(this, cardImage, wxBITMAP_TYPE_ANY, discardPilePosition, MainGamePanel::cardSize);
-        discardPile->SetToolTip("Discard pile");
+            ImagePanel* discardPile = new ImagePanel(this, cardImage, wxBITMAP_TYPE_ANY, discardPilePosition, MainGamePanel::cardSize);
+            discardPile->SetToolTip("Discard pile");
+        }
 
         // Show draw pile
         wxPoint drawPilePosition = MainGamePanel::tableCenter + MainGamePanel::drawPileOffset;
