@@ -4,17 +4,17 @@
 
 #include "discard_pile.h"
 #include "../../serialization/vector_utils.h"
-#include "../../utils/LamaException.h"
+#include "../../exceptions/LamaException.h"
 
 
-discard_pile::discard_pile(std::string id) : reactive_object(id) { }
+discard_pile::discard_pile(std::string id) : unique_serializable(id) { }
 
 discard_pile::discard_pile(std::string id, std::vector<card *> &cards):
-        reactive_object(id),
+        unique_serializable(id),
         _cards(cards)
 { }
 
-discard_pile::discard_pile() : reactive_object() { }
+discard_pile::discard_pile() : unique_serializable() { }
 
 discard_pile::~discard_pile() {
     for (int i = 0; i < _cards.size(); i++) {
@@ -93,7 +93,7 @@ discard_pile *discard_pile::from_json(const rapidjson::Value &json) {
 
 void discard_pile::write_into_json(rapidjson::Value &json,
                                    rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
-    reactive_object::write_into_json(json, allocator);
+    unique_serializable::write_into_json(json, allocator);
     json.AddMember("cards", vector_utils::serialize_vector(_cards, allocator), allocator);
 }
 

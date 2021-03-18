@@ -41,15 +41,14 @@ set(CLIENT_SOURCE_FILES
         src/common/network/responses/server_response.cpp src/common/network/responses/server_response.h
         src/common/network/responses/request_response.cpp src/common/network/responses/request_response.h
         src/common/network/responses/full_state_response.cpp src/common/network/responses/full_state_response.h
-        # utils
-        src/common/utils/json_utils.h
-        src/common/utils/uuid_generator.h
         # serialization
         src/common/serialization/serializable.h
         src/common/serialization/value_type_helpers.h
         src/common/serialization/vector_utils.h
         src/common/serialization/serializable_value.h
-        src/common/serialization/reactive_object.cpp src/common/serialization/reactive_object.h)
+        src/common/serialization/json_utils.h
+        src/common/serialization/uuid_generator.h
+        src/common/serialization/unique_serializable.cpp src/common/serialization/unique_serializable.h)
 
 # define a variable SERVER_SOURCE_FILES that contains the paths to all source files required to compile the server executable
 set(SERVER_SOURCE_FILES
@@ -76,15 +75,14 @@ set(SERVER_SOURCE_FILES
         src/common/network/responses/server_response.cpp src/common/network/responses/server_response.h
         src/common/network/responses/request_response.cpp src/common/network/responses/request_response.h
         src/common/network/responses/full_state_response.cpp src/common/network/responses/full_state_response.h
-        # utils
-        src/common/utils/json_utils.h
-        src/common/utils/uuid_generator.h
         # serialization
         src/common/serialization/serializable.h
         src/common/serialization/value_type_helpers.h
         src/common/serialization/vector_utils.h
         src/common/serialization/serializable_value.h
-        src/common/serialization/reactive_object.cpp src/common/serialization/reactive_object.h)
+        src/common/serialization/json_utils.h
+        src/common/serialization/uuid_generator.h
+        src/common/serialization/unique_serializable.cpp src/common/serialization/unique_serializable.h)
 
 
 # set source files for client-executable

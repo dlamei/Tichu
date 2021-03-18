@@ -4,8 +4,8 @@
 
 #include "full_state_response.h"
 
-#include "../../utils/LamaException.h"
-#include "../../utils/json_utils.h"
+#include "../../exceptions/LamaException.h"
+#include "../../serialization/json_utils.h"
 
 #ifdef LAMA_CLIENT
 #include "../../../client/GameController.h"

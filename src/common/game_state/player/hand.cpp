@@ -4,15 +4,15 @@
 
 #include "hand.h"
 
-#include "../../utils/LamaException.h"
+#include "../../exceptions/LamaException.h"
 #include "../../serialization/vector_utils.h"
 
-hand::hand() : reactive_object() { }
+hand::hand() : unique_serializable() { }
 
-hand::hand(std::string id) : reactive_object(id) { }
+hand::hand(std::string id) : unique_serializable(id) { }
 
 // deserialization constructor
-hand::hand(std::string id, std::vector<card*> cards) : reactive_object(id) {
+hand::hand(std::string id, std::vector<card*> cards) : unique_serializable(id) {
     this->_cards = cards;
 }
 
@@ -113,7 +113,7 @@ bool hand::remove_card(std::string card_id, card*& played_card, std::string &err
 
 
 void hand::write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType& allocator) const {
-    reactive_object::write_into_json(json, allocator);
+    unique_serializable::write_into_json(json, allocator);
     json.AddMember("cards", vector_utils::serialize_vector(_cards, allocator), allocator);
 }
 

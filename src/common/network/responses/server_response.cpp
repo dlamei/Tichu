@@ -6,7 +6,7 @@
 #include "request_response.h"
 #include "full_state_response.h"
 
-#include "../../utils/LamaException.h"
+#include "../../exceptions/LamaException.h"
 
 // for deserialization
 const std::unordered_map<std::string, ResponseType> server_response::_string_to_response_type = {

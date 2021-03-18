@@ -13,9 +13,9 @@
 #include "cards/discard_pile.h"
 #include "../serialization/serializable.h"
 #include "../serialization/serializable_value.h"
-#include "../serialization/reactive_object.h"
+#include "../serialization/unique_serializable.h"
 
-class game_state : public reactive_object {
+class game_state : public unique_serializable {
 private:
 
     static const int _max_nof_players = 6;

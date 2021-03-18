@@ -4,17 +4,17 @@
 
 #include "card.h"
 
-#include "../../utils/LamaException.h"
+#include "../../exceptions/LamaException.h"
 
 
-card::card(std::string id) : reactive_object(id) { }
+card::card(std::string id) : unique_serializable(id) { }
 
 card::card(std::string id, serializable_value<int> *val)
-        : reactive_object(id), _value(val)
+        : unique_serializable(id), _value(val)
 { }
 
 card::card(int val) :
-        reactive_object(),
+        unique_serializable(),
         _value(new serializable_value<int>(val))
 { }
 
@@ -42,7 +42,7 @@ card *card::from_json(const rapidjson::Value &json) {
 
 
 void card::write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType& allocator) const {
-    reactive_object::write_into_json(json, allocator);
+    unique_serializable::write_into_json(json, allocator);
 
     rapidjson::Value value_val(rapidjson::kObjectType);
     _value->write_into_json(value_val, allocator);

@@ -13,7 +13,7 @@
 #include "../../serialization/serializable_value.h"
 #include "../../../../rapidjson/include/rapidjson/document.h"
 
-class discard_pile: public reactive_object {
+class discard_pile: public unique_serializable {
 private:
     std::vector<card*> _cards;
 

@@ -10,13 +10,13 @@
 #include <string>
 #include <algorithm>
 #include "../../serialization/serializable.h"
-#include "../../serialization/reactive_object.h"
+#include "../../serialization/unique_serializable.h"
 #include "../../serialization/serializable_value.h"
 #include "../../game_state/player/player.h"
 #include "../../../../rapidjson/include/rapidjson/document.h"
 
 
-class draw_pile : public reactive_object {
+class draw_pile : public unique_serializable {
 private:
     std::vector<card*> _cards;
 

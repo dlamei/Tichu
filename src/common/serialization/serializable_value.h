@@ -10,7 +10,7 @@
 #include <iostream>
 #include <functional>
 
-#include "reactive_object.h"
+#include "unique_serializable.h"
 #include "value_type_helpers.h"
 #include "../../../rapidjson/include/rapidjson/document.h"
 

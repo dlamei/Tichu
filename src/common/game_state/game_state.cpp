@@ -4,11 +4,11 @@
 
 #include "game_state.h"
 
-#include "../utils/LamaException.h"
+#include "../exceptions/LamaException.h"
 #include "../serialization/vector_utils.h"
 
 
-game_state::game_state() : reactive_object() {
+game_state::game_state() : unique_serializable() {
     this->_draw_pile = new draw_pile();
     this->_discard_pile = new discard_pile();
     this->_players = std::vector<player*>();
@@ -24,7 +24,7 @@ game_state::game_state(std::string id, draw_pile *draw_pile, discard_pile *disca
                        std::vector<player *> &players, serializable_value<bool> *is_started,
                        serializable_value<bool> *is_finished, serializable_value<int> *current_player_idx,
                        serializable_value<int> *play_direction, serializable_value<int>* round_number, serializable_value<int> *starting_player_idx)
-        : reactive_object(id),
+        : unique_serializable(id),
           _draw_pile(draw_pile),
           _discard_pile(discard_pile),
           _players(players),
@@ -36,7 +36,7 @@ game_state::game_state(std::string id, draw_pile *draw_pile, discard_pile *disca
           _starting_player_idx(starting_player_idx)
 { }
 
-game_state::game_state(std::string id) : reactive_object(id) {
+game_state::game_state(std::string id) : unique_serializable(id) {
     this->_draw_pile = new draw_pile();
     this->_discard_pile = new discard_pile();
     this->_players = std::vector<player*>();
@@ -335,7 +335,7 @@ bool game_state::fold(player *player, std::string &err) {
 // Serializable interface
 void game_state::write_into_json(rapidjson::Value &json,
                                  rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
-    reactive_object::write_into_json(json, allocator);
+    unique_serializable::write_into_json(json, allocator);
 
     rapidjson::Value is_finished_val(rapidjson::kObjectType);
     _is_finished->write_into_json(is_finished_val, allocator);

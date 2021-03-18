@@ -7,7 +7,7 @@
 
 #include <vector>
 #include "serializable.h"
-#include "reactive_object.h"
+#include "unique_serializable.h"
 #include "../../rapidjson/include/rapidjson/document.h"
 
 

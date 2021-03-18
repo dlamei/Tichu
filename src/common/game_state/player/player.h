@@ -8,12 +8,12 @@
 
 #include <string>
 #include "hand.h"
-#include "../../utils/uuid_generator.h"
+#include "../../serialization/uuid_generator.h"
 #include "../../../../rapidjson/include/rapidjson/document.h"
-#include "../../serialization/reactive_object.h"
+#include "../../serialization/unique_serializable.h"
 #include "../../serialization/serializable_value.h"
 
-class player : public reactive_object {
+class player : public unique_serializable {
 private:
     serializable_value<std::string>* _player_name;
     serializable_value<bool>* _has_folded;

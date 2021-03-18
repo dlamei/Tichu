@@ -235,7 +235,7 @@ The `game_state` class stores all parameters that are required to represent the 
 To serialize the `game_state`, the same `write_into_json(...)` function is used as for the `client_request`. 
 
 ```cpp
-class game_state : public reactive_object {
+class game_state : public unique_serializable {
 private:
     // Properties
     std::vector<player*> _players;
@@ -272,17 +272,17 @@ public:
 };
 ```
 
-The `game_state` inherits from `reactive_object`, which essentially requires the `write_into_json()` function and adds a unique `id` to the object, such that it can be uniquely identified. Similarly, each parameter nested inside the `game_state` (e.g. players, draw_pile, etc.) also inherit from reactive_object and therefore have their own `id` and serialization, resp. deserialization functions.
+The `game_state` inherits from `unique_serializable`, which essentially requires the `write_into_json()` function and adds a unique `id` to the object, such that it can be uniquely identified. Similarly, each parameter nested inside the `game_state` (e.g. players, draw_pile, etc.) also inherit from unique_serializable and therefore have their own `id` and serialization, resp. deserialization functions.
 
 On the client side, the new `game_state` is then passed to the `updateGameState(game_state*)` function of the `GameController` class, which performs a redraw of the GUI.
 
-Since you will have to add your own properties to the `game_state` class (and probably create other classes that inherit from `reactive_object` to add to your game_state), we want to shortly elaborate how the serialization and deserialization works for subclasses of `reactive_object`. It's very similar to the `client_request` class discussed earlier. Here is how the `write_into_json(...)` function is implemented in the `game_state` class of Lama:
+Since you will have to add your own properties to the `game_state` class (and probably create other classes that inherit from `unique_serializable` to add to your game_state), we want to shortly elaborate how the serialization and deserialization works for subclasses of `unique_serializable`. It's very similar to the `client_request` class discussed earlier. Here is how the `write_into_json(...)` function is implemented in the `game_state` class of Lama:
 
 ```cpp
 void game_state::write_into_json(rapidjson::Value &json,
                                  rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
     // call base-class to write id and object name into the json
-    reactive_object::write_into_json(json, allocator);
+    unique_serializable::write_into_json(json, allocator);
 
     // write all properties of this game_state instance into the JSON
     rapidjson::Value is_finished_val(rapidjson::kObjectType);
@@ -318,7 +318,7 @@ void game_state::write_into_json(rapidjson::Value &json,
     json.AddMember("discard_pile", discard_pile_val, allocator);
 
     // Special helper function to serialize vector of pointers
-    // The pointers inside the vector have to inherit from serializable (or reactive_object)
+    // The pointers inside the vector have to inherit from serializable (or unique_serializable)
     json.AddMember("players", vector_utils::serialize_vector(_players, allocator), allocator);
 }
 ```
@@ -331,7 +331,7 @@ game_state::game_state(std::string id, draw_pile *draw_pile, discard_pile *disca
                        std::vector<player *> &players, serializable_value<bool> *is_started,
                        serializable_value<bool> *is_finished, serializable_value<int> *current_player_idx,
                        serializable_value<int> *play_direction, serializable_value<int>* round_number, serializable_value<int> *starting_player_idx)
-        : reactive_object(id),  // initialize the reactive_object base-class
+        : unique_serializable(id),  // initialize the unique_serializable base-class
           _draw_pile(draw_pile),
           _discard_pile(discard_pile),
           _players(players),
@@ -363,7 +363,7 @@ game_state* game_state::from_json(const rapidjson::Value &json) {
             deserialized_players.push_back(player::from_json(serialized_player.GetObject()));
         }
         // Invoke deserialization constructor
-        return new game_state(reactive_object::extract_id(json),   // extract base_params from JSON
+        return new game_state(unique_serializable::extract_id(json),   // extract base_params from JSON
                               draw_pile::from_json(json["draw_pile"].GetObject()),
                               discard_pile::from_json(json["discard_pile"].GetObject()),
                               deserialized_players,
@@ -379,7 +379,7 @@ game_state* game_state::from_json(const rapidjson::Value &json) {
 }
 ```
 
-A similar scheme is applied in all other objects that inherit from `reactive_object`. Namely, these are:
+A similar scheme is applied in all other objects that inherit from `unique_serializable`. Namely, these are:
 - `player`
 - `hand`
 - `card`

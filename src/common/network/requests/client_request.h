@@ -9,9 +9,9 @@
 #include <unordered_map>
 #include "../../../../rapidjson/include/rapidjson/document.h"
 #include "../../serialization/serializable.h"
-#include "../../utils/LamaException.h"
-#include "../../utils/uuid_generator.h"
-#include "../../utils/json_utils.h"
+#include "../../exceptions/LamaException.h"
+#include "../../serialization/uuid_generator.h"
+#include "../../serialization/json_utils.h"
 
 #ifdef LAMA_SERVER
 #include "../responses/server_response.h"

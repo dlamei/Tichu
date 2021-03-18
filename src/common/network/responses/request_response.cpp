@@ -3,8 +3,8 @@
 //
 
 #include "request_response.h"
-#include "../../utils/json_utils.h"
-#include "../../utils/LamaException.h"
+#include "../../serialization/json_utils.h"
+#include "../../exceptions/LamaException.h"
 #include "../../game_state/game_state.h"
 
 #ifdef LAMA_CLIENT

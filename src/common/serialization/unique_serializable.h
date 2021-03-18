@@ -2,19 +2,19 @@
 // Created by Manuel on 03.02.2021.
 //
 
-#ifndef LAMA_REACTIVE_OBJECT_H
-#define LAMA_REACTIVE_OBJECT_H
+#ifndef LAMA_UNIQUE_SERIALIZABLE_H
+#define LAMA_UNIQUE_SERIALIZABLE_H
 
 
 #include "serializable.h"
 
-class reactive_object : public serializable {
+class unique_serializable : public serializable {
 protected:
 
     std::string _id;       // unique identifier
 
-    reactive_object();
-    reactive_object(std::string id);
+    unique_serializable();
+    unique_serializable(std::string id);
 
 public:
 // accessors
@@ -26,4 +26,4 @@ public:
 
 };
 
-#endif //LAMA_REACTIVE_OBJECT_H
+#endif //LAMA_UNIQUE_SERIALIZABLE_H

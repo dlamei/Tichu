@@ -6,11 +6,11 @@
 #define LAMA_CARD_H
 
 #include <string>
-#include "../../serialization/reactive_object.h"
+#include "../../serialization/unique_serializable.h"
 #include "../../serialization/serializable_value.h"
 #include "../../../../rapidjson/include/rapidjson/document.h"
 
-class card : public reactive_object {
+class card : public unique_serializable {
 private:
     serializable_value<int>* _value;
 

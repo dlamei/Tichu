@@ -6,25 +6,25 @@
 
 
 #include "../../serialization/vector_utils.h"
-#include "../../utils/LamaException.h"
+#include "../../exceptions/LamaException.h"
 
 
 // deserialization constructor
 draw_pile::draw_pile(std::string id, std::vector<card*> &cards)
-        : reactive_object(id),
+        : unique_serializable(id),
           _cards(cards)
 { }
 
 // from_diff constructor
-draw_pile::draw_pile(std::string id) : reactive_object(id) { }
+draw_pile::draw_pile(std::string id) : unique_serializable(id) { }
 
 
 draw_pile::draw_pile(std::vector<card*> &cards)
-        : reactive_object(), _cards(cards)
+        : unique_serializable(), _cards(cards)
 { }
 
 
-draw_pile::draw_pile() : reactive_object() { }
+draw_pile::draw_pile() : unique_serializable() { }
 
 draw_pile::~draw_pile() {
     for (card* & _card : _cards) {
@@ -95,7 +95,7 @@ card* draw_pile::remove_top(std::string& err) {
 
 
 void draw_pile::write_into_json(rapidjson::Value &json, rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
-    reactive_object::write_into_json(json, allocator);
+    unique_serializable::write_into_json(json, allocator);
     json.AddMember("cards", vector_utils::serialize_vector(_cards, allocator), allocator);
 }
 

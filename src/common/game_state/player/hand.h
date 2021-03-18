@@ -9,7 +9,7 @@
 #include "../../../../rapidjson/include/rapidjson/document.h"
 #include "../cards/card.h"
 
-class hand : public reactive_object {
+class hand : public unique_serializable {
 
 private:
     std::vector<card*> _cards;

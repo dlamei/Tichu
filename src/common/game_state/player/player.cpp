@@ -4,9 +4,9 @@
 
 #include "player.h"
 
-#include "../../utils/LamaException.h"
+#include "../../exceptions/LamaException.h"
 
-player::player(std::string name) : reactive_object() {
+player::player(std::string name) : unique_serializable() {
     this->_player_name = new serializable_value<std::string>(name);
     this->_has_folded = new serializable_value<bool>(false);
     this->_score = new serializable_value<int>(0);
@@ -15,7 +15,7 @@ player::player(std::string name) : reactive_object() {
 
 player::player(std::string id, serializable_value<std::string>* name,
                serializable_value<int>* score, hand *hand, serializable_value<bool>* has_folded) :
-        reactive_object(id),
+        unique_serializable(id),
         _player_name(name),
         _hand(hand),
         _score(score),
@@ -38,7 +38,7 @@ player::~player() {
 
 #ifdef LAMA_SERVER
 player::player(std::string id, std::string name) :
-        reactive_object(id)
+        unique_serializable(id)
 {
     this->_player_name = new serializable_value<std::string>(name);
     this->_has_folded = new serializable_value<bool>(false);
@@ -125,7 +125,7 @@ bool player::remove_card(std::string card_id, card*& card, std::string &err) {
 
 
 void player::write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const {
-    reactive_object::write_into_json(json, allocator);
+    unique_serializable::write_into_json(json, allocator);
 
     rapidjson::Value id_val(_id.c_str(), allocator);
     json.AddMember("id", id_val, allocator);
