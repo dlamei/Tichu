@@ -99,11 +99,6 @@ public:
 #endif
 #endif
 
-// reactive_object interface
-    bool apply_diff_specialized(const diff* diff) override;
-    diff* to_full_diff() const override;
-    static game_state* from_diff(const diff* diff);
-
 // serializable interface
     static game_state* from_json(const rapidjson::Value& json);
     virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;

@@ -4,7 +4,6 @@
 
 #include "server_response.h"
 #include "request_response.h"
-#include "state_diff_response.h"
 #include "full_state_response.h"
 
 #include "../../common/utils/LamaException.h"
@@ -67,9 +66,6 @@ server_response *server_response::from_json(const rapidjson::Value& json) {
 
         if (response_type == ResponseType::req_response) {
             return request_response::from_json(json);
-        }
-        else if (response_type == ResponseType::state_diff_msg) {
-            return state_diff_response::from_json(json);
         }
         else if (response_type == ResponseType::full_state_msg) {
             return full_state_response::from_json(json);

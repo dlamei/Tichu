@@ -39,7 +39,6 @@ set(CLIENT_SOURCE_FILES
         # server responses
         src/network/responses/server_response.cpp src/network/responses/server_response.h
         src/network/responses/request_response.cpp src/network/responses/request_response.h
-        src/network/responses/state_diff_response.cpp src/network/responses/state_diff_response.h
         src/network/responses/full_state_response.cpp src/network/responses/full_state_response.h
         # utils
         src/common/utils/json_utils.h
@@ -47,15 +46,11 @@ set(CLIENT_SOURCE_FILES
         # reactive state
         src/reactive_state/serializable.h
         src/reactive_state/timestamp.h
-        src/reactive_state/diffs/value_diff.h
         src/reactive_state/array_helpers.h
         src/reactive_state/value_type_helpers.h
         src/reactive_state/diffable_utils.h
         src/reactive_state/reactive_objects/reactive_value.h
-        src/reactive_state/reactive_objects/reactive_object.cpp src/reactive_state/reactive_objects/reactive_object.h
-        src/reactive_state/diffs/object_diff.cpp src/reactive_state/diffs/object_diff.h
-        src/reactive_state/diffs/diff.cpp src/reactive_state/diffs/diff.h
-        src/reactive_state/diffs/array_elem_diff.cpp src/reactive_state/diffs/array_diff.h)
+        src/reactive_state/reactive_objects/reactive_object.cpp src/reactive_state/reactive_objects/reactive_object.h)
 
 # define a variable SERVER_SOURCE_FILES that contains the paths to all source files required to compile the server executable
 set(SERVER_SOURCE_FILES
@@ -82,7 +77,6 @@ set(SERVER_SOURCE_FILES
         # server responses
         src/network/responses/server_response.cpp src/network/responses/server_response.h
         src/network/responses/request_response.cpp src/network/responses/request_response.h
-        src/network/responses/state_diff_response.cpp src/network/responses/state_diff_response.h
         src/network/responses/full_state_response.cpp src/network/responses/full_state_response.h
         # utils
         src/common/utils/json_utils.h
@@ -90,15 +84,11 @@ set(SERVER_SOURCE_FILES
         # reactive state
         src/reactive_state/serializable.h
         src/reactive_state/timestamp.h
-        src/reactive_state/diffs/value_diff.h
         src/reactive_state/array_helpers.h
         src/reactive_state/value_type_helpers.h
         src/reactive_state/diffable_utils.h
         src/reactive_state/reactive_objects/reactive_value.h
-        src/reactive_state/reactive_objects/reactive_object.cpp src/reactive_state/reactive_objects/reactive_object.h
-        src/reactive_state/diffs/object_diff.cpp src/reactive_state/diffs/object_diff.h
-        src/reactive_state/diffs/diff.cpp src/reactive_state/diffs/diff.h
-        src/reactive_state/diffs/array_elem_diff.cpp src/reactive_state/diffs/array_diff.h)
+        src/reactive_state/reactive_objects/reactive_object.cpp src/reactive_state/reactive_objects/reactive_object.h)
 
 
 # set source files for client-executable

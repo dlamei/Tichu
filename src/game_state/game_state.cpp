@@ -9,9 +9,7 @@
 
 #include "../common/utils/LamaException.h"
 #include "../reactive_state/array_helpers.h"
-#include "../reactive_state/diffs/array_diff.h"
-#include "../reactive_state/diffs/object_diff.h"
-
+#include "../reactive_state/diffable_utils.h"
 
 
 game_state::game_state() : reactive_object("game_state") {
@@ -598,138 +596,6 @@ bool game_state::fold(player *player, object_diff& game_state_diff, std::string 
 
 #endif
 #endif
-
-// reactive_object interface
-bool game_state::apply_diff_specialized(const diff* state_diff) {
-    const object_diff* valid_diff = dynamic_cast<const object_diff*>(state_diff);
-    if (valid_diff != nullptr && valid_diff->get_id() == this->_id) {
-        if (valid_diff->get_timestamp()->is_newer(this->_timestamp) && valid_diff->has_changes()) {
-            bool has_changed = false;
-            diff* child_diff = nullptr;
-            if (valid_diff->try_get_param_diff(_is_started->get_name(), child_diff)) {
-                has_changed |= _is_started->apply_diff_specialized(child_diff);
-            }
-            if (valid_diff->try_get_param_diff(_is_finished->get_name(), child_diff)) {
-                has_changed |= _is_finished->apply_diff_specialized(child_diff);
-            }
-            if (valid_diff->try_get_param_diff(_current_player_idx->get_name(), child_diff)) {
-                has_changed |= _current_player_idx->apply_diff_specialized(child_diff);
-            }
-            if (valid_diff->try_get_param_diff(_starting_player_idx->get_name(), child_diff)) {
-                has_changed |= _starting_player_idx->apply_diff_specialized(child_diff);
-            }
-            if (valid_diff->try_get_param_diff(_draw_pile->get_name(), child_diff)) {
-                has_changed |= _draw_pile->apply_diff_specialized(child_diff);
-            }
-            if (valid_diff->try_get_param_diff(_discard_pile->get_name(), child_diff)) {
-                has_changed |= _discard_pile->apply_diff_specialized(child_diff);
-            }
-            if (valid_diff->try_get_param_diff(_round_number->get_name(), child_diff)) {
-                has_changed |= _round_number->apply_diff_specialized(child_diff);
-            }
-
-            if (valid_diff->try_get_param_diff("players", child_diff)) {
-                const array_diff* arr_diff = dynamic_cast<const array_diff*>(child_diff);
-                has_changed |= array_helpers::apply_diff<player>(_players, arr_diff);
-            }
-
-            return has_changed;
-            // TODO update timestamp
-        }
-    }
-    return false;
-}
-
-diff *game_state::to_full_diff() const {
-    object_diff* game_state_diff = new object_diff(this->_id, this->_name);
-
-    game_state_diff->add_param_diff("is_finished", _is_finished->to_full_diff());
-    game_state_diff->add_param_diff("is_started", _is_started->to_full_diff());
-    game_state_diff->add_param_diff("current_player_idx", _current_player_idx->to_full_diff());
-    game_state_diff->add_param_diff("play_direction", _play_direction->to_full_diff());
-    game_state_diff->add_param_diff("starting_player_idx", _starting_player_idx->to_full_diff());
-    game_state_diff->add_param_diff("round_number", _round_number->to_full_diff());
-    game_state_diff->add_param_diff("draw_pile", _draw_pile->to_full_diff());
-    game_state_diff->add_param_diff("discard_pile", _discard_pile->to_full_diff());
-
-    array_diff* players_diff = new array_diff(this->_id + "_players", "players");
-    for (int i = 0; i < _players.size(); i++) {
-        players_diff->add_insertion(i, _players[i]->get_id(), _players[i]->to_full_diff());
-    }
-    game_state_diff->add_param_diff("players", players_diff);
-
-    return game_state_diff;
-}
-
-
-game_state *game_state::from_diff(const diff* full_game_state_diff) {
-    const object_diff* full_diff = dynamic_cast<const object_diff*>(full_game_state_diff);
-    if (full_diff != nullptr && full_diff->get_name() == "game_state") {
-
-        diff* draw_pile_diff = nullptr;
-        diff* discard_pile_diff = nullptr;
-        diff* is_finished_diff = nullptr;
-        diff* is_started_diff = nullptr;
-        diff* current_player_idx_diff = nullptr;
-        diff* play_direction_diff = nullptr;
-        diff* starting_player_idx_diff = nullptr;
-        diff* round_number_diff = nullptr;
-        diff* players_diff = nullptr;
-
-        if (!full_diff->try_get_param_diff("draw_pile", draw_pile_diff)) {
-            std::cerr << "Failed to create from diff. 'draw_pile' was missing!" << std::endl;
-        }
-
-        if (!full_diff->try_get_param_diff("discard_pile", discard_pile_diff)) {
-            std::cerr << "Failed to create from diff. 'draw_pile' was missing!" << std::endl;
-        }
-
-        if (!full_diff->try_get_param_diff("is_finished", is_finished_diff)) {
-            std::cerr << "Failed to create from diff. 'is_finished' was missing!" << std::endl;
-        }
-
-        if (!full_diff->try_get_param_diff("is_started", is_started_diff)) {
-            std::cerr << "Failed to create from diff. 'is_started' was missing!" << std::endl;
-        }
-
-        if (!full_diff->try_get_param_diff("current_player_idx", current_player_idx_diff)) {
-            std::cerr << "Failed to create from diff. 'current_player_idx' was missing!" << std::endl;
-        }
-
-        if (!full_diff->try_get_param_diff("play_direction", play_direction_diff)) {
-            std::cerr << "Failed to create from diff. 'play_direction' was missing!" << std::endl;
-        }
-
-        if (!full_diff->try_get_param_diff("starting_player_idx", starting_player_idx_diff)) {
-            std::cerr << "Failed to create from diff. 'starting_player_idx' was missing!" << std::endl;
-        }
-
-        if (!full_diff->try_get_param_diff("round_number", round_number_diff)) {
-            std::cerr << "Failed to create from diff. 'round_number' was missing!" << std::endl;
-        }
-
-        std::vector<player*> players;
-        if (full_diff->try_get_param_diff("players", players_diff)) {
-            const array_diff* arr_diff = dynamic_cast<const array_diff*>(players_diff);
-            players = array_helpers::vector_from_diff<player>(arr_diff);
-        }
-
-        return new game_state(
-                reactive_object::extract_base_params(*full_diff),
-                draw_pile::from_diff(dynamic_cast<const object_diff*>(draw_pile_diff)),
-                discard_pile::from_diff(dynamic_cast<const object_diff*>(discard_pile_diff)),
-                players,
-                reactive_value<bool>::from_diff(is_started_diff),
-                reactive_value<bool>::from_diff(is_finished_diff),
-                reactive_value<int>::from_diff(current_player_idx_diff),
-                reactive_value<int>::from_diff(play_direction_diff),
-                reactive_value<int>::from_diff(round_number_diff),
-                reactive_value<int>::from_diff(starting_player_idx_diff)
-        );
-    } else {
-        throw LamaException("Attempt to initialize game_state with a diff of name " + full_diff->get_name());
-    }
-}
 
 
 // Serializable interface

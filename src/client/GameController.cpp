@@ -86,8 +86,14 @@ void GameController::connectToServer() {
 
 
 void GameController::updateGameState(game_state* gameState) {
+
+    // save the new game state as our current game state
     GameController::_currentGameState = gameState;
+
+    // make sure we are showing the main game panel in the window (if we are already showing it, nothing will happen)
     GameController::_gameWindow->showPanel(GameController::_mainGamePanel);
+
+    // command the main game panel to rebuild itself, based on the new game state
     GameController::_mainGamePanel->buildGameState(GameController::_currentGameState, GameController::_me);
 }
 

@@ -74,11 +74,6 @@ public:
 #endif
 #endif
 
-    // reactive_object interface
-    virtual bool apply_diff_specialized(const diff* diff) override;
-    diff* to_full_diff() const override;
-    static player* from_diff(const diff* obj_diff);
-
 
     // serialization
     static player* from_json(const rapidjson::Value& json);

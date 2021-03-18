@@ -41,12 +41,6 @@ public:
 #endif
 #endif
 
-
-// reactive_object interface
-    bool apply_diff_specialized(const diff* diff) override;
-    diff* to_full_diff() const override;
-    static discard_pile* from_diff(const diff* obj_diff);
-
 // serializable interface
     virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
     static discard_pile* from_json(const rapidjson::Value& json);
