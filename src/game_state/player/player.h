@@ -55,7 +55,6 @@ public:
     std::string get_player_name() const noexcept;
 
 #ifdef LAMA_SERVER
-#ifndef USE_DIFFS
     // state update functions
     bool fold(std::string& err);
     bool add_card(card* card, std::string& err);
@@ -63,15 +62,6 @@ public:
 
     void wrap_up_round(std::string& err);
     void setup_round(std::string& err);
-#else
-    // state update functions with diffs
-    bool fold(object_diff& player_diff, std::string& err);
-    bool add_card(card* card, object_diff& player_diff, std::string& err);
-    bool remove_card(std::string card_id, card*& card, object_diff& player_diff, std::string& err);
-
-    void wrap_up_round(object_diff& player_diff, std::string& err);
-    void setup_round(object_diff& player_diff, std::string& err);
-#endif
 #endif
 
 

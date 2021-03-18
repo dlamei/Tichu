@@ -55,38 +55,21 @@ server_response* join_game_request::execute() {
     game_instance* game_instance_ptr = nullptr;
     if (_game_id.empty()) {
         // join any game
-#ifndef USE_DIFFS
         if (game_instance_manager::try_add_player_to_any_game(player, game_instance_ptr, err)) {
             // game_instance_ptr got updated to the joined game
 
             // return response with full game_state attached
             return new request_response(game_instance_ptr->get_id(), _req_id, true,
                                         game_instance_ptr->get_game_state()->to_json(), err);
-#else
-        object_diff game_state_diff("", "game_state");
-        if (game_instance_manager::try_add_player_to_any_game(player, game_instance_ptr, game_state_diff, err)) {
-            // game_instance_ptr got updated to the joined game
-            // return response with full game_state as diff attached
-            return new request_response(game_instance_ptr->get_id(), _req_id, true,
-                                        game_instance_ptr->get_game_state()->to_full_diff()->to_json(), err);
-#endif
         } else {
             return new request_response("", _req_id, false, nullptr, err);
         }
     }
     else {
         if (game_instance_manager::try_get_game_instance(_game_id, game_instance_ptr)) {
-#ifndef USE_DIFFS
             if (game_instance_manager::try_add_player(player, game_instance_ptr, err)) {
                 // return response with full game_state attached
                 return new request_response(_game_id, _req_id, true, game_instance_ptr->get_game_state()->to_json(), err);
-#else
-            object_diff game_state_diff(_game_id, "game_state");
-            if (game_instance_manager::try_add_player(player, game_instance_ptr, game_state_diff, err)) {
-                // return response with full game_state as diff attached
-                return new request_response(game_instance_ptr->get_id(), _req_id, true,
-                                            game_instance_ptr->get_game_state()->to_full_diff()->to_json(), err);
-#endif
             } else {
                 return new request_response("", _req_id, false, nullptr, err);
             }

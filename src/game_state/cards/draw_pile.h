@@ -43,17 +43,10 @@ public:
     int get_nof_cards() const noexcept;
 
 #ifdef LAMA_SERVER
-#ifndef USE_DIFFS
 // state update functions
     void setup_game(std::string& err);  // Fills the stack with all cards of the game
     bool draw(player* player, card*& drawn_card, std::string& err);
     card* remove_top(std::string& err);
-#else
-// state update functions with diff
-    void setup_game(object_diff& pile_diff, std::string& err);  // Fills the stack with all cards of the game
-    bool draw(player* player, card*& drawn_card, object_diff& player_diff, object_diff& pile_diff, std::string& err);
-    card* remove_top(object_diff& pile_diff, std::string& err);
-#endif
 #endif
 
 // serialization

@@ -7,7 +7,6 @@
 #include "draw_card_request.h"
 #include "fold_request.h"
 #include "join_game_request.h"
-#include "leave_game_request.h"
 #include "start_game_request.h"
 
 #include <iostream>
@@ -16,7 +15,6 @@
 const std::unordered_map<std::string, RequestType> client_request::_string_to_request_type = {
         {"join_game", RequestType::join_game },
         {"start_game", RequestType::start_game},
-        {"try_remove_player", RequestType::leave_game},
         {"play_card", RequestType::play_card},
         {"draw_card", RequestType::draw_card},
         {"fold", RequestType::fold}
@@ -25,7 +23,6 @@ const std::unordered_map<std::string, RequestType> client_request::_string_to_re
 const std::unordered_map<RequestType, std::string> client_request::_request_type_to_string = {
         { RequestType::join_game, "join_game" },
         { RequestType::start_game, "start_game"},
-        { RequestType::leave_game, "try_remove_player"},
         { RequestType::play_card, "play_card"},
         { RequestType::draw_card, "draw_card"},
         {RequestType::fold, "fold"}
@@ -115,9 +112,6 @@ client_request* client_request::from_json(const rapidjson::Value &json) {
         }
         else if (request_type == RequestType::join_game) {
             return join_game_request::from_json(json);
-        }
-        else if (request_type == RequestType::leave_game) {
-            return leave_game_request::from_json(json);
         }
         else if (request_type == RequestType::start_game) {
             return start_game_request::from_json(json);

@@ -78,7 +78,6 @@ std::vector<card*>::iterator hand::get_card_iterator() {
 
 
 #ifdef LAMA_SERVER
-#ifndef USE_DIFFS
 void hand::setup_round(std::string &err) {
     // remove all cards (if any) and clear it
     for (int i = 0; i < _cards.size(); i++) {
@@ -104,49 +103,6 @@ bool hand::remove_card(std::string card_id, card*& played_card, std::string &err
         return false;
     }
 }
-
-#else
-
-void hand::setup_round(object_diff &hand_diff, std::string &err) {
-    // remove all cards (if any) and clear it
-    array_diff* cards_diff = new array_diff(this->_id + "_cards", "cards");
-    for (int i = 0; i < _cards.size(); i++) {
-        cards_diff->add_removal(0, _cards[i]->get_id());
-        hand_diff.add_param_diff(cards_diff->get_name(), cards_diff);
-        delete _cards[i];
-    }
-    _cards.clear();
-}
-
-bool hand::add_card(card* new_card, object_diff& hand_diff, std::string &err) {
-    _cards.push_back(new_card);
-
-    array_diff* arr_diff = new array_diff(this->_id + "_cards", "cards");
-    arr_diff->add_insertion(_cards.size() - 1, new_card->get_id(), new_card->to_full_diff());
-    hand_diff.add_param_diff(arr_diff->get_name(), arr_diff);
-
-    return true;
-}
-
-bool hand::remove_card(std::string card_id, card*& removed_card, object_diff &hand_diff, std::string &err) {
-    removed_card = nullptr;;
-    auto it = std::find_if(_cards.begin(), _cards.end(),
-                 [&card_id](const card* x) { return x->get_id() == card_id;});
-    if (it != _cards.end()) {
-        int idx = it - _cards.begin();
-        removed_card = remove_card(it);
-
-        array_diff* arr_diff = new array_diff(this->_id + "_cards", "cards");
-        arr_diff->add_removal(idx, removed_card->get_id());
-        hand_diff.add_param_diff(arr_diff->get_name(), arr_diff);
-        return true;
-    } else {
-        err = "Could not play card, as the requested card was not on the player's hand.";
-        return false;
-    }
-}
-
-#endif
 #endif
 
 

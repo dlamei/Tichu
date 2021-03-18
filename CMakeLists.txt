@@ -35,7 +35,6 @@ set(CLIENT_SOURCE_FILES
         src/network/requests/fold_request.cpp src/network/requests/fold_request.h
         src/network/requests/join_game_request.cpp src/network/requests/join_game_request.h
         src/network/requests/start_game_request.cpp src/network/requests/start_game_request.h
-        src/network/requests/leave_game_request.cpp src/network/requests/leave_game_request.h
         # server responses
         src/network/responses/server_response.cpp src/network/responses/server_response.h
         src/network/responses/request_response.cpp src/network/responses/request_response.h
@@ -73,7 +72,6 @@ set(SERVER_SOURCE_FILES
         src/network/requests/fold_request.cpp src/network/requests/fold_request.h
         src/network/requests/join_game_request.cpp src/network/requests/join_game_request.h
         src/network/requests/start_game_request.cpp src/network/requests/start_game_request.h
-        src/network/requests/leave_game_request.cpp src/network/requests/leave_game_request.h
         # server responses
         src/network/responses/server_response.cpp src/network/responses/server_response.h
         src/network/responses/request_response.cpp src/network/responses/request_response.h

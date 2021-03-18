@@ -32,19 +32,12 @@ public:
     static bool try_get_game_instance(const std::string& game_id, game_instance*& game_instance_ptr);
     static bool try_get_player_and_game_instance(const std::string& player_id, player*& player, game_instance*& game_instance_ptr, std::string& err);
 
-#ifndef USE_DIFFS
     static bool try_add_player_to_any_game(player* player, game_instance*& game_instance_ptr, std::string& err);
     static bool try_add_player(player* player, game_instance*& game_instance_ptr, std::string& err);
 
     static bool try_remove_player(player* player, const std::string& game_id, std::string& err);
     static bool try_remove_player(player* player, game_instance*& game_instance_ptr, std::string& err);
-#else
-    static bool try_add_player_to_any_game(player* player, game_instance*& game_instance_ptr, object_diff& game_state_diff, std::string& err);
-    static bool try_add_player(player* player, game_instance*& game_instance_ptr, object_diff& game_state_diff, std::string& err);
 
-    static bool try_remove_player(player* player, const std::string& game_id, object_diff& game_state_diff, std::string& err);
-    static bool try_remove_player(player* player, game_instance*& game_instance_ptr, object_diff& game_state_diff, std::string& err);
-#endif
 };
 
 

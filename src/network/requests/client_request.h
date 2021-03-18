@@ -23,7 +23,6 @@
 enum RequestType {
     join_game,
     start_game,
-    leave_game,
     play_card,
     draw_card,
     fold,

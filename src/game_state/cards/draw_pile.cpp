@@ -52,7 +52,6 @@ int draw_pile::get_nof_cards() const noexcept  {
 
 
 #ifdef LAMA_SERVER
-#ifndef USE_DIFFS
 void draw_pile::setup_game(std::string &err) {
     // remove all cards (if any) and add the change to the "cards" array_diff
     for (int i = 0; i < _cards.size(); i++) {
@@ -95,74 +94,6 @@ card* draw_pile::remove_top(std::string& err) {
     }
     return drawn_card;
 }
-
-
-#else
-
-void draw_pile::setup_game(object_diff &pile_diff, std::string &err) {
-    // create array_diff for "cards"
-    array_diff* cards_diff = new array_diff(this->_id + "_cards", "cards");
-
-    // remove all cards (if any) and add the change to the "cards" array_diff
-    for (int i = 0; i < _cards.size(); i++) {
-        cards_diff->add_removal(0, _cards[i]->get_id());
-        delete _cards[i];
-    }
-    _cards.clear();
-
-    // add fresh set of cards
-    for (int card_value = 1; card_value <= 7; card_value++) {
-        for (int i = 0; i < 8; i ++) {
-            _cards.push_back(new card(card_value));
-        }
-    }
-    // shuffle them
-    this->shuffle();
-
-    // store diffs to "cards" array_diff
-    for (int i = 0; i < _cards.size(); i++) {
-        cards_diff->add_insertion(i, _cards[i]->get_id(), _cards[i]->to_full_diff());
-    }
-    // add array_diff to pile_diff
-    pile_diff.add_param_diff(cards_diff->get_name(), cards_diff);
-}
-
-
-bool draw_pile::draw(player* player, card*& drawn_card, object_diff& player_diff, object_diff& pile_diff, std::string& err)  {
-    if (!_cards.empty()) {
-        drawn_card = _cards.back();
-        if (player->add_card(drawn_card, player_diff, err)) {
-            _cards.pop_back();
-
-            array_diff* arr_diff = new array_diff(this->_id + "_cards", "cards");
-            arr_diff->add_removal(_cards.size(), drawn_card->get_id());
-            pile_diff.add_param_diff(arr_diff->get_name(), arr_diff);
-            return true;
-        } else {
-            drawn_card = nullptr;
-            return false;
-        }
-    } else {
-        err = "Could not draw card because draw pile is empty.";
-    }
-    return false;
-}
-
-card* draw_pile::remove_top(object_diff& pile_diff, std::string& err) {
-    card* drawn_card = nullptr;
-    if (!_cards.empty()) {
-        drawn_card = _cards.back();
-        _cards.pop_back();
-        array_diff* arr_diff = new array_diff(this->_id + "_cards", "cards");
-        arr_diff->add_removal(_cards.size(), drawn_card->get_id());
-        pile_diff.add_param_diff(arr_diff->get_name(), arr_diff);
-    } else {
-        err = "Could not draw card because draw pile is empty.";
-    }
-    return drawn_card;
-}
-
-#endif
 
 #endif
 

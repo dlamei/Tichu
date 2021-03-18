@@ -38,17 +38,10 @@ public:
     bool try_get_card(const std::string& card_id, card*& hand_card) const;
 
 #ifdef LAMA_SERVER
-#ifndef USE_DIFFS
 // state update functions
     void setup_round(std::string& err);
     bool add_card(card* card, std::string& err);
     bool remove_card(std::string card_id, card*& played_card, std::string& err);
-#else
-// state update functions with diff
-    void setup_round(object_diff& hand_diff, std::string& err);
-    bool add_card(card* card, object_diff& hand_diff, std::string& err);
-    bool remove_card(std::string card_id, card*& played_card, object_diff& hand_diff, std::string& err);
-#endif
 #endif
 
     std::vector<card*>::iterator get_card_iterator();

@@ -70,8 +70,6 @@ public:
 
 #ifdef LAMA_SERVER
 // server-side state update functions
-#ifndef USE_DIFFS   // not USE_DIFFS
-    // only state update
     void setup_round(std::string& err);   // server side initialization
     bool remove_player(player* player, std::string& err);
     bool add_player(player* player, std::string& err);
@@ -83,20 +81,6 @@ public:
     // end of round functions
     void update_current_player(std::string& err);
     void wrap_up_round(std::string& err);
-#else   // USE_DIFFS
-    // state update with diffs
-    void setup_round(object_diff& game_state_diff, std::string& err);   // server side initialization
-    bool remove_player(player* player, object_diff& game_state_diff, std::string& err);
-    bool add_player(player* player, object_diff& game_state_diff, std::string& err);
-    bool start_game(object_diff& game_state_diff, std::string& err);
-    bool draw_card(player* player, object_diff& game_state_diff, std::string& err);
-    bool play_card(player* player, const std::string& card_id, object_diff& game_state_diff, std::string& err);
-    bool fold(player* player, object_diff& game_state_diff, std::string& err);
-
-    // end of round functions
-    void update_current_player(object_diff& game_state_diff, std::string& err);
-    void wrap_up_round(object_diff& game_state_diff, std::string& err);
-#endif
 #endif
 
 // serializable interface
