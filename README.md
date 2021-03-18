@@ -9,8 +9,8 @@ This project only works on UNIX systems (Linux / MacOS). We recommend using Ubun
 #### Ubuntu 20.4
 Execute the following commands in a console
 1. `sudo apt-get update`
-2. `sudo apt-get install build-essentials` followed by `sudo restart`
-3. if on virtual machine : install guest-additions (https://askubuntu.com/questions/22743/how-do-i-install-guest-additions-in-a-virtualbox-vm) and then `sudo restart`
+2. `sudo apt-get install build-essentials` followed by `sudo reboot`
+3. if on virtual machine : install guest-additions (https://askubuntu.com/questions/22743/how-do-i-install-guest-additions-in-a-virtualbox-vm) and then `sudo reboot`
 4. `sudo snap install clion --classic` this installs the latest stable CLion version
 5. `sudo apt-get install libwxgtk3.0-gtk3-dev` this installs wxWidgets (GUI library used in this project)
 
@@ -35,7 +35,7 @@ TODO
 The code can be found in /src, where it is separated into different folders:
 - **/client** contains only code that is used on the client side (e.g. UI, sending messages)
 - **/common** contains helper functions that are used on the client and server side. You don't need to change anything in here.
-- **/game_state** contains the game state that is synchronized between client and server. We use the pre-compile directive LAMA_SERVER to enable certain parts of the code only on the server side. Namely these are the state update functions, as this should only happen on the server. The client then simply reflects the current game state. 
+- **/game_state** contains the game state that is synchronized between client and server. We use the pre-compile directive LAMA_SERVER to enable certain parts of the code only on the server side. Namely, these are the state update functions, as they should only happen on the server. The client  simply reflects the current game state as sent by the server without modifying it. 
 - **/network** contains all the messages that are being passed between client and server. We use the pre-compile directive LAMA_SERVER to enable execution of a `client_request` on the server side (through the function `execute()`). Similarly, we use the LAMA_CLIENT pre-compile directive to make `server_repsonses` only executable on the client side (through the function `process()`) .
 - **/reactive_state** contains base classes for the game_state objects. You don't need to change anything in here.
 - **/server** contains only code that is relevant fo the server (e.g. player management, receiving messages)
@@ -47,6 +47,15 @@ Everything that is passed between client and server are objects of type `client_
 Therefore, both, the `client_request` and `server_response` base classes, implement the abstract class `serializable` with its `write_into_json(...)` function. Additionally, they have a static function from_json(...)
 
 ```cpp
+enum RequestType {
+    join_game,
+    start_game,
+    leave_game,
+    play_card,
+    draw_card,
+    fold,
+};
+
 class client_request : public serializable {
 protected:
     RequestType _type;   // stores the type of request, such that the receiving end knows how to deserialize it
@@ -55,9 +64,14 @@ protected:
     std::string _game_id;   // id of the game this request is for
 
     ...
+private:
+    // for deserialization
+    static const std::unordered_map<std::string, RequestType> _string_to_request_type;
+    // for serialization
+    static const std::unordered_map<RequestType, std::string> _request_type_to_string;
+
 public:
     // DESERIALIZATION: Attempts to create the specific client_request from the provided json.
-    // Throws exception if parsing fails -> Use only in "try{ }catch()" block
     static client_request* from_json(const rapidjson::Value& json);
 
     // SERIALIZATION: Serializes the client_request into a json object that can be sent over the network
@@ -66,14 +80,17 @@ public:
 // Code that should only exist on the server side
 #ifdef LAMA_SERVER
     // Executes the client_request (only on server)
-    // This function is automatically invoked by the server_network_manager when a valid client_request arrived.
+    // This function is automatically invoked by the server_network_manager when a valid client_request (this) arrives.
     virtual server_response* execute() = 0;
 #endif
 };
 ```
 
-When you implement your own specializations of `client_request` and `server_response` you will have to implement the `write_into_json(...)` functions yourself. The subclass always has to call the `write_into_json(...)` function of its base class, such that the parameters of the base class are also written into the JSON document: 
+**Serialization**
 
+When you implement your own specializations of `client_request` and `server_response` you will have to implement the `write_into_json(...)` functions yourself. Your subclass always has to call the `write_into_json(...)` function of its base class, such that the parameters of the base class are  written into the JSON document: 
+
+Here is the **base-class** implementation:
 ```cpp
 // Implementation in the base class client_request
 void client_request::write_into_json(rapidjson::Value &json,
@@ -91,7 +108,9 @@ void client_request::write_into_json(rapidjson::Value &json,
     json.AddMember("game_id", game_id_val, allocator);
     ...
 }
-
+```
+And here is the **subclass** implementation, where an additional field `_card_id` is serialized.
+```cpp
 // Implementation in the subclass play_card_request 
 void play_card_request::write_into_json(rapidjson::Value &json,
                                         rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
@@ -104,16 +123,83 @@ void play_card_request::write_into_json(rapidjson::Value &json,
 }
 ```
 
+**Deserialization**
+
+The deserialization of `client_request` JSONs always goes through the `from_json(...)` function of the `client_request` class. In this function, the "type" field, stored in the JSON, is inspected to determine, which subclass should be called to perform the deserialization: 
+
+```cpp
+if (json.HasMember("type") && json["type"].IsString()) {
+        // Get the RequestType stored as a string in the JSON
+        const std::string type = json["type"].GetString();
+        // Lookup the actual RequestType per string from a pre-defined unordered_map
+        const RequestType request_type = client_request::_string_to_request_type.at(type);
+
+        // Call the correct from_json() specialization
+        if (request_type == RequestType::play_card) {
+            return play_card_request::from_json(json);
+        }
+        else if (request_type == RequestType::draw_card) {
+            return draw_card_request::from_json(json);
+        }
+        else if (...) {
+            ...
+        } else {
+            throw LamaException("Encountered unknown ClientRequest type " + type);
+        }
+    }
+    throw LamaException("Could not determine type of ClientRequest. JSON was:\n" + json_utils::to_string(&json));
+```
+
+Therefore, when you implement your own `client_request` subclasses, remember to add a new element into the `RequestType` enum to define your new request type. You will also have to add an entry for this new RequestType in the two unordered_maps `_string_to_request_type`, resp. `_request_type_to_string` in the `client_request` base-class. Once this is done, you can add a check for your new `RequestType` element in the `from_json(...)` function of the `client_request` base-class and call the specialized `from_json(...)` function of your subclass from there. 
+
+Also, don't forget to set the correct `RequestType` in the public constructor of your new `client_request` subclass:
+
+```cpp
+// Public constructor
+play_card_request::play_card_request(std::string game_id, std::string player_id, std::string card_id)
+        : client_request(client_request::create_base_class_properties(  // call base-class constructor
+                                                    RequestType::play_card, // IMPORTANT: set the RequestType of your subclass
+                                                    uuid_generator::generate_uuid_v4(), 
+                                                    player_id, 
+                                                    game_id) ),
+        _card_id(card_id)   // set subclass specific parameters
+{ }
+```
+
+The deserialization in your subclass will look something like this:
+
+```cpp
+// private constructor for deserialization
+play_card_request::play_card_request(client_request::base_class_properties props, std::string card_id) :
+        client_request(props),  // call base-class constructor
+        _card_id(card_id)   // set subclass specific parameters
+{ }
+
+// Deserialization
+play_card_request* play_card_request::from_json(const rapidjson::Value& json) {
+    // extract base-class properties from the json
+    base_class_properties props = client_request::extract_base_class_properties(json);
+
+    // get subclass specific properties
+    if (json.HasMember("card_id")) {
+        // invoke deserialization constructor
+        return new play_card_request(props, json["card_id"].GetString());
+    } else {
+        throw LamaException("Could not find 'card_id' in play_card_request");
+    }
+}
+```
+
 There are plenty of examples of subclasses in the network/requests folder, where you can see how the serialization/deserialization scheme works.
 
 #### 3.1.2 Sending messages
 #### Client -> Server:
-All you have to do is create an object of type `ClientNetworkThread` on the client side and then invoke its `sendRequest(const client_request& request)` with the client_request that you want to send. The response will arrive as an object of type `request_response` and the `ClientNetworkThread` will invoke the `Process()` function of that `request_response` object automatically.
+All you have to do is create an object of type `ClientNetworkThread` on the client side and then invoke its `sendRequest(const client_request& request)` function with the client_request that you want to send. The response will arrive as an object of type `request_response` and the `ClientNetworkThread` will invoke the `Process()` function of that `request_response` object automatically.
 
 #### Server -> Client:
-If you look at the signature of the `Execute()` function of the `client_request`, you can see that it returns a pointer to an object of type `server_response`. When implementing the `Execute()` function of your `client_request` subclass, you only have to return an object of type `request_response`, which will then automatically be sent over the network to the requesting client. 
+If you look at the signature of the `execute()` function of the `client_request`, you can see that it returns a pointer to an object of type `server_response`. When implementing the `execute()` function of your `client_request` subclass, you have to return an object of type `request_response` with all parameters you want to send. This return value will then automatically be sent over the network to the requesting client. 
 
-If the `client_request` caused an update of the game_state you should also update all other players of that game about the game_state change. This happens in the game_instance class, here examplified at the case where a start_game_request is executed on the server side:
+If the `client_request` caused an update of the game_state you should also update all other players of that game about the game_state change. This happens in the `game_instance` class, here examplified at the case where a `start_game_request` calls the `start_game(...)` function on the respective `game_instance` on the server side:
 
 ```cpp
 bool game_instance::start_game(player* player, std::string &err) {
@@ -134,4 +220,3 @@ bool game_instance::start_game(player* player, std::string &err) {
 }
 ```
 
-TODO

@@ -57,6 +57,7 @@ public:
 // state update functions with diff
     void setup_game(object_diff& pile_diff, std::string& err);  // Fills the stack with all cards of the game
     bool draw(player* player, card*& drawn_card, object_diff& player_diff, object_diff& pile_diff, std::string& err);
+    card* remove_top(object_diff& pile_diff, std::string& err);
 #endif
 #endif
 

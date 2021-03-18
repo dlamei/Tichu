@@ -5,7 +5,6 @@
 #include "full_state_response.h"
 
 #include "../../common/utils/LamaException.h"
-#include "../../common/utils/global_state.h"
 #include "../../common/utils/json_utils.h"
 
 #ifdef LAMA_CLIENT

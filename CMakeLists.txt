@@ -44,7 +44,6 @@ set(CLIENT_SOURCE_FILES
         # utils
         src/common/utils/json_utils.h
         src/common/utils/uuid_generator.h
-        src/common/utils/global_state.h
         # reactive state
         src/reactive_state/serializable.h
         src/reactive_state/timestamp.h

@@ -74,10 +74,12 @@ bool discard_pile::try_play(const std::string& card_id, player* player, std::str
 bool discard_pile::try_play(card* played_card, std::string& err) {
     if (can_play(played_card)) {
         _cards.push_back(played_card);
+        return true;
     } else {
         err = "The desired card with value " + std::to_string(played_card->get_value())
               + " cannot be played on top of a card with value " + std::to_string(get_top_card()->get_value());
     }
+    return false;
 }
 
 #else
@@ -115,6 +117,22 @@ bool discard_pile::try_play(const std::string& card_id, player* player, object_d
         }
     } else {
         err = "The player does not possess the card " + card_id + ", which was requested to be played.";
+    }
+    return false;
+}
+
+bool discard_pile::try_play(card* played_card, object_diff& pile_diff, std::string& err) {
+    if (can_play(played_card)) {
+        _cards.push_back(played_card);
+
+        array_diff* cards_diff = new array_diff(this->_id, "cards");
+        cards_diff->add_insertion(_cards.size() - 1, played_card->get_id(), played_card->to_full_diff());
+        pile_diff.add_param_diff(cards_diff->get_name(), cards_diff);
+
+        return true;
+    } else {
+        err = "The desired card with value " + std::to_string(played_card->get_value())
+              + " cannot be played on top of a card with value " + std::to_string(get_top_card()->get_value());
     }
     return false;
 }

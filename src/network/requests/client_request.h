@@ -19,7 +19,8 @@
 #include "../responses/request_response.h"
 #endif
 
-
+// Identifier for the different request types.
+// The RequestType is sent with every request to identify the type of request on the other end.
 enum RequestType {
     join_game,
     start_game,
@@ -70,12 +71,13 @@ public:
     /*
      * Serializes the client_request into a json object that can be sent over the network
      */
-    virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
+    void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
 
     virtual std::string to_string() const;
 
     // Code that should only exist on the server side
 #ifdef LAMA_SERVER
+    // Execute this request on the server side
     virtual server_response* execute() = 0;
 #endif
 };
