@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(Lama-client) # your project name
+project(Lama) # your project name
 
 set(CMAKE_CXX_STANDARD 20)
 

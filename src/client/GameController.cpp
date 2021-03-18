@@ -1,13 +1,19 @@
 #include "GameController.h"
-#include "../game_state/player/player.h"
 #include "../network/requests/join_game_request.h"
+#include "../network/requests/start_game_request.h"
+#include "../network/requests/draw_card_request.h"
+#include "../network/requests/fold_request.h"
+#include "../network/requests/play_card_request.h"
+
 
 // initialize static members
 GameWindow* GameController::_gameWindow = nullptr;
 ConnectionPanel* GameController::_connectionPanel = nullptr;
 MainGamePanel* GameController::_mainGamePanel = nullptr;
 ClientNetworkThread* GameController::_networkThread = nullptr;
+
 player* GameController::_me = nullptr;
+game_state* GameController::_currentGameState = nullptr;
 
 
 void GameController::init(GameWindow* gameWindow) {
@@ -79,9 +85,34 @@ void GameController::connectToServer() {
 }
 
 
-void GameController::updateState(game_state* gameState) {
+void GameController::updateGameState(game_state* gameState) {
+    GameController::_currentGameState = gameState;
     GameController::_gameWindow->showPanel(GameController::_mainGamePanel);
-    GameController::_mainGamePanel->buildGameState(gameState, GameController::_me);
+    GameController::_mainGamePanel->buildGameState(GameController::_currentGameState, GameController::_me);
+}
+
+
+void GameController::startGame() {
+    start_game_request request = start_game_request(GameController::_currentGameState->get_id(), GameController::_me->get_id());
+    GameController::_networkThread->sendRequest(request);
+}
+
+
+void GameController::drawCard() {
+    draw_card_request request = draw_card_request(GameController::_currentGameState->get_id(), GameController::_me->get_id());
+    GameController::_networkThread->sendRequest(request);
+}
+
+
+void GameController::fold() {
+    fold_request request = fold_request(GameController::_currentGameState->get_id(), GameController::_me->get_id());
+    GameController::_networkThread->sendRequest(request);
+}
+
+
+void GameController::playCard(card* cardToPlay) {
+    play_card_request request = play_card_request(GameController::_currentGameState->get_id(), GameController::_me->get_id(), cardToPlay->get_id());
+    GameController::_networkThread->sendRequest(request);
 }
 
 
