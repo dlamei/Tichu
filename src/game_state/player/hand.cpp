@@ -33,8 +33,17 @@ int hand::get_nof_cards() const {
 
 int hand::get_score() const {
     int res = 0;
+    bool already_counted[7] = { false, false, false, false, false, false, false }; // for the 7 card types
     for (int i = 0; i < _cards.size(); i++) {
-        res += _cards[i]->get_value();
+        int card_value = _cards[i]->get_value();
+        if(!already_counted[card_value - 1]) {
+            already_counted[card_value - 1] = true;
+            if(card_value == 7) {
+                res += 10;
+            } else {
+                res += card_value;
+            }
+        }
     }
     return res;
 }
