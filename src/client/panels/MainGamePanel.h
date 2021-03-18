@@ -28,7 +28,6 @@ private:
 
     wxPoint getPointOnEllipse(double horizontalRadius, double verticalRadius, double angle);
 
-
     // define key constant layout values
     wxSize const panelSize = wxSize(960, 680); // also set in the constructor implementation
     wxPoint const tableCenter = wxPoint(480, 300);

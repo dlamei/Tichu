@@ -4,7 +4,6 @@
 
 
 MainGamePanel::MainGamePanel(wxWindow* parent) : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxSize(960, 680)) {
-
 }
 
 void MainGamePanel::buildGameState(game_state* gameState, player* me) {
@@ -17,8 +16,9 @@ void MainGamePanel::buildGameState(game_state* gameState, player* me) {
 
     // find our own player object in the list of players
     int myPosition = -1;
-    auto it = std::find_if(players.begin(), players.end(),
-                           [me_id = me->get_id()](const player* x) { return x->get_id() == me_id;});
+    std::vector<player*>::iterator it = std::find_if(players.begin(), players.end(), [me](const player* x) {
+        return x->get_id() == me->get_id();
+    });
     if (it < players.end()) {
         me = *it;
         myPosition = it - players.begin();
@@ -51,7 +51,7 @@ void MainGamePanel::buildGameState(game_state* gameState, player* me) {
     // show our own player
     this->buildThisPlayer(gameState, me);
 
-    // Update layout
+    // update layout
     this->Layout();
 }
 

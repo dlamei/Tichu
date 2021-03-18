@@ -14,7 +14,7 @@ public:
     static void init(GameWindow* gameWindow);
 
     static void connectToServer();
-    static void updateGameState(game_state* gameState);
+    static void updateGameState(game_state* newGameState);
     static void startGame();
     static void drawCard();
     static void fold();
@@ -23,6 +23,7 @@ public:
     static wxEvtHandler* getMainThreadEventHandler();
     static void showError(const std::string& title, const std::string& message);
     static void showStatus(const std::string& message);
+    static void showNewRoundMessage(game_state* oldGameState, game_state* newGameState);
 
 private:
     static GameWindow* _gameWindow;
