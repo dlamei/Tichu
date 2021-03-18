@@ -42,11 +42,6 @@ public:
     bool is_empty() const noexcept;
     int get_nof_cards() const noexcept;
 
-// reactive_object interface
-    bool apply_diff_specialized(const diff* specialized_diff) override;
-    diff* to_full_diff() const override;
-    static draw_pile* from_diff(const diff* obj_diff);
-
 #ifdef LAMA_SERVER
 #ifndef USE_DIFFS
 // state update functions

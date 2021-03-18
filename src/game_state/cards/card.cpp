@@ -4,7 +4,6 @@
 
 #include "card.h"
 
-#include "../../reactive_state/diffs/object_diff.h"
 #include "../../common/utils/LamaException.h"
 
 
@@ -31,42 +30,6 @@ bool card::can_be_played_on(const card *const other) const noexcept {
     // return true if this card has a one higher or of equal value OR if 'other' is Lama and this is 1
     int value_delta = this->get_value() - other->get_value();
     return value_delta == 0 || value_delta == 1 || (other->get_value() == 7 && this->get_value() == 1);
-}
-
-bool card::apply_diff_specialized(const diff* state_diff) {
-    const object_diff* valid_diff = dynamic_cast<const object_diff*>(state_diff);
-    if (valid_diff != nullptr && valid_diff->get_id() == this->_id) {
-        if (valid_diff->get_timestamp()->is_newer(this->_timestamp) && valid_diff->has_changes()) {
-            bool has_changed = false;
-            diff* child_diff = nullptr;
-            if (valid_diff->try_get_param_diff(_value->get_name(), child_diff)) {
-                has_changed |= _value->apply_diff_specialized(child_diff);
-            }
-            return has_changed;
-            // TODO update timestamp
-        }
-    }
-    return false;
-}
-
-diff *card::to_full_diff() const {
-    object_diff* card_diff = new object_diff(this->_id, this->_name);
-    card_diff->add_param_diff("value", _value->to_full_diff());
-    return card_diff;
-}
-
-card *card::from_diff(const diff* full_card_diff) {
-    const object_diff* full_diff = dynamic_cast<const object_diff*>(full_card_diff);
-    if (full_diff != nullptr && full_diff->get_name() == "card") {
-
-        diff* value_diff = nullptr;
-        if (!full_diff->try_get_param_diff("value", value_diff)) {
-            std::cerr << "Failed to create from diff. 'value' was missing!" << std::endl;
-        }
-        return new card(reactive_object::extract_base_params(*full_diff), reactive_value<int>::from_diff(value_diff));
-    } else {
-        throw LamaException("Failed to create card from diff with name " + full_card_diff->get_name());
-    }
 }
 
 

@@ -16,7 +16,6 @@
 
 #include "../network/requests/client_request.h"
 #include "../network/responses/server_response.h"
-#include "../reactive_state/diffs/diff.h"
 #include "../game_state/player/player.h"
 #include "../game_state/game_state.h"
 

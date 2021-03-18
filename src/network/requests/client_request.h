@@ -8,7 +8,6 @@
 #include <string>
 #include <unordered_map>
 #include "../../../rapidjson/include/rapidjson/document.h"
-#include "../../reactive_state/diffs/object_diff.h"
 #include "../../reactive_state/serializable.h"
 #include "../../common/utils/LamaException.h"
 #include "../../common/utils/uuid_generator.h"

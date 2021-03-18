@@ -6,7 +6,6 @@
 #define LAMA_CARD_H
 
 #include <string>
-#include "../../reactive_state/diffs/object_diff.h"
 #include "../../reactive_state/reactive_objects/reactive_object.h"
 #include "../../reactive_state/reactive_objects/reactive_value.h"
 #include "../../../rapidjson/include/rapidjson/document.h"
@@ -25,11 +24,6 @@ public:
 
 // accessors
     int get_value() const noexcept;
-
-// reactive_object interface
-    virtual bool apply_diff_specialized(const diff* diff) override;
-    diff* to_full_diff() const override;
-    static card* from_diff(const diff* obj_diff);
 
 // card functions
     bool can_be_played_on(const card* const other) const noexcept;

@@ -4,7 +4,6 @@
 
 #include "reactive_object.h"
 
-#include "../diffs/value_diff.h"
 #include "../../common/utils/uuid_generator.h"
 #include "../../common/utils/LamaException.h"
 
@@ -46,12 +45,6 @@ reactive_object::~reactive_object()  {
     }
 }
 
-bool reactive_object::apply_diff(const diff *obj_diff)  {
-    //const object_diff* valid_diff = dynamic_cast<const object_diff*>(diff);
-    // TODO id? timestamp? name?
-    return apply_diff_specialized(obj_diff);
-}
-
 void reactive_object::write_into_json(rapidjson::Value &json,
                                       rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
     rapidjson::Value id_val(_id.c_str(), allocator);
@@ -66,12 +59,6 @@ void reactive_object::write_into_json(rapidjson::Value &json,
    json.AddMember("timestamp", timestamp_val, allocator);*/
 }
 
-void reactive_object::add_base_params_to_full_diff(object_diff *full_diff) {
-   /* full_diff->add_param_diff("name", new value_diff<std::string>(_id + "_name", "name", _name));
-    full_diff->add_param_diff("id", new value_diff<std::string>(_id + "_id", "id", _id));
-    full_diff->add_param_diff("timestamp", new value_diff<std::string>(_id + "_timestamp", "timestamp", _timestamp.));*/
-}
-
 reactive_object::base_params reactive_object::extract_base_params(const rapidjson::Value &json)  {
     if (/*json.HasMember("timestamp") &&*/ json.HasMember("id")) {
         base_params res;
@@ -83,14 +70,6 @@ reactive_object::base_params reactive_object::extract_base_params(const rapidjso
     } else {
         throw LamaException("Failed to deserialize reactive_object. Could not find timestamp or id");
     }
-}
-
-reactive_object::base_params reactive_object::extract_base_params(const diff& full_diff) {
-    base_params res;
-    res._timestamp = full_diff.get_timestamp()->clone();
-    res._name = full_diff.get_name();
-    res._id = full_diff.get_id();
-    return res;
 }
 
 reactive_object::base_params reactive_object::create_base_params(std::string id, std::string var_name, timestamp *ts) {

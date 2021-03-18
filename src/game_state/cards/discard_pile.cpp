@@ -5,7 +5,6 @@
 #include "discard_pile.h"
 #include "../../reactive_state/array_helpers.h"
 #include "../../reactive_state/diffable_utils.h"
-#include "../../reactive_state/diffs/array_diff.h"
 #include "../../common/utils/uuid_generator.h"
 #include "../../common/utils/LamaException.h"
 
@@ -140,53 +139,6 @@ bool discard_pile::try_play(card* played_card, object_diff& pile_diff, std::stri
 #endif
 #endif
 
-bool discard_pile::apply_diff_specialized(const diff* state_diff) {
-    const object_diff* valid_diff = dynamic_cast<const object_diff*>(state_diff);
-    if (valid_diff != nullptr && valid_diff->get_id() == this->_id) {
-        if (valid_diff->get_timestamp()->is_newer(this->_timestamp) && valid_diff->has_changes()) {
-            bool has_changed = false;
-            diff* child_diff = nullptr;
-            if (valid_diff->try_get_param_diff("cards", child_diff)) {
-                const array_diff* arr_diff = dynamic_cast<const array_diff*>(child_diff);
-                has_changed |= array_helpers::apply_diff<card>(_cards, arr_diff);
-            }
-
-            return has_changed;
-            // TODO update timestamp
-        }
-    }
-    return false;
-}
-
-diff *discard_pile::to_full_diff() const {
-    object_diff* pile_diff = new object_diff(this->_id, this->_name);
-    array_diff* cards_diff = new array_diff(this->_id + "_cards", "cards");
-    for (int i = 0; i < _cards.size(); i++) {
-        cards_diff->add_insertion(i, _cards[i]->get_id(), _cards[i]->to_full_diff());
-    }
-    pile_diff->add_param_diff("cards", cards_diff);
-
-    return pile_diff;
-}
-
-discard_pile *discard_pile::from_diff(const diff *full_pile_diff) {
-    const object_diff* full_diff = dynamic_cast<const object_diff*>(full_pile_diff);
-    if (full_diff != nullptr && full_diff->get_name() == "discard_pile") {
-
-        diff* cards_diff = nullptr;
-        std::vector<card*> cards;
-        if (full_diff->try_get_param_diff("cards", cards_diff)) {
-            const array_diff* arr_diff = dynamic_cast<const array_diff*>(cards_diff);
-            cards = array_helpers::vector_from_diff<card>(arr_diff);
-        }
-
-        return new discard_pile(reactive_object::extract_base_params(*full_diff), cards);
-    } else {
-        throw LamaException("Failed to create discard_pile from diff with name " + full_pile_diff->get_name());
-    }
-}
-
-
 
 discard_pile *discard_pile::from_json(const rapidjson::Value &json) {
     if (json.HasMember("cards")) {
@@ -200,8 +152,6 @@ discard_pile *discard_pile::from_json(const rapidjson::Value &json) {
         throw LamaException("Could not parse draw_pile from json. 'id' or 'cards' were missing.");
     }
 }
-
-
 
 void discard_pile::write_into_json(rapidjson::Value &json,
                                    rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {

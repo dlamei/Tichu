@@ -9,7 +9,6 @@
 #include "../../common/utils/LamaException.h"
 #include "../../reactive_state/array_helpers.h"
 #include "../../reactive_state/diffable_utils.h"
-#include "../../reactive_state/diffs/array_diff.h"
 
 hand::hand() : reactive_object("hand") { }
 
@@ -149,55 +148,6 @@ bool hand::remove_card(std::string card_id, card*& removed_card, object_diff &ha
 
 #endif
 #endif
-
-
-
-bool hand::apply_diff_specialized(const diff* state_diff) {
-    const object_diff* valid_diff = dynamic_cast<const object_diff*>(state_diff);
-    if (valid_diff != nullptr && valid_diff->get_id() == this->_id) {
-        if (valid_diff->get_timestamp()->is_newer(this->_timestamp) && valid_diff->has_changes()) {
-            bool has_changed = false;
-            diff* child_diff = nullptr;
-            if (valid_diff->try_get_param_diff("cards", child_diff)) {
-                const array_diff* arr_diff = dynamic_cast<const array_diff*>(child_diff);
-                has_changed |= array_helpers::apply_diff<card>(_cards, arr_diff);
-            }
-            return has_changed;
-            // TODO update timestamp
-        }
-    }
-    return false;
-}
-
-diff *hand::to_full_diff() const {
-    object_diff* hand_diff = new object_diff(this->_id, this->_name);
-    array_diff* cards_diff = new array_diff(this->_id + "_cards", "cards");
-    for (int i = 0; i < _cards.size(); i++) {
-        cards_diff->add_insertion(i, _cards[i]->get_id(), _cards[i]->to_full_diff());
-    }
-    hand_diff->add_param_diff("cards", cards_diff);
-
-    return hand_diff;
-}
-
-
-hand *hand::from_diff(const diff *full_hand_diff) {
-    const object_diff* full_diff = dynamic_cast<const object_diff*>(full_hand_diff);
-    if (full_diff != nullptr && full_diff->get_name() == "hand") {
-
-        diff* cards_diff = nullptr;
-        std::vector<card*> cards;
-        if (full_diff->try_get_param_diff("cards", cards_diff)) {
-            const array_diff* arr_diff = dynamic_cast<const array_diff*>(cards_diff);
-            cards = array_helpers::vector_from_diff<card>(arr_diff);
-        }
-
-        return new hand(reactive_object::extract_base_params(*full_diff), cards);
-    } else {
-        throw LamaException("Failed to create hand from diff with name " + full_hand_diff->get_name());
-    }
-}
-
 
 
 void hand::write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType& allocator) const {

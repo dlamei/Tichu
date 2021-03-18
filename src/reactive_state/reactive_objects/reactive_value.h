@@ -11,7 +11,6 @@
 #include <functional>
 
 #include "reactive_object.h"
-#include "../diffs/value_diff.h"
 #include "../value_type_helpers.h"
 #include "../../../rapidjson/include/rapidjson/document.h"
 
@@ -46,26 +45,6 @@ public:
         }
     }
 
-    // server side
-    bool set_value(T val, value_diff<T>*& val_diff) {
-        val_diff = nullptr;
-        if (this->_value != val) {
-            this->_value = val;
-            val_diff = new value_diff<T>(_id, _name, _value);
-            try {
-                for (int i = 0; i < _change_listeners.size(); i++) {
-                    (*_change_listeners[i])(this->_value);   // inform listeners about new value
-                }
-            } catch (std::exception& e) {
-                std::cerr << "Error during call to reactive_value listener. "
-                          << "reactive_value: name = " << _name << ", id = " << _id << ", value = " << _value
-                          << "Error was " << e.what() << std::endl;
-            }
-            return true;
-        }
-        return false;
-    }
-
     void register_change_listener(std::function<void(const T)>* change_callback){
         typename std::vector<std::function<void(const T)>*>::iterator position = std::find(_change_listeners.begin(), _change_listeners.end(), change_callback);
         if (position == _change_listeners.end()) {
@@ -80,31 +59,6 @@ public:
             return true;
         }
         return false;
-    }
-
-
-// reactive_object interface
-    bool apply_diff_specialized(const diff* diff) override {
-        const value_diff<T>* valid_diff = dynamic_cast<const value_diff<T>*>(diff);
-        if (valid_diff != nullptr) {
-            if (valid_diff->get_timestamp()->is_newer(this->_timestamp)) {
-                this->set_value(valid_diff->get_value());
-                return true;
-            }
-        }
-        return false;
-    }
-
-    diff* to_full_diff() const override {
-        return new value_diff<T>(_id, _name, _value);
-    }
-
-    static reactive_value<T>* from_diff(const diff* full_diff) {
-        const value_diff<T>* valid_diff = dynamic_cast<const value_diff<T>*>(full_diff);
-        if (valid_diff != nullptr) {
-            return new reactive_value<T>(reactive_object::extract_base_params(*valid_diff), valid_diff->get_value());
-        }
-        throw LamaException("Could not create reactive_value from diff, as it was not a value_diff");
     }
 
 // serializable interface

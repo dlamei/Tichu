@@ -10,7 +10,6 @@
 #include "../../../rapidjson/include/rapidjson/document.h"
 
 #include "../cards/card.h"
-#include "../../reactive_state/diffs/object_diff.h"
 
 class hand : public reactive_object {
 
@@ -31,11 +30,6 @@ public:
 // serializable interface
     static hand* from_json(const rapidjson::Value& json);
     virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
-
-// reactive_object interface
-    virtual bool apply_diff_specialized(const diff* diff) override;
-    diff* to_full_diff() const override;
-    static hand* from_diff(const diff* obj_diff);
 
 // accessors
     int get_nof_cards() const;
