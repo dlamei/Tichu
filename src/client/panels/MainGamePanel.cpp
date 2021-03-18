@@ -12,21 +12,17 @@ void MainGamePanel::buildGameState(game_state* gameState, player* me) {
     // remove any existing UI
     this->DestroyChildren();
 
-    int numberOfPlayers = gameState->get_players().size();
+    std::vector<player*> players = gameState->get_players();
+    int numberOfPlayers = players.size();
 
     // find our own player object in the list of players
     int myPosition = -1;
-    for(int i = 0; i < numberOfPlayers; i++) {
-        player* lamaPlayer = gameState->get_players().at(i);
-        if(lamaPlayer->get_id() == me->get_id()) {
-            me = lamaPlayer;
-            myPosition = i;
-            break;
-        }
-    }
-
-    // if we didn't find ourselves among the players, things have gone seriously wrong
-    if(myPosition == -1) {
+    auto it = std::find_if(players.begin(), players.end(),
+                           [me_id = me->get_id()](const player* x) { return x->get_id() == me_id;});
+    if (it < players.end()) {
+        me = *it;
+        myPosition = it - players.begin();
+    } else {
         GameController::showError("Game state error", "Could not find this player among players of server game.");
         return;
     }
@@ -37,7 +33,7 @@ void MainGamePanel::buildGameState(game_state* gameState, player* me) {
     for(int i = 1; i < numberOfPlayers; i++) {
 
         // get player at i-th position after myself
-        player* otherPlayer = gameState->get_players().at((myPosition + i) % numberOfPlayers);
+        player* otherPlayer = players.at((myPosition + i) % numberOfPlayers);
 
         double playerAngle = (double) i * anglePerPlayer;
         int side = (2 * i) - numberOfPlayers; // side < 0 => right, side == 0 => center, side > 0 => left

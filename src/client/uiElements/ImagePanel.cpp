@@ -52,7 +52,7 @@ ImagePanel::ImagePanel(wxWindow* parent, wxString file, wxBitmapType format, wxP
 }
 
 /*
- * Called by the system of by wxWidgets when the panel needs
+ * Called by the system or by wxWidgets when the panel needs
  * to be redrawn. You can also trigger this call by
  * calling Refresh()/Update().
  */
