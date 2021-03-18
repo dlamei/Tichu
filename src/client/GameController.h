@@ -4,7 +4,7 @@
 #include "windows/GameWindow.h"
 #include "panels/ConnectionPanel.h"
 #include "panels/MainGamePanel.h"
-#include "network/ClientNetworkThread.h"
+#include "network/ResponseListenerThread.h"
 #include "../game_state/game_state.h"
 
 
@@ -24,13 +24,12 @@ public:
     static void showError(const std::string& title, const std::string& message);
     static void showStatus(const std::string& message);
     static void showNewRoundMessage(game_state* oldGameState, game_state* newGameState);
+    static void showGameOverMessage();
 
 private:
     static GameWindow* _gameWindow;
     static ConnectionPanel* _connectionPanel;
     static MainGamePanel* _mainGamePanel;
-
-    static ClientNetworkThread* _networkThread;
 
     static player* _me;
     static game_state* _currentGameState;

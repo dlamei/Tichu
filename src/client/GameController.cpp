@@ -4,16 +4,17 @@
 #include "../network/requests/draw_card_request.h"
 #include "../network/requests/fold_request.h"
 #include "../network/requests/play_card_request.h"
+#include "network/ClientNetworkManager.h"
 
 
 // initialize static members
 GameWindow* GameController::_gameWindow = nullptr;
 ConnectionPanel* GameController::_connectionPanel = nullptr;
 MainGamePanel* GameController::_mainGamePanel = nullptr;
-ClientNetworkThread* GameController::_networkThread = nullptr;
 
 player* GameController::_me = nullptr;
 game_state* GameController::_currentGameState = nullptr;
+
 
 
 void GameController::init(GameWindow* gameWindow) {
@@ -71,16 +72,13 @@ void GameController::connectToServer() {
     // convert player name from wxString to std::string
     std::string playerName = inputPlayerName.ToStdString();
 
-    // start network thread
-    GameController::_networkThread = new ClientNetworkThread(host, port);
-    if(GameController::_networkThread->Run() != wxTHREAD_NO_ERROR) {
-        GameController::showError("Connection error", "Could not create client network thread");
-    }
+    // connect to network
+    ClientNetworkManager::init(host, port);
 
     // send request to join game
     GameController::_me = new player(playerName);
     join_game_request request = join_game_request(GameController::_me->get_id(), GameController::_me->get_player_name());
-    GameController::_networkThread->sendRequest(request);
+    ClientNetworkManager::sendRequest(request);
 
 }
 
@@ -104,6 +102,10 @@ void GameController::updateGameState(game_state* newGameState) {
         delete oldGameState;
     }
 
+    if(GameController::_currentGameState->is_finished()) {
+        GameController::showGameOverMessage();
+    }
+
     // make sure we are showing the main game panel in the window (if we are already showing it, nothing will happen)
     GameController::_gameWindow->showPanel(GameController::_mainGamePanel);
 
@@ -114,25 +116,25 @@ void GameController::updateGameState(game_state* newGameState) {
 
 void GameController::startGame() {
     start_game_request request = start_game_request(GameController::_currentGameState->get_id(), GameController::_me->get_id());
-    GameController::_networkThread->sendRequest(request);
+    ClientNetworkManager::sendRequest(request);
 }
 
 
 void GameController::drawCard() {
     draw_card_request request = draw_card_request(GameController::_currentGameState->get_id(), GameController::_me->get_id());
-    GameController::_networkThread->sendRequest(request);
+    ClientNetworkManager::sendRequest(request);
 }
 
 
 void GameController::fold() {
     fold_request request = fold_request(GameController::_currentGameState->get_id(), GameController::_me->get_id());
-    GameController::_networkThread->sendRequest(request);
+    ClientNetworkManager::sendRequest(request);
 }
 
 
 void GameController::playCard(card* cardToPlay) {
     play_card_request request = play_card_request(GameController::_currentGameState->get_id(), GameController::_me->get_id(), cardToPlay->get_id());
-    GameController::_networkThread->sendRequest(request);
+    ClientNetworkManager::sendRequest(request);
 }
 
 
@@ -173,6 +175,46 @@ void GameController::showNewRoundMessage(game_state* oldGameState, game_state* n
             playerName = "You";
         }
         message += "\n" + playerName + ":     " + scoreText;
+    }
+
+    wxMessageDialog dialogBox = wxMessageDialog(nullptr, message, title, wxICON_NONE);
+    dialogBox.SetOKLabel(wxMessageDialog::ButtonLabel(buttonLabel));
+    dialogBox.ShowModal();
+}
+
+
+void GameController::showGameOverMessage() {
+    std::string title = "Game Over!";
+    std::string message = "Final score:\n";
+    std::string buttonLabel = "Close Game";
+
+    // sort players by score
+    std::vector<player*> players = GameController::_currentGameState->get_players();
+    std::sort(players.begin(), players.end(), [](const player* a, const player* b) -> bool {
+        return a->get_score() < b->get_score();
+    });
+
+    // list all players
+    for(int i = 0; i < players.size(); i++) {
+
+        player* playerState = players.at(i);
+        std::string scoreText = std::to_string(playerState->get_score());
+
+        // first entry is the winner
+        std::string winnerText = "";
+        if(i == 0) {
+            winnerText = "     Winner!";
+        }
+
+        std::string playerName = playerState->get_player_name();
+        if(playerState->get_id() == GameController::_me->get_id()) {
+            playerName = "You";
+
+            if(i == 0) {
+                winnerText = "     You won!!!";
+            }
+        }
+        message += "\n" + playerName + ":     " + scoreText + winnerText;
     }
 
     wxMessageDialog dialogBox = wxMessageDialog(nullptr, message, title, wxICON_NONE);
