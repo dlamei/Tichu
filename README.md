@@ -6,21 +6,23 @@ It uses [wxWidgets](https://www.wxwidgets.org/) for the GUI, [sockpp](https://gi
 This is a template project for the students of the course Software Engineering. We encourage the students to read through this documentation and get familiar with [wxWidgets](https://www.wxwidgets.org/) and the [rapidjson library](https://rapidjson.org/md_doc_tutorial.html) if they want to implement their game based on the architecture of this template. They can reuse as much of the code as they want and we encourage to at least reuse the `server_network_manager` and `client_network_manager`, which handles TCP communication between client and server.
 
 ## 1. Compile instructions
-This project only works on UNIX systems (Linux / MacOS). We recommend using Ubuntu 20.4.
+This project only works on UNIX systems (Linux / MacOS). We recommend using [Ubuntu](https://ubuntu.com/#download), as it offers the easiest way to setup wxWidgets. Therefore, we explain installation only for Ubuntu systems. The following was tested on a Ubuntu 20.4 system, but should also work for earlier versions of Ubuntu.
 
-**Note:** If you create a virtual machine, we recommend to give the virtual machine at least 15GB of (dynamic) harddrive space (CLion and wxWidgets need quite a lot of space).
+**Note:** If you create a virtual machine, we recommend to give the virtual machine at least 12GB of (dynamic) harddrive space (CLion and wxWidgets need quite a lot of space).
 
 ### 1.1 Prepare OS Environment
+
 #### Ubuntu 20.4
-Execute the following commands in a console
+The OS should alredy have git installed in order to download this repository. If not, you can use: 
+`sudo apt-get install git`
+
+Execute the following commands in a console:
 1. `sudo apt-get update`
 2. `sudo apt-get install build-essentials` followed by `sudo reboot`
 3. if on virtual machine : install guest-additions (https://askubuntu.com/questions/22743/how-do-i-install-guest-additions-in-a-virtualbox-vm) and then `sudo reboot`
 4. `sudo snap install clion --classic` this installs the latest stable CLion version
 5. `sudo apt-get install libwxgtk3.0-gtk3-dev` this installs wxWidgets (GUI library used in this project)
 
-#### MacOS
-TODO
 
 ### 1.2 Compile Code
 1. Open Clion
@@ -34,22 +36,22 @@ TODO
 ## 2. Run the Game
 1. Open a console in the project folder, navigate into "cmake-build-debug" `cd cmake-build-debug`
 2. Run server `./Lama-server`
-3. Run as many clients as you want players `./Lama-client`
+3. In new consoles run as many clients as you want players `./Lama-client`
 
 ## 3. Code Documentation
 The code can be found in **/src**, where it is separated into different folders:
 - **/client** contains only code that is used on the client side (e.g. UI, sending messages)
-- **/common** contains helper functions that are used on the client and server side. You don't need to change anything in here.
-- **/game_state** contains the game state that is synchronized between client and server. We use the pre-compile directive LAMA_SERVER to enable certain parts of the code only on the server side. Namely, these are the state update functions, as they should only happen on the server. The client  simply reflects the current game state as sent by the server without modifying it. 
-- **/network** contains all the messages that are being passed between client and server. We use the pre-compile directive LAMA_SERVER to enable execution of a `client_request` on the server side (through the function `execute()`). Similarly, we use the LAMA_CLIENT pre-compile directive to make `server_repsonses` only executable on the client side (through the function `process()`) .
-- **/reactive_state** contains base classes for the game_state objects. You don't need to change anything in here.
-- **/server** contains only code that is relevant fo the server (e.g. player management, receiving messages)
+- **/common** contains helper functions that are used on the client and server side. You don't need to change anything in here (unless you want to rename the LamaException class ;)).
+- **/game_state** contains the game state that is synchronized between client and server. We use the pre-compile directive LAMA_SERVER to enable certain parts of the code only on the server side. Namely, these are the state update functions, as they should only happen on the server. The client  simply reflects the current game state as sent by the server without modifying it directly. 
+- **/network** contains all the messages that are being passed between client and server. We use the pre-compile directive LAMA_SERVER to enable execution of a `client_request` on the server side (through the function `execute()`). Similarly, we use the LAMA_CLIENT pre-compile directive to make `server_repsonses` only executable on the client side (through the function `Process()`) .
+- **/reactive_state** contains base classes for the `game_state` objects. You don't need to change anything in here.
+- **/server** contains only code that is relevant for the server (e.g. player management, game instance management, receiving messages)
 
 ### 3.1 Network Interface
-Everything that is passed between client and server are objects of type `client_request` and `server_response`. Since the underlying network protocol works with TCP, these `client_request` and `server_response` objects are transformed into a JSON string, which can then be sent byte by byte over the network. The receiving end reads the JSON string and constructs an object of type `client_request` resp. `server_response` that reflects the exact parameters that were specified in the JSON string. This process is known as **serialization** (object to string) and **deserialization** (string to object).
+Everything that is passed between client and server are objects of type `client_request` and `server_response`. Since the underlying network protocol works with TCP, these `client_request` and `server_response` objects are transformed into a **[JSON](https://wiki.selfhtml.org/wiki/JSON) string**, which can then be sent byte by byte over the network. The receiving end reads the JSON string and constructs an object of type `client_request` resp. `server_response` that reflects the exact parameters that are specified in the JSON string. This process is known as **serialization** (object to string) and **deserialization** (string to object).
 
 #### 3.1.1 Serialization & Deserialization of messages
-Therefore, both, the `client_request` and `server_response` base classes, implement the abstract class `serializable` with its `write_into_json(...)` function. Additionally, they have a static function from_json(...)
+Therefore, both, the `client_request` and `server_response` base classes, implement the abstract class `serializable` with its `write_into_json(...)` function. Additionally, they have a static function `from_json(...)`, which allows creating an instance of an object from JSON.
 
 ```cpp
 enum RequestType {
