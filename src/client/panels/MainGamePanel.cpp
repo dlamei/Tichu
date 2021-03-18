@@ -261,6 +261,7 @@ void MainGamePanel::buildThisPlayer(game_state* gameState, player* me) {
 
     } else {
 
+        // show our player's minus points
         wxStaticText *playerPoints = buildStaticText(
                 std::to_string(me->get_score()) + " minus points",
                 wxDefaultPosition,
@@ -269,7 +270,7 @@ void MainGamePanel::buildThisPlayer(game_state* gameState, player* me) {
         );
         innerLayout->Add(playerPoints, 0, wxALIGN_CENTER | wxBOTTOM, 8);
 
-
+        // if our player folded, we display that as status
         if (me->has_folded()) {
             wxStaticText *playerStatus = buildStaticText(
                     "Folded!",
@@ -279,6 +280,7 @@ void MainGamePanel::buildThisPlayer(game_state* gameState, player* me) {
             );
             innerLayout->Add(playerStatus, 0, wxALIGN_CENTER | wxBOTTOM, 8);
 
+        // if we haven't folded yet, and it's our turn, display Fold button
         } else if (gameState->get_current_player() == me) {
             wxButton *foldButton = new wxButton(this, wxID_ANY, "Fold", wxDefaultPosition, wxSize(80, 32));
             foldButton->Bind(wxEVT_BUTTON, [](wxCommandEvent& event) {
@@ -286,6 +288,7 @@ void MainGamePanel::buildThisPlayer(game_state* gameState, player* me) {
             });
             innerLayout->Add(foldButton, 0, wxALIGN_CENTER | wxBOTTOM, 8);
 
+        // if it's not our turn, display "waiting..."
         } else {
             wxStaticText *playerStatus = buildStaticText(
                     "waiting...",
@@ -296,8 +299,8 @@ void MainGamePanel::buildThisPlayer(game_state* gameState, player* me) {
             innerLayout->Add(playerStatus, 0, wxALIGN_CENTER | wxBOTTOM, 8);
         }
 
+        // display our player's hand, if we have cards
         int numberOfCards = me->get_nof_cards();
-
         if (numberOfCards > 0) {
 
             // create horizontal layout for the individual hand cards of our player
@@ -333,7 +336,6 @@ void MainGamePanel::buildThisPlayer(game_state* gameState, player* me) {
                 }
                 handLayout->Add(cardButton, 0, wxLEFT | wxRIGHT, 4);
             }
-
         }
     }
 }
