@@ -29,7 +29,7 @@ void start_game_request::write_into_json(rapidjson::Value &json,
 }
 
 #ifdef LAMA_SERVER
-server_response* start_game_request::execute() {
+request_response* start_game_request::execute() {
     std::string err;
     player* player;
     game_instance* game_instance_ptr;

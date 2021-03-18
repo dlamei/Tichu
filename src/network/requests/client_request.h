@@ -76,7 +76,7 @@ public:
     // Code that should only exist on the server side
 #ifdef LAMA_SERVER
     // Execute this request on the server side
-    virtual server_response* execute() = 0;
+    virtual request_response* execute() = 0;
 #endif
 };
 

@@ -140,7 +140,7 @@ void server_network_manager::handle_incoming_message(const std::string& msg, con
         std::cout << "Received valid request : " << msg << std::endl;
 #endif
         // execute client request
-        server_response* res = req->execute();
+        request_response* res = req->execute();
         delete req;
 
         // transform response into a json
@@ -148,7 +148,7 @@ void server_network_manager::handle_incoming_message(const std::string& msg, con
         delete res;
 
         // send response back to client
-        write_message(json_utils::to_string(res_json), peer_address.to_string());
+        send_message(json_utils::to_string(res_json), peer_address.to_string());
         delete res_json;
     } catch (const std::exception& e) {
         std::cerr << "Failed to execute client request. Content was :\n"
@@ -166,7 +166,7 @@ void server_network_manager::on_player_left(std::string player_id) {
     _rw_lock.unlock();
 }
 
-ssize_t server_network_manager::write_message(const std::string &msg, const std::string& address) {
+ssize_t server_network_manager::send_message(const std::string &msg, const std::string& address) {
 
     std::stringstream ss_msg;
     ss_msg << std::to_string(msg.size()) << ':' << msg; // prepend message length
@@ -183,7 +183,7 @@ void server_network_manager::broadcast_message(server_response &msg, const std::
     try {
         for(auto& player : players) {
             if (player != exclude) {
-                int nof_bytes_written = write_message(msg_string, _player_id_to_address.at(player->get_id()));
+                int nof_bytes_written = send_message(msg_string, _player_id_to_address.at(player->get_id()));
                 std::cout << "wrote " << nof_bytes_written << " to socket" << _player_id_to_address[player->get_id()] << std::endl;
             }
         }

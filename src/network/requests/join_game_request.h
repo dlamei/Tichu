@@ -36,7 +36,7 @@ public:
     static join_game_request* from_json(const rapidjson::Value& json);
 
 #ifdef LAMA_SERVER
-    virtual server_response* execute() override;
+    request_response* execute() override;
 #endif
 };
 

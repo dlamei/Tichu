@@ -47,7 +47,7 @@ join_game_request* join_game_request::from_json(const rapidjson::Value& json) {
 
 #ifdef LAMA_SERVER
 
-server_response* join_game_request::execute() {
+request_response* join_game_request::execute() {
     player* player;
     player_manager::add_or_get_player(_player_name, _player_id, player);
 
