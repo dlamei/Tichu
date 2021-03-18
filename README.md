@@ -1,5 +1,10 @@
 # Lama
 
+This is a simple C++ implementation of the game "Lama" by AMIGO. The implementation features a client/server architecture for multiplayer scenarios.
+It uses [wxWidgets](https://www.wxwidgets.org/) for the GUI, [sockpp](https://github.com/fpagliughi/sockpp) for the network interface and [rapidjson](https://rapidjson.org/md_doc_tutorial.html) for object serialization.
+
+This is a template project for the students of the course Software Engineering, who will implement a similar card- or board-game on their own. We encourage the students to read through this documentation and get familiar with wxWidgets and the rapidjson library if they want to implement their game based on the software architecture of this template.
+
 ## 1. Compile instructions
 This project only works on UNIX systems (Linux / MacOS). We recommend using Ubuntu 20.4.
 
@@ -27,12 +32,12 @@ TODO
 7. Wait until Lama-server and Lama-client are compiled
 
 ## 2. Run the Game
-1. Open console in the project folder, navigate into "cmake-build-debug" `cd cmake-build-debug`
+1. Open a console in the project folder, navigate into "cmake-build-debug" `cd cmake-build-debug`
 2. Run server `./Lama-server`
 3. Run as many clients as you want players `./Lama-client`
 
 ## 3. Code Documentation
-The code can be found in /src, where it is separated into different folders:
+The code can be found in **/src**, where it is separated into different folders:
 - **/client** contains only code that is used on the client side (e.g. UI, sending messages)
 - **/common** contains helper functions that are used on the client and server side. You don't need to change anything in here.
 - **/game_state** contains the game state that is synchronized between client and server. We use the pre-compile directive LAMA_SERVER to enable certain parts of the code only on the server side. Namely, these are the state update functions, as they should only happen on the server. The client  simply reflects the current game state as sent by the server without modifying it. 
@@ -50,7 +55,6 @@ Therefore, both, the `client_request` and `server_response` base classes, implem
 enum RequestType {
     join_game,
     start_game,
-    leave_game,
     play_card,
     draw_card,
     fold,
@@ -88,7 +92,7 @@ public:
 
 **Serialization**
 
-When you implement your own specializations of `client_request` and `server_response` you will have to implement the `write_into_json(...)` functions yourself. Your subclass always has to call the `write_into_json(...)` function of its base class, such that the parameters of the base class are  written into the JSON document: 
+When you implement your own specializations of `client_request` (and `server_response` if necessary) you will have to implement the `write_into_json(...)` functions yourself. Your subclass always has to call the `write_into_json(...)` function of its base class, such that the parameters of the base class are  written into the JSON document: 
 
 Here is the **base-class** implementation:
 ```cpp
@@ -197,7 +201,7 @@ There are plenty of examples of subclasses in the network/requests folder, where
 All you have to do is create an object of type `ClientNetworkThread` on the client side and then invoke its `sendRequest(const client_request& request)` function with the client_request that you want to send. The response will arrive as an object of type `request_response` and the `ClientNetworkThread` will invoke the `Process()` function of that `request_response` object automatically.
 
 #### Server -> Client:
-If you look at the signature of the `execute()` function of the `client_request`, you can see that it returns a pointer to an object of type `server_response`. When implementing the `execute()` function of your `client_request` subclass, you have to return an object of type `request_response` with all parameters you want to send. This return value will then automatically be sent over the network to the requesting client. 
+If you look at the signature of the `execute()` function of the `client_request`, you can see that it returns a pointer to an object of type `request_response` (a subclass of `server_response`). When implementing the `execute()` function of your `client_request` subclass, you have to return an object of type `request_response` with all parameters you want to send. This return value will then automatically be sent over the network to the requesting client. 
 
 If the `client_request` caused an update of the game_state you should also update all other players of that game about the game_state change. This happens in the `game_instance` class, here examplified at the case where a `start_game_request` calls the `start_game(...)` function on the respective `game_instance` on the server side:
 
@@ -220,3 +224,161 @@ bool game_instance::start_game(player* player, std::string &err) {
 }
 ```
 
+### 3.2 Game State
+
+The `game_state` class stores all parameters that are required to represent the game on the client (resp. server) side. In order to synchronize this `game_state` among all players, the `game_state` can also be **serialized** and **deserialized**. If a `client_request` was successfully executed on the server, then the `request_response` that is sent to back to the client contains a serialized version of the updated `game_state`. All other players receive the updated `game_state` at the same time through a `full_state_response`.
+
+To serialize the `game_state`, the same `write_into_json(...)` function is used as for the `client_request`. 
+
+```cpp
+class game_state : public reactive_object {
+private:
+    // Properties
+    std::vector<player*> _players;
+    draw_pile* _draw_pile;
+    discard_pile* _discard_pile;
+    reactive_value<bool>* _is_started;
+    reactive_value<bool>* _is_finished;
+    reactive_value<int>* _round_number;
+    reactive_value<int>* _current_player_idx;
+    reactive_value<int>* _play_direction;  // 1 or -1 depending on which direction is played in
+    reactive_value<int>* _starting_player_idx;
+
+    // deserialization constructor
+    game_state(
+            base_params params,
+            draw_pile* draw_pile,
+            discard_pile* discard_pile,
+            std::vector<player*>& players,
+            reactive_value<bool>* is_started,
+            reactive_value<bool>* is_finished,
+            reactive_value<int>* current_player_idx,
+            reactive_value<int>* play_direction,
+            reactive_value<int>* round_number,
+            reactive_value<int>* starting_player_idx);
+
+public:
+    game_state();
+
+    ...
+    // SERIALIZATION
+    virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
+    // DESERIALIZATION
+    static game_state* from_json(const rapidjson::Value& json);
+};
+```
+
+The `game_state` inherits from `reactive_object`, which essentially requires the `write_into_json()` function and adds a unique `id` to the object, such that it can be uniquely identified. Similarly, each parameter nested inside the `game_state` (e.g. players, draw_pile, etc.) also inherit from reactive_object and therefore have their own `id` and serialization, resp. deserialization functions.
+
+On the client side, the new `game_state` is then passed to the `updateGameState(game_state*)` function of the `GameController` class, which performs a redraw of the GUI.
+
+Since you will have to add your own properties to the `game_state` class (and probably create other classes that inherit from `reactive_object` to add to your game_state), we want to shortly elaborate how the serialization and deserialization works for subclasses of `reactive_object`. It's very similar to the `client_request` class discussed earlier. Here is how the `write_into_json(...)` function is implemented in the `game_state` class of Lama:
+
+```cpp
+void game_state::write_into_json(rapidjson::Value &json,
+                                 rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
+    // call base-class to write id and object name into the json
+    reactive_object::write_into_json(json, allocator);
+
+    // write all properties of this game_state instance into the JSON
+    rapidjson::Value is_finished_val(rapidjson::kObjectType);
+    _is_finished->write_into_json(is_finished_val, allocator);
+    json.AddMember("is_finished", is_finished_val, allocator);
+
+    rapidjson::Value is_started_val(rapidjson::kObjectType);
+    _is_started->write_into_json(is_started_val, allocator);
+    json.AddMember("is_started", is_started_val, allocator);
+
+    rapidjson::Value current_player_idx_val(rapidjson::kObjectType);
+    _current_player_idx->write_into_json(current_player_idx_val, allocator);
+    json.AddMember("current_player_idx", current_player_idx_val, allocator);
+
+    rapidjson::Value play_direction_val(rapidjson::kObjectType);
+    _play_direction->write_into_json(play_direction_val, allocator);
+    json.AddMember("play_direction", play_direction_val, allocator);
+
+    rapidjson::Value starting_player_idx_val(rapidjson::kObjectType);
+    _starting_player_idx->write_into_json(starting_player_idx_val, allocator);
+    json.AddMember("starting_player_idx", starting_player_idx_val, allocator);
+
+    rapidjson::Value round_number_val(rapidjson::kObjectType);
+    _round_number->write_into_json(round_number_val, allocator);
+    json.AddMember("round_number", round_number_val, allocator);
+
+    rapidjson::Value draw_pile_val(rapidjson::kObjectType);
+    _draw_pile->write_into_json(draw_pile_val, allocator);
+    json.AddMember("draw_pile", draw_pile_val, allocator);
+
+    rapidjson::Value discard_pile_val(rapidjson::kObjectType);
+    _discard_pile->write_into_json(discard_pile_val, allocator);
+    json.AddMember("discard_pile", discard_pile_val, allocator);
+
+    // Special helper function to serialize vector of pointers
+    // The pointers inside the vector have to inherit from serializable (or reactive_object)
+    json.AddMember("players", vector_utils::serialize_vector(_players, allocator), allocator);
+}
+```
+
+For **deserialization**, the `from_json(...)` function is used, which is implemented as follows:
+
+```cpp
+// DESERIALIZATION COSNTRUCTOR receives pointers for all its properties and stores them
+game_state::game_state(base_params params, draw_pile *draw_pile, discard_pile *discard_pile,
+                       std::vector<player *> &players, reactive_value<bool> *is_started,
+                       reactive_value<bool> *is_finished, reactive_value<int> *current_player_idx,
+                       reactive_value<int> *play_direction, reactive_value<int>* round_number, reactive_value<int> *starting_player_idx)
+        : reactive_object(params),  // initialize the reactive_object base-class
+          _draw_pile(draw_pile),
+          _discard_pile(discard_pile),
+          _players(players),
+          _is_started(is_started),
+          _is_finished(is_finished),
+          _current_player_idx(current_player_idx),
+          _play_direction(play_direction),
+          _round_number(round_number),
+          _starting_player_idx(starting_player_idx)
+{ }
+
+// DESERIALIZATION 
+// returns a pointer to the new game_state
+game_state* game_state::from_json(const rapidjson::Value &json) {
+    // Make sure the json contains all required information
+    if (json.HasMember("is_finished")
+        && json.HasMember("is_started")
+        && json.HasMember("current_player_idx")
+        && json.HasMember("play_direction")
+        && json.HasMember("round_number")
+        && json.HasMember("starting_player_idx")
+        && json.HasMember("players")
+        && json.HasMember("draw_pile")
+        && json.HasMember("discard_pile"))
+    {
+        // deserialize all players
+        std::vector<player*> deserialized_players;
+        for (auto &serialized_player : json["players"].GetArray()) {
+            deserialized_players.push_back(player::from_json(serialized_player.GetObject()));
+        }
+        // Invoke deserialization constructor
+        return new game_state(reactive_object::extract_base_params(json),   // extract base_params from JSON
+                              draw_pile::from_json(json["draw_pile"].GetObject()),
+                              discard_pile::from_json(json["discard_pile"].GetObject()),
+                              deserialized_players,
+                              reactive_value<bool>::from_json(json["is_started"].GetObject()),
+                              reactive_value<bool>::from_json(json["is_finished"].GetObject()),
+                              reactive_value<int>::from_json(json["current_player_idx"].GetObject()),
+                              reactive_value<int>::from_json(json["play_direction"].GetObject()),
+                              reactive_value<int>::from_json(json["round_number"].GetObject()),
+                              reactive_value<int>::from_json(json["starting_player_idx"].GetObject()));
+    } else {
+        throw LamaException("Failed to deserialize game_state. Required entries were missing.");
+    }
+}
+```
+
+A similar scheme is applied in all other objects that inherit from `reactive_object`. Namely, these are:
+- `player`
+- `hand`
+- `card`
+- `draw_pile`
+- `discard_pile`
+- `reactive_value`
