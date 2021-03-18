@@ -6,7 +6,7 @@
 
 #include "../../common/utils/LamaException.h"
 
-player::player(std::string name) : reactive_object("player") {
+player::player(std::string name) : reactive_object() {
     this->_player_name = new reactive_value<std::string>("player_name", name);
     this->_has_folded = new reactive_value<bool>("has_folded", false);
     this->_score = new reactive_value<int>("score", 0);
@@ -47,7 +47,7 @@ player::~player() {
 
 #ifdef LAMA_SERVER
 player::player(std::string id, std::string name) :
-        reactive_object(id, "player")
+        reactive_object(id)
 {
     this->_player_name = new reactive_value<std::string>("player_name", name);
     this->_has_folded = new reactive_value<bool>("has_folded", false);
