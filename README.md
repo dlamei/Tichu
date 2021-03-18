@@ -3,7 +3,7 @@
 This is a simple C++ implementation of the game "Lama" by AMIGO. The implementation features a client/server architecture for multiplayer scenarios.
 It uses [wxWidgets](https://www.wxwidgets.org/) for the GUI, [sockpp](https://github.com/fpagliughi/sockpp) for the network interface and [rapidjson](https://rapidjson.org/md_doc_tutorial.html) for object serialization.
 
-This is a template project for the students of the course Software Engineering, who will implement a similar card- or board-game on their own. We encourage the students to read through this documentation and get familiar with wxWidgets and the rapidjson library if they want to implement their game based on the software architecture of this template.
+This is a template project for the students of the course Software Engineering. We encourage the students to read through this documentation and get familiar with [wxWidgets](https://www.wxwidgets.org/) and the [rapidjson library](https://rapidjson.org/md_doc_tutorial.html) if they want to implement their game based on the architecture of this template. They can reuse as much of the code as they want and we encourage to at least reuse the `server_network_manager` and `client_network_manager`, which handles TCP communication between client and server.
 
 ## 1. Compile instructions
 This project only works on UNIX systems (Linux / MacOS). We recommend using Ubuntu 20.4.
