@@ -5,7 +5,7 @@
 #include "panels/ConnectionPanel.h"
 #include "panels/MainGamePanel.h"
 #include "network/ResponseListenerThread.h"
-#include "../game_state/game_state.h"
+#include "../common/game_state/game_state.h"
 
 
 class GameController {

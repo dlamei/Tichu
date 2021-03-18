@@ -5,7 +5,7 @@
 #include "game_instance.h"
 
 #include "server_network_manager.h"
-#include "../network/responses/full_state_response.h"
+#include "../common/network/responses/full_state_response.h"
 
 
 game_instance::game_instance() {

@@ -5,7 +5,6 @@
 #include <wx/wx.h>
 #include "sockpp/tcp_socket.h"
 #include "sockpp/tcp_connector.h"
-#include "../../network/requests/client_request.h"
 
 
 class ResponseListenerThread : public wxThread {

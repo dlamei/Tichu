@@ -12,7 +12,7 @@
 #include <shared_mutex>
 #include <unordered_map>
 
-#include "../game_state/player/player.h"
+#include "../common/game_state/player/player.h"
 
 class player_manager {
 

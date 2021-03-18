@@ -24,32 +24,32 @@ set(CLIENT_SOURCE_FILES
         src/client/network/ClientNetworkManager.cpp src/client/network/ClientNetworkManager.h
         src/client/network/ResponseListenerThread.cpp src/client/network/ResponseListenerThread.h
         # game state
-        src/game_state/cards/card.cpp src/game_state/cards/card.h
-        src/game_state/game_state.cpp src/game_state/game_state.h
-        src/game_state/player/hand.cpp src/game_state/player/hand.h
-        src/game_state/player/player.cpp src/game_state/player/player.h
-        src/game_state/cards/draw_pile.cpp src/game_state/cards/draw_pile.h
-        src/game_state/cards/discard_pile.cpp src/game_state/cards/discard_pile.h
+        src/common/game_state/cards/card.cpp src/common/game_state/cards/card.h
+        src/common/game_state/game_state.cpp src/common/game_state/game_state.h
+        src/common/game_state/player/hand.cpp src/common/game_state/player/hand.h
+        src/common/game_state/player/player.cpp src/common/game_state/player/player.h
+        src/common/game_state/cards/draw_pile.cpp src/common/game_state/cards/draw_pile.h
+        src/common/game_state/cards/discard_pile.cpp src/common/game_state/cards/discard_pile.h
         # client requests
-        src/network/requests/client_request.cpp src/network/requests/client_request.h
-        src/network/requests/play_card_request.cpp src/network/requests/play_card_request.h
-        src/network/requests/draw_card_request.cpp src/network/requests/draw_card_request.h
-        src/network/requests/fold_request.cpp src/network/requests/fold_request.h
-        src/network/requests/join_game_request.cpp src/network/requests/join_game_request.h
-        src/network/requests/start_game_request.cpp src/network/requests/start_game_request.h
+        src/common/network/requests/client_request.cpp src/common/network/requests/client_request.h
+        src/common/network/requests/play_card_request.cpp src/common/network/requests/play_card_request.h
+        src/common/network/requests/draw_card_request.cpp src/common/network/requests/draw_card_request.h
+        src/common/network/requests/fold_request.cpp src/common/network/requests/fold_request.h
+        src/common/network/requests/join_game_request.cpp src/common/network/requests/join_game_request.h
+        src/common/network/requests/start_game_request.cpp src/common/network/requests/start_game_request.h
         # server responses
-        src/network/responses/server_response.cpp src/network/responses/server_response.h
-        src/network/responses/request_response.cpp src/network/responses/request_response.h
-        src/network/responses/full_state_response.cpp src/network/responses/full_state_response.h
+        src/common/network/responses/server_response.cpp src/common/network/responses/server_response.h
+        src/common/network/responses/request_response.cpp src/common/network/responses/request_response.h
+        src/common/network/responses/full_state_response.cpp src/common/network/responses/full_state_response.h
         # utils
         src/common/utils/json_utils.h
         src/common/utils/uuid_generator.h
-        # reactive state
-        src/reactive_state/serializable.h
-        src/reactive_state/value_type_helpers.h
-        src/reactive_state/vector_utils.h
-        src/reactive_state/reactive_objects/reactive_value.h
-        src/reactive_state/reactive_objects/reactive_object.cpp src/reactive_state/reactive_objects/reactive_object.h src/client/network/ClientNetworkManager.cpp src/client/network/ClientNetworkManager.h)
+        # serialization
+        src/common/serialization/serializable.h
+        src/common/serialization/value_type_helpers.h
+        src/common/serialization/vector_utils.h
+        src/common/serialization/serializable_value.h
+        src/common/serialization/reactive_object.cpp src/common/serialization/reactive_object.h)
 
 # define a variable SERVER_SOURCE_FILES that contains the paths to all source files required to compile the server executable
 set(SERVER_SOURCE_FILES
@@ -59,32 +59,32 @@ set(SERVER_SOURCE_FILES
         src/server/player_manager.cpp src/server/player_manager.h
         src/server/server_network_manager.cpp src/server/server_network_manager.h
         # game state
-        src/game_state/cards/card.cpp src/game_state/cards/card.h
-        src/game_state/game_state.cpp src/game_state/game_state.h
-        src/game_state/player/hand.cpp src/game_state/player/hand.h
-        src/game_state/player/player.cpp src/game_state/player/player.h
-        src/game_state/cards/draw_pile.cpp src/game_state/cards/draw_pile.h
-        src/game_state/cards/discard_pile.cpp src/game_state/cards/discard_pile.h
+        src/common/game_state/cards/card.cpp src/common/game_state/cards/card.h
+        src/common/game_state/game_state.cpp src/common/game_state/game_state.h
+        src/common/game_state/player/hand.cpp src/common/game_state/player/hand.h
+        src/common/game_state/player/player.cpp src/common/game_state/player/player.h
+        src/common/game_state/cards/draw_pile.cpp src/common/game_state/cards/draw_pile.h
+        src/common/game_state/cards/discard_pile.cpp src/common/game_state/cards/discard_pile.h
         # client requests
-        src/network/requests/client_request.cpp src/network/requests/client_request.h
-        src/network/requests/play_card_request.cpp src/network/requests/play_card_request.h
-        src/network/requests/draw_card_request.cpp src/network/requests/draw_card_request.h
-        src/network/requests/fold_request.cpp src/network/requests/fold_request.h
-        src/network/requests/join_game_request.cpp src/network/requests/join_game_request.h
-        src/network/requests/start_game_request.cpp src/network/requests/start_game_request.h
+        src/common/network/requests/client_request.cpp src/common/network/requests/client_request.h
+        src/common/network/requests/play_card_request.cpp src/common/network/requests/play_card_request.h
+        src/common/network/requests/draw_card_request.cpp src/common/network/requests/draw_card_request.h
+        src/common/network/requests/fold_request.cpp src/common/network/requests/fold_request.h
+        src/common/network/requests/join_game_request.cpp src/common/network/requests/join_game_request.h
+        src/common/network/requests/start_game_request.cpp src/common/network/requests/start_game_request.h
         # server responses
-        src/network/responses/server_response.cpp src/network/responses/server_response.h
-        src/network/responses/request_response.cpp src/network/responses/request_response.h
-        src/network/responses/full_state_response.cpp src/network/responses/full_state_response.h
+        src/common/network/responses/server_response.cpp src/common/network/responses/server_response.h
+        src/common/network/responses/request_response.cpp src/common/network/responses/request_response.h
+        src/common/network/responses/full_state_response.cpp src/common/network/responses/full_state_response.h
         # utils
         src/common/utils/json_utils.h
         src/common/utils/uuid_generator.h
-        # reactive state
-        src/reactive_state/serializable.h
-        src/reactive_state/value_type_helpers.h
-        src/reactive_state/vector_utils.h
-        src/reactive_state/reactive_objects/reactive_value.h
-        src/reactive_state/reactive_objects/reactive_object.cpp src/reactive_state/reactive_objects/reactive_object.h)
+        # serialization
+        src/common/serialization/serializable.h
+        src/common/serialization/value_type_helpers.h
+        src/common/serialization/vector_utils.h
+        src/common/serialization/serializable_value.h
+        src/common/serialization/reactive_object.cpp src/common/serialization/reactive_object.h)
 
 
 # set source files for client-executable

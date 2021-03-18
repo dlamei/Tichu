@@ -5,7 +5,7 @@
 #include "server_network_manager.h"
 
 #include "../common/utils/json_utils.h"
-#include "../network/responses/full_state_response.h"
+#include "../common/network/responses/full_state_response.h"
 
 // include server address configurations
 #include "../common/network/default.conf"

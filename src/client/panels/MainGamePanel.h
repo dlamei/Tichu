@@ -2,7 +2,7 @@
 #define LAMA_CLIENT_MAINGAMEPANEL_H
 
 #include <wx/wx.h>
-#include "../../game_state/game_state.h"
+#include "../../common/game_state/game_state.h"
 
 
 class MainGamePanel : public wxPanel {

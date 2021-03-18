@@ -4,6 +4,7 @@
 
 #include <string>
 #include "ResponseListenerThread.h"
+#include "../../common/network/requests/client_request.h"
 
 
 class ClientNetworkManager {

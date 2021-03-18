@@ -14,10 +14,10 @@
 #include "sockpp/tcp_connector.h"
 #include "sockpp/tcp_acceptor.h"
 
-#include "../network/requests/client_request.h"
-#include "../network/responses/server_response.h"
-#include "../game_state/player/player.h"
-#include "../game_state/game_state.h"
+#include "../common/network/requests/client_request.h"
+#include "../common/network/responses/server_response.h"
+#include "../common/game_state/player/player.h"
+#include "../common/game_state/game_state.h"
 
 class server_network_manager {
 private:
