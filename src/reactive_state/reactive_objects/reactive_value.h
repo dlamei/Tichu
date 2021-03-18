@@ -32,7 +32,6 @@ protected:
 
 public:
     explicit reactive_value(std::string var_name, T val) : reactive_object(var_name), _value(val) { }
-    explicit reactive_value(std::string var_name, T val, timestamp* timestamp_ptr) : reactive_object(var_name, timestamp_ptr), _value(val) { }
 
     T get_value() const { return this->_value; }
 

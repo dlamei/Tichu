@@ -47,7 +47,7 @@ player::~player() {
 
 #ifdef LAMA_SERVER
 player::player(std::string id, std::string name) :
-        reactive_object(id, "player", new timestamp())
+        reactive_object(id, "player")
 {
     this->_player_name = new reactive_value<std::string>("player_name", name);
     this->_has_folded = new reactive_value<bool>("has_folded", false);
