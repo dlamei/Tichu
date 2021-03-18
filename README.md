@@ -50,7 +50,7 @@ The code can be found in **/src**, where it is separated into different folders:
 ### 3.1 Network Interface
 Everything that is passed between client and server are objects of type `client_request` and `server_response`. Since the underlying network protocol works with TCP, these `client_request` and `server_response` objects are transformed into a **[JSON](https://wiki.selfhtml.org/wiki/JSON) string**, which can then be sent byte by byte over the network. The receiving end reads the JSON string and constructs an object of type `client_request` resp. `server_response` that reflects the exact parameters that are specified in the JSON string. This process is known as **serialization** (object to string) and **deserialization** (string to object).
 
-![client-server-diagram](https://gitlab.ethz.ch/hraymond/cse-lama-example-project/-/blob/master/docs/img/client-server-diagram.png?raw=true)
+![client-server-diagram](./docs/img/client-server-diagram.png?raw=true)
 
 #### 3.1.1 Serialization & Deserialization of messages
 Therefore, both, the `client_request` and `server_response` base classes, implement the abstract class `serializable` with its `write_into_json(...)` function. Additionally, they have a static function `from_json(...)`, which allows creating an instance of an object from JSON.
