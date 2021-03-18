@@ -14,8 +14,8 @@ class hand : public reactive_object {
 private:
     std::vector<card*> _cards;
 
-    hand(base_params params);
-    hand(base_params params, std::vector<card*> cards);
+    hand(std::string id);
+    hand(std::string id, std::vector<card*> cards);
     card* remove_card(std::vector<card*>::iterator pos);
     card* remove_card(int idx);
     card* remove_card(card* card);

@@ -7,24 +7,15 @@
 #include "../../utils/LamaException.h"
 
 player::player(std::string name) : reactive_object() {
-    this->_player_name = new serializable_value<std::string>("player_name", name);
-    this->_has_folded = new serializable_value<bool>("has_folded", false);
-    this->_score = new serializable_value<int>("score", 0);
+    this->_player_name = new serializable_value<std::string>(name);
+    this->_has_folded = new serializable_value<bool>(false);
+    this->_score = new serializable_value<int>(0);
     this->_hand = new hand();
 }
 
-player::player(reactive_object::base_params params) :
-    reactive_object(params)
-{
-    this->_player_name = new serializable_value<std::string>("player_name", "no_name");
-    this->_has_folded = new serializable_value<bool>("has_folded", false);
-    this->_score = new serializable_value<int>("score", 0);
-    this->_hand = new hand();
-}
-
-player::player(reactive_object::base_params params, serializable_value<std::string>* name,
+player::player(std::string id, serializable_value<std::string>* name,
                serializable_value<int>* score, hand *hand, serializable_value<bool>* has_folded) :
-        reactive_object(params),
+        reactive_object(id),
         _player_name(name),
         _hand(hand),
         _score(score),
@@ -49,9 +40,9 @@ player::~player() {
 player::player(std::string id, std::string name) :
         reactive_object(id)
 {
-    this->_player_name = new serializable_value<std::string>("player_name", name);
-    this->_has_folded = new serializable_value<bool>("has_folded", false);
-    this->_score = new serializable_value<int>("score", 0);
+    this->_player_name = new serializable_value<std::string>(name);
+    this->_has_folded = new serializable_value<bool>(false);
+    this->_score = new serializable_value<int>(0);
     this->_hand = new hand();
 }
 
@@ -158,13 +149,13 @@ void player::write_into_json(rapidjson::Value& json, rapidjson::Document::Alloca
 
 
 player *player::from_json(const rapidjson::Value &json) {
-    if (json.HasMember("player_name")
+    if (json.HasMember("id")
+        && json.HasMember("player_name")
         && json.HasMember("has_folded")
         && json.HasMember("hand"))
     {
-        base_params params = reactive_object::extract_base_params(json);
         return new player(
-                params,
+                json["id"].GetString(),
                 serializable_value<std::string>::from_json(json["player_name"].GetObject()),
                 serializable_value<int>::from_json(json["score"].GetObject()),
                 hand::from_json(json["hand"].GetObject()),

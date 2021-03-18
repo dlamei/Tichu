@@ -13,15 +13,7 @@ protected:
 
     std::string _id;       // unique identifier
 
-    struct base_params {
-        std::string _id;
-    };
-
-    static base_params extract_base_params(const rapidjson::Value& json);
-    static base_params create_base_params(std::string id);
-
     reactive_object();
-    reactive_object(base_params& params);
     reactive_object(std::string id);
 
 public:

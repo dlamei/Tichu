@@ -17,8 +17,8 @@ class discard_pile: public reactive_object {
 private:
     std::vector<card*> _cards;
 
-    discard_pile(base_params params);
-    discard_pile(base_params params, std::vector<card*>& cards);
+    discard_pile(std::string id);
+    discard_pile(std::string id, std::vector<card*>& cards);
 public:
     discard_pile();
     ~discard_pile();

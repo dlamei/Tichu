@@ -250,7 +250,7 @@ private:
 
     // deserialization constructor
     game_state(
-            base_params params,
+            std::string id,
             draw_pile* draw_pile,
             discard_pile* discard_pile,
             std::vector<player*>& players,
@@ -327,11 +327,11 @@ For **deserialization**, the `from_json(...)` function is used, which is impleme
 
 ```cpp
 // DESERIALIZATION COSNTRUCTOR receives pointers for all its properties and stores them
-game_state::game_state(base_params params, draw_pile *draw_pile, discard_pile *discard_pile,
+game_state::game_state(std::string id, draw_pile *draw_pile, discard_pile *discard_pile,
                        std::vector<player *> &players, serializable_value<bool> *is_started,
                        serializable_value<bool> *is_finished, serializable_value<int> *current_player_idx,
                        serializable_value<int> *play_direction, serializable_value<int>* round_number, serializable_value<int> *starting_player_idx)
-        : reactive_object(params),  // initialize the reactive_object base-class
+        : reactive_object(id),  // initialize the reactive_object base-class
           _draw_pile(draw_pile),
           _discard_pile(discard_pile),
           _players(players),
@@ -363,7 +363,7 @@ game_state* game_state::from_json(const rapidjson::Value &json) {
             deserialized_players.push_back(player::from_json(serialized_player.GetObject()));
         }
         // Invoke deserialization constructor
-        return new game_state(reactive_object::extract_base_params(json),   // extract base_params from JSON
+        return new game_state(reactive_object::extract_id(json),   // extract base_params from JSON
                               draw_pile::from_json(json["draw_pile"].GetObject()),
                               discard_pile::from_json(json["discard_pile"].GetObject()),
                               deserialized_players,

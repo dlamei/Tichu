@@ -23,10 +23,10 @@ private:
     /*
      * Deserialization constructor
      */
-    draw_pile(base_params params, std::vector<card*>& cards);
+    draw_pile(std::string id, std::vector<card*>& cards);
 
     // from_diff constructor
-    draw_pile(base_params params);
+    draw_pile(std::string id);
 
 // pile functions
     void shuffle();

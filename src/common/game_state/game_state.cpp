@@ -12,19 +12,19 @@ game_state::game_state() : reactive_object() {
     this->_draw_pile = new draw_pile();
     this->_discard_pile = new discard_pile();
     this->_players = std::vector<player*>();
-    this->_is_started = new serializable_value<bool>("is_started", false);
-    this->_is_finished = new serializable_value<bool>("is_finished", false);
-    this->_current_player_idx = new serializable_value<int>("current_player_idx", 0);
-    this->_play_direction = new serializable_value<int>("play_direction", 1);
-    this->_round_number = new serializable_value<int>("round_number", 0);
-    this->_starting_player_idx = new serializable_value<int>("starting_player_idx", 0);
+    this->_is_started = new serializable_value<bool>(false);
+    this->_is_finished = new serializable_value<bool>(false);
+    this->_current_player_idx = new serializable_value<int>(0);
+    this->_play_direction = new serializable_value<int>(1);
+    this->_round_number = new serializable_value<int>(0);
+    this->_starting_player_idx = new serializable_value<int>(0);
 }
 
-game_state::game_state(base_params params, draw_pile *draw_pile, discard_pile *discard_pile,
+game_state::game_state(std::string id, draw_pile *draw_pile, discard_pile *discard_pile,
                        std::vector<player *> &players, serializable_value<bool> *is_started,
                        serializable_value<bool> *is_finished, serializable_value<int> *current_player_idx,
                        serializable_value<int> *play_direction, serializable_value<int>* round_number, serializable_value<int> *starting_player_idx)
-        : reactive_object(params),
+        : reactive_object(id),
           _draw_pile(draw_pile),
           _discard_pile(discard_pile),
           _players(players),
@@ -36,16 +36,16 @@ game_state::game_state(base_params params, draw_pile *draw_pile, discard_pile *d
           _starting_player_idx(starting_player_idx)
 { }
 
-game_state::game_state(base_params params) : reactive_object(params) {
+game_state::game_state(std::string id) : reactive_object(id) {
     this->_draw_pile = new draw_pile();
     this->_discard_pile = new discard_pile();
     this->_players = std::vector<player*>();
-    this->_is_started = new serializable_value<bool>("is_started", false);
-    this->_is_finished = new serializable_value<bool>("is_finished", false);
-    this->_current_player_idx = new serializable_value<int>("current_player_idx", 0);
-    this->_play_direction = new serializable_value<int>("play_direction", 1);
-    this->_round_number = new serializable_value<int>("round_number", 0);
-    this->_starting_player_idx = new serializable_value<int>("starting_player_idx", 0);
+    this->_is_started = new serializable_value<bool>(false);
+    this->_is_finished = new serializable_value<bool>(false);
+    this->_current_player_idx = new serializable_value<int>(0);
+    this->_play_direction = new serializable_value<int>(1);
+    this->_round_number = new serializable_value<int>(0);
+    this->_starting_player_idx = new serializable_value<int>(0);
 }
 
 game_state::~game_state() {
@@ -374,7 +374,8 @@ void game_state::write_into_json(rapidjson::Value &json,
 
 
 game_state* game_state::from_json(const rapidjson::Value &json) {
-    if (json.HasMember("is_finished")
+    if (json.HasMember("id")
+        && json.HasMember("is_finished")
         && json.HasMember("is_started")
         && json.HasMember("current_player_idx")
         && json.HasMember("play_direction")
@@ -388,7 +389,7 @@ game_state* game_state::from_json(const rapidjson::Value &json) {
         for (auto &serialized_player : json["players"].GetArray()) {
             deserialized_players.push_back(player::from_json(serialized_player.GetObject()));
         }
-        return new game_state(reactive_object::extract_base_params(json),
+        return new game_state(json["id"].GetString(),
                               draw_pile::from_json(json["draw_pile"].GetObject()),
                               discard_pile::from_json(json["discard_pile"].GetObject()),
                               deserialized_players,

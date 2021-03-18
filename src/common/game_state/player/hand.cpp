@@ -9,10 +9,10 @@
 
 hand::hand() : reactive_object() { }
 
-hand::hand(reactive_object::base_params params) : reactive_object(params) { }
+hand::hand(std::string id) : reactive_object(id) { }
 
 // deserialization constructor
-hand::hand(base_params params, std::vector<card*> cards) : reactive_object(params) {
+hand::hand(std::string id, std::vector<card*> cards) : reactive_object(id) {
     this->_cards = cards;
 }
 
@@ -118,12 +118,12 @@ void hand::write_into_json(rapidjson::Value &json, rapidjson::Document::Allocato
 }
 
 hand *hand::from_json(const rapidjson::Value &json) {
-    if (json.HasMember("cards")) {
+    if (json.HasMember("id") && json.HasMember("cards")) {
         std::vector<card*> deserialized_cards = std::vector<card*>();
         for (auto &serialized_card : json["cards"].GetArray()) {
             deserialized_cards.push_back(card::from_json(serialized_card.GetObject()));
         }
-        return new hand(reactive_object::extract_base_params(json), deserialized_cards);
+        return new hand(json["id"].GetString(), deserialized_cards);
     } else {
         throw LamaException("Could not parse hand from json. 'cards' were missing.");
     }

@@ -27,13 +27,11 @@ private:
     /*
      * Deserialization constructor
      */
-    player(base_params params,
+    player(std::string id,
            serializable_value<std::string>* name,
            serializable_value<int>* score,
            hand* hand,
            serializable_value<bool>* has_folded);
-
-    player(base_params params);
 
 public:
 // constructors

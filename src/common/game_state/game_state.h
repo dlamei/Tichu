@@ -32,11 +32,11 @@ private:
     serializable_value<int>* _starting_player_idx;
 
     // from_diff constructor
-    game_state(base_params params);
+    game_state(std::string id);
 
     // deserialization constructor
     game_state(
-            base_params params,
+            std::string id,
             draw_pile* draw_pile,
             discard_pile* discard_pile,
             std::vector<player*>& players,

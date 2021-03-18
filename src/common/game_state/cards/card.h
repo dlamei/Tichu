@@ -15,9 +15,9 @@ private:
     serializable_value<int>* _value;
 
     // from_diff constructor
-    card(base_params params);
+    card(std::string id);
     // deserialization constructor
-    card(base_params params, serializable_value<int>* val);
+    card(std::string id, serializable_value<int>* val);
 public:
     card(int val);
     ~card();

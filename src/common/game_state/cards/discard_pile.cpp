@@ -7,10 +7,10 @@
 #include "../../utils/LamaException.h"
 
 
-discard_pile::discard_pile(reactive_object::base_params params) : reactive_object(params) { }
+discard_pile::discard_pile(std::string id) : reactive_object(id) { }
 
-discard_pile::discard_pile(base_params params, std::vector<card *> &cards):
-        reactive_object(params),
+discard_pile::discard_pile(std::string id, std::vector<card *> &cards):
+        reactive_object(id),
         _cards(cards)
 { }
 
@@ -80,13 +80,12 @@ bool discard_pile::try_play(card* played_card, std::string& err) {
 
 
 discard_pile *discard_pile::from_json(const rapidjson::Value &json) {
-    if (json.HasMember("cards")) {
+    if (json.HasMember("id") && json.HasMember("cards")) {
         std::vector<card*> deserialized_cards = std::vector<card*>();
         for (auto &serialized_card : json["cards"].GetArray()) {
             deserialized_cards.push_back(card::from_json(serialized_card.GetObject()));
         }
-        base_params params = reactive_object::extract_base_params(json);
-        return new discard_pile(params, deserialized_cards);
+        return new discard_pile(json["id"].GetString(), deserialized_cards);
     } else {
         throw LamaException("Could not parse draw_pile from json. 'id' or 'cards' were missing.");
     }

@@ -7,19 +7,18 @@
 #include "../../utils/LamaException.h"
 
 
-card::card(reactive_object::base_params params) : reactive_object(params) { }
+card::card(std::string id) : reactive_object(id) { }
 
-card::card(reactive_object::base_params params, serializable_value<int> *val)
-        : reactive_object(params), _value(val)
+card::card(std::string id, serializable_value<int> *val)
+        : reactive_object(id), _value(val)
 { }
 
 card::card(int val) :
         reactive_object(),
-        _value(new serializable_value<int>("value", val))
+        _value(new serializable_value<int>(val))
 { }
 
 card::~card() { }
-
 
 
 int card::get_value() const noexcept {
@@ -34,10 +33,8 @@ bool card::can_be_played_on(const card *const other) const noexcept {
 
 
 card *card::from_json(const rapidjson::Value &json) {
-    if (json.HasMember("value")) {
-        base_params params = reactive_object::extract_base_params(json);
-        return new card(params,
-                        serializable_value<int>::from_json(json["value"].GetObject()));
+    if (json.HasMember("id") && json.HasMember("value")) {
+        return new card(json["id"].GetString(), serializable_value<int>::from_json(json["value"].GetObject()));
     } else {
         throw LamaException("Could not parse json of card. Was missing 'id' or 'val'.");
     }
