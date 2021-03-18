@@ -150,9 +150,21 @@ bool draw_pile::draw(player* player, card*& drawn_card, object_diff& player_diff
     return false;
 }
 
+card* draw_pile::remove_top(object_diff& pile_diff, std::string& err) {
+    card* drawn_card = nullptr;
+    if (!_cards.empty()) {
+        drawn_card = _cards.back();
+        _cards.pop_back();
+        array_diff* arr_diff = new array_diff(this->_id + "_cards", "cards");
+        arr_diff->add_removal(_cards.size(), drawn_card->get_id());
+        pile_diff.add_param_diff(arr_diff->get_name(), arr_diff);
+    } else {
+        err = "Could not draw card because draw pile is empty.";
+    }
+    return drawn_card;
+}
+
 #endif
-
-
 
 #endif
 

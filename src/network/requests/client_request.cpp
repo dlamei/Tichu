@@ -103,6 +103,7 @@ client_request* client_request::from_json(const rapidjson::Value &json) {
         const std::string type = json["type"].GetString();
         const RequestType request_type = client_request::_string_to_request_type.at(type);
 
+        // Check which type of request it is and call the respective from_json constructor
         if (request_type == RequestType::play_card) {
             return play_card_request::from_json(json);
         }

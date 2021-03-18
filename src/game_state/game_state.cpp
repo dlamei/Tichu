@@ -157,7 +157,9 @@ void game_state::setup_round(std::string &err) {
 
     // set a first card onto the discard pile
     card* top_card = _draw_pile->remove_top(err);
-    _discard_pile->try_play(top_card, err);
+    if (top_card != nullptr) {
+        _discard_pile->try_play(top_card, err);
+    }
 }
 
 void game_state::wrap_up_round(std::string& err) {
@@ -345,12 +347,10 @@ void game_state::setup_round(object_diff &game_state_diff, std::string &err) {
     // setup draw_pile
     object_diff* draw_pile_diff = new object_diff(_draw_pile->get_id(), _draw_pile->get_name());
     _draw_pile->setup_game(*draw_pile_diff, err);
-    game_state_diff.add_param_diff(draw_pile_diff->get_name(), draw_pile_diff);
 
     // setup discard_pile
     object_diff* discard_pile_diff = new object_diff(_discard_pile->get_id(), _discard_pile->get_name());
     _discard_pile->setup_game(*discard_pile_diff, err);
-    game_state_diff.add_param_diff(discard_pile_diff->get_name(), discard_pile_diff);
 
     // setup players
     array_diff* players_diff = new array_diff(this->_id + "_players", "players");
@@ -367,6 +367,16 @@ void game_state::setup_round(object_diff &game_state_diff, std::string &err) {
         players_diff->add_modification(i, _players[i]->get_id(), player_diff);
     }
     game_state_diff.add_param_diff(players_diff->get_name(), players_diff);
+
+
+    // set a first card onto the discard pile
+    card* top_card = _draw_pile->remove_top(*draw_pile_diff, err);
+    if (top_card != nullptr) {
+        _discard_pile->try_play(top_card, discard_pile_diff, err);
+    }
+
+    game_state_diff.add_param_diff(draw_pile_diff->get_name(), draw_pile_diff);
+    game_state_diff.add_param_diff(discard_pile_diff->get_name(), discard_pile_diff);
 }
 
 void game_state::wrap_up_round(object_diff& game_state_diff, std::string& err) {

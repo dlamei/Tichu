@@ -5,7 +5,6 @@
 #include "request_response.h"
 
 #include "../../common/utils/LamaException.h"
-#include "../../common/utils/global_state.h"
 #include "../../game_state/game_state.h"
 
 #ifdef LAMA_CLIENT
