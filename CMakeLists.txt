@@ -46,7 +46,6 @@ set(CLIENT_SOURCE_FILES
         src/common/utils/uuid_generator.h
         # reactive state
         src/reactive_state/serializable.h
-        src/reactive_state/array_helpers.h
         src/reactive_state/value_type_helpers.h
         src/reactive_state/vector_utils.h
         src/reactive_state/reactive_objects/reactive_value.h
@@ -82,7 +81,6 @@ set(SERVER_SOURCE_FILES
         src/common/utils/uuid_generator.h
         # reactive state
         src/reactive_state/serializable.h
-        src/reactive_state/array_helpers.h
         src/reactive_state/value_type_helpers.h
         src/reactive_state/vector_utils.h
         src/reactive_state/reactive_objects/reactive_value.h

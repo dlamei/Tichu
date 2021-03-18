@@ -14,7 +14,7 @@ card::card(reactive_object::base_params params, reactive_value<int> *val)
 { }
 
 card::card(int val) :
-        reactive_object("card"),
+        reactive_object(),
         _value(new reactive_value<int>("value", val))
 { }
 

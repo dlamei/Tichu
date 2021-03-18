@@ -3,7 +3,6 @@
 //
 
 #include "discard_pile.h"
-#include "../../reactive_state/array_helpers.h"
 #include "../../reactive_state/vector_utils.h"
 #include "../../common/utils/uuid_generator.h"
 #include "../../common/utils/LamaException.h"
@@ -16,7 +15,7 @@ discard_pile::discard_pile(base_params params, std::vector<card *> &cards):
         _cards(cards)
 { }
 
-discard_pile::discard_pile() : reactive_object("discard_pile") { }
+discard_pile::discard_pile() : reactive_object() { }
 
 discard_pile::~discard_pile() {
     for (int i = 0; i < _cards.size(); i++) {

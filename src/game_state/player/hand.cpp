@@ -7,10 +7,9 @@
 #include <algorithm>
 
 #include "../../common/utils/LamaException.h"
-#include "../../reactive_state/array_helpers.h"
 #include "../../reactive_state/vector_utils.h"
 
-hand::hand() : reactive_object("hand") { }
+hand::hand() : reactive_object() { }
 
 hand::hand(reactive_object::base_params params) : reactive_object(params) { }
 

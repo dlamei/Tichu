@@ -9,7 +9,6 @@
 
 #include "../../common/utils/uuid_generator.h"
 #include "../../reactive_state/vector_utils.h"
-#include "../../reactive_state/array_helpers.h"
 #include "../../common/utils/LamaException.h"
 
 
@@ -24,11 +23,11 @@ draw_pile::draw_pile(reactive_object::base_params params) : reactive_object(para
 
 
 draw_pile::draw_pile(std::vector<card*> &cards)
-        : reactive_object("draw_pile"), _cards(cards)
+        : reactive_object(), _cards(cards)
 { }
 
 
-draw_pile::draw_pile() : reactive_object("draw_pile") { }
+draw_pile::draw_pile() : reactive_object() { }
 
 draw_pile::~draw_pile() {
     for (card* & _card : _cards) {

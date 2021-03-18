@@ -8,11 +8,10 @@
 #include <iostream>
 
 #include "../common/utils/LamaException.h"
-#include "../reactive_state/array_helpers.h"
 #include "../reactive_state/vector_utils.h"
 
 
-game_state::game_state() : reactive_object("game_state") {
+game_state::game_state() : reactive_object() {
     this->_draw_pile = new draw_pile();
     this->_discard_pile = new discard_pile();
     this->_players = std::vector<player*>();
