@@ -9,7 +9,7 @@
 
 #include "../common/utils/LamaException.h"
 #include "../reactive_state/array_helpers.h"
-#include "../reactive_state/diffable_utils.h"
+#include "../reactive_state/vector_utils.h"
 
 
 game_state::game_state() : reactive_object("game_state") {
@@ -373,7 +373,7 @@ void game_state::write_into_json(rapidjson::Value &json,
     _discard_pile->write_into_json(discard_pile_val, allocator);
     json.AddMember("discard_pile", discard_pile_val, allocator);
 
-    json.AddMember("players", diffable_utils::serialize_vector(_players, allocator), allocator);
+    json.AddMember("players", vector_utils::serialize_vector(_players, allocator), allocator);
 }
 
 

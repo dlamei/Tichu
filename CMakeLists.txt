@@ -47,7 +47,7 @@ set(CLIENT_SOURCE_FILES
         src/reactive_state/timestamp.h
         src/reactive_state/array_helpers.h
         src/reactive_state/value_type_helpers.h
-        src/reactive_state/diffable_utils.h
+        src/reactive_state/vector_utils.h
         src/reactive_state/reactive_objects/reactive_value.h
         src/reactive_state/reactive_objects/reactive_object.cpp src/reactive_state/reactive_objects/reactive_object.h)
 
@@ -84,7 +84,7 @@ set(SERVER_SOURCE_FILES
         src/reactive_state/timestamp.h
         src/reactive_state/array_helpers.h
         src/reactive_state/value_type_helpers.h
-        src/reactive_state/diffable_utils.h
+        src/reactive_state/vector_utils.h
         src/reactive_state/reactive_objects/reactive_value.h
         src/reactive_state/reactive_objects/reactive_object.cpp src/reactive_state/reactive_objects/reactive_object.h)
 

@@ -2,8 +2,8 @@
 // Created by Manuel on 10.02.2021.
 //
 
-#ifndef LAMA_DIFFABLE_UTILS_H
-#define LAMA_DIFFABLE_UTILS_H
+#ifndef LAMA_VECTOR_UTILS_H
+#define LAMA_VECTOR_UTILS_H
 
 #include <vector>
 #include "serializable.h"
@@ -11,7 +11,7 @@
 #include "../../rapidjson/include/rapidjson/document.h"
 
 
-namespace diffable_utils {
+namespace vector_utils {
 
     template<class T, class B> struct derived_from {
         static void constraints(T* p) { B* pb = p; }
@@ -33,4 +33,4 @@ namespace diffable_utils {
 
 }
 
-#endif //LAMA_DIFFABLE_UTILS_H
+#endif //LAMA_VECTOR_UTILS_H

@@ -8,7 +8,7 @@
 
 #include "../../common/utils/LamaException.h"
 #include "../../reactive_state/array_helpers.h"
-#include "../../reactive_state/diffable_utils.h"
+#include "../../reactive_state/vector_utils.h"
 
 hand::hand() : reactive_object("hand") { }
 
@@ -108,7 +108,7 @@ bool hand::remove_card(std::string card_id, card*& played_card, std::string &err
 
 void hand::write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType& allocator) const {
     reactive_object::write_into_json(json, allocator);
-    json.AddMember("cards", diffable_utils::serialize_vector(_cards, allocator), allocator);
+    json.AddMember("cards", vector_utils::serialize_vector(_cards, allocator), allocator);
 }
 
 hand *hand::from_json(const rapidjson::Value &json) {

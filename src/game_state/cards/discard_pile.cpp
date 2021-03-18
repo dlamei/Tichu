@@ -4,7 +4,7 @@
 
 #include "discard_pile.h"
 #include "../../reactive_state/array_helpers.h"
-#include "../../reactive_state/diffable_utils.h"
+#include "../../reactive_state/vector_utils.h"
 #include "../../common/utils/uuid_generator.h"
 #include "../../common/utils/LamaException.h"
 
@@ -97,7 +97,7 @@ discard_pile *discard_pile::from_json(const rapidjson::Value &json) {
 void discard_pile::write_into_json(rapidjson::Value &json,
                                    rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
     reactive_object::write_into_json(json, allocator);
-    json.AddMember("cards", diffable_utils::serialize_vector(_cards, allocator), allocator);
+    json.AddMember("cards", vector_utils::serialize_vector(_cards, allocator), allocator);
 }
 
 
