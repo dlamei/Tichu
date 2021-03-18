@@ -4,6 +4,7 @@
 #include <wx/wx.h>
 #include <wx/sizer.h>
 
+// This class can be used to display an image. It can be scaled with parameter <size> and rotated with <rotation> (in radian)
 class ImagePanel : public wxPanel
 {
     wxImage _image;
@@ -18,21 +19,7 @@ public:
     ImagePanel(wxWindow* parent, wxString file, wxBitmapType format, wxPoint position = wxDefaultPosition, wxSize size = wxDefaultSize, double rotation = 0.0);
 
     void paintEvent(wxPaintEvent& event);
-    void OnSize(wxSizeEvent& event);
-
-    // some useful events
-    /*
-     void mouseMoved(wxMouseEvent& event);
-     void mouseDown(wxMouseEvent& event);
-     void mouseWheelMoved(wxMouseEvent& event);
-     void mouseReleased(wxMouseEvent& event);
-     void rightClick(wxMouseEvent& event);
-     void mouseLeftWindow(wxMouseEvent& event);
-     void keyPressed(wxKeyEvent& event);
-     void keyReleased(wxKeyEvent& event);
-     */
-
-    DECLARE_EVENT_TABLE()
+    void onSize(wxSizeEvent& event);
 };
 
 #endif // IMAGEPANEL_H

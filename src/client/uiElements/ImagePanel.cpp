@@ -1,36 +1,5 @@
 #include "ImagePanel.h"
 
-BEGIN_EVENT_TABLE(ImagePanel, wxPanel)
-// some useful events
-/*
- EVT_MOTION(ImagePanel::mouseMoved)
- EVT_LEFT_DOWN(ImagePanel::mouseDown)
- EVT_LEFT_UP(ImagePanel::mouseReleased)
- EVT_RIGHT_DOWN(ImagePanel::rightClick)
- EVT_LEAVE_WINDOW(ImagePanel::mouseLeftWindow)
- EVT_KEY_DOWN(ImagePanel::keyPressed)
- EVT_KEY_UP(ImagePanel::keyReleased)
- EVT_MOUSEWHEEL(ImagePanel::mouseWheelMoved)
- */
-
-// catch paint events
-EVT_PAINT(ImagePanel::paintEvent)
-//Size event
-EVT_SIZE(ImagePanel::OnSize)
-END_EVENT_TABLE()
-
-
-// some useful events
-/*
- void ImagePanel::mouseMoved(wxMouseEvent& event) {}
- void ImagePanel::mouseDown(wxMouseEvent& event) {}
- void ImagePanel::mouseWheelMoved(wxMouseEvent& event) {}
- void ImagePanel::mouseReleased(wxMouseEvent& event) {}
- void ImagePanel::rightClick(wxMouseEvent& event) {}
- void ImagePanel::mouseLeftWindow(wxMouseEvent& event) {}
- void ImagePanel::keyPressed(wxKeyEvent& event) {}
- void ImagePanel::keyReleased(wxKeyEvent& event) {}
- */
 
 ImagePanel::ImagePanel(wxWindow* parent, wxString file, wxBitmapType format, wxPoint position, wxSize size, double rotation) :
         wxPanel(parent, wxID_ANY, position, size)
@@ -49,14 +18,14 @@ ImagePanel::ImagePanel(wxWindow* parent, wxString file, wxBitmapType format, wxP
 
     this->_width = -1;
     this->_height = -1;
+
+    this->Bind(wxEVT_PAINT, &ImagePanel::paintEvent, this);
+    this->Bind(wxEVT_SIZE, &ImagePanel::onSize, this);
 }
 
-/*
- * Called by the system of by wxWidgets when the panel needs
- * to be redrawn. You can also trigger this call by
- * calling Refresh()/Update().
- */
+
 void ImagePanel::paintEvent(wxPaintEvent& event) {
+    // this code is called when the system requests this panel to be redrawn.
 
     if(!this->_image.IsOk()) {
         return;
@@ -90,12 +59,12 @@ void ImagePanel::paintEvent(wxPaintEvent& event) {
     }
 }
 
-/*
- * Here we call refresh to tell the panel to draw itself again.
- * So when the user resizes the image panel the image should be resized too.
- */
-void ImagePanel::OnSize(wxSizeEvent& event) {
+
+void ImagePanel::onSize(wxSizeEvent& event) {
+
+    // when the user resizes this panel, the image should redraw itself
     Refresh();
-    //skip the event.
+
+    // skip any other effects of this event.
     event.Skip();
 }
