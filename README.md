@@ -423,9 +423,9 @@ Here is a list of the most important elements that you will need to create your 
 
 #### 3.4.2 Events
 
-Like in most GUI environments, objects in wxWidgets trigger _events_ when they are interacted with. For instance, a button will trigger a `wxEVT_BUTTON` event when clicked. Similarly a panel will trigger a `wxEVT_LEFT_UP` event when clicked. They are many other events that can be triggered, for example when keyboard keys are pressed, when a window is resized, or when the user moves their cursor over an element.
+Like in most GUI environments, objects in wxWidgets trigger _events_ when they are interacted with. For instance, a button will trigger a `wxEVT_BUTTON` event when clicked. Similarly, a panel will trigger a `wxEVT_LEFT_UP` event when clicked. There are many other events that can be triggered - for example when a keyboard key is pressed, when a window is resized, or when the cursor moves over an element.
 
-In order to make the GUI interactive, we must specify the effect of an event. The easiest way to do so is to _bind_ an event to a lambda function. A lamdba function is an unnamed function that can be used as if it were an r-value. In C++ lamdba function have the following syntax:
+In order to make the GUI interactive, we must specify the effect of an event. The easiest way is to _bind_ an event to a lambda function. A lamdba function is an unnamed function that can be used as an r-value. In C++, lamdba functions have the following syntax:
 
 ```
 [ external_variables... ]( function_parameters ... ) {
@@ -444,9 +444,13 @@ myButton->Bind(wxEVT_BUTTON, [myVariable](wxCommandEvent& event) {
 });
 ```
 
-In C++ we need to specify which variables from outside the lambda function are accessible within it. In the example above `myVariable` is declared outside of the lamda function but is used by the `doSomething` call within the lambda function. We must therefore list `myVariable` in the square brackets at the beginning of the lambda function definition. 
+In C++, we need to specify which variables from outside the lambda function's scope should be accessible within it. In the example above, `myVariable` is declared outside of the lamda function but is used by the `doSomething` function call within the lambda function. We must therefore list `myVariable` in the square brackets at the beginning of the lambda function definition. 
 
-- Positioning
+#### 3.4.3 Positioning
+
+There are two ways to position elements (panels, button, etc.) within a parent element (window, panel): 
+* __Using sizers__: If you use sizers, you will only need to provide the size of an element. You can then add that element to a sizer which will then determine the element's position based on sizers behavior. The most common sizer is `wxBoxSizer`, which allows you to position a set of elements one after the other vertically or horizontally. You can also allow sizers to change the size of elements, depending on the available space. This means that you can let the design of your GUI adapt to the size of the user's window and screen.
+* __Using absolute positioning__: For each element, you can provide a position as a `wxPoint`. This position refers to the offset of the top-left corner of this element from the top-left corner of its parent. Using absolute positioning gives you much more control over the layout of your GUI. However, it is also much more work, as you will need to calculate the position for every single element. This is especially difficult if you want to adapt to changing window sizes.
 
 - Custom classes from example project
 
