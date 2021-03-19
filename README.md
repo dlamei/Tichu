@@ -397,3 +397,34 @@ A similar scheme is applied in all other objects that inherit from `unique_seria
 - `draw_pile`
 - `discard_pile`
 - `serializable_value`
+
+
+### 3.4 GUI with wxWidgets
+
+The GUI of the example project was built using the cross-platform GUI library [wxWidgets](https://www.wxwidgets.org/). In order to build a project using wxWidget element, you need to first install wxWidgets on your system (see Section 1.1 above). 
+
+#### 3.4.1 Structure & Important Classes
+
+Here is a list of the most important elements that you will need to create your GUI. This is just meant as an overview, you will need to look up the corrent usage in wxWidget's [documention](https://docs.wxwidgets.org/3.0/index.html).
+
+* _Application core_
+    * _`wxIMPLEMENT_APP()`_: In order to properly interact with the operating system's GUI, wxWidgets takes over the control flow of your application. wxWidgets therefore has its own `main()` function, that you can reference with the macro `wxIMPLEMENT_APP(wxApp*)`.
+    * _`wxApp`_: The core class of your application must inherit from the `wxApp` class. wxWidgets will call the `OnInit()` function when starting the application. You can find the example project's implementation in `src/client/app/Lama`.
+* _Windows_
+    * _`wxFrame`_: Each window of your application must inherit from the `wxFrame` class. The example project has one window which you can find here: `src/client/windows/GameWindow`
+* _GUI elements within windows_
+    * _`wxPanel`_: Panels serve as containers for elements within a window. All panels must instantiate or inherit from the `wxPanel` class. A panel can contain one or more subpanels.
+    * _`wxBoxSizer`_: Box sizers allow you to layout your panels within a window, either horizontally or vertically. By nesting box sizers, you can create complex layouts. Have a look at `src/client/panels/ConnectionPanel` for an example.
+    * _`wxStaticText`_: This class creates an element that lets you display text in your GUI.
+    * _`wxButton`_: This class creates a clickable button in your GUI.
+* _Pop-ups_
+    * _`wxMessageBox()`_: You can use this function to display a small pop-up window with text in front of the your current main window. This is useful to display error or status messages.
+
+
+- Events
+
+- Positioning
+
+- Custom classes from example project
+
+- Youtube video
