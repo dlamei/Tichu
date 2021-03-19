@@ -449,9 +449,16 @@ In C++, we need to specify which variables from outside the lambda function's sc
 #### 3.4.3 Positioning
 
 There are two ways to position elements (panels, button, etc.) within a parent element (window, panel): 
-* __Using sizers__: If you use sizers, you will only need to provide the size of an element. You can then add that element to a sizer which will then determine the element's position based on sizers behavior. The most common sizer is `wxBoxSizer`, which allows you to position a set of elements one after the other vertically or horizontally. You can also allow sizers to change the size of elements, depending on the available space. This means that you can let the design of your GUI adapt to the size of the user's window and screen.
-* __Using absolute positioning__: For each element, you can provide a position as a `wxPoint`. This position refers to the offset of the top-left corner of this element from the top-left corner of its parent. Using absolute positioning gives you much more control over the layout of your GUI. However, it is also much more work, as you will need to calculate the position for every single element. This is especially difficult if you want to adapt to changing window sizes.
+* __Using sizers__: In this approach, you will only need to provide an element's size, but not it's position. You can then add that element to a sizer, which will then determine the element's position based on the sizer's behavior. The most common sizer is `wxBoxSizer`, which allows you to position a set of elements one after the other, vertically or horizontally. You can also allow sizers to change the size of elements depending on the available space. This means that you can let your GUI adapt to the size of the user's window and screen.
+* __Using absolute positioning__: In this approach, you need to provide a position (as `wxPoint`) for each element. This position refers to the offset of the top-left corner of this element from the top-left corner of its parent. Using absolute positioning gives you much more control over the layout of your GUI. However, it is also much more work, as you will need to calculate the position for every single element. This is especially difficult if you want to adapt to changing window sizes.
 
-- Custom classes from example project
+#### 3.4.4 Classes for reuse
 
-- Youtube video
+The example project provides two classes that you can reuse without changing anything:
+
+* __`ImagePanel`__: This behaves like a regular panel, but shows an image in the background. You should use this to display any image you need for your GUI.
+* __`InputField`__: This provides a user input field with a label in front of it. Use `getValue()` to get the user's input.
+
+#### 3.4.5 Tutorial video
+
+We encourage you to watch this well-explained tutorial video on wxWidgets. The video focuses on layouting, but also shows you how to setup a basic wxWidget application: https://www.youtube.com/watch?v=kPB5Y6ef9dw
