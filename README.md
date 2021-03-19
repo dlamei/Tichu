@@ -425,17 +425,26 @@ Here is a list of the most important elements that you will need to create your 
 
 Like in most GUI environments, objects in wxWidgets trigger _events_ when they are interacted with. For instance, a button will trigger a `wxEVT_BUTTON` event when clicked. Similarly a panel will trigger a `wxEVT_LEFT_UP` event when clicked. They are many other events that can be triggered, for example when keyboard keys are pressed, when a window is resized, or when the user moves their cursor over an element.
 
-In order to make the GUI interactive, we must specify the effect of an event occurs. The easiest way to do so is to _bind_ an event to a lambda function. A lamdba function is a unnamed function that can be used as if it were an r-value. Here is an example which binds a lambda function to a button click event:
+In order to make the GUI interactive, we must specify the effect of an event. The easiest way to do so is to _bind_ an event to a lambda function. A lamdba function is an unnamed function that can be used as if it were an r-value. In C++ lamdba function have the following syntax:
+
+```
+[ external_variables... ]( function_parameters ... ) {
+    function_body...
+}
+
+```
+
+Here is an example which binds a lambda function to a button click event:
 
 ```
 wxButton* myButton = new wxButton(parentPanel, wxID_ANY, "Click me!");
 int myVariable = 42;
 myButton->Bind(wxEVT_BUTTON, [myVariable](wxCommandEvent& event) {
-    doSomething(myVariable);
+    doSomething(myVariable, event);
 });
 ```
 
-In C++ we need to specify which variables from outside the lambda function are accessible within it. In the example above `myVariable` is declared outside of the lamda function but used by the `doSomething` function within the lambda function. `myVariable` must be therefore listed in the square brackets before at the beginning of the lambda function definition. 
+In C++ we need to specify which variables from outside the lambda function are accessible within it. In the example above `myVariable` is declared outside of the lamda function but is used by the `doSomething` call within the lambda function. We must therefore list `myVariable` in the square brackets at the beginning of the lambda function definition. 
 
 - Positioning
 
