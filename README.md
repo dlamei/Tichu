@@ -3,7 +3,10 @@
 This is a simple C++ implementation of the game "Lama" by AMIGO. The implementation features a client/server architecture for multiplayer scenarios.
 It uses [wxWidgets](https://www.wxwidgets.org/) for the GUI, [sockpp](https://github.com/fpagliughi/sockpp) for the network interface and [rapidjson](https://rapidjson.org/md_doc_tutorial.html) for object serialization.
 
-This is a template project for the students of the course Software Engineering. We encourage the students to read through this documentation and get familiar with [wxWidgets](https://www.wxwidgets.org/) and the [rapidjson library](https://rapidjson.org/md_doc_tutorial.html) if they want to implement their game based on the architecture of this template. They can reuse as much of the code as they want and we encourage to at least reuse the `server_network_manager` and `client_network_manager`, which handles TCP communication between client and server.
+This is a template project for the students of the course Software Engineering. **We encourage the students to read through this documentation** and get familiar with [wxWidgets](https://www.wxwidgets.org/) and the [rapidjson library](https://rapidjson.org/md_doc_tutorial.html) if they want to implement their game based on the architecture of this template. 
+
+## Code Reuse
+**You may reuse as much of this code as you want!** We even encourage it. Therefore, we also encourage you to **read through this documentation, as it explains the way this template project works and how it can be adapted to different use cases.** At the very least, we highly encourage your team to at least use the `server_network_manager` and `client_network_manager` to simplify (TCP) communication between client and server.
 
 ## 1. Compile instructions
 This project only works on UNIX systems (Linux / MacOS). We recommend using [Ubuntu](https://ubuntu.com/#download), as it offers the easiest way to setup wxWidgets. Therefore, we explain installation only for Ubuntu systems. The following was tested on a Ubuntu 20.4 system, but should also work for earlier versions of Ubuntu.
