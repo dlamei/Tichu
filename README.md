@@ -222,7 +222,7 @@ There are plenty of examples of subclasses in the network/requests folder, where
 
 #### 3.2.2 Sending messages
 #### Client -> Server:
-All you have to do is use the static class `ClientNetworkManager` on the client side and then invoke its `sendRequest(const client_request& request)` function with the client_request that you want to send. The server's response will arrive as an object of type `request_response` and the `ClientNetworkManager` will invoke the `Process()` function of that `request_response` object automatically.
+All you have to do is use the static class `ClientNetworkManager` on the client side and then invoke its `sendRequest(const client_request& request)` function with the `client_request` that you want to send. The server's response will arrive as an object of type `request_response` and the `ClientNetworkManager` will invoke the `Process()` function of that `request_response` object automatically.
 
 #### Server -> Client:
 If you look at the signature of the `execute()` function of the `client_request`, you can see that it returns a pointer to an object of type `request_response` (a subclass of `server_response`). When implementing the `execute()` function of your `client_request` subclass, you have to return an object of type `request_response` with all parameters you want to send. This return value will then automatically be sent over the network to the requesting client. 
