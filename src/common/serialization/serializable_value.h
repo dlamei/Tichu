@@ -1,6 +1,15 @@
 //
 // Created by Manuel on 04.02.2021.
 //
+// A serializable value. Supported value types are:
+//  bool
+//  int
+//  unsigned int
+//  int64_t
+//  uint64_t
+//  float
+//  double
+//  string
 
 #ifndef LAMA_SERIALIZABLE_VALUE_H
 #define LAMA_SERIALIZABLE_VALUE_H
@@ -13,12 +22,6 @@
 #include "unique_serializable.h"
 #include "value_type_helpers.h"
 #include "../../../rapidjson/include/rapidjson/document.h"
-
-
-/*
- * For bool, int, unsigned int, int64_t, uint64_t, float, double and string.
- * Container types are not supported
- */
 
 template <class T>
 class serializable_value : public serializable {

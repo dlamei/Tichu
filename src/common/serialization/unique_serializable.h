@@ -1,6 +1,7 @@
 //
 // Created by Manuel on 03.02.2021.
 //
+// Used to serialize game_state objects that need to be identifiable by a unique id.
 
 #ifndef LAMA_UNIQUE_SERIALIZABLE_H
 #define LAMA_UNIQUE_SERIALIZABLE_H

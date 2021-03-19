@@ -1,6 +1,8 @@
 //
 // Created by Manuel on 12.02.2021.
 //
+// The server_network_manager handles all incoming messages and offers functionality to broadcast messages
+// to all connected players of a game.
 
 #ifndef LAMA_SERVER_NETWORK_MANAGER_H
 #define LAMA_SERVER_NETWORK_MANAGER_H
@@ -40,9 +42,10 @@ public:
     server_network_manager();
     ~server_network_manager();
 
-    static void on_player_left(std::string player_id);  // invoked when a player disconnects
+    // Used to broadcast a server_response (e.g. a full_state_response) to all 'players' except 'exclude'
     static void broadcast_message(server_response& msg, const std::vector<player*>& players, const player* exclude);
 
+    static void on_player_left(std::string player_id);
 };
 
 

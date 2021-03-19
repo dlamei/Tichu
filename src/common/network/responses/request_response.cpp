@@ -60,7 +60,7 @@ request_response *request_response::from_json(const rapidjson::Value& json) {
 
         rapidjson::Value* state_json = nullptr;
         if (json.HasMember("state_json")) {
-            state_json = json_utils::create_pointer_to_clone(json["state_json"].GetObject());
+            state_json = json_utils::clone_value(json["state_json"].GetObject());
         }
         return new request_response(
                 server_response::extract_base_class_properties(json),

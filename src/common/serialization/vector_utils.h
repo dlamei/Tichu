@@ -1,6 +1,7 @@
 //
 // Created by Manuel on 10.02.2021.
 //
+// Helper functions to serialize vectors containing objects that implement the 'serializable' class.
 
 #ifndef LAMA_VECTOR_UTILS_H
 #define LAMA_VECTOR_UTILS_H
@@ -19,7 +20,7 @@ namespace vector_utils {
     };
 
     template<class T>
-    /* WARNING: can only be called with vectors for type T that derives from "serializable" */
+    /* WARNING: can only be called with vectors containing elements of type T that derives from "serializable" */
     static rapidjson::Value serialize_vector(const std::vector<T*>& serializables, rapidjson::Document::AllocatorType& allocator) {
         derived_from<T,serializable>(); // ensure T derives from serializable
         rapidjson::Value arr_val(rapidjson::kArrayType);

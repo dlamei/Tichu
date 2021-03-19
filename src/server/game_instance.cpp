@@ -1,6 +1,8 @@
 //
 // Created by Manuel on 25.01.2021.
 //
+// The game_instance class is a wrapper around the game_state of an active instance of the game.
+// This class contains functions to modify the contained game_state.
 
 #include "game_instance.h"
 
