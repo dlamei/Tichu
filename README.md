@@ -3,6 +3,8 @@
 This is a simple C++ implementation of the game "Lama" by AMIGO. The implementation features a client/server architecture for multiplayer scenarios.
 It uses [wxWidgets](https://www.wxwidgets.org/) for the GUI, [sockpp](https://github.com/fpagliughi/sockpp) for the network interface and [rapidjson](https://rapidjson.org/md_doc_tutorial.html) for object serialization.
 
+![Lama-logo](./assets/lama_logo.png?raw=true)
+
 This is a template project for the students of the course Software Engineering.
 
 ## Code Reuse
@@ -65,12 +67,12 @@ The client renders the GUI that is presented to the player, whereas the server i
 - If the **player's move was valid**, the server will update the game state (e.g. move a card from the player's hand to the discard pile) and broadcast this new game state to all players of the game. Whenever the client application receives a game state update, it will re-render the GUI accordingly and allow new interactions.   
 - If the **move was invalid**, the game state will not be updated and only the requesting player will get a response containing the error message. 
 
-### 3.1 Network Interface
+### 3.2 Network Interface
 Everything that is passed between client and server are objects of type `client_request` and `server_response`. Since the underlying network protocol works with TCP, these `client_request` and `server_response` objects are transformed into a **[JSON](https://wiki.selfhtml.org/wiki/JSON) string**, which can then be sent byte by byte over the network. The receiving end reads the JSON string and constructs an object of type `client_request` resp. `server_response` that reflects the exact parameters that are specified in the JSON string. This process is known as **serialization** (object to string) and **deserialization** (string to object). If you want to read more about serialization, [read me on Wikipedia](https://en.wikipedia.org/wiki/Serialization).
 
 ![client-server-diagram](./docs/img/client-server-diagram.png?raw=true)
 
-#### 3.1.1 Serialization & Deserialization of messages
+#### 3.2.1 Serialization & Deserialization of messages
 Both, the `client_request` and `server_response` base classes, implement the abstract class `serializable` with its `write_into_json(...)` function. It allows to serialize the object instance into a JSON string. Additionally, they have a static function `from_json(...)`, which allows creating an instance of an object from JSON.
 
 ```cpp
@@ -218,7 +220,7 @@ play_card_request* play_card_request::from_json(const rapidjson::Value& json) {
 
 There are plenty of examples of subclasses in the network/requests folder, where you can see how the serialization/deserialization scheme works.
 
-#### 3.1.2 Sending messages
+#### 3.2.2 Sending messages
 #### Client -> Server:
 All you have to do is create an instance of type `ClientNetworkThread` on the client side and then invoke its `sendRequest(const client_request& request)` function with the client_request that you want to send. The response will arrive as an object of type `request_response` and the `ClientNetworkThread` will invoke the `Process()` function of that `request_response` object automatically.
 
@@ -246,7 +248,7 @@ bool game_instance::start_game(player* player, std::string &err) {
 }
 ```
 
-### 3.2 Game State
+### 3.3 Game State
 
 The `game_state` class stores all parameters that are required to represent the game on the client (resp. server) side. In order to synchronize this `game_state` among all players, the `game_state` can also be **serialized** and **deserialized**. If a `client_request` was successfully executed on the server, then the `request_response` that is sent to back to the client contains a serialized version of the updated `game_state`. All other players receive the updated `game_state` at the same time through a `full_state_response`.
 
