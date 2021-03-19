@@ -3,10 +3,11 @@
 This is a simple C++ implementation of the game "Lama" by AMIGO. The implementation features a client/server architecture for multiplayer scenarios.
 It uses [wxWidgets](https://www.wxwidgets.org/) for the GUI, [sockpp](https://github.com/fpagliughi/sockpp) for the network interface and [rapidjson](https://rapidjson.org/md_doc_tutorial.html) for object serialization.
 
-This is a template project for the students of the course Software Engineering. **We encourage the students to read through this documentation** and get familiar with [wxWidgets](https://www.wxwidgets.org/) and the [rapidjson library](https://rapidjson.org/md_doc_tutorial.html) if they want to implement their game based on the architecture of this template. 
+This is a template project for the students of the course Software Engineering.
 
 ## Code Reuse
-**You may reuse as much of this code as you want!** We even encourage it. Therefore, we also encourage you to **read through this documentation, as it explains the way this template project works and how it can be adapted to different use cases.** At the very least, we highly encourage your team to at least use the `server_network_manager` and `client_network_manager` to simplify (TCP) communication between client and server.
+#### You may reuse as much of this code as you want!
+ We even encourage it. Therefore, we also encourage you to **read through this documentation, as it explains the way this template project works and how it can be adapted to different use cases.** At the very least, we highly encourage your team to at least use the `server_network_manager` and `client_network_manager` to simplify (TCP) communication between client and server.
 
 ## 1. Compile instructions
 This project only works on UNIX systems (Linux / MacOS). We recommend using [Ubuntu](https://ubuntu.com/#download), as it offers the easiest way to setup wxWidgets. Therefore, we explain installation only for Ubuntu systems. The following was tested on a Ubuntu 20.4 system, but should also work for earlier versions of Ubuntu.
@@ -44,19 +45,33 @@ Execute the following commands in a console:
 ## 3. Code Documentation
 The code can be found in **/src**, where it is separated into different folders:
 - **/client** contains only code that is used on the client side (e.g. UI, sending messages)
-- **/common** contains helper functions that are used on the client and server side. You don't need to change anything in here (unless you want to rename the LamaException class ;)).
-- **/game_state** contains the game state that is synchronized between client and server. We use the pre-compile directive LAMA_SERVER to enable certain parts of the code only on the server side. Namely, these are the state update functions, as they should only happen on the server. The client  simply reflects the current game state as sent by the server without modifying it directly. 
-- **/network** contains all the messages that are being passed between client and server. We use the pre-compile directive LAMA_SERVER to enable execution of a `client_request` on the server side (through the function `execute()`). Similarly, we use the LAMA_CLIENT pre-compile directive to make `server_repsonses` only executable on the client side (through the function `Process()`) .
-- **/reactive_state** contains base classes for the `game_state` objects. You don't need to change anything in here.
+- **/common** contains code that is shared between server and client.
+    - **/exceptions** contains the exception class used on server and client side. You don't need to change anything in here (unless you want to rename the LamaException class ;))
+    - **/game_state** contains the `game_state` that is synchronized between client and server. We use the [conditional pre-compile directive](https://www.cplusplus.com/doc/tutorial/preprocessor/) LAMA_SERVER to enable certain parts of the code only on the server side. Namely, these are the state update functions, as they should only happen on the server. The client simply reflects the current game state as sent by the server without modifying it directly. 
+    - **/network** contains all the messages that are being passed between client and server. We use the conditional pre-compile directive LAMA_SERVER to enable execution of a `client_request` on the server side (through the function `execute()`). Similarly, we use the LAMA_CLIENT pre-compile directive to make `server_repsonses` only executable on the client side (through the function `Process()`) .
+    - **/serialization** contains base classes for serializing `game_state`, `client_request` and `server_response` objects. **Serialization** is the process of transforming an object instance into a string that can be sent over a network, where the receiver deserializes it, i.e. recreates the object from the string. If you are interested, [read me on Wikipedia](https://en.wikipedia.org/wiki/Serialization).
 - **/server** contains only code that is relevant for the server (e.g. player management, game instance management, receiving messages)
 
+The **/asset** folder stores all the images that are being used to render the GUI.
+
+You don't need to look at the **/sockpp** or **/rapidjson** folder, as they simply contain 3rd party code that should not be changed.
+
+
+### 3.1 Overview
+
+First of, this project consists of a **server** and a **client**, each with their own main.cpp file. 
+
+The client renders the GUI that is presented to the player, whereas the server is a console application without a user interface. Every action a player performs in the client application (for example playing a card) is sent as a formated message to the server application, which processes the request.   
+- If the **player's move was valid**, the server will update the game state (e.g. move a card from the player's hand to the discard pile) and broadcast this new game state to all players of the game. Whenever the client application receives a game state update, it will re-render the GUI accordingly and allow new interactions.   
+- If the **move was invalid**, the game state will not be updated and only the requesting player will get a response containing the error message. 
+
 ### 3.1 Network Interface
-Everything that is passed between client and server are objects of type `client_request` and `server_response`. Since the underlying network protocol works with TCP, these `client_request` and `server_response` objects are transformed into a **[JSON](https://wiki.selfhtml.org/wiki/JSON) string**, which can then be sent byte by byte over the network. The receiving end reads the JSON string and constructs an object of type `client_request` resp. `server_response` that reflects the exact parameters that are specified in the JSON string. This process is known as **serialization** (object to string) and **deserialization** (string to object).
+Everything that is passed between client and server are objects of type `client_request` and `server_response`. Since the underlying network protocol works with TCP, these `client_request` and `server_response` objects are transformed into a **[JSON](https://wiki.selfhtml.org/wiki/JSON) string**, which can then be sent byte by byte over the network. The receiving end reads the JSON string and constructs an object of type `client_request` resp. `server_response` that reflects the exact parameters that are specified in the JSON string. This process is known as **serialization** (object to string) and **deserialization** (string to object). If you want to read more about serialization, [read me on Wikipedia](https://en.wikipedia.org/wiki/Serialization).
 
 ![client-server-diagram](./docs/img/client-server-diagram.png?raw=true)
 
 #### 3.1.1 Serialization & Deserialization of messages
-Therefore, both, the `client_request` and `server_response` base classes, implement the abstract class `serializable` with its `write_into_json(...)` function. Additionally, they have a static function `from_json(...)`, which allows creating an instance of an object from JSON.
+Both, the `client_request` and `server_response` base classes, implement the abstract class `serializable` with its `write_into_json(...)` function. It allows to serialize the object instance into a JSON string. Additionally, they have a static function `from_json(...)`, which allows creating an instance of an object from JSON.
 
 ```cpp
 enum RequestType {
@@ -76,9 +91,9 @@ protected:
 
     ...
 private:
-    // for deserialization
+    // for deserializing RequestType
     static const std::unordered_map<std::string, RequestType> _string_to_request_type;
-    // for serialization
+    // for serializing RequestType
     static const std::unordered_map<RequestType, std::string> _request_type_to_string;
 
 public:
@@ -88,7 +103,7 @@ public:
     // SERIALIZATION: Serializes the client_request into a json object that can be sent over the network
     virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
 
-// Code that should only exist on the server side
+// Code that should only exist on the server side (conditional preprocessor directive)
 #ifdef LAMA_SERVER
     // Executes the client_request (only on server)
     // This function is automatically invoked by the server_network_manager when a valid client_request (this) arrives.
@@ -97,13 +112,13 @@ public:
 };
 ```
 
-**Serialization**
+##### Serialization
 
-When you implement your own specializations of `client_request` (and `server_response` if necessary) you will have to implement the `write_into_json(...)` functions yourself. Your subclass always has to call the `write_into_json(...)` function of its base class, such that the parameters of the base class are  written into the JSON document: 
+When you implement your own specializations of `client_request` (and `server_response`, if necessary) you will have to implement the `write_into_json(...)` functions yourself. Your subclass always has to call the `write_into_json(...)` function of its base-class, such that the parameters of the base-class are written into the JSON document: 
 
 Here is the **base-class** implementation:
 ```cpp
-// Implementation in the base class client_request
+// Implementation in the base-class client_request
 void client_request::write_into_json(rapidjson::Value &json,
                                      rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
     // Look up string value of this client_request's RequestType and store it in the json document
@@ -120,12 +135,12 @@ void client_request::write_into_json(rapidjson::Value &json,
     ...
 }
 ```
-And here is the **subclass** implementation, where an additional field `_card_id` is serialized.
+And here is the **subclass** implementation (for the `play_card_request` class), where an additional field `_card_id` is serialized.
 ```cpp
 // Implementation in the subclass play_card_request 
 void play_card_request::write_into_json(rapidjson::Value &json,
                                         rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
-    // call base class, such that the parameters of the base class are written into the JSON document
+    // call base-class, such that the parameters of the base-class are written into the JSON document
     client_request::write_into_json(json, allocator);
 
     // Add parameters to the JSON that are unique to the play_card_request
@@ -134,7 +149,7 @@ void play_card_request::write_into_json(rapidjson::Value &json,
 }
 ```
 
-**Deserialization**
+##### Deserialization
 
 The deserialization of `client_request` JSONs always goes through the `from_json(...)` function of the `client_request` class. In this function, the "type" field, stored in the JSON, is inspected to determine, which subclass should be called to perform the deserialization: 
 
@@ -205,7 +220,7 @@ There are plenty of examples of subclasses in the network/requests folder, where
 
 #### 3.1.2 Sending messages
 #### Client -> Server:
-All you have to do is create an object of type `ClientNetworkThread` on the client side and then invoke its `sendRequest(const client_request& request)` function with the client_request that you want to send. The response will arrive as an object of type `request_response` and the `ClientNetworkThread` will invoke the `Process()` function of that `request_response` object automatically.
+All you have to do is create an instance of type `ClientNetworkThread` on the client side and then invoke its `sendRequest(const client_request& request)` function with the client_request that you want to send. The response will arrive as an object of type `request_response` and the `ClientNetworkThread` will invoke the `Process()` function of that `request_response` object automatically.
 
 #### Server -> Client:
 If you look at the signature of the `execute()` function of the `client_request`, you can see that it returns a pointer to an object of type `request_response` (a subclass of `server_response`). When implementing the `execute()` function of your `client_request` subclass, you have to return an object of type `request_response` with all parameters you want to send. This return value will then automatically be sent over the network to the requesting client. 
@@ -248,7 +263,6 @@ private:
     serializable_value<bool>* _is_finished;
     serializable_value<int>* _round_number;
     serializable_value<int>* _current_player_idx;
-    serializable_value<int>* _play_direction;  // 1 or -1 depending on which direction is played in
     serializable_value<int>* _starting_player_idx;
 
     // deserialization constructor
@@ -260,7 +274,6 @@ private:
             serializable_value<bool>* is_started,
             serializable_value<bool>* is_finished,
             serializable_value<int>* current_player_idx,
-            serializable_value<int>* play_direction,
             serializable_value<int>* round_number,
             serializable_value<int>* starting_player_idx);
 
@@ -275,11 +288,11 @@ public:
 };
 ```
 
-The `game_state` inherits from `unique_serializable`, which essentially requires the `write_into_json()` function and adds a unique `id` to the object, such that it can be uniquely identified. Similarly, each parameter nested inside the `game_state` (e.g. players, draw_pile, etc.) also inherit from unique_serializable and therefore have their own `id` and serialization, resp. deserialization functions.
+The `game_state` inherits from `unique_serializable`, which essentially requires the `write_into_json()` function and adds a unique `id` to the object, such that it can be uniquely identified. Similarly, each parameter nested inside the `game_state` (e.g. players, draw_pile, etc.) also inherit from `unique_serializable` and therefore have their own `id` and serialization, resp. deserialization functions.
 
 On the client side, the new `game_state` is then passed to the `updateGameState(game_state*)` function of the `GameController` class, which performs a redraw of the GUI.
 
-Since you will have to add your own properties to the `game_state` class (and probably create other classes that inherit from `unique_serializable` to add to your game_state), we want to shortly elaborate how the serialization and deserialization works for subclasses of `unique_serializable`. It's very similar to the `client_request` class discussed earlier. Here is how the `write_into_json(...)` function is implemented in the `game_state` class of Lama:
+Since you will have to add your own properties to the `game_state` class (and probably create other classes that inherit from `unique_serializable` to add to your game_state), we want to shortly elaborate how the serialization and deserialization works for subclasses of `unique_serializable`. It's very similar to the `client_request` class discussed earlier. Here is how the `write_into_json(...)` function is implemented in the `game_state` class of Lama. **Don't be shocked by the lengthy code. It's only a lot of repetition for each class property** :
 
 ```cpp
 void game_state::write_into_json(rapidjson::Value &json,
@@ -299,10 +312,6 @@ void game_state::write_into_json(rapidjson::Value &json,
     rapidjson::Value current_player_idx_val(rapidjson::kObjectType);
     _current_player_idx->write_into_json(current_player_idx_val, allocator);
     json.AddMember("current_player_idx", current_player_idx_val, allocator);
-
-    rapidjson::Value play_direction_val(rapidjson::kObjectType);
-    _play_direction->write_into_json(play_direction_val, allocator);
-    json.AddMember("play_direction", play_direction_val, allocator);
 
     rapidjson::Value starting_player_idx_val(rapidjson::kObjectType);
     _starting_player_idx->write_into_json(starting_player_idx_val, allocator);
@@ -333,7 +342,7 @@ For **deserialization**, the `from_json(...)` function is used, which is impleme
 game_state::game_state(std::string id, draw_pile *draw_pile, discard_pile *discard_pile,
                        std::vector<player *> &players, serializable_value<bool> *is_started,
                        serializable_value<bool> *is_finished, serializable_value<int> *current_player_idx,
-                       serializable_value<int> *play_direction, serializable_value<int>* round_number, serializable_value<int> *starting_player_idx)
+                       serializable_value<int>* round_number, serializable_value<int> *starting_player_idx)
         : unique_serializable(id),  // initialize the unique_serializable base-class
           _draw_pile(draw_pile),
           _discard_pile(discard_pile),
@@ -341,7 +350,6 @@ game_state::game_state(std::string id, draw_pile *draw_pile, discard_pile *disca
           _is_started(is_started),
           _is_finished(is_finished),
           _current_player_idx(current_player_idx),
-          _play_direction(play_direction),
           _round_number(round_number),
           _starting_player_idx(starting_player_idx)
 { }
@@ -353,7 +361,6 @@ game_state* game_state::from_json(const rapidjson::Value &json) {
     if (json.HasMember("is_finished")
         && json.HasMember("is_started")
         && json.HasMember("current_player_idx")
-        && json.HasMember("play_direction")
         && json.HasMember("round_number")
         && json.HasMember("starting_player_idx")
         && json.HasMember("players")
@@ -373,7 +380,6 @@ game_state* game_state::from_json(const rapidjson::Value &json) {
                               serializable_value<bool>::from_json(json["is_started"].GetObject()),
                               serializable_value<bool>::from_json(json["is_finished"].GetObject()),
                               serializable_value<int>::from_json(json["current_player_idx"].GetObject()),
-                              serializable_value<int>::from_json(json["play_direction"].GetObject()),
                               serializable_value<int>::from_json(json["round_number"].GetObject()),
                               serializable_value<int>::from_json(json["starting_player_idx"].GetObject()));
     } else {
