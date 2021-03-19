@@ -405,23 +405,37 @@ The GUI of the example project was built using the cross-platform GUI library [w
 
 #### 3.4.1 Structure & Important Classes
 
-Here is a list of the most important elements that you will need to create your GUI. This is just meant as an overview, you will need to look up the corrent usage in wxWidget's [documention](https://docs.wxwidgets.org/3.0/index.html).
+Here is a list of the most important elements that you will need to create your GUI. This is just meant as an overview, you will need to look up their correct usage in wxWidget's [documention](https://docs.wxwidgets.org/3.0/index.html).
 
-* _Application core_
-    * _`wxIMPLEMENT_APP()`_: In order to properly interact with the operating system's GUI, wxWidgets takes over the control flow of your application. wxWidgets therefore has its own `main()` function, that you can reference with the macro `wxIMPLEMENT_APP(wxApp*)`.
-    * _`wxApp`_: The core class of your application must inherit from the `wxApp` class. wxWidgets will call the `OnInit()` function when starting the application. You can find the example project's implementation in `src/client/app/Lama`.
-* _Windows_
-    * _`wxFrame`_: Each window of your application must inherit from the `wxFrame` class. The example project has one window which you can find here: `src/client/windows/GameWindow`
-* _GUI elements within windows_
-    * _`wxPanel`_: Panels serve as containers for elements within a window. All panels must instantiate or inherit from the `wxPanel` class. A panel can contain one or more subpanels.
-    * _`wxBoxSizer`_: Box sizers allow you to layout your panels within a window, either horizontally or vertically. By nesting box sizers, you can create complex layouts. Have a look at `src/client/panels/ConnectionPanel` for an example.
-    * _`wxStaticText`_: This class creates an element that lets you display text in your GUI.
-    * _`wxButton`_: This class creates a clickable button in your GUI.
-* _Pop-ups_
-    * _`wxMessageBox()`_: You can use this function to display a small pop-up window with text in front of the your current main window. This is useful to display error or status messages.
+* __Application core__
+    * __`wxIMPLEMENT_APP()`__: In order to properly interact with the operating system's GUI, wxWidgets takes over the control flow of your application. wxWidgets therefore has its own `main()` function, that you can reference with the macro `wxIMPLEMENT_APP(wxApp*)`.
+    * __`wxApp`__: The core class of your application must inherit from the `wxApp` class. wxWidgets will call the `OnInit()` function when starting the application. You can find the example project's implementation in `src/client/app/Lama`.
+* __Windows__
+    * __`wxFrame`__: Each window of your application must inherit from the `wxFrame` class. The example project has one window which you can find here: `src/client/windows/GameWindow`
+* __GUI elements__
+    * __`wxPanel`__: Panels serve as containers for elements within a window. All panels must instantiate or inherit from the `wxPanel` class. A panel can contain one or more subpanels.
+    * __`wxBoxSizer`__: Box sizers allow you to layout your panels within a window, either horizontally or vertically. By nesting box sizers, you can create complex layouts. Have a look at `src/client/panels/ConnectionPanel` for an example.
+    * __`wxStaticText`__: This class displays text in your GUI.
+    * __`wxButton`__: This class creates a clickable button in your GUI.
+* __Pop-ups__
+    * __`wxMessageBox()`__: You can use this function to display a small pop-up window with text in front of the your current main window. This is useful to display error or status messages.
 
 
-- Events
+#### 3.4.2 Events
+
+Like in most GUI environments, objects in wxWidgets trigger _events_ when they are interacted with. For instance, a button will trigger a `wxEVT_BUTTON` event when clicked. Similarly a panel will trigger a `wxEVT_LEFT_UP` event when clicked. They are many other events that can be triggered, for example when keyboard keys are pressed, when a window is resized, or when the user moves their cursor over an element.
+
+In order to make the GUI interactive, we must specify the effect of an event occurs. The easiest way to do so is to _bind_ an event to a lambda function. A lamdba function is a unnamed function that can be used as if it were an r-value. Here is an example which binds a lambda function to a button click event:
+
+```
+wxButton* myButton = new wxButton(parentPanel, wxID_ANY, "Click me!");
+int myVariable = 42;
+myButton->Bind(wxEVT_BUTTON, [myVariable](wxCommandEvent& event) {
+    doSomething(myVariable);
+});
+```
+
+In C++ we need to specify which variables from outside the lambda function are accessible within it. In the example above `myVariable` is declared outside of the lamda function but used by the `doSomething` function within the lambda function. `myVariable` must be therefore listed in the square brackets before at the beginning of the lambda function definition. 
 
 - Positioning
 
