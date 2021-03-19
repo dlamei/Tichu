@@ -9,7 +9,7 @@ This is a template project for the students of the course Software Engineering.
 
 ## Code Reuse
 #### You may reuse as much of this code as you want!
- We even encourage it. Therefore, we also encourage you to **read through this documentation, as it explains the way this template project works and how it can be adapted to different use cases.** At the very least, we highly encourage your team to at least use the `server_network_manager` and `client_network_manager` to simplify (TCP) communication between client and server.
+ We even encourage it. Therefore, we also encourage you to **read through this documentation, as it explains the way this template project works and how it can be adapted to different use cases.** At the very least, we highly encourage your team to at least use the `server_network_manager` and `clientNetworkManager` to simplify (TCP) communication between client and server.
 
 ## 1. Compile instructions
 This project only works on UNIX systems (Linux / MacOS). We recommend using [Ubuntu](https://ubuntu.com/#download), as it offers the easiest way to setup wxWidgets. Therefore, we explain installation only for Ubuntu systems. The following was tested on a Ubuntu 20.4 system, but should also work for earlier versions of Ubuntu.
@@ -42,10 +42,10 @@ Execute the following commands in a console:
 ## 2. Run the Game
 1. Open a console in the project folder, navigate into "cmake-build-debug" `cd cmake-build-debug`
 2. Run server `./Lama-server`
-3. In new consoles run as many clients as you want players `./Lama-client`
+3. In new consoles run as many clients as players `./Lama-client`
 
 ## 3. Code Documentation
-The code can be found in **/src**, where it is separated into different folders:
+The code can be found in **/src**, where it is separated into following folders:
 - **/client** contains only code that is used on the client side (e.g. UI, sending messages)
 - **/common** contains code that is shared between server and client.
     - **/exceptions** contains the exception class used on server and client side. You don't need to change anything in here (unless you want to rename the LamaException class ;))
@@ -61,7 +61,7 @@ You don't need to look at the **/sockpp** or **/rapidjson** folder, as they simp
 
 ### 3.1 Overview
 
-First of, this project consists of a **server** and a **client**, each with their own main.cpp file. 
+First off, this project consists of a **server** and a **client**, each with their own main.cpp file. 
 
 The client renders the GUI that is presented to the player, whereas the server is a console application without a user interface. Every action a player performs in the client application (for example playing a card) is sent as a formated message to the server application, which processes the request.   
 - If the **player's move was valid**, the server will update the game state (e.g. move a card from the player's hand to the discard pile) and broadcast this new game state to all players of the game. Whenever the client application receives a game state update, it will re-render the GUI accordingly and allow new interactions.   
@@ -401,7 +401,7 @@ A similar scheme is applied in all other objects that inherit from `unique_seria
 
 ### 3.4 GUI with wxWidgets
 
-The GUI of the example project was built using the cross-platform GUI library [wxWidgets](https://www.wxwidgets.org/). In order to build a project using wxWidget element, you need to first install wxWidgets on your system (see Section 1.1 above). 
+The GUI of the example project was built using the cross-platform GUI library [wxWidgets](https://www.wxwidgets.org/). In order to build a project using wxWidget elements, you will first need to install wxWidgets on your system (see Section 1.1 above). 
 
 #### 3.4.1 Structure & Important Classes
 
@@ -423,9 +423,9 @@ Here is a list of the most important elements that you will need to create your 
 
 #### 3.4.2 Events
 
-Like in most GUI environments, objects in wxWidgets trigger _events_ when they are interacted with. For instance, a button will trigger a `wxEVT_BUTTON` event when clicked. Similarly, a panel will trigger a `wxEVT_LEFT_UP` event when clicked. There are many other events that can be triggered - for example when a keyboard key is pressed, when a window is resized, or when the cursor moves over an element.
+Like in most GUI environments, objects in wxWidgets trigger __events__ when they are interacted with by the user. For instance, a button will trigger a `wxEVT_BUTTON` event when clicked. Similarly, a panel will trigger a `wxEVT_LEFT_UP` event when clicked. There are many other events that can be triggered - for example when a keyboard key is pressed, when a window is resized, or when the cursor moves over an element.
 
-In order to make the GUI interactive, we must specify the effect of an event. The easiest way is to _bind_ an event to a lambda function. A lamdba function is an unnamed function that can be used as an r-value. In C++, lamdba functions have the following syntax:
+In order to make the GUI interactive, we must specify the effect of an event. The easiest way is to __bind__ an event to a lambda function. A lamdba function is an unnamed function that can be used as an r-value. In C++, lamdba functions have the following syntax:
 
 ```
 [ external_variables... ]( function_parameters ... ) {
@@ -444,7 +444,7 @@ myButton->Bind(wxEVT_BUTTON, [myVariable](wxCommandEvent& event) {
 });
 ```
 
-In C++, we need to specify which variables from outside the lambda function's scope should be accessible within it. In the example above, `myVariable` is declared outside of the lamda function but is used by the `doSomething` function call within the lambda function. We must therefore list `myVariable` in the square brackets at the beginning of the lambda function definition. 
+In C++, we need to specify which variables from outside the lambda function's scope should be accessible within it. In the example above, `myVariable` is declared outside of the lamda function but is used by the `doSomething()` function call within the lambda function. We must therefore list `myVariable` within the square brackets at the beginning of the lambda function definition, in order to make it accessible from within the lambda function's scope. 
 
 #### 3.4.3 Positioning
 
