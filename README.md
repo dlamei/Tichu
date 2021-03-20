@@ -331,9 +331,9 @@ void game_state::write_into_json(rapidjson::Value &json,
     unique_serializable::write_into_json(json, allocator);
 
     // write all properties of this game_state instance into the JSON
-    rapidjson::Value is_finished_val(rapidjson::kObjectType);
-    _is_finished->write_into_json(is_finished_val, allocator);
-    json.AddMember("is_finished", is_finished_val, allocator);
+    rapidjson::Value is_finished_val(rapidjson::kObjectType);   // create an empty rapidjson::Value that can hold an ObjectType
+    _is_finished->write_into_json(is_finished_val, allocator);  // write class property '_is_finished' into the created rapidjson::Value
+    json.AddMember("is_finished", is_finished_val, allocator);  // add the rapidjson::Value 'is_finished_val' to the game_state json
 
     rapidjson::Value is_started_val(rapidjson::kObjectType);
     _is_started->write_into_json(is_started_val, allocator);
@@ -404,7 +404,7 @@ game_state* game_state::from_json(const rapidjson::Value &json) {
         }
         // Invoke deserialization constructor
         return new game_state(unique_serializable::extract_id(json),   // extract base_params from JSON
-                              draw_pile::from_json(json["draw_pile"].GetObject()),
+                              draw_pile::from_json(json["draw_pile"].GetObject()),  // deserialize the draw_pile
                               discard_pile::from_json(json["discard_pile"].GetObject()),
                               deserialized_players,
                               serializable_value<bool>::from_json(json["is_started"].GetObject()),
