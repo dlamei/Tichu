@@ -1,15 +1,15 @@
 # Lama
 
 This is a simple C++ implementation of the game "Lama" by AMIGO. The implementation features a client/server architecture for multiplayer scenarios.
-It uses [wxWidgets](https://www.wxwidgets.org/) for the GUI, [sockpp](https://github.com/fpagliughi/sockpp) for the network interface and [rapidjson](https://rapidjson.org/md_doc_tutorial.html) for object serialization.
+It uses [wxWidgets](https://www.wxwidgets.org/) for the GUI, [sockpp](https://github.com/fpagliughi/sockpp) for the network interface and [rapidjson](https://rapidjson.org/md_doc_tutorial.html) for object serialization. 
 
 ![Lama-logo](./assets/lama_logo.png?raw=true)
 
-This is a template project for the students of the course Software Engineering.
+This is a template project for the students of the course Software Engineering. In order to adapt this template to a different game, you will only need knowledge in wxWidgets and maybe about some basic functions of rapidjson to serialize certain data types. By sticking to the template you won't need to dig into sockpp at all.
 
 ## Code Reuse
 #### You may reuse as much of this code as you want!
- We even encourage it. Therefore, we also encourage you to **read through this documentation, as it explains the way this template project works and how it can be adapted to different use cases.** At the very least, we highly encourage your team to at least use the `server_network_manager` and `clientNetworkManager` to simplify (TCP) communication between client and server.
+We even encourage it! Therefore, we also encourage you to **read through this documentation, as it explains the way this template project works and how it can be adapted to different use cases.** At the very least, we highly encourage your team to at least use the `server_network_manager` and `clientNetworkManager` to simplify (TCP) communication between client and server.
 
 ## 1. Compile instructions
 This project only works on UNIX systems (Linux / MacOS). We recommend using [Ubuntu](https://ubuntu.com/#download), as it offers the easiest way to setup wxWidgets. Therefore, we explain installation only for Ubuntu systems. The following was tested on a Ubuntu 20.4 system, but should also work for earlier versions of Ubuntu.
@@ -34,7 +34,7 @@ Execute the following commands in a console:
 1. Open Clion
 2. Click `File > Open...` and there select the /sockpp folder of this project
 3. Click `Build > Build all in 'Debug'`
-4. Wait until sockpp is compiled
+4. Wait until sockpp is compiled (from now on you never have to touch sockpp again ;))
 5. Click `File > Open...` select the /cse-lama-example-project folder
 6. Click `Build > Build all in 'Debug'`
 7. Wait until Lama-server and Lama-client are compiled
@@ -42,7 +42,7 @@ Execute the following commands in a console:
 ## 2. Run the Game
 1. Open a console in the project folder, navigate into "cmake-build-debug" `cd cmake-build-debug`
 2. Run server `./Lama-server`
-3. In new consoles run as many clients as players `./Lama-client`
+3. In new consoles run as many clients as you want players `./Lama-client`
 
 ## 3. Code Documentation
 The code can be found in **/src**, where it is separated into following folders:
@@ -247,6 +247,34 @@ bool game_instance::start_game(player* player, std::string &err) {
     return false;
 }
 ```
+
+#### 3.2.3 Debugging Messages
+
+By default, the server (specifically, the server_network_manager) will print every valid message that it receives to the console. In order for this to work in your project as well, you have to make sure that your CMake file contains a line, where the preprocessor variable PRINT_NETWORK_MESSAGES is defined for your server executable. 
+
+```
+target_compile_definitions(Lama-server PRIVATE PRINT_NETWORK_MESSAGES=1)
+```
+
+If a wrongly formated message arrives at the server, it will print an error message with the received message string to the console, no matter if PRINT_NETWORK_MESSAGES is defined or not. 
+
+If you want to manually print one of your serialized messages (or any other serialized object for that matter), you can use the helper function `json_utils::to_string(const rapidjson::Value* json)` as follows. 
+
+```cpp
+#include "src/common/serialization/json_utils.h"
+#include "rapidjson/include/rapidjson/document.h"
+
+...
+// Create a request to serialize
+join_game_request* req = new join_game_request(player->get_id(), player->get_player_name());
+
+// serialize the request object
+rapidjson::Document* req_json = req->to_json();
+
+// print serialization to the console.
+std::cout << json_utils::to_string(req_json) << std::endl;
+```
+
 
 ### 3.3 Game State
 
