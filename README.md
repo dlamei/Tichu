@@ -45,6 +45,9 @@ Execute the following commands in a console:
 3. In new consoles run as many clients as you want players `./Lama-client`
 
 ## 3. Code Documentation
+You don't need to look at the **/sockpp** or **/rapidjson** folder, as they simply contain 3rd party code that should not be changed.
+
+
 The code can be found in **/src**, where it is separated into following folders:
 - **/client** contains only code that is used on the client side (e.g. UI, sending messages)
 - **/common** contains code that is shared between server and client.
@@ -55,8 +58,6 @@ The code can be found in **/src**, where it is separated into following folders:
 - **/server** contains only code that is relevant for the server (e.g. player management, game instance management, receiving messages)
 
 The **/asset** folder stores all the images that are being used to render the GUI.
-
-You don't need to look at the **/sockpp** or **/rapidjson** folder, as they simply contain 3rd party code that should not be changed.
 
 
 ### 3.1 Overview
