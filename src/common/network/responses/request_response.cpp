@@ -82,11 +82,10 @@ void request_response::Process() const {
             GameController::updateGameState(state);
 
         } else {
-            std::cerr << "Expected a state json inside the request_response. But there was none." << std::endl;
+            GameController::showError("Network error", "Expected a state as JSON inside the request_response. But there was none.");
         }
     } else {
-        std::cerr << _err << std::endl;
-        // TODO display error message
+        GameController::showError("Not possible", _err);
     }
 
 }
