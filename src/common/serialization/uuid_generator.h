@@ -1,15 +1,14 @@
 //
 // Created by Manuel on 27.01.2021.
 //
+// Helper class to generate unique ids.
+// from https://stackoverflow.com/questions/24365331/how-can-i-generate-uuid-in-c-without-using-boost-library
 
 #ifndef UUID_GENERATOR_H
 #define UUID_GENERATOR_H
 
-// from https://stackoverflow.com/questions/24365331/how-can-i-generate-uuid-in-c-without-using-boost-library
-
 #include <random>
 #include <sstream>
-
 
 class uuid_generator {
 

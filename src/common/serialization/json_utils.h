@@ -1,6 +1,7 @@
 //
 // Created by Manuel on 08.02.2021.
 //
+// Helper functions for rapidjson elements
 
 #ifndef LAMA_JSON_UTILS_H
 #define LAMA_JSON_UTILS_H
@@ -22,8 +23,8 @@ public:
         return buffer.GetString();
     }
 
-    // In case you need to create a Document on the heap based on a value extracted from a json.
-    static rapidjson::Document* create_pointer_to_clone(const rapidjson::Value& val) {
+    // In case you need to create a rapidjson::Document on the heap (pointer) based on a value extracted from a json.
+    static rapidjson::Document* clone_value(const rapidjson::Value& val) {
         rapidjson::Document* state_json = new rapidjson::Document(rapidjson::kObjectType);
         state_json->CopyFrom(val, state_json->GetAllocator());
         return state_json;

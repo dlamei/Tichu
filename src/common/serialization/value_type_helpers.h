@@ -1,6 +1,7 @@
 //
 // Created by Manuel on 09.02.2021.
 //
+// Helper functions for serializing and deserializing instances of serializable_value.
 
 #ifndef LAMA_VALUE_TYPE_HELPERS_H
 #define LAMA_VALUE_TYPE_HELPERS_H

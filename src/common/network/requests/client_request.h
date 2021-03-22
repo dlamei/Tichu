@@ -1,6 +1,8 @@
 //
 // Created by Manuel on 28.01.2021.
 //
+// client_request is the base-class for all requests that are being sent from the client to the server.
+// It offers a function to deserialize a client_request subclass from a valid json.
 
 #ifndef LAMA_CLIENT_REQUEST_H
 #define LAMA_CLIENT_REQUEST_H
@@ -19,7 +21,8 @@
 #endif
 
 // Identifier for the different request types.
-// The RequestType is sent with every request to identify the type of request on the other end.
+// The RequestType is sent with every client_request to identify the type of client_request
+// during deserialization on the server side.
 enum RequestType {
     join_game,
     start_game,
@@ -60,15 +63,11 @@ public:
     std::string get_player_id() const;
     std::string get_game_id() const;
 
-    /*
-     * Tries to create the specific client_request from the provided json.
-     * Throws exception if parsing fails -> Use only in "try{ }catch()" block
-     */
+    // Tries to create the specific client_request from the provided json.
+    // Throws exception if parsing fails -> Use only in "try{ }catch()" block
     static client_request* from_json(const rapidjson::Value& json);
 
-    /*
-     * Serializes the client_request into a json object that can be sent over the network
-     */
+    // Serializes the client_request into a json object that can be sent over the network
     void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
 
     virtual std::string to_string() const;

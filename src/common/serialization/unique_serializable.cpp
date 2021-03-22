@@ -1,6 +1,7 @@
 //
 // Created by Manuel on 19.02.2021.
 //
+// Used to serialize game_state objects that need to be identifiable by a unique id.
 
 #include "unique_serializable.h"
 

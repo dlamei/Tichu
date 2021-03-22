@@ -1,6 +1,7 @@
 //
 // Created by Manuel on 01.02.2021.
 //
+// abstract class for a serializable object.
 
 #ifndef LAMA_SERIALIZABLE_H
 #define LAMA_SERIALIZABLE_H

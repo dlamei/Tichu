@@ -32,7 +32,7 @@ void full_state_response::write_into_json(rapidjson::Value &json,
 full_state_response *full_state_response::from_json(const rapidjson::Value& json) {
     if (json.HasMember("state_json")) {
         return new full_state_response(server_response::extract_base_class_properties(json),
-                                       json_utils::create_pointer_to_clone(json["state_json"].GetObject()));
+                                       json_utils::clone_value(json["state_json"].GetObject()));
     } else {
         throw LamaException("Could not parse full_state_response from json. state is missing.");
     }
