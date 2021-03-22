@@ -1,6 +1,6 @@
 # Lama
 
-This is a simple C++ implementation of the game "Lama" by AMIGO. The implementation features a client/server architecture for multiplayer scenarios.
+This is a simple C++ implementation of the game "Lama" by AMIGO. You can read the game's rules [here](https://www.amigo.games/content/ap/rule/19420--031-2019-Lama_Manual_002_LAYOUT[1].pdf). The implementation features a client/server architecture for multiplayer scenarios.
 It uses [wxWidgets](https://www.wxwidgets.org/) for the GUI, [sockpp](https://github.com/fpagliughi/sockpp) for the network interface and [rapidjson](https://rapidjson.org/md_doc_tutorial.html) for object serialization. 
 
 ![Lama-logo](./assets/lama_logo.png?raw=true)
