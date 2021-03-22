@@ -97,8 +97,13 @@ void ClientNetworkManager::sendRequest(const client_request &request) {
         messageStream << std::to_string(message.size()) << ':' << message;
         message = messageStream.str();
 
+        // output message for debugging purposes
+#ifdef PRINT_NETWORK_MESSAGES
+        std::cout << "Sending request : " << message << std::endl;
+#endif
+
         // send message to server
-        ssize_t bytesSent =ClientNetworkManager::_connection->write(message);
+        ssize_t bytesSent = ClientNetworkManager::_connection->write(message);
 
         // if the number of bytes sent does not match the length of the message, probably something went wrong
         if (bytesSent != ssize_t(message.length())) {
@@ -112,6 +117,11 @@ void ClientNetworkManager::sendRequest(const client_request &request) {
 
 
 void ClientNetworkManager::parseResponse(const std::string& message) {
+
+    // output message for debugging purposes
+#ifdef PRINT_NETWORK_MESSAGES
+    std::cout << "Received response : " << message << std::endl;
+#endif
 
     rapidjson::Document json = rapidjson::Document(rapidjson::kObjectType);
     json.Parse(message.c_str());

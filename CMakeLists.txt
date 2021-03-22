@@ -91,13 +91,14 @@ add_executable(Lama-client ${CLIENT_SOURCE_FILES})
 target_compile_definitions(Lama-client PRIVATE LAMA_CLIENT=1 RAPIDJSON_HAS_STDSTRING=1)
 # link with wxWidgets
 target_link_libraries(Lama-client ${wxWidgets_LIBRARIES})
-
+# Comment out if you don't want to print network-related messages into the console
+target_compile_definitions(Lama-client PRIVATE PRINT_NETWORK_MESSAGES=1)
 
 # set source files for server-executable
 add_executable(Lama-server ${SERVER_SOURCE_FILES})
 # set compile directives for server-executable
 target_compile_definitions(Lama-server PRIVATE LAMA_SERVER=1 RAPIDJSON_HAS_STDSTRING=1)
-# Comment out if you don't want to print messages received into the console
+# Comment out if you don't want to print network-related messages into the console
 target_compile_definitions(Lama-server PRIVATE PRINT_NETWORK_MESSAGES=1)
 
 

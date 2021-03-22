@@ -146,8 +146,15 @@ void server_network_manager::handle_incoming_message(const std::string& msg, con
         rapidjson::Document* res_json = res->to_json();
         delete res;
 
+        // transform json to string
+        std::string res_msg = json_utils::to_string(res_json);
+
+#ifdef PRINT_NETWORK_MESSAGES
+        std::cout << "Sending response : " << res_msg << std::endl;
+#endif
+
         // send response back to client
-        send_message(json_utils::to_string(res_json), peer_address.to_string());
+        send_message(res_msg, peer_address.to_string());
         delete res_json;
     } catch (const std::exception& e) {
         std::cerr << "Failed to execute client request. Content was :\n"
@@ -177,13 +184,16 @@ void server_network_manager::broadcast_message(server_response &msg, const std::
     rapidjson::Document* msg_json = msg.to_json();  // write to JSON format
     std::string msg_string = json_utils::to_string(msg_json);   // convert to string
 
+#ifdef PRINT_NETWORK_MESSAGES
+    std::cout << "Broadcasting message : " << msg_string << std::endl;
+#endif
+
     _rw_lock.lock_shared();
     // send object_diff to all requested players
     try {
         for(auto& player : players) {
             if (player != exclude) {
                 int nof_bytes_written = send_message(msg_string, _player_id_to_address.at(player->get_id()));
-                std::cout << "wrote " << nof_bytes_written << " to socket" << _player_id_to_address[player->get_id()] << std::endl;
             }
         }
     } catch (std::exception& e) {
