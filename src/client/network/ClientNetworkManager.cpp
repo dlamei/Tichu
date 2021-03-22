@@ -59,9 +59,6 @@ bool ClientNetworkManager::connect(const std::string& host, const uint16_t port)
         return false;
     }
 
-    // Update status bar in game window
-    GameController::showStatus("Opening connection to " + address.to_string() + "...");
-
     // establish connection to given address
     if (!ClientNetworkManager::_connection->connect(address)) {
         GameController::showError("Connection error", "Failed to connect to server " + address.to_string());
