@@ -200,7 +200,7 @@ void game_state::update_current_player(std::string& err) {
 
 bool game_state::start_game(std::string &err) {
     if (_players.size() < _min_nof_players) {
-        err = "Need at least " + std::to_string(_min_nof_players) + " players to start the game.";
+        err = "You need at least " + std::to_string(_min_nof_players) + " players to start the game.";
         return false;
     }
 
