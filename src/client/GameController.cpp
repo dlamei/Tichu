@@ -219,5 +219,8 @@ void GameController::showGameOverMessage() {
 
     wxMessageDialog dialogBox = wxMessageDialog(nullptr, message, title, wxICON_NONE);
     dialogBox.SetOKLabel(wxMessageDialog::ButtonLabel(buttonLabel));
-    dialogBox.ShowModal();
+    int buttonClicked = dialogBox.ShowModal();
+    if(buttonClicked == wxID_OK) {
+        GameController::_gameWindow->Close();
+    }
 }
