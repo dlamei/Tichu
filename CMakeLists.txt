@@ -124,6 +124,8 @@ endif()
 # copy assets (images) to binary directory
 file(INSTALL assets DESTINATION ${CMAKE_BINARY_DIR})
 
+
+set(CMAKE_CXX_FLAGS "--coverage")
 # set source files for server-library
 add_library(Lama-lib ${SERVER_SOURCE_FILES})
 # set compile directives for server-library
