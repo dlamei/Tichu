@@ -123,3 +123,11 @@ endif()
 
 # copy assets (images) to binary directory
 file(INSTALL assets DESTINATION ${CMAKE_BINARY_DIR})
+
+# set source files for server-library
+add_library(Lama-lib ${SERVER_SOURCE_FILES})
+# set compile directives for server-library
+target_compile_definitions(Lama-lib PRIVATE LAMA_SERVER=1 RAPIDJSON_HAS_STDSTRING=1)
+
+add_subdirectory(googletest)
+add_subdirectory(unit-tests)
