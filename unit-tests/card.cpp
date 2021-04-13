@@ -3,10 +3,12 @@
 //
 
 #include "gtest/gtest.h"
+#include "../src/common/exceptions/LamaException.h"
 #include "../src/common/game_state/cards/card.h"
 #include "../src/common/serialization/json_utils.h"
 
-TEST(Card, PlayCardsOn1) {
+
+TEST(CardTest, PlayCardsOn1) {
     card c_1(1);
     card c_2(2);
     card c_3(3);
@@ -23,15 +25,21 @@ TEST(Card, PlayCardsOn1) {
     EXPECT_FALSE(c_7.can_be_played_on((&c_1)));
 }
 
-TEST(Card, JSON_Equality) {
+TEST(CardTest, SerializationEquality) {
     card card_send(1);
     rapidjson::Document* json_send = card_send.to_json();
     std::string message = json_utils::to_string(json_send);
     delete json_send;
 
-    rapidjson::Document jsonIn = rapidjson::Document(rapidjson::kObjectType);
-    jsonIn.Parse(message.c_str());
-    card* card_recv = card::from_json(jsonIn);
+    rapidjson::Document json_recv = rapidjson::Document(rapidjson::kObjectType);
+    json_recv.Parse(message.c_str());
+    card* card_recv = card::from_json(json_recv);
     EXPECT_EQ(card_send.get_value(), card_recv->get_value());
     delete card_recv;
+}
+
+TEST(CardTest, SerializationException) {
+    rapidjson::Document json = rapidjson::Document(rapidjson::kObjectType);
+    json.Parse("not json");
+    ASSERT_THROW(card::from_json(json), LamaException);
 }
