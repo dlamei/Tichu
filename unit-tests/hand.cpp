@@ -25,21 +25,21 @@ protected:
 
 TEST_F(HandTest, AddOneCard) {
     player_hand.add_card(cards[1][0], err);
-    std::vector<card*> expected = {cards[1][0]};
-    ASSERT_EQ(expected, player_hand.get_cards());
+    std::vector<card*> expected_hand = {cards[1][0]};
+    ASSERT_EQ(expected_hand, player_hand.get_cards());
 }
 
 TEST_F(HandTest, AddNoCards) {
-    std::vector<card*> expected;
-    ASSERT_EQ(expected, player_hand.get_cards());
+    std::vector<card*> expected_hand = {};
+    ASSERT_EQ(expected_hand, player_hand.get_cards());
 }
 
 TEST_F(HandTest, AddManyCards) {
     player_hand.add_card(cards[1][0], err);
     player_hand.add_card(cards[3][0], err);
     player_hand.add_card(cards[7][0], err);
-    std::vector<card*> expected = {cards[1][0], cards[3][0], cards[7][0]};
-    ASSERT_EQ(expected, player_hand.get_cards());
+    std::vector<card*> expected_hand = {cards[1][0], cards[3][0], cards[7][0]};
+    ASSERT_EQ(expected_hand, player_hand.get_cards());
 }
 
 TEST_F(HandTest, AddManyCardsWithDuplicates) {
@@ -49,9 +49,100 @@ TEST_F(HandTest, AddManyCardsWithDuplicates) {
     player_hand.add_card(cards[3][0], err);
     player_hand.add_card(cards[3][1], err);
     player_hand.add_card(cards[7][0], err);
-    std::vector<card*> expected = {cards[1][0], cards[1][1], cards[1][2],
-                                   cards[3][0], cards[3][1], cards[7][0]};
-    ASSERT_EQ(expected, player_hand.get_cards());
+    std::vector<card*> expected_hand = {cards[1][0], cards[1][1], cards[1][2],
+                                        cards[3][0], cards[3][1], cards[7][0]};
+    ASSERT_EQ(expected_hand, player_hand.get_cards());
+}
+
+TEST_F(HandTest, RemoveOneCard) {
+    player_hand.add_card(cards[1][0], err);
+    player_hand.add_card(cards[3][0], err);
+    player_hand.add_card(cards[7][0], err);
+    card* to_remove = cards[1][0];
+    card* removed_card = nullptr;
+    player_hand.remove_card(to_remove->get_id(), removed_card, err);
+    std::vector<card*> expected_hand = {cards[3][0], cards[7][0]};
+    EXPECT_EQ(to_remove, removed_card);
+    ASSERT_EQ(expected_hand, player_hand.get_cards());
+}
+
+TEST_F(HandTest, RemoveNonexistentCards) {
+    card* to_remove = cards[1][0];
+    card* removed_card = cards[1][0];
+    player_hand.remove_card(to_remove->get_id(), removed_card, err);
+    std::vector<card*> expected_hand = {};
+    EXPECT_EQ(nullptr, removed_card);
+    ASSERT_EQ(expected_hand, player_hand.get_cards());
+    player_hand.add_card(cards[1][0], err);
+    player_hand.add_card(cards[3][0], err);
+    player_hand.add_card(cards[7][0], err);
+    to_remove = cards[1][1];
+    removed_card = cards[1][1];
+    player_hand.remove_card(to_remove->get_id(), removed_card, err);
+    expected_hand = {cards[1][0], cards[3][0], cards[7][0]};
+    EXPECT_EQ(nullptr, removed_card);
+    ASSERT_EQ(expected_hand, player_hand.get_cards());
+}
+
+
+TEST_F(HandTest, RemoveAllCards) {
+    player_hand.add_card(cards[1][0], err);
+    card* to_remove = cards[1][0];
+    card* removed_card = nullptr;
+    player_hand.remove_card(to_remove->get_id(), removed_card, err);
+    std::vector<card*> expected_hand = {};
+    EXPECT_EQ(to_remove, removed_card);
+    ASSERT_EQ(expected_hand, player_hand.get_cards());
+}
+
+TEST_F(HandTest, RemoveManyCards) {
+    player_hand.add_card(cards[1][0], err);
+    player_hand.add_card(cards[1][1], err);
+    player_hand.add_card(cards[1][2], err);
+    player_hand.add_card(cards[3][0], err);
+    player_hand.add_card(cards[3][1], err);
+    player_hand.add_card(cards[7][0], err);
+    card* to_remove = cards[1][0];
+    card* removed_card = nullptr;
+    player_hand.remove_card(to_remove->get_id(), removed_card, err);
+    std::vector<card*> expected_hand = {cards[1][1], cards[1][2], cards[3][0],
+                                        cards[3][1], cards[7][0]};
+    EXPECT_EQ(to_remove, removed_card);
+    ASSERT_EQ(expected_hand, player_hand.get_cards());
+    to_remove = cards[3][0];
+    removed_card = nullptr;
+    player_hand.remove_card(to_remove->get_id(), removed_card, err);
+    expected_hand = {cards[1][1], cards[1][2], cards[3][1], cards[7][0]};
+    EXPECT_EQ(to_remove, removed_card);
+    ASSERT_EQ(expected_hand, player_hand.get_cards());
+    to_remove = cards[7][0];
+    removed_card = nullptr;
+    player_hand.remove_card(to_remove->get_id(), removed_card, err);
+    expected_hand = {cards[1][1], cards[1][2], cards[3][1]};
+    EXPECT_EQ(to_remove, removed_card);
+    ASSERT_EQ(expected_hand, player_hand.get_cards());
+}
+
+TEST_F(HandTest, RemoveManyDuplicateCards) {
+    player_hand.add_card(cards[1][0], err);
+    player_hand.add_card(cards[1][1], err);
+    player_hand.add_card(cards[1][2], err);
+    player_hand.add_card(cards[3][0], err);
+    player_hand.add_card(cards[3][1], err);
+    player_hand.add_card(cards[7][0], err);
+    card* to_remove = cards[3][0];
+    card* removed_card = nullptr;
+    player_hand.remove_card(to_remove->get_id(), removed_card, err);
+    std::vector<card*> expected_hand = {cards[1][0], cards[1][1], cards[1][2],
+                                        cards[3][1], cards[7][0]};
+    EXPECT_EQ(to_remove, removed_card);
+    ASSERT_EQ(expected_hand, player_hand.get_cards());
+    to_remove = cards[3][1];
+    removed_card = nullptr;
+    player_hand.remove_card(to_remove->get_id(), removed_card, err);
+    expected_hand = {cards[1][0], cards[1][1], cards[1][2], cards[7][0]};
+    EXPECT_EQ(to_remove, removed_card);
+    ASSERT_EQ(expected_hand, player_hand.get_cards());
 }
 
 TEST_F(HandTest, ScoreOneCard) {
