@@ -54,7 +54,7 @@ TEST_F(HandTest, AddManyCardsWithDuplicates) {
     ASSERT_EQ(expected, player_hand.get_cards());
 }
 
-TEST_F(HandTest, ScoreOne) {
+TEST_F(HandTest, ScoreOneCard) {
     player_hand.add_card(cards[1][0], err);
     ASSERT_EQ(1, player_hand.get_score());
 }
@@ -64,11 +64,11 @@ TEST_F(HandTest, ScoreLama) {
     ASSERT_EQ(10, player_hand.get_score());
 }
 
-TEST_F(HandTest, ScoreEmpty) {
+TEST_F(HandTest, ScoreNoCards) {
     ASSERT_EQ(0, player_hand.get_score());
 }
 
-TEST_F(HandTest, ScoreUnique) {
+TEST_F(HandTest, ScoreManyCards) {
     player_hand.add_card(cards[1][0], err);
     ASSERT_EQ(1, player_hand.get_score());
     player_hand.add_card(cards[3][0], err);
@@ -77,7 +77,7 @@ TEST_F(HandTest, ScoreUnique) {
     ASSERT_EQ(14, player_hand.get_score());
 }
 
-TEST_F(HandTest, ScoreDuplicate) {
+TEST_F(HandTest, ScoreManyCardsWithDuplicates) {
     player_hand.add_card(cards[1][0], err);
     ASSERT_EQ(1, player_hand.get_score());
     player_hand.add_card(cards[1][1], err);
@@ -92,16 +92,16 @@ TEST_F(HandTest, ScoreDuplicate) {
     ASSERT_EQ(14, player_hand.get_score());
 }
 
-TEST_F(HandTest, CountOne) {
+TEST_F(HandTest, CountOneCard) {
     player_hand.add_card(cards[1][0], err);
     ASSERT_EQ(1, player_hand.get_nof_cards());
 }
 
-TEST_F(HandTest, CountEmpty) {
+TEST_F(HandTest, CountNoCards) {
     ASSERT_EQ(0, player_hand.get_nof_cards());
 }
 
-TEST_F(HandTest, CountMany) {
+TEST_F(HandTest, CountManyCards) {
     player_hand.add_card(cards[1][0], err);
     ASSERT_EQ(1, player_hand.get_nof_cards());
     player_hand.add_card(cards[3][0], err);
@@ -110,7 +110,7 @@ TEST_F(HandTest, CountMany) {
     ASSERT_EQ(3, player_hand.get_nof_cards());
 }
 
-TEST_F(HandTest, CountManyWithDuplicates) {
+TEST_F(HandTest, CountManyCardsWithDuplicates) {
     player_hand.add_card(cards[1][0], err);
     ASSERT_EQ(1, player_hand.get_nof_cards());
     player_hand.add_card(cards[1][1], err);
