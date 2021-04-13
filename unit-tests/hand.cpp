@@ -23,6 +23,37 @@ protected:
     std::string err;
 };
 
+TEST_F(HandTest, AddOneCard) {
+    player_hand.add_card(cards[1][0], err);
+    std::vector<card*> expected = {cards[1][0]};
+    ASSERT_EQ(expected, player_hand.get_cards());
+}
+
+TEST_F(HandTest, AddNoCards) {
+    std::vector<card*> expected;
+    ASSERT_EQ(expected, player_hand.get_cards());
+}
+
+TEST_F(HandTest, AddManyCards) {
+    player_hand.add_card(cards[1][0], err);
+    player_hand.add_card(cards[3][0], err);
+    player_hand.add_card(cards[7][0], err);
+    std::vector<card*> expected = {cards[1][0], cards[3][0], cards[7][0]};
+    ASSERT_EQ(expected, player_hand.get_cards());
+}
+
+TEST_F(HandTest, AddManyCardsWithDuplicates) {
+    player_hand.add_card(cards[1][0], err);
+    player_hand.add_card(cards[1][1], err);
+    player_hand.add_card(cards[1][2], err);
+    player_hand.add_card(cards[3][0], err);
+    player_hand.add_card(cards[3][1], err);
+    player_hand.add_card(cards[7][0], err);
+    std::vector<card*> expected = {cards[1][0], cards[1][1], cards[1][2],
+                                   cards[3][0], cards[3][1], cards[7][0]};
+    ASSERT_EQ(expected, player_hand.get_cards());
+}
+
 TEST_F(HandTest, ScoreOne) {
     player_hand.add_card(cards[1][0], err);
     ASSERT_EQ(1, player_hand.get_score());
