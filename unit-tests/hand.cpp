@@ -4,7 +4,6 @@
 
 #include "gtest/gtest.h"
 #include "../src/common/game_state/player/hand.h"
-#include "../src/common/serialization/json_utils.h"
 
 class HandTest : public ::testing::Test {
 
