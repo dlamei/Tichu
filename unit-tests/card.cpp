@@ -34,6 +34,7 @@ TEST(CardTest, SerializationEquality) {
     rapidjson::Document json_recv = rapidjson::Document(rapidjson::kObjectType);
     json_recv.Parse(message.c_str());
     card* card_recv = card::from_json(json_recv);
+    EXPECT_EQ(card_send.get_id(), card_recv->get_id());
     EXPECT_EQ(card_send.get_value(), card_recv->get_value());
     delete card_recv;
 }
@@ -41,5 +42,5 @@ TEST(CardTest, SerializationEquality) {
 TEST(CardTest, SerializationException) {
     rapidjson::Document json = rapidjson::Document(rapidjson::kObjectType);
     json.Parse("not json");
-    ASSERT_THROW(card::from_json(json), LamaException);
+    EXPECT_THROW(card::from_json(json), LamaException);
 }
