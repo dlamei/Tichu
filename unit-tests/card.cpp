@@ -8,6 +8,8 @@
 #include "../src/common/serialization/json_utils.h"
 
 
+// A card can be played on another card if and only if the new card has the
+// same value or the same value plus one than the previous card
 TEST(CardTest, PlayCardsOn1) {
     card c_1(1);
     card c_2(2);
@@ -25,6 +27,7 @@ TEST(CardTest, PlayCardsOn1) {
     EXPECT_FALSE(c_7.can_be_played_on((&c_1)));
 }
 
+// Serialization and subsequent deserialization must yield the same object
 TEST(CardTest, SerializationEquality) {
     card card_send(1);
     rapidjson::Document* json_send = card_send.to_json();
@@ -39,6 +42,7 @@ TEST(CardTest, SerializationEquality) {
     delete card_recv;
 }
 
+// Deserializing an invalid string must throw a LamaException
 TEST(CardTest, SerializationException) {
     rapidjson::Document json = rapidjson::Document(rapidjson::kObjectType);
     json.Parse("not json");
