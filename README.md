@@ -1,7 +1,7 @@
 # Lama
 
 This is a simple C++ implementation of the game "Lama" by AMIGO. You can read the game's rules [here](https://www.amigo.games/content/ap/rule/19420--031-2019-Lama_Manual_002_LAYOUT[1].pdf). The implementation features a client/server architecture for multiplayer scenarios.
-It uses [wxWidgets](https://www.wxwidgets.org/) for the GUI, [sockpp](https://github.com/fpagliughi/sockpp) for the network interface and [rapidjson](https://rapidjson.org/md_doc_tutorial.html) for object serialization. 
+It uses [wxWidgets](https://www.wxwidgets.org/) for the GUI, [sockpp](https://github.com/fpagliughi/sockpp) for the network interface, [rapidjson](https://rapidjson.org/md_doc_tutorial.html) for object serialization, and [googletest](https://github.com/google/googletest) for the unit tests. 
 
 ![Lama-logo](./assets/lama_logo.png?raw=true)
 
@@ -19,7 +19,7 @@ This project only works on UNIX systems (Linux / MacOS). We recommend using [Ubu
 ### 1.1 Prepare OS Environment
 
 #### Ubuntu 20.4
-The OS should alredy have git installed in order to download this repository. If not, you can use: 
+The OS should already have git installed in order to download this repository. If not, you can use: 
 `sudo apt-get install git`
 
 Execute the following commands in a console:
@@ -32,19 +32,26 @@ Execute the following commands in a console:
 
 ### 1.2 Compile Code
 1. Open Clion
-2. Click `File > Open...` and there select the /sockpp folder of this project
+2. Click `File > Open...` and there select the **/sockpp** folder of this project
 3. Click `Build > Build all in 'Debug'`
 4. Wait until sockpp is compiled (from now on you never have to touch sockpp again ;))
-5. Click `File > Open...` select the /cse-lama-example-project folder
+5. Click `File > Open...` select the **/cse-lama-example-project** folder
 6. Click `Build > Build all in 'Debug'`
-7. Wait until Lama-server and Lama-client are compiled
+7. Wait until Lama-server, Lama-client and the unit tests are compiled
 
 ## 2. Run the Game
 1. Open a console in the project folder, navigate into "cmake-build-debug" `cd cmake-build-debug`
 2. Run server `./Lama-server`
 3. In new consoles run as many clients as you want players `./Lama-client`
 
-## 3. Code Documentation
+## 3. Run the Unit Tests
+1. CLion should automatically create a Google Test configuration Lama-tests which will run all tests. See [Google Test run/debug configuration﻿](https://www.jetbrains.com/help/clion/creating-google-test-run-debug-configuration-for-test.html#gtest-config) for more information.
+2. From the list on the main toolbar, select the configuration Lama-tests.
+3. Click ![run](https://resources.jetbrains.com/help/img/idea/2021.1/artwork.studio.icons.shell.toolbar.run.svg) or press `Shift+F10`.
+   
+You can run individual tests or test suites by opening the corresponding file in the **/unit-tests** folder and clicking ![run](https://resources.jetbrains.com/help/img/idea/2021.1/artwork.studio.icons.shell.toolbar.run.svg) next to the test method or class. For more information on testing in CLion read the [documentation](https://www.jetbrains.com/help/clion/performing-tests.html).
+
+## 4. Code Documentation
 You don't need to look at the **/sockpp** or **/rapidjson** folder, as they simply contain 3rd party code that should not be changed.
 
 
@@ -60,20 +67,20 @@ The code can be found in **/src**, where it is separated into following folders:
 The **/asset** folder stores all the images that are being used to render the GUI.
 
 
-### 3.1 Overview
+### 4.1 Overview
 
 First off, this project consists of a **server** and a **client**, each with their own main.cpp file. 
 
-The client renders the GUI that is presented to the player, whereas the server is a console application without a user interface. Every action a player performs in the client application (for example playing a card) is sent as a formated message to the server application, which processes the request.   
+The client renders the GUI that is presented to the player, whereas the server is a console application without a user interface. Every action a player performs in the client application (for example playing a card) is sent as a formatted message to the server application, which processes the request.   
 - If the **player's move was valid**, the server will update the game state (e.g. move a card from the player's hand to the discard pile) and broadcast this new game state to all players of the game. Whenever the client application receives a game state update, it will re-render the GUI accordingly and allow new interactions.   
 - If the **move was invalid**, the game state will not be updated and only the requesting player will get a response containing the error message. 
 
-### 3.2 Network Interface
+### 4.2 Network Interface
 Everything that is passed between client and server are objects of type `client_request` and `server_response`. Since the underlying network protocol works with TCP, these `client_request` and `server_response` objects are transformed into a **[JSON](https://wiki.selfhtml.org/wiki/JSON) string**, which can then be sent byte by byte over the network. The receiving end reads the JSON string and constructs an object of type `client_request` resp. `server_response` that reflects the exact parameters that are specified in the JSON string. This process is known as **serialization** (object to string) and **deserialization** (string to object). If you want to read more about serialization, [read me on Wikipedia](https://en.wikipedia.org/wiki/Serialization).
 
 ![client-server-diagram](./docs/img/client-server-diagram.png?raw=true)
 
-#### 3.2.1 Serialization & Deserialization of messages
+#### 4.2.1 Serialization & Deserialization of messages
 Both, the `client_request` and `server_response` base classes, implement the abstract class `serializable` with its `write_into_json(...)` function. It allows to serialize the object instance into a JSON string. Additionally, they have a static function `from_json(...)`, which allows creating an instance of an object from JSON.
 
 ```cpp
@@ -221,7 +228,7 @@ play_card_request* play_card_request::from_json(const rapidjson::Value& json) {
 
 There are plenty of examples of subclasses in the network/requests folder, where you can see how the serialization/deserialization scheme works.
 
-#### 3.2.2 Sending messages
+#### 4.2.2 Sending messages
 #### Client -> Server:
 All you have to do is use the static class `ClientNetworkManager` on the client side and then invoke its `sendRequest(const client_request& request)` function with the `client_request` that you want to send. The server's response will arrive as an object of type `request_response` and the `ClientNetworkManager` will invoke the `Process()` function of that `request_response` object automatically.
 
@@ -249,7 +256,7 @@ bool game_instance::start_game(player* player, std::string &err) {
 }
 ```
 
-#### 3.2.3 Debugging Messages
+#### 4.2.3 Debugging Messages
 
 By default, the server (specifically, the server_network_manager) will print every valid message that it receives to the console. In order for this to work in your project as well, you have to make sure that your CMake file contains a line, where the preprocessor variable PRINT_NETWORK_MESSAGES is defined for your server executable. 
 
@@ -257,7 +264,7 @@ By default, the server (specifically, the server_network_manager) will print eve
 target_compile_definitions(Lama-server PRIVATE PRINT_NETWORK_MESSAGES=1)
 ```
 
-If a wrongly formated message arrives at the server, it will print an error message with the received message string to the console, no matter if PRINT_NETWORK_MESSAGES is defined or not. 
+If a wrongly formatted message arrives at the server, it will print an error message with the received message string to the console, no matter if PRINT_NETWORK_MESSAGES is defined or not. 
 
 If you want to manually print one of your serialized messages (or any other serialized object for that matter), you can use the helper function `json_utils::to_string(const rapidjson::Value* json)` as follows. 
 
@@ -277,7 +284,7 @@ std::cout << json_utils::to_string(req_json) << std::endl;
 ```
 
 
-### 3.3 Game State
+### 4.3 Game State
 
 The `game_state` class stores all parameters that are required to represent the game on the client (resp. server) side. In order to synchronize this `game_state` among all players, the `game_state` can also be **serialized** and **deserialized**. If a `client_request` was successfully executed on the server, then the `request_response` that is sent to back to the client contains a serialized version of the updated `game_state`. All other players receive the updated `game_state` at the same time through a `full_state_response`.
 
@@ -369,7 +376,7 @@ void game_state::write_into_json(rapidjson::Value &json,
 For **deserialization**, the `from_json(...)` function is used, which is implemented as follows:
 
 ```cpp
-// DESERIALIZATION COSNTRUCTOR receives pointers for all its properties and stores them
+// DESERIALIZATION CONSTRUCTOR receives pointers for all its properties and stores them
 game_state::game_state(std::string id, draw_pile *draw_pile, discard_pile *discard_pile,
                        std::vector<player *> &players, serializable_value<bool> *is_started,
                        serializable_value<bool> *is_finished, serializable_value<int> *current_player_idx,
@@ -428,13 +435,13 @@ A similar scheme is applied in all other objects that inherit from `unique_seria
 - `serializable_value`
 
 
-### 3.4 GUI with wxWidgets
+### 4.4 GUI with wxWidgets
 
 The GUI of the example project was built using the cross-platform GUI library [wxWidgets](https://www.wxwidgets.org/). In order to build a project using wxWidget elements, you will first need to install wxWidgets on your system (see Section 1.1 above). 
 
-#### 3.4.1 Structure & Important Classes
+#### 4.4.1 Structure & Important Classes
 
-Here is a list of the most important elements that you will need to create your GUI. This is just meant as an overview, you will need to look up their correct usage in wxWidget's [documention](https://docs.wxwidgets.org/3.0/index.html).
+Here is a list of the most important elements that you will need to create your GUI. This is just meant as an overview, you will need to look up their correct usage in wxWidget's [documentation](https://docs.wxwidgets.org/3.0/index.html).
 
 * __Application core__
     * __`wxIMPLEMENT_APP()`__: In order to properly interact with the operating system's GUI, wxWidgets takes over the control flow of your application. wxWidgets therefore has its own `main()` function, that you can reference with the macro `wxIMPLEMENT_APP(wxApp*)`.
@@ -450,11 +457,11 @@ Here is a list of the most important elements that you will need to create your 
     * __`wxMessageBox()`__: You can use this function to display a small pop-up window with text in front of the your current main window. This is useful to display error or status messages.
 
 
-#### 3.4.2 Events
+#### 4.4.2 Events
 
 Like in most GUI environments, objects in wxWidgets trigger __events__ when they are interacted with by the user. For instance, a button will trigger a `wxEVT_BUTTON` event when clicked. Similarly, a panel will trigger a `wxEVT_LEFT_UP` event when clicked. There are many other events that can be triggered - for example when a keyboard key is pressed, when a window is resized, or when the cursor moves over an element.
 
-In order to make the GUI interactive, we must specify the effect of an event. The easiest way is to __bind__ an event to a lambda function. A lamdba function is an unnamed function that can be used as an r-value. In C++, lamdba functions have the following syntax:
+In order to make the GUI interactive, we must specify the effect of an event. The easiest way is to __bind__ an event to a lambda function. A lambda function is an unnamed function that can be used as an r-value. In C++, lambda functions have the following syntax:
 
 ```
 [ external_variables... ]( function_parameters ... ) {
@@ -473,21 +480,21 @@ myButton->Bind(wxEVT_BUTTON, [myVariable](wxCommandEvent& event) {
 });
 ```
 
-In C++, we need to specify which variables from outside the lambda function's scope should be accessible within it. In the example above, `myVariable` is declared outside of the lamda function but is used by the `doSomething()` function call within the lambda function. We must therefore list `myVariable` within the square brackets at the beginning of the lambda function definition, in order to make it accessible from within the lambda function's scope. 
+In C++, we need to specify which variables from outside the lambda function's scope should be accessible within it. In the example above, `myVariable` is declared outside of the lambda function but is used by the `doSomething()` function call within the lambda function. We must therefore list `myVariable` within the square brackets at the beginning of the lambda function definition, in order to make it accessible from within the lambda function's scope. 
 
-#### 3.4.3 Positioning
+#### 4.4.3 Positioning
 
 There are two ways to position elements (panels, button, etc.) within a parent element (window, panel): 
 * __Using sizers__: In this approach, you will only need to provide an element's size, but not its position. You can then add that element to a sizer, which will then determine the element's position based on the sizer's predefined behavior. The most common sizer is `wxBoxSizer`, which allows you to position a set of elements one after the other, vertically or horizontally. You can also allow sizers to change the size of elements depending on the available space. This means you can have your GUI adapt to the size of the user's window and/or screen.
 * __Using absolute positioning__: In this approach, you need to provide a position (as `wxPoint`) for each element. This position refers to the offset of the top-left corner of this element from the top-left corner of its parent. Using absolute positioning gives you much more control over the layout of your GUI. However, it is also much more work, as you will need to calculate the position for every single element. This is especially difficult if you want to adapt to changing window sizes.
 
-#### 3.4.4 Classes for reuse
+#### 4.4.4 Classes for reuse
 
 The example project provides two classes that you can reuse without changing anything:
 
 * __`ImagePanel`__: This behaves like a regular panel, but shows an image in the background. You should use this to display any image you need for your GUI.
 * __`InputField`__: This provides a user input field with a label in front of it. Use `getValue()` to get the user's input.
 
-#### 3.4.5 Tutorial video
+#### 4.4.5 Tutorial video
 
 We encourage you to watch this well-explained tutorial video on wxWidgets. The video focuses on layouting, but also shows you how to setup a basic wxWidget application: https://www.youtube.com/watch?v=kPB5Y6ef9dw
