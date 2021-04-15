@@ -37,7 +37,7 @@ Execute the following commands in a console:
 4. Wait until sockpp is compiled (from now on you never have to touch sockpp again ;))
 5. Click `File > Open...` select the **/cse-lama-example-project** folder
 6. Click `Build > Build all in 'Debug'`
-7. Wait until Lama-server, Lama-client and the unit tests are compiled
+7. Wait until Lama-server, Lama-client and Lama-tests are compiled
 
 ## 2. Run the Game
 1. Open a console in the project folder, navigate into "cmake-build-debug" `cd cmake-build-debug`
@@ -52,10 +52,9 @@ Execute the following commands in a console:
 You can run individual tests or test suites by opening the corresponding file in the **/unit-tests** folder and clicking ![run](https://resources.jetbrains.com/help/img/idea/2021.1/artwork.studio.icons.shell.toolbar.run.svg) next to the test method or class. For more information on testing in CLion read the [documentation](https://www.jetbrains.com/help/clion/performing-tests.html).
 
 ## 4. Code Documentation
-You don't need to look at the **/sockpp** or **/rapidjson** folder, as they simply contain 3rd party code that should not be changed.
+You don't need to look at the **/sockpp**, **/rapidjson** or **/googletest** folder, as they simply contain 3rd party code that should not be changed.
 
-
-The code can be found in **/src**, where it is separated into following folders:
+The code for the game can be found in **/src**, where it is separated into following folders:
 - **/client** contains only code that is used on the client side (e.g. UI, sending messages)
 - **/common** contains code that is shared between server and client.
     - **/exceptions** contains the exception class used on server and client side. You don't need to change anything in here (unless you want to rename the LamaException class ;))
@@ -66,6 +65,7 @@ The code can be found in **/src**, where it is separated into following folders:
 
 The **/asset** folder stores all the images that are being used to render the GUI.
 
+The **/unit-tests** folder contains all unit tests, which validate the correct behaviour of the functions written in the source code of the game. 
 
 ### 4.1 Overview
 
