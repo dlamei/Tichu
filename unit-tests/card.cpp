@@ -9,7 +9,8 @@
 
 
 // A card can be played on another card if and only if the new card has the
-// same value or the same value plus one than the previous card
+// same value or the same value plus one than the previous card or the previous card
+// has value 7 and the new card has value 1.
 TEST(CardTest, PlayCardsOn1) {
     card c_1(1);
     card c_2(2);
@@ -20,11 +21,19 @@ TEST(CardTest, PlayCardsOn1) {
     card c_7(7);
     EXPECT_TRUE(c_1.can_be_played_on((&c_1)));
     EXPECT_TRUE(c_2.can_be_played_on((&c_1)));
+    EXPECT_TRUE(c_1.can_be_played_on((&c_7)));
+
     EXPECT_FALSE(c_3.can_be_played_on((&c_1)));
     EXPECT_FALSE(c_4.can_be_played_on((&c_1)));
     EXPECT_FALSE(c_5.can_be_played_on((&c_1)));
     EXPECT_FALSE(c_6.can_be_played_on((&c_1)));
     EXPECT_FALSE(c_7.can_be_played_on((&c_1)));
+
+    EXPECT_FALSE(c_2.can_be_played_on((&c_7)));
+    EXPECT_FALSE(c_3.can_be_played_on((&c_7)));
+    EXPECT_FALSE(c_4.can_be_played_on((&c_7)));
+    EXPECT_FALSE(c_5.can_be_played_on((&c_7)));
+    EXPECT_FALSE(c_6.can_be_played_on((&c_7)));
 }
 
 // Serialization and subsequent deserialization must yield the same object
