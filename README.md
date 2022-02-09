@@ -81,9 +81,11 @@ Everything that is passed between client and server are objects of type `client_
 ![client-server-diagram](./docs/img/client-server-diagram.png?raw=true)
 
 #### 4.2.1 Serialization & Deserialization of messages
-Both, the `client_request` and `server_response` base classes, implement the abstract class `serializable` with its `write_into_json(...)` function. It allows to serialize the object instance into a JSON string. Additionally, they have a static function `from_json(...)`, which allows creating an instance of an object from JSON.
+Both, the `client_request` and `server_response` base classes, implement the abstract class `serializable` with its `write_into_json(...)` function. It allows to serialize the object instance into a JSON string. Additionally, they have a static function `from_json(...)`, which allows creating an object instance from a JSON string.
 
 ```cpp
+// All request types of your imlementation
+// IMPORTANT: Add your own types here (and remove unused ones)
 enum RequestType {
     join_game,
     start_game,
@@ -101,9 +103,12 @@ protected:
 
     ...
 private:
-    // for deserializing RequestType
+    // for deserializing RequestType (contains mappings from string to RequestType)
+    // IMPORTANT: Add mapping for your own RequestTypes to this unordered_map
     static const std::unordered_map<std::string, RequestType> _string_to_request_type;
-    // for serializing RequestType
+    
+    // for serializing RequestType (contains mappings from RequestType to string)
+    // IMPORTANT: Add mapping for your own RequestTypes to this unordered_map
     static const std::unordered_map<RequestType, std::string> _request_type_to_string;
 
 public:
@@ -150,7 +155,7 @@ And here is the **subclass** implementation (for the `play_card_request` class),
 // Implementation in the subclass play_card_request 
 void play_card_request::write_into_json(rapidjson::Value &json,
                                         rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
-    // call base-class, such that the parameters of the base-class are written into the JSON document
+    // IMPORTANT: call base-class, such that the parameters of the base-class are written into the 'json' variable
     client_request::write_into_json(json, allocator);
 
     // Add parameters to the JSON that are unique to the play_card_request
@@ -188,7 +193,7 @@ if (json.HasMember("type") && json["type"].IsString()) {
 
 Therefore, when you implement your own `client_request` subclasses, remember to add a new element into the `RequestType` enum to define your new request type. You will also have to add an entry for this new RequestType in the two unordered_maps `_string_to_request_type`, resp. `_request_type_to_string` in the `client_request` base-class. Once this is done, you can add a check for your new `RequestType` element in the `from_json(...)` function of the `client_request` base-class and call the specialized `from_json(...)` function of your subclass from there. 
 
-Also, don't forget to set the correct `RequestType` in the public constructor of your new `client_request` subclass:
+Also, don't forget to set the correct `RequestType` in the public constructor of your new `client_request` subclass, here examplified at the `play_card_request` class:
 
 ```cpp
 // Public constructor
