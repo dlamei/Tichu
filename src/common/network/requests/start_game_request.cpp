@@ -27,17 +27,3 @@ void start_game_request::write_into_json(rapidjson::Value &json,
                                          rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
     client_request::write_into_json(json, allocator);
 }
-
-#ifdef LAMA_SERVER
-request_response* start_game_request::execute() {
-    std::string err;
-    player* player;
-    game_instance* game_instance_ptr;
-    if (game_instance_manager::try_get_player_and_game_instance(_player_id, player, game_instance_ptr, err)) {
-        if (game_instance_ptr->start_game(player, err)) {
-            return new request_response(game_instance_ptr->get_id(), _req_id, true, game_instance_ptr->get_game_state()->to_json(), err);
-        }
-    }
-    return new request_response("", _req_id, false, nullptr, err);
-}
-#endif

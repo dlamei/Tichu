@@ -141,7 +141,6 @@ void server_network_manager::handle_incoming_message(const std::string& msg, con
 #endif
         // execute client request
         request_response* res = request_handler::handle_request(req);
-        //request_response* res = req->execute();
         delete req;
 
         // transform response into a json

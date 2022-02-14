@@ -15,11 +15,6 @@
 #include "../../serialization/uuid_generator.h"
 #include "../../serialization/json_utils.h"
 
-#ifdef LAMA_SERVER
-#include "../responses/server_response.h"
-#include "../responses/request_response.h"
-#endif
-
 // Identifier for the different request types.
 // The RequestType is sent with every client_request to identify the type of client_request
 // during deserialization on the server side.
@@ -73,12 +68,6 @@ public:
     void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
 
     [[nodiscard]] virtual std::string to_string() const;
-
-    // Code that should only exist on the server side
-#ifdef LAMA_SERVER
-    // Execute this request on the server side
-    virtual request_response* execute() = 0;
-#endif
 };
 
 
