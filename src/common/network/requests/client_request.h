@@ -60,8 +60,10 @@ private:
 public:
     virtual ~client_request() {}
 
-    std::string get_player_id() const;
-    std::string get_game_id() const;
+    [[nodiscard]] RequestType get_type() const { return this->_type; }
+    [[nodiscard]] std::string get_req_id() const { return this->_req_id; }
+    [[nodiscard]] std::string get_game_id() const { return this->_game_id; }
+    [[nodiscard]] std::string get_player_id() const { return this->_player_id; }
 
     // Tries to create the specific client_request from the provided json.
     // Throws exception if parsing fails -> Use only in "try{ }catch()" block
@@ -70,7 +72,7 @@ public:
     // Serializes the client_request into a json object that can be sent over the network
     void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
 
-    virtual std::string to_string() const;
+    [[nodiscard]] virtual std::string to_string() const;
 
     // Code that should only exist on the server side
 #ifdef LAMA_SERVER

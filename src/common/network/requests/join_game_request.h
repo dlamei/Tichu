@@ -22,6 +22,8 @@ private:
     join_game_request(base_class_properties, std::string name);
 
 public:
+
+    [[nodiscard]] std::string get_player_name() const { return this->_player_name; }
     /*
      * Constructor to join any game
      */

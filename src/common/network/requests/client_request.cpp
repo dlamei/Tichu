@@ -71,15 +71,6 @@ client_request::base_class_properties client_request::create_base_class_properti
 }
 
 
-std::string client_request::get_player_id() const {
-    return this->_player_id;
-}
-
-std::string client_request::get_game_id() const {
-    return this->_game_id;
-}
-
-
 void client_request::write_into_json(rapidjson::Value &json,
                                      rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
     rapidjson::Value type_val(_request_type_to_string.at(this->_type).c_str(), allocator);
@@ -126,6 +117,7 @@ client_request* client_request::from_json(const rapidjson::Value &json) {
 std::string client_request::to_string() const {
     return "client_request of type " + client_request::_request_type_to_string.at(_type) + " for playerId " + _player_id + " and gameId " + _game_id;
 }
+
 
 
 

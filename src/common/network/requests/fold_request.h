@@ -16,7 +16,7 @@ private:
     /*
      * Private constructor for deserialization
      */
-    fold_request(base_class_properties);
+    explicit fold_request(base_class_properties);
 
 public:
     fold_request(std::string game_id, std::string player_id);

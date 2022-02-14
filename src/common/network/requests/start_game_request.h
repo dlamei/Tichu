@@ -17,7 +17,7 @@ private:
     /*
      * Private constructor for deserialization
      */
-    start_game_request(base_class_properties);
+    explicit start_game_request(base_class_properties);
 
 public:
     start_game_request(std::string game_id, std::string player_id);
