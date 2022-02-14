@@ -14,13 +14,15 @@ We even encourage it! Therefore, we also encourage you to **read through this do
 ## 1. Compile instructions
 This project only works on UNIX systems (Linux / MacOS). We recommend using [Ubuntu](https://ubuntu.com/#download), as it offers the easiest way to setup wxWidgets. Therefore, we explain installation only for Ubuntu systems. The following was tested on a Ubuntu 20.4 system, but should also work for earlier versions of Ubuntu.
 
-**Note:** If you create a virtual machine, we recommend to give the virtual machine at least 12GB of (dynamic) harddrive space (CLion and wxWidgets need quite a lot of space).
+**Note:** If you create a virtual machine, we recommend to give the virtual machine **at least 12GB** of (dynamic) harddrive space (CLion and wxWidgets need quite a lot of space).
 
 ### 1.1 Prepare OS Environment
 
 #### Ubuntu 20.4
-The OS should already have git installed in order to download this repository. If not, you can use: 
+The OS should already have git installed. If not, you can use: 
 `sudo apt-get install git`
+
+Then use  `git clone` to fetch this repository.
 
 Execute the following commands in a console:
 1. `sudo apt-get update`
