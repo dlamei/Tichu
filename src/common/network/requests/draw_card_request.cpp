@@ -36,18 +36,3 @@ void draw_card_request::write_into_json(rapidjson::Value &json,
     client_request::write_into_json(json, allocator);
     json.AddMember("nof_cards", rapidjson::Value(this->_nof_cards),allocator);
 }
-
-#ifdef LAMA_SERVER
-request_response* draw_card_request::execute() {
-    std::string err;
-    player* player;
-    game_instance* game_instance_ptr;
-    if (game_instance_manager::try_get_player_and_game_instance(_player_id, player, game_instance_ptr, err)) {
-        card* drawn_card;
-        if (game_instance_ptr->draw_card(player, drawn_card, err)) {
-            return new request_response(game_instance_ptr->get_id(), _req_id, true, game_instance_ptr->get_game_state()->to_json(), err);
-        }
-    }
-    return new request_response("", _req_id, false, nullptr, err);
-}
-#endif

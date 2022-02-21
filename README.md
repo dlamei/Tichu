@@ -61,7 +61,7 @@ The code for the game can be found in **/src**, where it is separated into follo
 - **/common** contains code that is shared between server and client.
     - **/exceptions** contains the exception class used on server and client side. You don't need to change anything in here (unless you want to rename the LamaException class ;))
     - **/game_state** contains the `game_state` that is synchronized between client and server. We use the [conditional pre-compile directive](https://www.cplusplus.com/doc/tutorial/preprocessor/) LAMA_SERVER to enable certain parts of the code only on the server side. Namely, these are the state update functions, as they should only happen on the server. The client simply reflects the current game state as sent by the server without modifying it directly. 
-    - **/network** contains all the messages that are being passed between client and server. We use the conditional pre-compile directive LAMA_SERVER to enable execution of a `client_request` on the server side (through the function `execute()`). Similarly, we use the LAMA_CLIENT pre-compile directive to make `server_repsonses` only executable on the client side (through the function `Process()`) .
+    - **/network** contains all the messages that are being passed between client and server. We use the LAMA_CLIENT pre-compile directive to make `server_repsonses` only executable on the client side (through the function `Process()`) .
     - **/serialization** contains base classes for serializing `game_state`, `client_request` and `server_response` objects. **Serialization** is the process of transforming an object instance into a string that can be sent over a network, where the receiver deserializes it, i.e. recreates the object from the string. If you are interested, [read me on Wikipedia](https://en.wikipedia.org/wiki/Serialization).
 - **/server** contains only code that is relevant for the server (e.g. player management, game instance management, receiving messages)
 
@@ -78,7 +78,7 @@ The client renders the GUI that is presented to the player, whereas the server i
 - If the **move was invalid**, the game state will not be updated and only the requesting player will get a response containing the error message. 
 
 ### 4.2 Network Interface
-Everything that is passed between client and server are objects of type `client_request` and `server_response`. Since the underlying network protocol works with TCP, these `client_request` and `server_response` objects are transformed into a **[JSON](https://wiki.selfhtml.org/wiki/JSON) string**, which can then be sent byte by byte over the network. The receiving end reads the JSON string and constructs an object of type `client_request` resp. `server_response` that reflects the exact parameters that are specified in the JSON string. This process is known as **serialization** (object to string) and **deserialization** (string to object). If you want to read more about serialization, [read me on Wikipedia](https://en.wikipedia.org/wiki/Serialization).
+Everything that is passed between client and server are objects of type `client_request` and `server_response`. Since the underlying network protocol works with TCP, these `client_request` and `server_response` objects are transformed into a **[JSON](https://wiki.selfhtml.org/wiki/JSON) string**, which can then be sent over the network. The receiving end reads the JSON string and constructs an object of type `client_request` resp. `server_response` that reflects the exact parameters that are specified in the JSON string. This process is known as **serialization** (object to string) and **deserialization** (string to object). If you want to read more about serialization, [read me on Wikipedia](https://en.wikipedia.org/wiki/Serialization).
 
 ![client-server-diagram](./docs/img/client-server-diagram.png?raw=true)
 
@@ -119,13 +119,6 @@ public:
 
     // SERIALIZATION: Serializes the client_request into a json object that can be sent over the network
     virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
-
-// Code that should only exist on the server side (conditional preprocessor directive)
-#ifdef LAMA_SERVER
-    // Executes the client_request (only on server)
-    // This function is automatically invoked by the server_network_manager when a valid client_request (this) arrives.
-    virtual server_response* execute() = 0;
-#endif
 };
 ```
 
@@ -240,9 +233,9 @@ There are plenty of examples of subclasses in the network/requests folder, where
 All you have to do is use the static class `ClientNetworkManager` on the client side and then invoke its `sendRequest(const client_request& request)` function with the `client_request` that you want to send. The server's response will arrive as an object of type `request_response` and the `ClientNetworkManager` will invoke the `Process()` function of that `request_response` object automatically.
 
 #### Server -> Client:
-If you look at the signature of the `execute()` function of the `client_request`, you can see that it returns a pointer to an object of type `request_response` (a subclass of `server_response`). When implementing the `execute()` function of your `client_request` subclass, you have to return an object of type `request_response` with all parameters you want to send. This return value will then automatically be sent over the network to the requesting client. 
+All messages arriving at the server are being deserialized and then passed on to the `handle_request(client_request* req)` function of the `request_handler` singleton class. This function returns a pointer to an object of type `request_response` (a subclass of `server_response`), which is then automatically sent back to the requesting client. In your game implementation you should extend the `handle_request(client_request* req)` function of the `request_handler`, such that it can handle the `client_request` that you add to your game and return an object of type `request_response` with all parameters you want to send. 
 
-If the `client_request` caused an update of the game_state you should also update all other players of that game about the game_state change. This happens in the `game_instance` class, here examplified at the case where a `start_game_request` calls the `start_game(...)` function on the respective `game_instance` on the server side:
+If the `client_request` causes an update of the game_state you should also update all other players of that game about the game_state change. This happens in the `game_instance` class, here examplified at the case where a `start_game_request` calls the `start_game(...)` function on the respective `game_instance` on the server side:
 
 ```cpp
 bool game_instance::start_game(player* player, std::string &err) {
@@ -252,7 +245,7 @@ bool game_instance::start_game(player* player, std::string &err) {
     if (_game_state->start_game(err)) { 
         // create a full_state_response (subclass of server_response) with the full game_state inside
         full_state_response state_update_msg = full_state_response(this->get_id(), *_game_state);
-        // send new game_state to all other players
+        // BROADCAST new game_state to all other players
         server_network_manager::broadcast_message(state_update_msg, _game_state->get_players(), player);
 
         modification_lock.unlock(); // allow other threads to modify the game_state
@@ -293,7 +286,7 @@ std::cout << json_utils::to_string(req_json) << std::endl;
 
 ### 4.3 Game State
 
-The `game_state` class stores all parameters that are required to represent the game on the client (resp. server) side. In order to synchronize this `game_state` among all players, the `game_state` can also be **serialized** and **deserialized**. If a `client_request` was successfully executed on the server, then the `request_response` that is sent to back to the client contains a serialized version of the updated `game_state`. All other players receive the updated `game_state` at the same time through a `full_state_response`.
+The `game_state` class stores all parameters that are required to represent the game on the client (resp. server) side. In order to synchronize this `game_state` among all players, the `game_state` can also be **serialized** and **deserialized**. If a `client_request` was successfully executed on the server, then the `request_response` that is sent back to the client contains a serialized version of the updated `game_state`. All other players receive the updated `game_state` at the same time through a `full_state_response`.
 
 To serialize the `game_state`, the same `write_into_json(...)` function is used as for the `client_request`. 
 

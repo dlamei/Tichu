@@ -20,13 +20,11 @@ private:
     play_card_request(base_class_properties, std::string card_id);
 
 public:
+    [[nodiscard]] std::string get_card_id() const { return this->_card_id; }
+
     play_card_request(std::string game_id, std::string player_id, std::string card_id);
     virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
     static play_card_request* from_json(const rapidjson::Value& json);
-
-#ifdef LAMA_SERVER
-    request_response* execute() override;
-#endif
 };
 
 

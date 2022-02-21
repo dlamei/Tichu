@@ -5,9 +5,12 @@
 // to all connected players of a game.
 
 #include "server_network_manager.h"
+#include "request_handler.h"
 
 // include server address configurations
 #include "../common/network/default.conf"
+#include "../common/network/responses/request_response.h"
+
 
 server_network_manager::server_network_manager() {
     if (_instance == nullptr) {
@@ -139,7 +142,7 @@ void server_network_manager::handle_incoming_message(const std::string& msg, con
         std::cout << "Received valid request : " << msg << std::endl;
 #endif
         // execute client request
-        request_response* res = req->execute();
+        server_response* res = request_handler::handle_request(req);
         delete req;
 
         // transform response into a json
