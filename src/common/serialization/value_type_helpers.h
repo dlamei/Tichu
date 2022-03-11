@@ -6,6 +6,9 @@
 #ifndef LAMA_VALUE_TYPE_HELPERS_H
 #define LAMA_VALUE_TYPE_HELPERS_H
 
+#include <unordered_map>
+
+
 namespace value_type_helpers {
 
     enum ValueType {
