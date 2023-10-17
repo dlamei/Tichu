@@ -1,3 +1,7 @@
+# Tichu 
+## for now i will just keep the Lama README since it has a lot of good information on the code we will reuse
+
+
 # Lama
 
 This is a simple C++ implementation of the game "Lama" by AMIGO. You can read the game's rules [here](https://www.amigo.games/content/ap/rule/19420--031-2019-Lama_Manual_002_LAYOUT[1].pdf). The implementation features a client/server architecture for multiplayer scenarios.
