@@ -56,9 +56,14 @@ void draw_pile::setup_game(std::string &err) {
     _cards.clear();
 
     // add a fresh set of cards
-    for (int card_value = 1; card_value <= 7; card_value++) {
-        for (int i = 0; i < 8; i ++) {
-            _cards.push_back(new card(card_value));
+    for (int card_rank = 1; card_rank <= 14; card_rank++) {
+        for (int card_suit = 1; card_suit <= 4; card_suit++) {
+            int card_value = 0;
+            if(card_rank == 5) { card_value = 5; }
+            if(card_rank == 10 && card_rank == 13) { card_value = 10;}
+            if(card_rank == 1 && card_suit == 1) { card_value = -25; }
+            if(card_rank == 1 && card_suit == 2) { card_value = 25; }
+            _cards.push_back(new card(card_rank, card_suit, card_value));
         }
     }
     // shuffle them

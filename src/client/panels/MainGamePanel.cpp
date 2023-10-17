@@ -171,7 +171,7 @@ void MainGamePanel::buildCardPiles(game_state* gameState, player *me) {
         // Show discard pile
         const card* topCard = gameState->get_discard_pile()->get_top_card();
         if(topCard != nullptr) {
-            std::string cardImage = "assets/lama_" + std::to_string(topCard->get_value()) + ".png";
+            std::string cardImage = "assets/row-" + std::to_string(topCard->get_suit()) + "-column-" + std::to_string(topCard->get_rank() - 1) + ".png";
 
             wxPoint discardPilePosition = MainGamePanel::tableCenter + MainGamePanel::discardPileOffset;
 
@@ -323,7 +323,7 @@ void MainGamePanel::buildThisPlayer(game_state* gameState, player* me) {
             for (int i = 0; i < me->get_hand()->get_cards().size(); i++) {
 
                 card *handCard = me->get_hand()->get_cards().at(i);
-                std::string cardFile = "assets/lama_" + std::to_string(handCard->get_value()) + ".png";
+                std::string cardFile = "assets/row-" + std::to_string(handCard->get_suit()) + "-column-" + std::to_string(handCard->get_rank() - 1) + ".png";
 
                 ImagePanel *cardButton = new ImagePanel(this, cardFile, wxBITMAP_TYPE_ANY, wxDefaultPosition, scaledCardSize);
 

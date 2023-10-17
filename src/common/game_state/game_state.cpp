@@ -141,9 +141,9 @@ void game_state::setup_round(std::string &err) {
     // setup players
     for (int i = 0; i < _players.size(); i++) {
         _players[i]->setup_round(err);
-        // draw 6 cards
+        // draw 14 cards
         card* drawn_card = nullptr;
-        for (int j = 0; j < 6; j++) {
+        for (int j = 0; j < 14; j++) {
             if (!_draw_pile->draw(_players[i], drawn_card, err)) {
                 std::cerr << err << std::endl;
             }
