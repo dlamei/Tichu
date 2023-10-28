@@ -11,8 +11,8 @@
 //  double
 //  string
 
-#ifndef LAMA_SERIALIZABLE_VALUE_H
-#define LAMA_SERIALIZABLE_VALUE_H
+#ifndef TICHU_SERIALIZABLE_VALUE_H
+#define TICHU_SERIALIZABLE_VALUE_H
 
 
 #include <vector>
@@ -58,4 +58,4 @@ public:
 
 
 
-#endif //LAMA_SERIALIZABLE_VALUE_H
+#endif //TICHU_SERIALIZABLE_VALUE_H

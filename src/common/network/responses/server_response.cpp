@@ -6,7 +6,7 @@
 #include "request_response.h"
 #include "full_state_response.h"
 
-#include "../../exceptions/LamaException.h"
+#include "../../exceptions/TichuException.h"
 
 // for deserialization
 const std::unordered_map<std::string, ResponseType> server_response::_string_to_response_type = {
@@ -53,7 +53,7 @@ server_response::base_class_properties server_response::extract_base_class_prope
     }
     else
     {
-        throw LamaException("Server Response did not contain game_id");
+        throw TichuException("Server Response did not contain game_id");
     }
 }
 
@@ -70,10 +70,10 @@ server_response *server_response::from_json(const rapidjson::Value& json) {
         else if (response_type == ResponseType::full_state_msg) {
             return full_state_response::from_json(json);
         } else {
-            throw LamaException("Encountered unknown ServerResponse type " + response_type);
+            throw TichuException("Encountered unknown ServerResponse type " + response_type);
         }
     }
-    throw LamaException("Could not determine type of ClientRequest");
+    throw TichuException("Could not determine type of ClientRequest");
 }
 
 void server_response::write_into_json(rapidjson::Value &json,

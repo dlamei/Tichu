@@ -1,5 +1,5 @@
-#ifndef LAMAUI_GAMEWINDOW_H
-#define LAMAUI_GAMEWINDOW_H
+#ifndef TICHUUI_GAMEWINDOW_H
+#define TICHUUI_GAMEWINDOW_H
 
 #include "../panels/ConnectionPanel.h"
 
@@ -21,4 +21,4 @@ private:
 };
 
 
-#endif //LAMAUI_GAMEWINDOW_H
+#endif //TICHUUI_GAMEWINDOW_H

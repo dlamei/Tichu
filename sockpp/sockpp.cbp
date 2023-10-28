@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="sockpp"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\src\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="sockpp">
+				<Option output="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/libsockpp.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/include"/>
+					<Add directory="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/generated"/>
+					<Add directory="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 sockpp"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="sockpp/fast">
+				<Option output="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/libsockpp.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/include"/>
+					<Add directory="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/generated"/>
+					<Add directory="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 sockpp/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="list_install_components">
+				<Option working_dir="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 list_install_components"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install">
+				<Option working_dir="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 install"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install/local">
+				<Option working_dir="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 install/local"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="install/strip">
+				<Option working_dir="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 install/strip"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="sockpp-objs">
+				<Option output="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/CMakeFiles/sockpp-objs.dir/sockpp-objs.objlib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/include"/>
+					<Add directory="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/generated"/>
+					<Add directory="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/Makefile&quot;  VERBOSE=1 sockpp-objs"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="sockpp-objs/fast">
+				<Option output="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/CMakeFiles/sockpp-objs.dir/sockpp-objs.objlib" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src"/>
+				<Option object_output="./"/>
+				<Option type="2"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/include"/>
+					<Add directory="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/generated"/>
+					<Add directory="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/Makefile&quot;  VERBOSE=1 sockpp-objs/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/CMakeFiles/sockpp-objs.dir/acceptor.cpp.o">
+			<Option target="sockpp"/>
+		</Unit>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/CMakeFiles/sockpp-objs.dir/connector.cpp.o">
+			<Option target="sockpp"/>
+		</Unit>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/CMakeFiles/sockpp-objs.dir/datagram_socket.cpp.o">
+			<Option target="sockpp"/>
+		</Unit>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/CMakeFiles/sockpp-objs.dir/exception.cpp.o">
+			<Option target="sockpp"/>
+		</Unit>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/CMakeFiles/sockpp-objs.dir/inet6_address.cpp.o">
+			<Option target="sockpp"/>
+		</Unit>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/CMakeFiles/sockpp-objs.dir/inet_address.cpp.o">
+			<Option target="sockpp"/>
+		</Unit>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/CMakeFiles/sockpp-objs.dir/socket.cpp.o">
+			<Option target="sockpp"/>
+		</Unit>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/CMakeFiles/sockpp-objs.dir/stream_socket.cpp.o">
+			<Option target="sockpp"/>
+		</Unit>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/CMakeFiles/sockpp-objs.dir/unix/unix_address.cpp.o">
+			<Option target="sockpp"/>
+		</Unit>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/acceptor.cpp">
+			<Option target="sockpp-objs"/>
+		</Unit>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/connector.cpp">
+			<Option target="sockpp-objs"/>
+		</Unit>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/datagram_socket.cpp">
+			<Option target="sockpp-objs"/>
+		</Unit>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/exception.cpp">
+			<Option target="sockpp-objs"/>
+		</Unit>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/inet6_address.cpp">
+			<Option target="sockpp-objs"/>
+		</Unit>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/inet_address.cpp">
+			<Option target="sockpp-objs"/>
+		</Unit>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/socket.cpp">
+			<Option target="sockpp-objs"/>
+		</Unit>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/stream_socket.cpp">
+			<Option target="sockpp-objs"/>
+		</Unit>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/unix/unix_address.cpp">
+			<Option target="sockpp-objs"/>
+		</Unit>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/version.h.in">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/everywherdo/Software_Engeneering/cse-tichu-example-project/sockpp/src/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\src\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

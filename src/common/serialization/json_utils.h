@@ -3,8 +3,8 @@
 //
 // Helper functions for rapidjson elements
 
-#ifndef LAMA_JSON_UTILS_H
-#define LAMA_JSON_UTILS_H
+#ifndef TICHU_JSON_UTILS_H
+#define TICHU_JSON_UTILS_H
 
 #include <string>
 
@@ -32,4 +32,4 @@ public:
 
 };
 
-#endif //LAMA_JSON_UTILS_H
+#endif //TICHU_JSON_UTILS_H
