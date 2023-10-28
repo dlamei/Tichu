@@ -1,0 +1,1 @@
+/usr/bin/c++ --coverage CMakeFiles/Tichu-tests.dir/card.cpp.o CMakeFiles/Tichu-tests.dir/hand.cpp.o -o Tichu-tests  ../lib/libgtest.a ../lib/libgtest_main.a ../libTichu-lib.a ../lib/libgtest.a 
