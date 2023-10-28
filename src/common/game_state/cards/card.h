@@ -2,8 +2,8 @@
 // Created by Manuel on 25.01.2021.
 //
 
-#ifndef LAMA_CARD_H
-#define LAMA_CARD_H
+#ifndef TICHU_CARD_H
+#define TICHU_CARD_H
 
 #include <string>
 #include "../../serialization/unique_serializable.h"
@@ -53,4 +53,4 @@ public:
 };
 
 
-#endif //LAMA_CARD_H
+#endif //TICHU_CARD_H

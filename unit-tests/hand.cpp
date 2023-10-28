@@ -186,8 +186,8 @@ TEST_F(HandTest, ScoreOneCard) {
     EXPECT_EQ(1, player_hand.get_score());
 }
 
-// The score of a hand with a single Lama card must be equal to 10
-TEST_F(HandTest, ScoreLama) {
+// The score of a hand with a single Tichu card must be equal to 10
+TEST_F(HandTest, ScoreTichu) {
     player_hand.add_card(cards[7][0], err);
     EXPECT_EQ(10, player_hand.get_score());
 }

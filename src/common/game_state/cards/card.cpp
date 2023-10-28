@@ -4,7 +4,7 @@
 
 #include "card.h"
 
-#include "../../exceptions/LamaException.h"
+#include "../../exceptions/TichuException.h"
 
 
 card::card(std::string id) : unique_serializable(id) { }
@@ -42,7 +42,7 @@ int card::get_value() const noexcept {
 
 bool card::can_be_played_on(const card *const other) const noexcept {
     return true;
-    // return true if this card has a one higher or of equal value OR if 'other' is Lama and this is 1
+    // return true if this card has a one higher or of equal value OR if 'other' is Tichu and this is 1
     int value_delta = this->get_value() - other->get_value();
     return value_delta == 0 || value_delta == 1 || (other->get_value() == 7 && this->get_value() == 1);
 }
@@ -60,7 +60,7 @@ card *card::from_json(const rapidjson::Value &json) {
                 serializable_value<int>::from_json(json["suit"].GetObject()),
                 serializable_value<int>::from_json(json["value"].GetObject()));
     } else {
-        throw LamaException("Could not parse json of card. Was missing 'id', 'rank', 'suit' or 'val'.");
+        throw TichuException("Could not parse json of card. Was missing 'id', 'rank', 'suit' or 'val'.");
     }
 }
 

@@ -3,8 +3,8 @@
 //
 // Used to serialize game_state objects that need to be identifiable by a unique id.
 
-#ifndef LAMA_UNIQUE_SERIALIZABLE_H
-#define LAMA_UNIQUE_SERIALIZABLE_H
+#ifndef TICHU_UNIQUE_SERIALIZABLE_H
+#define TICHU_UNIQUE_SERIALIZABLE_H
 
 
 #include "serializable.h"
@@ -27,4 +27,4 @@ public:
 
 };
 
-#endif //LAMA_UNIQUE_SERIALIZABLE_H
+#endif //TICHU_UNIQUE_SERIALIZABLE_H

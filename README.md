@@ -1,13 +1,13 @@
 # Tichu 
-## for now i will just keep the Lama README since it has a lot of good information on the code we will reuse
+## for now i will just keep the Tichu README since it has a lot of good information on the code we will reuse
 
 
-# Lama
+# Tichu
 
-This is a simple C++ implementation of the game "Lama" by AMIGO. You can read the game's rules [here](https://www.amigo.games/content/ap/rule/19420--031-2019-Lama_Manual_002_LAYOUT[1].pdf). The implementation features a client/server architecture for multiplayer scenarios.
+This is a simple C++ implementation of the game "Tichu" by AMIGO. You can read the game's rules [here](https://www.amigo.games/content/ap/rule/19420--031-2019-Tichu_Manual_002_LAYOUT[1].pdf). The implementation features a client/server architecture for multiplayer scenarios.
 It uses [wxWidgets](https://www.wxwidgets.org/) for the GUI, [sockpp](https://github.com/fpagliughi/sockpp) for the network interface, [rapidjson](https://rapidjson.org/md_doc_tutorial.html) for object serialization, and [googletest](https://github.com/google/googletest) for the unit tests. 
 
-![Lama-logo](./assets/lama_logo.png?raw=true)
+![Tichu-logo](./assets/tichu_logo.png?raw=true)
 
 This is a template project for the students of the course Software Engineering. In order to adapt this template to a different game, you will only need knowledge in wxWidgets and maybe about some basic functions of rapidjson to serialize certain data types. By sticking to the template you won't need to dig into sockpp at all.
 
@@ -41,18 +41,18 @@ Execute the following commands in a console:
 2. Click `File > Open...` and there select the **/sockpp** folder of this project
 3. Click `Build > Build all in 'Debug'`
 4. Wait until sockpp is compiled (from now on you never have to touch sockpp again ;))
-5. Click `File > Open...` select the **/cse-lama-example-project** folder
+5. Click `File > Open...` select the **/cse-tichu-example-project** folder
 6. Click `Build > Build all in 'Debug'`
-7. Wait until Lama-server, Lama-client and Lama-tests are compiled
+7. Wait until Tichu-server, Tichu-client and Tichu-tests are compiled
 
 ## 2. Run the Game
 1. Open a console in the project folder, navigate into "cmake-build-debug" `cd cmake-build-debug`
-2. Run server `./Lama-server`
-3. In new consoles run as many clients as you want players `./Lama-client`
+2. Run server `./Tichu-server`
+3. In new consoles run as many clients as you want players `./Tichu-client`
 
 ## 3. Run the Unit Tests
-1. CLion should automatically create a Google Test configuration Lama-tests which will run all tests. See [Google Test run/debug configuration﻿](https://www.jetbrains.com/help/clion/creating-google-test-run-debug-configuration-for-test.html#gtest-config) for more information.
-2. From the list on the main toolbar, select the configuration Lama-tests.
+1. CLion should automatically create a Google Test configuration Tichu-tests which will run all tests. See [Google Test run/debug configuration﻿](https://www.jetbrains.com/help/clion/creating-google-test-run-debug-configuration-for-test.html#gtest-config) for more information.
+2. From the list on the main toolbar, select the configuration Tichu-tests.
 3. Click ![run](https://resources.jetbrains.com/help/img/idea/2021.1/artwork.studio.icons.shell.toolbar.run.svg) or press `Shift+F10`.
    
 You can run individual tests or test suites by opening the corresponding file in the **/unit-tests** folder and clicking ![run](https://resources.jetbrains.com/help/img/idea/2021.1/artwork.studio.icons.shell.toolbar.run.svg) next to the test method or class. For more information on testing in CLion read the [documentation](https://www.jetbrains.com/help/clion/performing-tests.html).
@@ -63,9 +63,9 @@ You don't need to look at the **/sockpp**, **/rapidjson** or **/googletest** fol
 The code for the game can be found in **/src**, where it is separated into following folders:
 - **/client** contains only code that is used on the client side (e.g. UI, sending messages)
 - **/common** contains code that is shared between server and client.
-    - **/exceptions** contains the exception class used on server and client side. You don't need to change anything in here (unless you want to rename the LamaException class ;))
-    - **/game_state** contains the `game_state` that is synchronized between client and server. We use the [conditional pre-compile directive](https://www.cplusplus.com/doc/tutorial/preprocessor/) LAMA_SERVER to enable certain parts of the code only on the server side. Namely, these are the state update functions, as they should only happen on the server. The client simply reflects the current game state as sent by the server without modifying it directly. 
-    - **/network** contains all the messages that are being passed between client and server. We use the LAMA_CLIENT pre-compile directive to make `server_repsonses` only executable on the client side (through the function `Process()`) .
+    - **/exceptions** contains the exception class used on server and client side. You don't need to change anything in here (unless you want to rename the TichuException class ;))
+    - **/game_state** contains the `game_state` that is synchronized between client and server. We use the [conditional pre-compile directive](https://www.cplusplus.com/doc/tutorial/preprocessor/) TICHU_SERVER to enable certain parts of the code only on the server side. Namely, these are the state update functions, as they should only happen on the server. The client simply reflects the current game state as sent by the server without modifying it directly. 
+    - **/network** contains all the messages that are being passed between client and server. We use the TICHU_CLIENT pre-compile directive to make `server_repsonses` only executable on the client side (through the function `Process()`) .
     - **/serialization** contains base classes for serializing `game_state`, `client_request` and `server_response` objects. **Serialization** is the process of transforming an object instance into a string that can be sent over a network, where the receiver deserializes it, i.e. recreates the object from the string. If you are interested, [read me on Wikipedia](https://en.wikipedia.org/wiki/Serialization).
 - **/server** contains only code that is relevant for the server (e.g. player management, game instance management, receiving messages)
 
@@ -184,10 +184,10 @@ if (json.HasMember("type") && json["type"].IsString()) {
         else if (...) {
             ...
         } else {
-            throw LamaException("Encountered unknown ClientRequest type " + type);
+            throw TichuException("Encountered unknown ClientRequest type " + type);
         }
     }
-    throw LamaException("Could not determine type of ClientRequest. JSON was:\n" + json_utils::to_string(&json));
+    throw TichuException("Could not determine type of ClientRequest. JSON was:\n" + json_utils::to_string(&json));
 ```
 
 Therefore, when you implement your own `client_request` subclasses, remember to add a new element into the `RequestType` enum to define your new request type. You will also have to add an entry for this new RequestType in the two unordered_maps `_string_to_request_type`, resp. `_request_type_to_string` in the `client_request` base-class. Once this is done, you can add a check for your new `RequestType` element in the `from_json(...)` function of the `client_request` base-class and call the specialized `from_json(...)` function of your subclass from there. 
@@ -225,7 +225,7 @@ play_card_request* play_card_request::from_json(const rapidjson::Value& json) {
         // invoke deserialization constructor
         return new play_card_request(props, json["card_id"].GetString());
     } else {
-        throw LamaException("Could not find 'card_id' in play_card_request");
+        throw TichuException("Could not find 'card_id' in play_card_request");
     }
 }
 ```
@@ -265,7 +265,7 @@ bool game_instance::start_game(player* player, std::string &err) {
 By default, the server (specifically, the server_network_manager) will print every valid message that it receives to the console. In order for this to work in your project as well, you have to make sure that your CMake file contains a line, where the preprocessor variable PRINT_NETWORK_MESSAGES is defined for your server executable. 
 
 ```
-target_compile_definitions(Lama-server PRIVATE PRINT_NETWORK_MESSAGES=1)
+target_compile_definitions(Tichu-server PRIVATE PRINT_NETWORK_MESSAGES=1)
 ```
 
 If a wrongly formatted message arrives at the server, it will print an error message with the received message string to the console, no matter if PRINT_NETWORK_MESSAGES is defined or not. 
@@ -334,7 +334,7 @@ The `game_state` inherits from `unique_serializable`, which essentially requires
 
 On the client side, the new `game_state` is then passed to the `updateGameState(game_state*)` function of the `GameController` class, which performs a redraw of the GUI.
 
-Since you will have to add your own properties to the `game_state` class (and probably create other classes that inherit from `unique_serializable` to add to your game_state), we want to shortly elaborate how the serialization and deserialization works for subclasses of `unique_serializable`. It's very similar to the `client_request` class discussed earlier. Here is how the `write_into_json(...)` function is implemented in the `game_state` class of Lama. **Don't be shocked by the lengthy code. It's only a lot of repetition for each class property** :
+Since you will have to add your own properties to the `game_state` class (and probably create other classes that inherit from `unique_serializable` to add to your game_state), we want to shortly elaborate how the serialization and deserialization works for subclasses of `unique_serializable`. It's very similar to the `client_request` class discussed earlier. Here is how the `write_into_json(...)` function is implemented in the `game_state` class of Tichu. **Don't be shocked by the lengthy code. It's only a lot of repetition for each class property** :
 
 ```cpp
 void game_state::write_into_json(rapidjson::Value &json,
@@ -425,7 +425,7 @@ game_state* game_state::from_json(const rapidjson::Value &json) {
                               serializable_value<int>::from_json(json["round_number"].GetObject()),
                               serializable_value<int>::from_json(json["starting_player_idx"].GetObject()));
     } else {
-        throw LamaException("Failed to deserialize game_state. Required entries were missing.");
+        throw TichuException("Failed to deserialize game_state. Required entries were missing.");
     }
 }
 ```
@@ -449,7 +449,7 @@ Here is a list of the most important elements that you will need to create your 
 
 * __Application core__
     * __`wxIMPLEMENT_APP()`__: In order to properly interact with the operating system's GUI, wxWidgets takes over the control flow of your application. wxWidgets therefore has its own `main()` function, that you can reference with the macro `wxIMPLEMENT_APP(wxApp*)`.
-    * __`wxApp`__: The core class of your application must inherit from the `wxApp` class. wxWidgets will call the `OnInit()` function when starting the application. You can find the example project's implementation in `src/client/app/Lama`.
+    * __`wxApp`__: The core class of your application must inherit from the `wxApp` class. wxWidgets will call the `OnInit()` function when starting the application. You can find the example project's implementation in `src/client/app/Tichu`.
 * __Windows__
     * __`wxFrame`__: Each window of your application must inherit from the `wxFrame` class. The example project has one window which you can find here: `src/client/windows/GameWindow`
 * __GUI elements__
