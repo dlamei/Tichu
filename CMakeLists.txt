@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
 project(Tichu) # your project name
-
 set(CMAKE_CXX_STANDARD 20)
 
 include_directories(sockpp/include)
@@ -101,13 +100,16 @@ target_compile_definitions(Tichu-server PRIVATE TICHU_SERVER=1 RAPIDJSON_HAS_STD
 # Comment out if you don't want to print network-related messages into the console
 target_compile_definitions(Tichu-server PRIVATE PRINT_NETWORK_MESSAGES=1)
 
+add_subdirectory(sockpp)
 
 # linking to sockpp
 if(WIN32)
     message("Detected Win32")
 
-    target_link_libraries(Tichu-client ${CMAKE_SOURCE_DIR}/sockpp/cmake-build-debug/sockpp-static.lib)
-    target_link_libraries(Tichu-server ${CMAKE_SOURCE_DIR}/sockpp/cmake-build-debug/sockpp-static.lib)
+    # target_link_libraries(Tichu-client ${CMAKE_SOURCE_DIR}/sockpp/cmake-build-debug/sockpp-static.lib)
+    # target_link_libraries(Tichu-server ${CMAKE_SOURCE_DIR}/sockpp/cmake-build-debug/sockpp-static.lib)
+		target_link_libraries(Tichu-client sockpp)
+		target_link_libraries(Tichu-server sockpp)
 
     # Necessary to get sockets working under Windows (with MingW)
     target_link_libraries(Tichu-client wsock32 ws2_32)
@@ -117,8 +119,11 @@ else()
     set(THREADS_PREFER_PTHREAD_FLAG ON)
     find_package(Threads REQUIRED)
 
-    target_link_libraries(Tichu-client ${CMAKE_SOURCE_DIR}/sockpp/cmake-build-debug/libsockpp.so Threads::Threads)
-    target_link_libraries(Tichu-server ${CMAKE_SOURCE_DIR}/sockpp/cmake-build-debug/libsockpp.so Threads::Threads)
+		target_link_libraries(Tichu-client sockpp Threads::Threads)
+		target_link_libraries(Tichu-server sockpp Threads::Threads)
+    # target_link_libraries(Tichu-client ${CMAKE_SOURCE_DIR}/sockpp/cmake-build-debug/libsockpp.so Threads::Threads)
+    # target_link_libraries(Tichu-server ${CMAKE_SOURCE_DIR}/sockpp/cmake-build-debug/libsockpp.so Threads::Threads)
+
 endif()
 
 # copy assets (images) to binary directory
