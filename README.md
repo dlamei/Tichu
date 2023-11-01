@@ -102,10 +102,10 @@ enum RequestType {
 
 class client_request : public serializable {
 protected:
-    RequestType _type;   // stores the type of request, such that the receiving end knows how to deserialize it
-    std::string _req_id; // unique id of this request
-    std::string _player_id; // id of the player sending the request
-    std::string _game_id;   // id of the game this request is for
+    RequestType type;   // stores the type of request, such that the receiving end knows how to deserialize it
+    std::string req_id; // unique id of this request
+    std::string player_id; // id of the player sending the request
+    std::string game_id;   // id of the game this request is for
 
     ...
 private:
@@ -136,15 +136,15 @@ Here is the **base-class** implementation:
 void client_request::write_into_json(rapidjson::Value &json,
                                      rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
     // Look up string value of this client_request's RequestType and store it in the json document
-    rapidjson::Value type_val(_request_type_to_string.at(this->_type).c_str(), allocator);
+    rapidjson::Value type_val(_request_type_to_string.at(this->type).c_str(), allocator);
     json.AddMember("type", type_val, allocator);
 
     // Save player_id in the JSON document
-    rapidjson::Value player_id_val(_player_id.c_str(), allocator);
+    rapidjson::Value player_id_val(player_id.c_str(), allocator);
     json.AddMember("player_id", player_id_val, allocator);
 
     // Save game_id in the JSON document
-    rapidjson::Value game_id_val(_game_id.c_str(), allocator);
+    rapidjson::Value game_id_val(game_id.c_str(), allocator);
     json.AddMember("game_id", game_id_val, allocator);
     ...
 }
@@ -210,7 +210,7 @@ The deserialization in your subclass will look something like this:
 
 ```cpp
 // private constructor for deserialization
-play_card_request::play_card_request(client_request::base_class_properties props, std::string card_id) :
+play_card_request::play_card_request(client_request::base_properties props, std::string card_id) :
         client_request(props),  // call base-class constructor
         _card_id(card_id)   // set subclass specific parameters
 { }
@@ -218,7 +218,7 @@ play_card_request::play_card_request(client_request::base_class_properties props
 // Deserialization
 play_card_request* play_card_request::from_json(const rapidjson::Value& json) {
     // extract base-class properties from the json
-    base_class_properties props = client_request::extract_base_class_properties(json);
+    base_properties props = client_request::extract_base_class_properties(json);
 
     // get subclass specific properties
     if (json.HasMember("card_id")) {

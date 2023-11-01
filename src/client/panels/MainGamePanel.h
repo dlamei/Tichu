@@ -10,16 +10,16 @@ class MainGamePanel : public wxPanel {
 public:
     MainGamePanel(wxWindow* parent);
 
-    void buildGameState(game_state* gameState, player* me);
+    void buildGameState(const game_state &gameState, player me);
 
 
 private:
 
-    void buildOtherPlayerHand(game_state* gameState, player* otherPlayer, double playerAngle);
-    void buildOtherPlayerLabels(game_state* gameState, player* otherPlayer, double playerAngle, int side);
-    void buildCardPiles(game_state* gameState, player *me);
-    void buildTurnIndicator(game_state* gameState, player* me);
-    void buildThisPlayer(game_state* gameState, player* me);
+    void buildOtherPlayerHand(const game_state &gameState, player otherPlayer, double playerAngle);
+    void buildOtherPlayerLabels(const game_state &gameState, player otherPlayer, double playerAngle, int side);
+    void buildCardPiles(const game_state &gameState, player me);
+    void buildTurnIndicator(const game_state &gameState, player me);
+    void buildThisPlayer(const game_state &gameState, player me);
 
     wxStaticText* buildStaticText(std::string content, wxPoint position, wxSize size, long textAlignment, bool bold = false);
 

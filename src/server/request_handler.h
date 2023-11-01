@@ -11,6 +11,6 @@
 
 class request_handler {
 public:
-    static request_response* handle_request(const client_request* const req);
+    static server_response handle_request(const client_request &req);
 };
 #endif //TICHU_REQUEST_HANDLER_H

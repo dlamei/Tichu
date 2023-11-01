@@ -15,17 +15,17 @@
 
 class json_utils {
 public:
-    static std::string to_string(const rapidjson::Value* json) {
+    static std::string to_string(const rapidjson::Value &json) {
         rapidjson::StringBuffer buffer;
         buffer.Clear();
         rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-        json->Accept(writer);
+        json.Accept(writer);
         return buffer.GetString();
     }
 
     // In case you need to create a rapidjson::Document on the heap (pointer) based on a value extracted from a json.
-    static rapidjson::Document* clone_value(const rapidjson::Value& val) {
-        rapidjson::Document* state_json = new rapidjson::Document(rapidjson::kObjectType);
+    static json_document_ptr clone_value(const rapidjson::Value& val) {
+        json_document_ptr state_json = std::make_shared<rapidjson::Document>(rapidjson::Document(rapidjson::kObjectType));
         state_json->CopyFrom(val, state_json->GetAllocator());
         return state_json;
     }

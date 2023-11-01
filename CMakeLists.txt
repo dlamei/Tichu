@@ -42,12 +42,10 @@ set(CLIENT_SOURCE_FILES
         src/common/network/responses/full_state_response.cpp src/common/network/responses/full_state_response.h
         # serialization
         src/common/serialization/serializable.h
-        src/common/serialization/value_type_helpers.h
         src/common/serialization/vector_utils.h
-        src/common/serialization/serializable_value.h
         src/common/serialization/json_utils.h
         src/common/serialization/uuid_generator.h
-        src/common/serialization/unique_serializable.cpp src/common/serialization/unique_serializable.h)
+        src/common/serialization/serializable.cpp)
 
 # define a variable SERVER_SOURCE_FILES that contains the paths to all source files required to compile the server executable
 set(SERVER_SOURCE_FILES
@@ -76,12 +74,11 @@ set(SERVER_SOURCE_FILES
         src/common/network/responses/full_state_response.cpp src/common/network/responses/full_state_response.h
         # serialization
         src/common/serialization/serializable.h
-        src/common/serialization/value_type_helpers.h
         src/common/serialization/vector_utils.h
-        src/common/serialization/serializable_value.h
         src/common/serialization/json_utils.h
         src/common/serialization/uuid_generator.h
-        src/common/serialization/unique_serializable.cpp src/common/serialization/unique_serializable.h src/server/request_handler.h src/server/request_handler.cpp)
+        src/server/request_handler.h src/server/request_handler.cpp
+        src/common/serialization/serializable.cpp)
 
 
 # set source files for client-executable

@@ -1,6 +1,3 @@
-//
-// Created by Manuel on 15.02.2021.
-//
 // Base class for all messages sent from the server to the client.
 // It offers a function to deserialize a server_response subclass from a valid json.
 
@@ -9,17 +6,23 @@
 
 #include <string>
 #include <unordered_map>
+#include <variant>
 
 #include "../../serialization/serializable.h"
+
+#include "request_response.h"
+#include "full_state_response.h"
 
 // Identifier for the different response types.
 // The ResponseType is sent with every server_response to identify the type of server_response
 // during deserialization on the client side.
 enum ResponseType {
     req_response,
-    state_diff_msg,
     full_state_msg
 };
+
+using response_variant = std::variant<request_response, full_state_response>;
+
 
 class server_response : public serializable {
 private:
@@ -30,31 +33,34 @@ private:
     static const std::unordered_map<ResponseType, std::string> _response_type_to_string;
 
 protected:
-    std::string _game_id;
-    ResponseType _type;
-
-    struct base_class_properties {
-        std::string game_id;
+    struct base_properties {
+        UUID game_id;
         ResponseType type;
     };
 
-    explicit server_response(base_class_properties); // base constructor
-    static base_class_properties create_base_class_properties(ResponseType type, const std::string& game_id);
-    static base_class_properties extract_base_class_properties(const rapidjson::Value& json);
+    response_variant _response;
+    UUID _game_id;
+    ResponseType _type;
+
+
+    //static base_properties create_base_class_properties(ResponseType type, UUID game_id);
+    static base_properties extract_base_class_properties(const rapidjson::Value& json);
 
 public:
-    ResponseType get_type() const;
-    std::string get_game_id() const;
+    explicit server_response(UUID game_id, const response_variant&); // base constructor
+
+    [[nodiscard]] ResponseType get_type() const { return _type; }
+    [[nodiscard]] const UUID &get_game_id() const { return _game_id; }
 
     // Tries to create the specific server_response from the provided json.
     // Throws exception if parsing fails -> Use only inside "try{ }catch()" block
-    static server_response* from_json(const rapidjson::Value& json);
+    static server_response from_json(const rapidjson::Value& json);
 
     // Serializes the server_response into a json object that can be sent over the network
-    virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
+    void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
 
 #ifdef TICHU_CLIENT
-    virtual void Process() const = 0;
+    void Process() const;
 #endif
 };
 

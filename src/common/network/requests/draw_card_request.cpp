@@ -3,6 +3,7 @@
 //
 
 #include "draw_card_request.h"
+#include "client_request.h"
 
 #ifdef TICHU_SERVER
 #include "../../../server/game_instance_manager.h"
@@ -10,22 +11,22 @@
 #endif
 
 // Public constructor
-draw_card_request::draw_card_request(std::string game_id, std::string player_id, int nof_cards)
-        : client_request( client_request::create_base_class_properties(RequestType::draw_card, uuid_generator::generate_uuid_v4(), player_id, game_id) )
-{
-    _nof_cards = nof_cards;
-}
+//draw_card_request::draw_card_request(std::string game_id, std::string player_id, int nof_cards)
+//        : client_request( client_request::create_base_class_properties(RequestType::draw_card, uuid_generator::generate_uuid_v4(), player_id, game_id) )
+//{
+//    _nof_cards = nof_cards;
+//}
 
 // private constructor for deserialization
-draw_card_request::draw_card_request(client_request::base_class_properties props, int nof_cards) :
-        client_request(props),
+draw_card_request::draw_card_request(int nof_cards) :
+        //client_request(props),
         _nof_cards(nof_cards)
 { }
 
-draw_card_request* draw_card_request::from_json(const rapidjson::Value &json) {
-    base_class_properties props = client_request::extract_base_class_properties(json);
+draw_card_request draw_card_request::from_json(const rapidjson::Value &json) {
+    //base_properties props = client_request::extract_base_class_properties(json);
     if (json.HasMember("nof_cards") ) {
-        return new draw_card_request(props, json["nof_cards"].GetInt());
+        return draw_card_request{json["nof_cards"].GetInt()};
     } else {
         throw TichuException("Could not find 'nof_cards' in draw_card_request");
     }
@@ -33,6 +34,6 @@ draw_card_request* draw_card_request::from_json(const rapidjson::Value &json) {
 
 void draw_card_request::write_into_json(rapidjson::Value &json,
                                         rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
-    client_request::write_into_json(json, allocator);
+    //client_request::write_into_json(json, allocator);
     json.AddMember("nof_cards", rapidjson::Value(this->_nof_cards),allocator);
 }

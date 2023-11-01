@@ -10,23 +10,22 @@
 #include <string>
 #include <algorithm>
 #include "../../serialization/serializable.h"
-#include "../../serialization/unique_serializable.h"
-#include "../../serialization/serializable_value.h"
 #include "../../game_state/player/player.h"
 #include "../../../../rapidjson/include/rapidjson/document.h"
 
 
-class draw_pile : public unique_serializable {
+class draw_pile : public serializable {
 private:
-    std::vector<card*> _cards;
+    UUID _id;
+    std::vector<card> _cards;
 
     /*
      * Deserialization constructor
      */
-    draw_pile(std::string id, std::vector<card*>& cards);
+    draw_pile(UUID id, std::vector<card> cards);
 
     // from_diff constructor
-    draw_pile(std::string id);
+    draw_pile(UUID id);
 
 // pile functions
     void shuffle();
@@ -34,8 +33,7 @@ private:
 public:
 // constructors
     draw_pile();
-    draw_pile(std::vector<card*>& cards);
-    ~draw_pile();
+    draw_pile(const std::vector<card>& cards);
 
 
 // accessors
@@ -45,13 +43,13 @@ public:
 #ifdef TICHU_SERVER
 // state update functions
     void setup_game(std::string& err);  // Fills the stack with all cards of the game
-    bool draw(player* player, card*& drawn_card, std::string& err);
-    card* remove_top(std::string& err);
+    std::optional<card> draw(player &player, std::string& err);
+    std::optional<card> remove_top(std::string& err);
 #endif
 
 // serialization
     virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
-    static draw_pile* from_json(const rapidjson::Value& json);
+    static draw_pile from_json(const rapidjson::Value& json);
 };
 
 

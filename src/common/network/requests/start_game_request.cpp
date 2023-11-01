@@ -10,20 +10,20 @@
 #endif
 
 // Public constructor
-start_game_request::start_game_request(std::string game_id, std::string player_id)
-        : client_request( client_request::create_base_class_properties(RequestType::start_game, uuid_generator::generate_uuid_v4(), player_id, game_id) )
-{ }
+//start_game_request::start_game_request(std::string game_id, std::string player_id)
+//        //: client_request( client_request::create_base_class_properties(RequestType::start_game, uuid_generator::generate_uuid_v4(), player_id, game_id) )
+//{ }
 
 // private constructor for deserialization
-start_game_request::start_game_request(client_request::base_class_properties props) :
-        client_request(props)
-{ }
+//start_game_request::start_game_request(client_request::base_properties props) :
+//        client_request(props)
+//{ }
 
-start_game_request* start_game_request::from_json(const rapidjson::Value& json) {
-    return new start_game_request(client_request::extract_base_class_properties(json));
+start_game_request start_game_request::from_json(const rapidjson::Value& json) {
+    return start_game_request{};
 }
 
 void start_game_request::write_into_json(rapidjson::Value &json,
                                          rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
-    client_request::write_into_json(json, allocator);
+    //client_request::write_into_json(json, allocator);
 }

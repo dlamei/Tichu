@@ -7,6 +7,7 @@
 
 
 // initialize static members
+//TODO: make shared
 sockpp::tcp_connector* ClientNetworkManager::_connection = nullptr;
 
 bool ClientNetworkManager::_connectionSuccess = false;
@@ -88,9 +89,8 @@ void ClientNetworkManager::sendRequest(const client_request &request) {
     if(ClientNetworkManager::_connectionSuccess && ClientNetworkManager::_connection->is_connected()) {
 
         // serialize request into JSON string
-        rapidjson::Document* jsonDocument = request.to_json();
-        std::string message = json_utils::to_string(jsonDocument);
-        delete jsonDocument;
+        auto jsonDocument = request.to_json();
+        std::string message = json_utils::to_string(*jsonDocument);
 
         // turn message into stream and prepend message length
         std::stringstream messageStream;
@@ -127,8 +127,8 @@ void ClientNetworkManager::parseResponse(const std::string& message) {
     json.Parse(message.c_str());
 
     try {
-        server_response* res = server_response::from_json(json);
-        res->Process();
+        server_response res = server_response::from_json(json);
+        res.Process();
 
     } catch (std::exception e) {
         GameController::showError("JSON parsing error", "Failed to parse message from server:\n" + message + "\n" + (std::string) e.what());

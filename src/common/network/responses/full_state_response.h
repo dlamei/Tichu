@@ -5,30 +5,30 @@
 #ifndef TICHU_FULL_STATE_RESPONSE_H
 #define TICHU_FULL_STATE_RESPONSE_H
 
-#include "server_response.h"
 #include "../../game_state/game_state.h"
+#include "../../src/common/serialization/serializable.h"
 
-class full_state_response : public server_response {
+class full_state_response {
 private:
-    rapidjson::Value* _state_json;
+    std::shared_ptr<rapidjson::Value> _state_json;
 
     /*
      * Private constructor for deserialization
      */
-    full_state_response(base_class_properties props, rapidjson::Value* state_json);
 
 public:
 
-    full_state_response(std::string game_id, const game_state& state);
-    ~full_state_response();
+    explicit full_state_response(std::shared_ptr<rapidjson::Value> state_json);
+    explicit full_state_response(const game_state& state);
 
-    rapidjson::Value* get_state_json() const;
+    [[nodiscard]] const rapidjson::Value &get_state_json() const;
 
-    virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
-    static full_state_response* from_json(const rapidjson::Value& json);
+    virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const;
+    static full_state_response from_json(const rapidjson::Value& json);
 
 #ifdef TICHU_CLIENT
-    virtual void Process() const override;
+    //TODO: move to game_state
+    void Process() const;
 #endif
 };
 

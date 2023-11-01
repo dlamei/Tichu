@@ -1,9 +1,5 @@
 #include "GameController.h"
-#include "../common/network/requests/join_game_request.h"
-#include "../common/network/requests/start_game_request.h"
-#include "../common/network/requests/draw_card_request.h"
-#include "../common/network/requests/fold_request.h"
-#include "../common/network/requests/play_card_request.h"
+#include "../common/network/requests/client_request.h"
 #include "network/ClientNetworkManager.h"
 
 
@@ -12,8 +8,10 @@ GameWindow* GameController::_gameWindow = nullptr;
 ConnectionPanel* GameController::_connectionPanel = nullptr;
 MainGamePanel* GameController::_mainGamePanel = nullptr;
 
-player* GameController::_me = nullptr;
-game_state* GameController::_currentGameState = nullptr;
+std::optional<player> GameController::_me = {};
+std::optional<game_state> GameController::_currentGameState = {};
+//player* GameController::_me = nullptr;
+//game_state GameController::_currentGameState = nullptr;
 
 
 
@@ -67,7 +65,7 @@ void GameController::connectToServer() {
         GameController::showError("Connection error", "Invalid port");
         return;
     }
-    uint16_t port = (uint16_t) portAsLong;
+    auto port = (uint16_t) portAsLong;
 
     // convert player name from wxString to std::string
     std::string playerName = inputPlayerName.ToStdString();
@@ -76,33 +74,37 @@ void GameController::connectToServer() {
     ClientNetworkManager::init(host, port);
 
     // send request to join game
-    GameController::_me = new player(playerName);
-    join_game_request request = join_game_request(GameController::_me->get_id(), GameController::_me->get_player_name());
+    GameController::_me = player(playerName);
+    auto req = join_game_request(GameController::_me.value().get_player_name());
+    auto request = client_request(GameController::_me.value().get_id(), UUID(), req);
     ClientNetworkManager::sendRequest(request);
 
 }
 
 
-void GameController::updateGameState(game_state* newGameState) {
+void GameController::updateGameState(const game_state &newGameState) {
 
     // the existing game state is now old
-    game_state* oldGameState = GameController::_currentGameState;
+    auto oldGameState = GameController::_currentGameState;
 
     // save the new game state as our current game state
-    GameController::_currentGameState = newGameState;
+    if (oldGameState) {
+        auto old = oldGameState.value();
+        GameController::_currentGameState = newGameState;
 
-    if(oldGameState != nullptr) {
+        //if(oldGameState != nullptr) {
 
         // check if a new round started, and display message accordingly
-        if(oldGameState->get_round_number() > 0 && oldGameState->get_round_number() < newGameState->get_round_number()) {
-            GameController::showNewRoundMessage(oldGameState, newGameState);
+        if (old.get_round_number() > 0 && old.get_round_number() < newGameState.get_round_number()) {
+            GameController::showNewRoundMessage(old, newGameState);
         }
 
         // delete the old game state, we don't need it anymore
-        delete oldGameState;
+        //delete oldGameState;
+        //}
     }
 
-    if(GameController::_currentGameState->is_finished()) {
+    if(GameController::_currentGameState.value().is_finished()) {
         GameController::showGameOverMessage();
     }
 
@@ -110,31 +112,31 @@ void GameController::updateGameState(game_state* newGameState) {
     GameController::_gameWindow->showPanel(GameController::_mainGamePanel);
 
     // command the main game panel to rebuild itself, based on the new game state
-    GameController::_mainGamePanel->buildGameState(GameController::_currentGameState, GameController::_me);
+    GameController::_mainGamePanel->buildGameState(GameController::_currentGameState.value(), GameController::_me.value());
 }
 
+void send_request(const request_variant& req) {
+    auto request = client_request(GameController::get_game_state().value().get_id(), GameController::get_me().value().get_id(), req);
+    ClientNetworkManager::sendRequest(request);
+}
 
 void GameController::startGame() {
-    start_game_request request = start_game_request(GameController::_currentGameState->get_id(), GameController::_me->get_id());
-    ClientNetworkManager::sendRequest(request);
+    send_request(start_game_request());
 }
 
 
 void GameController::drawCard() {
-    draw_card_request request = draw_card_request(GameController::_currentGameState->get_id(), GameController::_me->get_id());
-    ClientNetworkManager::sendRequest(request);
+    send_request(draw_card_request());
 }
 
 
 void GameController::fold() {
-    fold_request request = fold_request(GameController::_currentGameState->get_id(), GameController::_me->get_id());
-    ClientNetworkManager::sendRequest(request);
+    send_request(fold_request());
 }
 
 
-void GameController::playCard(card* cardToPlay) {
-    play_card_request request = play_card_request(GameController::_currentGameState->get_id(), GameController::_me->get_id(), cardToPlay->get_id());
-    ClientNetworkManager::sendRequest(request);
+void GameController::playCard(const card &cardToPlay) {
+    send_request(play_card_request(cardToPlay.get_id()));
 }
 
 
@@ -153,25 +155,25 @@ void GameController::showStatus(const std::string& message) {
 }
 
 
-void GameController::showNewRoundMessage(game_state* oldGameState, game_state* newGameState) {
+void GameController::showNewRoundMessage(const game_state &oldGameState, const game_state &newGameState) {
     std::string title = "Round Completed";
     std::string message = "The players gained the following minus points:\n";
     std::string buttonLabel = "Start next round";
 
     // add the point differences of all players to the messages
-    for(int i = 0; i < oldGameState->get_players().size(); i++) {
+    for(int i = 0; i < oldGameState.get_players().size(); i++) {
 
-        player* oldPlayerState = oldGameState->get_players().at(i);
-        player* newPlayerState = newGameState->get_players().at(i);
+        const player &oldPlayerState = oldGameState.get_players().at(i);
+        const player &newPlayerState = newGameState.get_players().at(i);
 
-        int scoreDelta = newPlayerState->get_score() - oldPlayerState->get_score();
+        int scoreDelta = newPlayerState.get_score() - oldPlayerState.get_score();
         std::string scoreText = std::to_string(scoreDelta);
         if(scoreDelta > 0) {
             scoreText = "+" + scoreText;
         }
 
-        std::string playerName = newPlayerState->get_player_name();
-        if(newPlayerState->get_id() == GameController::_me->get_id()) {
+        std::string playerName = newPlayerState.get_player_name();
+        if(newPlayerState.get_id() == GameController::_me.value().get_id()) {
             playerName = "You";
         }
         message += "\n" + playerName + ":     " + scoreText;
@@ -189,25 +191,25 @@ void GameController::showGameOverMessage() {
     std::string buttonLabel = "Close Game";
 
     // sort players by score
-    std::vector<player*> players = GameController::_currentGameState->get_players();
-    std::sort(players.begin(), players.end(), [](const player* a, const player* b) -> bool {
-        return a->get_score() < b->get_score();
+    auto players = GameController::_currentGameState.value().get_players();
+    std::sort(players.begin(), players.end(), [](const player &a, const player &b) -> bool {
+        return a.get_score() < b.get_score();
     });
 
     // list all players
     for(int i = 0; i < players.size(); i++) {
 
-        player* playerState = players.at(i);
-        std::string scoreText = std::to_string(playerState->get_score());
+        const player &playerState = players.at(i);
+        std::string scoreText = std::to_string(playerState.get_score());
 
         // first entry is the winner
-        std::string winnerText = "";
+        std::string winnerText;
         if(i == 0) {
             winnerText = "     Winner!";
         }
 
-        std::string playerName = playerState->get_player_name();
-        if(playerState->get_id() == GameController::_me->get_id()) {
+        std::string playerName = playerState.get_player_name();
+        if(playerState.get_id() == GameController::_me.value().get_id()) {
             playerName = "You";
 
             if(i == 0) {

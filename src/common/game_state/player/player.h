@@ -7,56 +7,68 @@
 
 
 #include <string>
+#include <utility>
 #include "hand.h"
 #include "../../serialization/uuid_generator.h"
 #include "../../../../rapidjson/include/rapidjson/document.h"
-#include "../../serialization/unique_serializable.h"
-#include "../../serialization/serializable_value.h"
 
-class player : public unique_serializable {
+
+class player : public serializable {
 private:
-    serializable_value<std::string>* _player_name;
-    serializable_value<bool>* _has_folded;
-    serializable_value<int>* _score;
-    hand* _hand;
+    UUID _id;
+    std::string _player_name;
+    bool _has_folded;
+    int _score;
+    hand _hand;
 
 #ifdef TICHU_SERVER
-    std::string _game_id;
+    UUID _game_id;
 #endif
 
     /*
      * Deserialization constructor
      */
-    player(std::string id,
-           serializable_value<std::string>* name,
-           serializable_value<int>* score,
-           hand* hand,
-           serializable_value<bool>* has_folded);
-
 public:
+    player(UUID id,
+           std::string name,
+           int score,
+           hand hand,
+           bool has_folded);
+
 // constructors
     explicit player(std::string name);   // for client
-    ~player();
+
+    bool operator==(const player &other) const {
+        return (_player_name == other._player_name
+        && _score == other._score
+        && _hand == other._hand
+        && _has_folded == other._has_folded
+#ifdef TICHU_SERVER
+        && _game_id == other._game_id
+#endif
+        );
+    }
 
 #ifdef TICHU_SERVER
-    player(std::string id, std::string name);  // for server
+    player(UUID id, std::string name);  // for server
 
-    std::string get_game_id();
-    void set_game_id(std::string game_id);
+    const UUID &get_game_id() { return _game_id; };
+    void set_game_id(UUID game_id) { _game_id = std::move(game_id); };
 #endif
 
     // accessors
-    int get_score() const noexcept;
-    bool has_folded() const noexcept;
-    int get_nof_cards() const noexcept;
-    const hand* get_hand() const noexcept;
-    std::string get_player_name() const noexcept;
+    [[nodiscard]] int get_score() const noexcept;
+    [[nodiscard]] const UUID &get_id() const noexcept { return _id; }
+    [[nodiscard]] bool has_folded() const noexcept;
+    [[nodiscard]] int get_nof_cards() const noexcept;
+    [[nodiscard]] const hand& get_hand() const noexcept;
+    [[nodiscard]] const std::string& get_player_name() const noexcept;
 
 #ifdef TICHU_SERVER
     // state update functions
     bool fold(std::string& err);
-    bool add_card(card* card, std::string& err);
-    bool remove_card(std::string card_id, card*& card, std::string& err);
+    bool add_card(const card &card, std::string& err);
+    std::optional<card> remove_card(const UUID &card_id, std::string& err);
 
     void wrap_up_round(std::string& err);
     void setup_round(std::string& err);
@@ -64,10 +76,11 @@ public:
 
 
     // serialization
-    static player* from_json(const rapidjson::Value& json);
-    virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
+    static player from_json(const rapidjson::Value& json);
+    virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& alloc) const override;
 
 };
 
+using player_ptr = std::shared_ptr<player>;
 
 #endif //TICHU_PLAYER_H

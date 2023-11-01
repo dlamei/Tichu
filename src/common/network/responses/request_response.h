@@ -6,28 +6,26 @@
 #define TICHU_REQUEST_RESPONSE_H
 
 #include <string>
-#include "server_response.h"
+#include <optional>
+#include "../../src/common/serialization/serializable.h"
 
-
-class request_response : public server_response {
+class request_response {
 private:
     bool _success;
     std::string _err;
-    std::string _req_id;
-    rapidjson::Value* _state_json = nullptr;
+    UUID _req_id;
+    std::optional<json_value_ptr> _state_json;
 
-    request_response(base_class_properties props, std::string req_id, bool success, rapidjson::Value* state_json, std::string& err);
 
 public:
 
-    request_response(std::string game_id, std::string req_id, bool success, rapidjson::Value* state_json, std::string err);
-    ~request_response();
+    request_response(UUID req_id, bool success, std::optional<json_value_ptr> state_json, const std::string &err);
 
-    virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
-    static request_response* from_json(const rapidjson::Value& json);
+    void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const;
+    static request_response from_json(const rapidjson::Value& json);
 
 #ifdef TICHU_CLIENT
-    virtual void Process() const override;
+    void Process() const;
 #endif
 };
 

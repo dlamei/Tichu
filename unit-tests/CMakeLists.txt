@@ -1,8 +1,8 @@
 project(Tichu-unit-tests)
 
 set(TEST_SOURCE_FILES
-        card.cpp
-        hand.cpp)
+        serialization.cpp
+)
 
 add_executable(Tichu-tests ${TEST_SOURCE_FILES})
 
