@@ -1,6 +1,18 @@
 # Tichu 
 ## for now i will just keep the Tichu README since it has a lot of good information on the code we will reuse
 
+### 1.1 Compile Code
+1. In the tichu-project file, `mkdir build` create your build folder 
+2. Go into your build folder `cd build`
+3. Use cmake to build the make file `cmake ..`
+4. Build everything you need with `make`
+
+## 2. Run the Game
+1. go into your build folder `cd build`
+2. Run server `./Tichu-server`
+3. In new consoles 4 clients `./Tichu-client`
+
+
 
 # Tichu
 
