@@ -2,11 +2,13 @@
 
 
 #include "../GameController.h"
-#include "../../common/network/responses/server_response.h"
+#include "../../common/network/server_msg.h"
 #include <sockpp/exception.h>
+#include <sstream>
 
 
 // initialize static members
+//TODO: make shared
 sockpp::tcp_connector* ClientNetworkManager::_connection = nullptr;
 
 bool ClientNetworkManager::_connectionSuccess = false;
@@ -69,7 +71,7 @@ bool ClientNetworkManager::connect(const std::string& host, const uint16_t port)
 }
 
 
-void ClientNetworkManager::sendRequest(const client_request &request) {
+void ClientNetworkManager::sendRequest(const client_msg &request) {
 
     // wait until network is connected (max. 5 seconds)
     int connectionCheckCounter = 0;
@@ -88,9 +90,8 @@ void ClientNetworkManager::sendRequest(const client_request &request) {
     if(ClientNetworkManager::_connectionSuccess && ClientNetworkManager::_connection->is_connected()) {
 
         // serialize request into JSON string
-        rapidjson::Document* jsonDocument = request.to_json();
-        std::string message = json_utils::to_string(jsonDocument);
-        delete jsonDocument;
+        auto jsonDocument = request.to_json();
+        std::string message = json_utils::to_string(*jsonDocument);
 
         // turn message into stream and prepend message length
         std::stringstream messageStream;
@@ -127,8 +128,8 @@ void ClientNetworkManager::parseResponse(const std::string& message) {
     json.Parse(message.c_str());
 
     try {
-        server_response* res = server_response::from_json(json);
-        res->Process();
+        server_msg res = server_msg::from_json(json);
+        res.Process();
 
     } catch (std::exception e) {
         GameController::showError("JSON parsing error", "Failed to parse message from server:\n" + message + "\n" + (std::string) e.what());

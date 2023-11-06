@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
 #include "../GameController.h"
 #include "ClientNetworkManager.h"
 

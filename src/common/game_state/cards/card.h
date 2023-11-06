@@ -6,8 +6,7 @@
 #define TICHU_CARD_H
 
 #include <string>
-#include "../../serialization/unique_serializable.h"
-#include "../../serialization/serializable_value.h"
+#include "../../../../src/common/serialization/serializable.h"
 #include "../../../../rapidjson/include/rapidjson/document.h"
 
 //Macros for special cards
@@ -25,31 +24,34 @@ enum Suit {
     // For Special cards: RED = Dragon, GREEN = Phoenix, BLUE = Dog, SCHWARZ = One
 };
 
-class card : public unique_serializable {
+class card : public serializable {
 private:
-    serializable_value<int>* _rank;
-    serializable_value<int>* _suit;
-    serializable_value<int>* _value;
+    int _rank;
+    int _suit;
+    int _value;
 
-    // from_diff constructor
-    card(std::string id);
-    // deserialization constructor
-    card(std::string id, serializable_value<int> *rank, serializable_value<int> *suit, serializable_value<int> *val);
 public:
     card(int rank, int suit, int val);
-    ~card();
+
+    bool operator==(const card& other) const {
+        return _rank == other._rank && _suit == other._suit && _value == other._value;
+    }
+
+    bool operator!=(const card& other) const {
+        return !(*this == other);
+    }
 
 // accessors
-    int get_rank() const noexcept;
-    int get_suit() const noexcept;
-    int get_value() const noexcept;
+    [[nodiscard]] int get_rank() const noexcept { return _rank; }
+    [[nodiscard]] int get_suit() const noexcept { return _suit; }
+    [[nodiscard]] int get_value() const noexcept { return _value; }
 
 // card functions
-    bool can_be_played_on(const card* const other) const noexcept;
+    bool can_be_played_on(const card &other) const noexcept;
 
 // serializable interface
     void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
-    static card* from_json(const rapidjson::Value& json);
+    static card from_json(const rapidjson::Value& json);
 };
 
 

@@ -16,8 +16,8 @@
 #include "sockpp/tcp_connector.h"
 #include "sockpp/tcp_acceptor.h"
 
-#include "../common/network/requests/client_request.h"
-#include "../common/network/responses/server_response.h"
+#include "../common/network/client_msg.h"
+#include "../common/network/server_msg.h"
 #include "../common/game_state/player/player.h"
 #include "../common/game_state/game_state.h"
 
@@ -28,7 +28,7 @@ private:
     inline static std::shared_mutex _rw_lock;
     inline static sockpp::tcp_acceptor _acc;
 
-    inline static std::unordered_map<std::string, std::string> _player_id_to_address;
+    inline static std::unordered_map<UUID, std::string> _player_id_to_address;
     inline static std::unordered_map<std::string, sockpp::tcp_socket> _address_to_socket;
 
     void connect(const std::string& url, const uint16_t  port);
@@ -42,10 +42,10 @@ public:
     server_network_manager();
     ~server_network_manager();
 
-    // Used to broadcast a server_response (e.g. a full_state_response) to all 'players' except 'exclude'
-    static void broadcast_message(server_response& msg, const std::vector<player*>& players, const player* exclude);
+    // Used to broadcast a server_msg (e.g. a full_state_response) to all 'players' except 'exclude'
+    static void broadcast_message(server_msg& msg, const std::vector<player> &players, const player &exclude);
 
-    static void on_player_left(std::string player_id);
+    static void on_player_left(const UUID &player_id);
 };
 
 
