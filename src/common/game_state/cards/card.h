@@ -26,15 +26,10 @@ enum Suit {
 
 class card : public serializable {
 private:
-    UUID _id;
     int _rank;
     int _suit;
     int _value;
 
-    // from_diff constructor
-    //card(std::string id);
-    // deserialization constructor
-    card(UUID id, int rank, int suit, int value);
 public:
     card(int rank, int suit, int val);
 
@@ -42,11 +37,14 @@ public:
         return _rank == other._rank && _suit == other._suit && _value == other._value;
     }
 
+    bool operator!=(const card& other) const {
+        return !(*this == other);
+    }
+
 // accessors
     [[nodiscard]] int get_rank() const noexcept { return _rank; }
     [[nodiscard]] int get_suit() const noexcept { return _suit; }
     [[nodiscard]] int get_value() const noexcept { return _value; }
-    [[nodiscard]] UUID get_id() const noexcept { return _id; }
 
 // card functions
     bool can_be_played_on(const card &other) const noexcept;

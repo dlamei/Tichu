@@ -4,9 +4,9 @@
 #include "game_state.h"
 
 #include <iostream>
+#include <utility>
 
 #include "../exceptions/TichuException.h"
-#include "../serialization/vector_utils.h"
 
 
 game_state::game_state() :
@@ -16,20 +16,11 @@ game_state::game_state() :
         _round_number(0), _starting_player_idx(0)
 { }
 
-game_state::game_state(UUID id) : _id(id),
+game_state::game_state(UUID id) : _id(std::move(id)),
                                   _draw_pile(draw_pile()), _discard_pile(discard_pile()), _players(std::vector<player>()),
                                   _is_started(false), _is_finished(false), _current_player_idx(0), _play_direction(1),
                                   _round_number(0), _starting_player_idx(0)
 { }
-//this->_draw_pile = draw_pile();
-//this->_discard_pile = discard_pile();
-//this->_players = std::vector<player*>();
-//this->_is_started = serializable_value<bool>(false);
-//this->_is_finished = serializable_value<bool>(false);
-//this->_current_player_idx = serializable_value<int>(0);
-//this->_play_direction = serializable_value<int>(1);
-//this->_round_number = serializable_value<int>(0);
-//this->_starting_player_idx = serializable_value<int>(0);
 
 game_state::game_state(UUID id, draw_pile draw_pile, discard_pile discard_pile,
                        std::vector<player> &players, bool is_started,
@@ -46,18 +37,6 @@ game_state::game_state(UUID id, draw_pile draw_pile, discard_pile discard_pile,
           _round_number(round_number),
           _starting_player_idx(starting_player_idx)
 { }
-
-//game_state::game_state(std::string id) : unique_serializable(id) {
-//    this->_draw_pile = new draw_pile();
-//    this->_discard_pile = new discard_pile();
-//    this->_players = std::vector<player*>();
-//    this->_is_started = new serializable_value<bool>(false);
-//    this->_is_finished = new serializable_value<bool>(false);
-//    this->_current_player_idx = new serializable_value<int>(0);
-//    this->_play_direction = new serializable_value<int>(1);
-//    this->_round_number = new serializable_value<int>(0);
-//    this->_starting_player_idx = new serializable_value<int>(0);
-//}
 
 // accessors
 std::optional<player> game_state::get_current_player() const {
@@ -249,7 +228,7 @@ bool game_state::draw_card(player &player, std::string &err) {
     }
 }
 
-bool game_state::play_card(player &player, const UUID& card_id, std::string &err) {
+bool game_state::play_card(player &player, const card& card_id, std::string &err) {
     if (!is_player_in_game(player)) {
         err = "Server refused to perform draw_card. Player is not part of the game.";
         return false;
@@ -305,65 +284,53 @@ bool game_state::fold(player &player, std::string &err) {
 // Serializable interface
 void game_state::write_into_json(rapidjson::Value &json,
                                  rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &alloc) const {
-    //unique_serializable::write_into_json(json, alloc);
-    _id.write_into_json(json, alloc);
-    json.AddMember("is_finished", bool_to_json(_is_finished, alloc), alloc);
-    json.AddMember("is_started", bool_to_json(_is_started, alloc), alloc);
-    json.AddMember("current_player_idx", int_to_json(_current_player_idx, alloc), alloc);
-    json.AddMember("play_direction", int_to_json(_play_direction, alloc), alloc);
-    json.AddMember("starting_player_idx", int_to_json(_starting_player_idx, alloc), alloc);
-    json.AddMember("round_number", int_to_json(_round_number, alloc), alloc);
-    _draw_pile.write_into_json(json, alloc);
-    _discard_pile.write_into_json(json, alloc);
-    json.AddMember("players", vector_utils::serialize_vector(_players, alloc), alloc);
+
+    bool_into_json("is_finished", _is_finished, json, alloc);
+    bool_into_json("is_started", _is_started, json, alloc);
+    int_into_json("current_player_idx", _current_player_idx, json, alloc);
+    int_into_json("play_direction", _play_direction, json, alloc);
+    int_into_json("starting_player_idx", _starting_player_idx, json, alloc);
+    int_into_json("round_number", _round_number, json, alloc);
+    string_into_json("id", _id.string(), json, alloc);
+
+    _draw_pile.write_into_json_obj("draw_pile", json, alloc);
+    _discard_pile.write_into_json_obj("discard_pile", json, alloc);
+
+    vec_into_json("players", _players, json, alloc);
 }
 
 
 game_state game_state::from_json(const rapidjson::Value &json) {
     //TODO: remove check
-    if (json.HasMember("id")
-        && json.HasMember("is_finished")
-        && json.HasMember("is_started")
-        && json.HasMember("current_player_idx")
-        && json.HasMember("play_direction")
-        && json.HasMember("round_number")
-        && json.HasMember("starting_player_idx")
-        && json.HasMember("players")
-        && json.HasMember("draw_pile")
-        && json.HasMember("discard_pile"))
-    {
-        std::vector<player> deserialized_players;
-        for (auto &serialized_player : json["players"].GetArray()) {
-            deserialized_players.push_back(player::from_json(serialized_player.GetObject()));
-        }
 
+        auto players = vec_from_json<player>("players", json);
         auto draw_pile = draw_pile::from_json(json["draw_pile"].GetObject());
         auto discard_pile = discard_pile::from_json(json["discard_pile"].GetObject());
 
-        auto id = UUID::from_json(json);
-        auto is_started = primitive_from_json<bool>(json["is_started"].GetObject());
-        auto is_finished = primitive_from_json<bool>(json["is_finished"].GetObject());
-        auto current_player_idx = primitive_from_json<int>(json["current_player_idx"].GetObject());
-        auto play_direction = primitive_from_json<int>(json["play_direction"].GetObject());
-        auto round_number = primitive_from_json<int>(json["round_number"].GetObject());
-        auto starting_player_idx = primitive_from_json<int>(json["starting_player_idx"].GetObject());
+        auto id = string_from_json("id", json);
+        auto is_started = bool_from_json("is_started", json);
+        auto is_finished = bool_from_json("is_finished", json);
+        auto current_player_idx = int_from_json("current_player_idx", json);
+        auto play_direction = int_from_json("play_direction", json);
+        auto round_number = int_from_json("round_number", json);
+        auto starting_player_idx = int_from_json("starting_player_idx", json);
 
-        return game_state {
-                id.value(),
-                draw_pile,
-                discard_pile,
-                deserialized_players,
-                is_started.value(),
-                is_finished.value(),
-                current_player_idx.value(),
-                play_direction.value(),
-                round_number.value(),
-                starting_player_idx.value()
-        };
+        if (id && players && is_started && is_finished && current_player_idx && play_direction && round_number && starting_player_idx) {
+            return game_state {
+                    UUID(id.value()),
+                    draw_pile,
+                    discard_pile,
+                    players.value(),
+                    is_started.value(),
+                    is_finished.value(),
+                    current_player_idx.value(),
+                    play_direction.value(),
+                    round_number.value(),
+                    starting_player_idx.value()
+            };
 
-
-    } else {
-        throw TichuException("Failed to deserialize game_state. Required entries were missing.");
-    }
+        } else {
+            throw TichuException("Failed to deserialize game_state. Required entries were missing.");
+        }
 }
 

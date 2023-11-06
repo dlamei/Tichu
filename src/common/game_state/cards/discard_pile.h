@@ -14,22 +14,21 @@
 
 class discard_pile : public serializable {
 private:
-    UUID _id;
     std::vector<card> _cards;
 
-    discard_pile(UUID id);
-    discard_pile(UUID id, const std::vector<card>& cards);
 public:
-    discard_pile();
+    discard_pile() = default;
+    explicit discard_pile(std::vector<card> cards);
 
 // accessors
     bool can_play(const card& card);
-    std::optional<card> get_top_card() const;
+    [[nodiscard]] std::optional<card> get_top_card() const;
+    [[nodiscard]] const std::vector<card> &get_cards() const { return _cards; }
 
 #ifdef TICHU_SERVER
 // state update functions
     void setup_game(std::string& err);  // Clears the stack
-    bool try_play(const UUID& card_id, player &player, std::string& err);
+    bool try_play(const card& card_id, player &player, std::string& err);
     bool try_play(const card &played_card, std::string& err);
 #endif
 

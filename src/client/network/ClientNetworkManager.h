@@ -4,7 +4,7 @@
 
 #include <string>
 #include "ResponseListenerThread.h"
-#include "../../common/network/requests/client_request.h"
+#include "../../common/network/client_msg.h"
 
 
 class ClientNetworkManager {
@@ -12,7 +12,7 @@ class ClientNetworkManager {
 public:
     static void init(const std::string& host, const uint16_t port);
 
-    static void sendRequest(const client_request& request);
+    static void sendRequest(const client_msg& request);
 
     static void parseResponse(const std::string& message);
 

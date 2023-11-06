@@ -1,13 +1,5 @@
-//
-// Created by Manuel on 25.01.2021.
-//
-// The game_instance class is a wrapper around the game_state of an active instance of the game.
-// This class contains functions to modify the contained game_state.
-
 #include "game_instance.h"
-
 #include "server_network_manager.h"
-#include "../common/network/responses/full_state_response.h"
 
 
 game_instance::game_instance()
@@ -25,7 +17,6 @@ bool game_instance::is_player_allowed_to_play(const player &player) {
 
 bool game_instance::is_full() {
     return _game_state.is_full();
-    //return _game_state.get_players().size() == game_state::_max_nof_players;
 }
 
 bool game_instance::is_started() {
@@ -37,12 +28,12 @@ bool game_instance::is_finished() {
 }
 
 void broadcast_full_state_response(const game_state &state, const player &player) {
-    auto update_msg = full_state_response(state);
-    auto resp = server_response(state.get_id(), update_msg);
+    auto update_msg = full_state_response{ state.to_json() };
+    auto resp = server_msg(state.get_id(), update_msg);
     server_network_manager::broadcast_message(resp, state.get_players(), player);
 }
 
-bool game_instance::play_card(player &player, const UUID& card_id, std::string& err) {
+bool game_instance::play_card(player &player, const card& card_id, std::string& err) {
     modification_lock.lock();
     if (_game_state.play_card(player, card_id, err)) {
         broadcast_full_state_response(_game_state, player);

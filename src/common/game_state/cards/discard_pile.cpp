@@ -1,21 +1,12 @@
-//
-// Created by Manuel on 25.01.2021.
-//
 
 #include "discard_pile.h"
 #include "../../serialization/serializable.h"
-#include "../../serialization/vector_utils.h"
 #include "../../exceptions/TichuException.h"
 
 
-discard_pile::discard_pile(UUID id) : _id(id) { }
-
-discard_pile::discard_pile(UUID id, const std::vector<card> &cards):
-        _id(id),
-        _cards(cards)
+discard_pile::discard_pile(std::vector<card> cards):
+        _cards(std::move(cards))
 { }
-
-discard_pile::discard_pile() : _id(UUID::create()) { }
 
 bool discard_pile::can_play(const card &card)  {
     return _cards.empty() || card.can_be_played_on(_cards.back());
@@ -30,29 +21,29 @@ std::optional<card> discard_pile::get_top_card() const  {
 }
 
 #ifdef TICHU_SERVER
-//TODO: what happenes here? (try_get_cards)
 void discard_pile::setup_game(std::string &err) {
     // remove all cards (if any) and clear it
     _cards.clear();
 }
 
-bool discard_pile::try_play(const UUID& card_id, player &player, std::string& err) {
+bool discard_pile::try_play(const card& card_id, player &player, std::string& err) {
     auto played_card = player.get_hand().try_get_card(card_id);
     if (played_card) {
-        if (can_play(played_card.value())) {
-            auto local_system_card = player.remove_card(played_card.value().get_id(), err);
+        auto card = played_card.value();
+        if (can_play(card)) {
+            auto local_system_card = player.remove_card(card, err);
             if (local_system_card) {
                 _cards.push_back(local_system_card.value());
                 return true;
             } else {
-                err = "Could not play card " + played_card->get_id().string() + " because player does not have this card.";
+                err = "Could not play card because player does not have this card.";
             }
         } else {
             err = "The desired card with value " + std::to_string(played_card->get_value())
                   + " cannot be played on top of a card with value " + std::to_string(get_top_card()->get_value());
         }
     } else {
-        err = "The player does not possess the card " + card_id.string() + ", which was requested to be played.";
+        err = "The player does not possess the card, which was requested to be played.";
     }
     return false;
 }
@@ -71,22 +62,16 @@ bool discard_pile::try_play(const card &played_card, std::string& err) {
 
 
 discard_pile discard_pile::from_json(const rapidjson::Value &json) {
-    if (json.HasMember("id") && json.HasMember("cards")) {
-        std::vector<card> deserialized_cards {};
-        for (auto &serialized_card : json["cards"].GetArray()) {
-            deserialized_cards.push_back(card::from_json(serialized_card.GetObject()));
-        }
-        auto id = UUID::from_json(json);
-        return discard_pile{id.value(), deserialized_cards};
-    } else {
-        throw TichuException("Could not parse draw_pile from json. 'id' or 'cards' were missing.");
+    auto cards = vec_from_json<card>("cards", json);
+    if (!cards) {
+        throw TichuException("Could not parse draw_pile from json. 'cards' were missing.");
     }
+    return discard_pile{cards.value()};
 }
 
 void discard_pile::write_into_json(rapidjson::Value &json,
-                                   rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
-    _id.write_into_json(json, allocator);
-    json.AddMember("cards", vector_utils::serialize_vector(_cards, allocator), allocator);
+                                   rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &alloc) const {
+    vec_into_json("cards", _cards, json, alloc);
 }
 
 

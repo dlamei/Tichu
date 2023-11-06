@@ -16,29 +16,20 @@
 
 class draw_pile : public serializable {
 private:
-    UUID _id;
     std::vector<card> _cards;
 
-    /*
-     * Deserialization constructor
-     */
-    draw_pile(UUID id, std::vector<card> cards);
-
-    // from_diff constructor
-    draw_pile(UUID id);
-
-// pile functions
     void shuffle();
 
 public:
 // constructors
-    draw_pile();
-    draw_pile(const std::vector<card>& cards);
+    draw_pile() = default;
+    explicit draw_pile(std::vector<card> cards);
 
 
 // accessors
-    bool is_empty() const noexcept;
-    int get_nof_cards() const noexcept;
+    [[nodiscard]] bool is_empty() const noexcept;
+    [[nodiscard]] int get_nof_cards() const noexcept;
+    [[nodiscard]] const std::vector<card> &get_cards() const { return _cards;}
 
 #ifdef TICHU_SERVER
 // state update functions
@@ -48,7 +39,7 @@ public:
 #endif
 
 // serialization
-    virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
+    void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
     static draw_pile from_json(const rapidjson::Value& json);
 };
 

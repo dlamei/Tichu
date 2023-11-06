@@ -1,6 +1,3 @@
-//
-// Created by Manuel on 29.01.2021.
-//
 // The game_instance_manager only exists on the server side. It stores all currently active games and offers
 // functionality to retrieve game instances by id and adding players to games.
 // If a new player requests to join a game but no valid game_instance is available, then this class
@@ -34,7 +31,7 @@ game_instance_ptr game_instance_manager::find_joinable_game_instance() {
     }
 
     // remove all finished games
-    if (to_remove.size() > 0) {
+    if (!to_remove.empty()) {
         games_lut_lock.lock();
         for (auto& game_id : to_remove) {
             games_lut.erase(game_id);
@@ -72,7 +69,7 @@ game_instance_manager::try_get_player_and_game_instance(const UUID& player_id, s
         if (game_instance_ptr) {
             return std::tuple {player.value(), game_instance_ptr.value()};
         } else {
-            err = "Could not find game_id" + player.value()->get_game_id().string() + " associated with this player";
+            err = "Could not find _game_id" + player.value()->get_game_id().string() + " associated with this player";
         }
     } else {
         err = "Could not find requested player " + player_id.string() + " in database.";
@@ -89,7 +86,6 @@ std::optional<game_instance_ptr> game_instance_manager::try_add_player_to_any_ga
         return {};
     }
 
-    //if (game_instance_ptr == nullptr) {
         // Join any non-full, non-started game
         for (int i = 0; i < 10; i++) {
             // make at most 10 attempts of joining a src (due to concurrency, the game could already be full or started by the time
@@ -100,11 +96,7 @@ std::optional<game_instance_ptr> game_instance_manager::try_add_player_to_any_ga
             }
         }
         return {};
-    //}
     //TODO: not any game?
-    //else {
-    //    return try_add_player(player, game_instance_ptr, err);
-    //}
 }
 
 
@@ -127,7 +119,6 @@ bool game_instance_manager::try_add_player(player &player, game_instance &game_i
 }
 
 bool game_instance_manager::try_remove_player(player &player, const UUID &game_id, std::string &err) {
-    //game_instance* game_instance_ptr = nullptr;
     auto game_instance = try_get_game_instance(game_id);
     if (game_instance) {
         return try_remove_player(player, *game_instance.value(), err);

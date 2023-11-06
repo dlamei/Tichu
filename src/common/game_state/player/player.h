@@ -9,7 +9,6 @@
 #include <string>
 #include <utility>
 #include "hand.h"
-#include "../../serialization/uuid_generator.h"
 #include "../../../../rapidjson/include/rapidjson/document.h"
 
 
@@ -49,6 +48,10 @@ public:
         );
     }
 
+    bool operator!=(const player &other) const {
+        return !(*this == other);
+    }
+
 #ifdef TICHU_SERVER
     player(UUID id, std::string name);  // for server
 
@@ -68,7 +71,7 @@ public:
     // state update functions
     bool fold(std::string& err);
     bool add_card(const card &card, std::string& err);
-    std::optional<card> remove_card(const UUID &card_id, std::string& err);
+    std::optional<card> remove_card(const card &card_id, std::string& err);
 
     void wrap_up_round(std::string& err);
     void setup_round(std::string& err);

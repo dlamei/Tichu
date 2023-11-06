@@ -30,10 +30,10 @@ private:
 
 public:
 
-    // returns true if the desired game_instance 'game_id' was found or false otherwise.
+    // returns true if the desired game_instance '_game_id' was found or false otherwise.
     // The found game instance is written into game_instance_ptr.
     static std::optional<game_instance_ptr> try_get_game_instance(const UUID& game_id);
-    // returns true if the desired player 'player_id' was found and is connected to a game_instance.
+    // returns true if the desired player '_player_id' was found and is connected to a game_instance.
     // The found player and game_instance will be written into 'player' and 'game_instance_ptr'
     static  std::optional<std::tuple<std::shared_ptr<player>, game_instance_ptr >> try_get_player_and_game_instance(const UUID& player_id, std::string& err);
 

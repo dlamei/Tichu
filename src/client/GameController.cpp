@@ -1,5 +1,5 @@
 #include "GameController.h"
-#include "../common/network/requests/client_request.h"
+#include "../common/network/client_msg.h"
 #include "network/ClientNetworkManager.h"
 
 
@@ -75,8 +75,8 @@ void GameController::connectToServer() {
 
     // send request to join game
     GameController::_me = player(playerName);
-    auto req = join_game_request(GameController::_me.value().get_player_name());
-    auto request = client_request(GameController::_me.value().get_id(), UUID(), req);
+    auto req = join_game_req{GameController::_me.value().get_player_name()};
+    auto request = client_msg(GameController::_me.value().get_id(), UUID(), req);
     ClientNetworkManager::sendRequest(request);
 
 }
@@ -115,28 +115,28 @@ void GameController::updateGameState(const game_state &newGameState) {
     GameController::_mainGamePanel->buildGameState(GameController::_currentGameState.value(), GameController::_me.value());
 }
 
-void send_request(const request_variant& req) {
-    auto request = client_request(GameController::get_game_state().value().get_id(), GameController::get_me().value().get_id(), req);
+void send_request(const client_msg_variant& req) {
+    auto request = client_msg(GameController::get_game_state().value().get_id(), GameController::get_me().value().get_id(), req);
     ClientNetworkManager::sendRequest(request);
 }
 
 void GameController::startGame() {
-    send_request(start_game_request());
+    send_request(start_game_req());
 }
 
 
 void GameController::drawCard() {
-    send_request(draw_card_request());
+    send_request(draw_card_req());
 }
 
 
 void GameController::fold() {
-    send_request(fold_request());
+    send_request(fold_req());
 }
 
 
 void GameController::playCard(const card &cardToPlay) {
-    send_request(play_card_request(cardToPlay.get_id()));
+    send_request(play_card_req{cardToPlay});
 }
 
 

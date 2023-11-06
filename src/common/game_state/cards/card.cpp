@@ -1,6 +1,3 @@
-//
-// Created by Manuel on 25.01.2021.
-//
 
 #include "card.h"
 
@@ -11,14 +8,7 @@
 
 //card::card(std::string id) : unique_serializable(id) { }
 
-card::card(UUID id, int rank, int suit, int val):
-        _id(std::move(id)),
-        _rank(rank),
-        _suit(suit),
-        _value(val) {}
-
 card::card(int rank, int suit, int val):
-        _id(UUID::create()),
         _rank(rank),
         _suit(suit),
         _value(val) {}
@@ -26,6 +16,7 @@ card::card(int rank, int suit, int val):
 
 bool card::can_be_played_on(const card &other) const noexcept {
     return true;
+    //TODO:
     // return true if this card has a one higher or of equal value OR if 'other' is Tichu and this is 1
     int value_delta = this->get_value() - other.get_value();
     return value_delta == 0 || value_delta == 1 || (other.get_value() == 7 && this->get_value() == 1);
@@ -33,31 +24,26 @@ bool card::can_be_played_on(const card &other) const noexcept {
 
 
 card card::from_json(const rapidjson::Value &json) {
-        auto rank = primitive_from_json<int>("rank", json);
-        auto suit = primitive_from_json<int>("suit", json);
-        auto value = primitive_from_json<int>("value", json);
-        auto id = UUID::from_json(json);
+    auto rank = int_from_json("rank", json);
+    auto suit = int_from_json("suit", json);
+    auto value = int_from_json("value", json);
 
-        if (rank && suit && value && id) {
+    if (!(rank && suit && value)) {
+        throw TichuException("Could not parse json of card. Was missing 'rank', 'suit' or 'val'.");
+    }
 
-            return card {
-                    id.value(),
-                    rank.value(),
-                    suit.value(),
-                    value.value()
-            };
-        }
-        else {
-            throw TichuException("Could not parse json of card. Was missing 'id', 'rank', 'suit' or 'val'.");
-        }
+    return card {
+            rank.value(),
+            suit.value(),
+            value.value()
+    };
 }
 
 
 void card::write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType& alloc) const {
-    _id.write_into_json(json, alloc);
-    json.AddMember("rank", int_to_json(_rank, alloc), alloc);
-    json.AddMember("suit", int_to_json(_suit, alloc), alloc);
-    json.AddMember("value", int_to_json(_value, alloc), alloc);
+    int_into_json("rank", _rank, json, alloc);
+    int_into_json("suit", _suit, json, alloc);
+    int_into_json("value", _value, json, alloc);
 }
 
 

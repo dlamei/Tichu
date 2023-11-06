@@ -33,6 +33,8 @@ private:
     // from_diff constructor
     explicit game_state(UUID id);
 
+public:
+
     // deserialization constructor
     game_state(
             UUID id,
@@ -46,10 +48,10 @@ private:
             int round_number,
             int starting_player_idx);
 
+    game_state();
+
     // returns the index of 'player' in the '_players' vector
     [[nodiscard]] int get_player_index(const player& player) const;
-public:
-    game_state();
 
     [[nodiscard]] const UUID &get_id() const { return _id; }
     [[nodiscard]] bool is_started() const { return _is_started; }
@@ -60,8 +62,8 @@ public:
     [[nodiscard]] const std::vector<player>& get_players() const;
     [[nodiscard]] int get_round_number() const { return _round_number; }
 
-    const draw_pile &get_draw_pile() const { return _draw_pile; }
-    const discard_pile &get_discard_pile() const { return _discard_pile; }
+    [[nodiscard]] const draw_pile &get_draw_pile() const { return _draw_pile; }
+    [[nodiscard]] const discard_pile &get_discard_pile() const { return _discard_pile; }
     //TODO: shared_player
     std::optional<player> get_current_player() const;
 
@@ -72,7 +74,7 @@ public:
     bool add_player(const player &player, std::string& err);
     bool start_game(std::string& err);
     bool draw_card(player &player, std::string& err);
-    bool play_card(player &player, const UUID& card_id, std::string& err);
+    bool play_card(player &player, const card& card_id, std::string& err);
     bool fold(player &player, std::string& err);
 
     // end of round functions

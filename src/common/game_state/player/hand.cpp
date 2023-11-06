@@ -3,14 +3,8 @@
 #include <utility>
 
 #include "../../exceptions/TichuException.h"
-#include "../../serialization/vector_utils.h"
 
-hand::hand(): _id(UUID::create()) { }
-
-hand::hand(UUID id) : _id(std::move(id)) { }
-
-// deserialization constructor
-hand::hand(UUID id, std::vector<card> cards) : _id(std::move(id)), _cards(std::move(cards)) { }
+hand::hand(std::vector<card> cards) : _cards(std::move(cards)) { }
 
 int hand::get_score() const {
     int res = 0;
@@ -29,9 +23,9 @@ int hand::get_score() const {
     return res;
 }
 
-std::optional<card> hand::try_get_card(const UUID &card_id) const {
+std::optional<card> hand::try_get_card(const card &card) const {
     auto it = std::find_if(_cards.begin(), _cards.end(),
-                           [&card_id](const card& x) { return x.get_id() == card_id;});
+                           [&card](const class card &x) { return x == card;});
     if (it < _cards.end()) {
         return *it;
     }
@@ -73,9 +67,9 @@ bool hand::add_card(const card &new_card, std::string &err) {
     return true;
 }
 
-std::optional<card> hand::remove_card(const UUID &card_id, std::string &err) {
+std::optional<card> hand::remove_card(const card &card, std::string &err) {
     auto it = std::find_if(_cards.begin(), _cards.end(),
-                           [&card_id](const card &x) { return x.get_id() == card_id;});
+                           [&card](const class card &x) { return x == card;});
     if (it < _cards.end()) {
         return remove_card(it);
     } else {
@@ -86,22 +80,18 @@ std::optional<card> hand::remove_card(const UUID &card_id, std::string &err) {
 #endif
 
 
-void hand::write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType& allocator) const {
-    _id.write_into_json(json, allocator);
-    json.AddMember("cards", vector_utils::serialize_vector(_cards, allocator), allocator);
+void hand::write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType& alloc) const {
+    vec_into_json("cards", _cards, json, alloc);
 }
 
 std::optional<hand> hand::from_json(const rapidjson::Value &json) {
-    if (json.HasMember("id") && json.HasMember("cards")) {
-        std::vector<card> deserialized_cards {};
-        for (auto &serialized_card : json["cards"].GetArray()) {
-            deserialized_cards.push_back(card::from_json(serialized_card.GetObject()));
-        }
-        auto id = UUID::from_json(json);
-        return hand(id.value(), deserialized_cards);
-    } else {
+    auto cards = vec_from_json<card>("cards", json);
+
+    if (!(cards)) {
         throw TichuException("Could not parse hand from json. 'cards' were missing.");
     }
+
+    return hand(cards.value());
 }
 
 

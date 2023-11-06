@@ -2,8 +2,9 @@
 
 
 #include "../GameController.h"
-#include "../../common/network/responses/server_response.h"
+#include "../../common/network/server_msg.h"
 #include <sockpp/exception.h>
+#include <sstream>
 
 
 // initialize static members
@@ -70,7 +71,7 @@ bool ClientNetworkManager::connect(const std::string& host, const uint16_t port)
 }
 
 
-void ClientNetworkManager::sendRequest(const client_request &request) {
+void ClientNetworkManager::sendRequest(const client_msg &request) {
 
     // wait until network is connected (max. 5 seconds)
     int connectionCheckCounter = 0;
@@ -127,7 +128,7 @@ void ClientNetworkManager::parseResponse(const std::string& message) {
     json.Parse(message.c_str());
 
     try {
-        server_response res = server_response::from_json(json);
+        server_msg res = server_msg::from_json(json);
         res.Process();
 
     } catch (std::exception e) {

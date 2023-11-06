@@ -24,7 +24,7 @@ private:
      static std::unordered_map<UUID, player_ptr> _players_lut;
 
 public:
-    //static bool try_get_player(const std::string& player_id, const player &player_ptr);
+    //static bool try_get_player(const std::string& _player_id, const player &player_ptr);
     static std::optional<player_ptr> try_get_player(const UUID& player_id);
     static player_ptr add_or_get_player(const std::string& name, const UUID& player_id);
     static std::optional<player_ptr> remove_player(const UUID& player_id);  // not implemented

@@ -4,12 +4,12 @@
 // The server_network_manager handles all incoming messages and offers functionality to broadcast messages
 // to all connected players of a game.
 
+#include <sstream>
 #include "server_network_manager.h"
 #include "request_handler.h"
 
 // include server address configurations
 #include "../common/network/default.conf"
-#include "../common/network/responses/request_response.h"
 
 
 server_network_manager::server_network_manager() {
@@ -99,7 +99,7 @@ void server_network_manager::read_message(sockpp::tcp_socket socket, const std::
             if (msg_bytes_read == msg_length) {
                 // sanity check that really all bytes got read (possibility that count was <= 0, indicating a read error)
                 std::string msg = ss_msg.str();
-                message_handler(msg, socket.peer_address());    // attempt to parse client_request from 'msg'
+                message_handler(msg, socket.peer_address());    // attempt to parse client_msg from 'msg'
             } else {
                 std::cerr << "Could not read entire message. TCP stream ended before. Difference is " << msg_length - msg_bytes_read << std::endl;
             }
@@ -122,8 +122,8 @@ void server_network_manager::handle_incoming_message(const std::string& msg, con
         // try to parse a json from the 'msg'
         rapidjson::Document req_json;
         req_json.Parse(msg.c_str());
-        // try to parse a client_request from the json
-        client_request req = client_request::from_json(req_json);
+        // try to parse a client_msg from the json
+        client_msg req = client_msg::from_json(req_json);
 
         // check if this is a connection to a new player
         auto player_id = req.get_player_id();
@@ -142,7 +142,7 @@ void server_network_manager::handle_incoming_message(const std::string& msg, con
         std::cout << "Received valid request : " << msg << std::endl;
 #endif
         // execute client request
-        server_response res = request_handler::handle_request(req);
+        server_msg res = request_handler::handle_request(req);
         //delete req;
 
         // transform response into a json
@@ -180,7 +180,7 @@ ssize_t server_network_manager::send_message(const std::string &msg, const std::
     return _address_to_socket.at(address).write(ss_msg.str());
 }
 
-void server_network_manager::broadcast_message(server_response &msg, const std::vector<player> &players,
+void server_network_manager::broadcast_message(server_msg &msg, const std::vector<player> &players,
                                                const player &exclude) {
     auto msg_json = msg.to_json();  // write to JSON format
     std::string msg_string = json_utils::to_string(*msg_json);   // convert to string

@@ -4,27 +4,18 @@
 
 #include "draw_pile.h"
 
+#include <utility>
+#include <random>
 
-#include "../../serialization/vector_utils.h"
+
 #include "../../exceptions/TichuException.h"
 
 
-// deserialization constructor
-draw_pile::draw_pile(UUID id, std::vector<card> cards)
-        : _id(id),
-          _cards(std::move(cards))
-{ }
-
-// from_diff constructor
-draw_pile::draw_pile(UUID id) : _id(id) { }
-
-
-draw_pile::draw_pile(const std::vector<card> &cards)
-        : _id(UUID::create()), _cards(cards)
+draw_pile::draw_pile(std::vector<card> cards)
+        : _cards(std::move(cards))
 { }
 
 
-draw_pile::draw_pile() : _id(UUID::create()) { }
 
 void draw_pile::shuffle() {
     std::shuffle(_cards.begin(), _cards.end(), std::mt19937(std::random_device()()));
@@ -86,21 +77,16 @@ std::optional<card> draw_pile::remove_top(std::string& err) {
 #endif
 
 
-void draw_pile::write_into_json(rapidjson::Value &json, rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
-    _id.write_into_json(json, allocator);
-    json.AddMember("cards", vector_utils::serialize_vector(_cards, allocator), allocator);
+void draw_pile::write_into_json(rapidjson::Value &json, rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &alloc) const {
+    vec_into_json("cards", _cards, json, alloc);
 }
 
 
 draw_pile draw_pile::from_json(const rapidjson::Value &json) {
-    if (json.HasMember("id") && json.HasMember("cards")) {
-        std::vector<card> deserialized_cards = {};
-        for (auto &serialized_card : json["cards"].GetArray()) {
-            deserialized_cards.push_back(card::from_json(serialized_card.GetObject()));
-        }
-        auto id = UUID::from_json(json);
-        return draw_pile(id.value(), deserialized_cards);
-    } else {
+    auto cards = vec_from_json<card>("cards", json);
+    if (!cards) {
         throw TichuException("Could not parse draw_pile from json. 'id' or 'cards' were missing.");
     }
+
+    return draw_pile(cards.value());
 }

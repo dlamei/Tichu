@@ -1,6 +1,3 @@
-//
-// Created by Manuel on 25.01.2021.
-//
 // The game_instance class is a wrapper around the game_state of an active instance of the game.
 // This class contains functions to modify the contained game_state.
 
@@ -35,7 +32,7 @@ public:
     bool start_game(player &player, std::string& err);
     bool try_add_player(player &new_player, std::string& err);
     bool try_remove_player(player &player, std::string& err);
-    bool play_card(player &player, const UUID& card_id, std::string& err);
+    bool play_card(player &player, const card& card_id, std::string& err);
     bool draw_card(player &player, std::string& err);
     bool fold(player &player, std::string& err);
 

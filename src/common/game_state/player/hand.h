@@ -8,17 +8,15 @@
 class hand : public serializable {
 
 private:
-    UUID _id;
     std::vector<card> _cards;
 
-    explicit hand(UUID id);
-    hand(UUID id, std::vector<card> cards);
     std::optional<card> remove_card(std::vector<card>::iterator pos);
     std::optional<card> remove_card(int idx);
     std::optional<card> remove_card(const card& card);
 
 public:
-    hand();
+    hand() = default;
+    explicit hand(std::vector<card> cards);
 
     bool operator==(const hand& other) const {
         for (int i = 0; i < _cards.size(); i++) {
@@ -35,14 +33,13 @@ public:
     [[nodiscard]] int get_nof_cards() const { return _cards.size(); }
     [[nodiscard]] int get_score() const;
     [[nodiscard]] const std::vector<card> &get_cards() const { return _cards; }
-    [[nodiscard]] std::optional<card> try_get_card(const UUID &card_id) const;
-    [[nodiscard]] const UUID &get_id() { return _id; }
+    [[nodiscard]] std::optional<card> try_get_card(const card &card_id) const;
 
 #ifdef TICHU_SERVER
 // state update functions
     void setup_round(std::string& err);
     bool add_card(const card &card, std::string &err);
-    std::optional<card> remove_card(const UUID &card_id, std::string& err);
+    std::optional<card> remove_card(const card &card, std::string& err);
 #endif
 
     std::vector<card>::iterator get_card_iterator();

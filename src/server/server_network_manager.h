@@ -16,8 +16,8 @@
 #include "sockpp/tcp_connector.h"
 #include "sockpp/tcp_acceptor.h"
 
-#include "../common/network/requests/client_request.h"
-#include "../common/network/responses/server_response.h"
+#include "../common/network/client_msg.h"
+#include "../common/network/server_msg.h"
 #include "../common/game_state/player/player.h"
 #include "../common/game_state/game_state.h"
 
@@ -42,8 +42,8 @@ public:
     server_network_manager();
     ~server_network_manager();
 
-    // Used to broadcast a server_response (e.g. a full_state_response) to all 'players' except 'exclude'
-    static void broadcast_message(server_response& msg, const std::vector<player> &players, const player &exclude);
+    // Used to broadcast a server_msg (e.g. a full_state_response) to all 'players' except 'exclude'
+    static void broadcast_message(server_msg& msg, const std::vector<player> &players, const player &exclude);
 
     static void on_player_left(const UUID &player_id);
 };
