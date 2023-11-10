@@ -8,32 +8,31 @@
 #include <string>
 #include <vector>
 #include "card.h"
+#include "card_combination.h"
 #include "../player/player.h"
 #include "../../serialization/serializable.h"
 #include "../../../../rapidjson/include/rapidjson/document.h"
 
 class discard_pile : public serializable {
 private:
-    std::vector<card> _cards;
+    std::vector<card_combination> _active_pile;
 
 public:
     discard_pile() = default;
-    explicit discard_pile(std::vector<card> cards);
+    explicit discard_pile(std::vector<card_combination> combis);
 
 // accessors
-    bool can_play(const card& card);
-    [[nodiscard]] std::optional<card> get_top_card() const;
-    [[nodiscard]] const std::vector<card> &get_cards() const { return _cards; }
+    [[nodiscard]] std::optional<card_combination> get_top_combi() const;
 
 #ifdef TICHU_SERVER
 // state update functions
-    void setup_game(std::string& err);  // Clears the stack
-    bool try_play(const card& card_id, player &player, std::string& err);
-    bool try_play(const card &played_card, std::string& err);
+    void push_active_pile(const card_combination &combi);
+    std::vector<card_combination> wrap_up_trick();
+    void clear_cards() { _active_pile.clear(); }
 #endif
 
 // serializable interface
-    virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
+    void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
     static discard_pile from_json(const rapidjson::Value& json);
 };
 

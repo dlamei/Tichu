@@ -17,7 +17,7 @@ public:
     static void startGame();
     static void drawCard();
     static void fold();
-    static void playCard(const card &cardToPlay);
+    static void playCombi(const card_combination &CombiToPlay);
 
     static wxEvtHandler* getMainThreadEventHandler();
     static void showError(const std::string& title, const std::string& message);

@@ -202,7 +202,7 @@ bool game_state::add_player(const player &player_ptr, std::string& err) {
 }
 
 
-bool game_state::play_card(player &player, const card& card_id, std::string &err) {
+bool game_state::play_combi(player &player, const card_combination& combi, std::string &err) {
     if (!is_player_in_game(player)) {
         err = "Server refused to perform draw_card. Player is not part of the game.";
         return false;
@@ -216,7 +216,7 @@ bool game_state::play_card(player &player, const card& card_id, std::string &err
         return false;
     }
 
-    if (_discard_pile.try_play(card_id, player, err)) {
+    if (_discard_pile.try_play(combi, player, err)) {
         if (player.get_nof_cards() == 0) {
             // end of game. Calculate scores. Prepare new round
             wrap_up_round(err);

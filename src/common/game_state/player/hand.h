@@ -4,6 +4,7 @@
 #include <vector>
 #include "../../../../rapidjson/include/rapidjson/document.h"
 #include "../cards/card.h"
+#include "../cards/card_combination.h"
 
 class hand : public serializable {
 

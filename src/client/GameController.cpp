@@ -126,8 +126,8 @@ void GameController::fold() {
 }
 
 
-void GameController::playCard(const card &cardToPlay) {
-    send_request(play_card_req{cardToPlay});
+void GameController::playCombi(const card_combination &combiToPlay) {
+    send_request(play_combi_req{combiToPlay});
 }
 
 

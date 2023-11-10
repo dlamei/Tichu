@@ -33,9 +33,9 @@ void broadcast_full_state_response(const game_state &state, const player &player
     server_network_manager::broadcast_message(resp, state.get_players(), player);
 }
 
-bool game_instance::play_card(player &player, const card& card_id, std::string& err) {
+bool game_instance::play_combi(player &player, const card_combination& combi, std::string& err) {
     modification_lock.lock();
-    if (_game_state.play_card(player, card_id, err)) {
+    if (_game_state.play_combi(player, combi, err)) {
         broadcast_full_state_response(_game_state, player);
         modification_lock.unlock();
         return true;

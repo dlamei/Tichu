@@ -15,6 +15,8 @@ card_combination::card_combination(std::vector<card> cards) {
 
 
 void card_combination::update_combination_type_and_rank() {
+    _combination_rank = 0;
+    _combination_type = 0;
     //TO-DO
 }
 
@@ -24,7 +26,7 @@ bool card_combination::can_be_played_on(const card_combination &other) const noe
 }
 
 card_combination *card_combination::from_json(const rapidjson::Value &json) {
-    auto cards = vec_from_json("cards", json);
+    auto cards = vec_from_json<card>("cards", json);
 
     if (!(cards)) {
         throw TichuException("Could not parse json of card_combination. Was missing 'cards'.");

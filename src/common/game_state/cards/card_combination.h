@@ -26,7 +26,7 @@ public:
 // accessors
     [[nodiscard]] int get_combination_type() const noexcept { return _combination_type; }
     [[nodiscard]] int get_combination_rank() const noexcept { return _combination_rank; }
-    [[nodiscard]] int get_cards() const noexcept { return _cards; }
+    [[nodiscard]] std::vector<card> get_cards() const noexcept { return _cards; }
 
 // card combination functions
     void update_combination_type_and_rank();
