@@ -44,16 +44,6 @@ bool game_instance::play_card(player &player, const card& card_id, std::string& 
     return false;
 }
 
-bool game_instance::draw_card(player &player, std::string& err) {
-    modification_lock.lock();
-    auto drawn_card = _game_state.draw_card(player, err);
-    if (drawn_card) {
-        broadcast_full_state_response(_game_state, player);
-    }
-    modification_lock.unlock();
-    return drawn_card;
-
-}
 
 bool game_instance::fold(player &player, std::string& err) {
     modification_lock.lock();

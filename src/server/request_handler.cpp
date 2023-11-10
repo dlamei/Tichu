@@ -26,7 +26,6 @@ server_msg request_handler::handle_request(const client_msg &req) {
     const auto& game_id = req.get_game_id();
     const auto& player_id = req.get_player_id();
 
-
     // Switch behavior according to request type
     switch(type) {
 
@@ -43,7 +42,6 @@ server_msg request_handler::handle_request(const client_msg &req) {
                 auto game_instance_ptr = game_instance_manager::try_add_player_to_any_game(*player, err);
                 if (game_instance_ptr) {
                     // game_instance_ptr got updated to the joined game
-
                     // return response with full game_state attached
                     auto resp = request_response{true, game_instance_ptr.value()->get_game_state().to_json(), err };
                     return server_msg(game_instance_ptr.value()->get_id(), resp);
@@ -107,22 +105,6 @@ server_msg request_handler::handle_request(const client_msg &req) {
             auto resp = request_response{false, {}, err};
             return server_msg(UUID(), resp);
         }
-
-
-        // ##################### DRAW CARD ##################### //
-        case ClientMsgType:: draw_card: {
-            auto game_and_player = game_instance_manager::try_get_player_and_game_instance(player_id, err);
-            if (game_and_player) {
-                auto [player, game_instance] = game_and_player.value();
-                if (game_instance->draw_card(*player, err)) {
-                    auto resp = request_response{true, game_instance->get_game_state().to_json(), err};
-                    return server_msg(game_instance->get_id(), resp);
-                }
-            }
-            auto resp = request_response{false, {}, err};
-            return server_msg(UUID(), resp);
-        }
-
 
         // ##################### FOLD ##################### //
         case ClientMsgType::fold: {

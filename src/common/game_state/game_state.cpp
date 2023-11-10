@@ -201,32 +201,6 @@ bool game_state::add_player(const player &player_ptr, std::string& err) {
     return true;
 }
 
-bool game_state::draw_card(player &player, std::string &err) {
-    if (!is_player_in_game(player)) {
-        err = "Server refused to perform draw_card. Player is not part of the game.";
-        return false;
-    }
-    if (!is_allowed_to_play_now(player)) {
-        err = "It's not this players turn yet.";
-        return false;
-    }
-    if (_draw_pile.is_empty()) {
-        err = "Draw pile is empty. Cannot draw a card.";
-        return false;
-    }
-    if (_is_finished) {
-        err = "Could not draw card, because the requested game is already finished.";
-        return false;
-    }
-
-    auto drawn_card = _draw_pile.draw(player, err);
-    if (drawn_card) {
-        update_current_player(err); // next players turn
-        return true;
-    } else {
-        return false;
-    }
-}
 
 bool game_state::play_card(player &player, const card& card_id, std::string &err) {
     if (!is_player_in_game(player)) {

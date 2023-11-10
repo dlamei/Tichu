@@ -176,6 +176,8 @@ void server_network_manager::on_player_left(const UUID &player_id) {
 ssize_t server_network_manager::send_message(const std::string &msg, const std::string& address) {
 
     std::stringstream ss_msg;
+    std::cerr << "MESSAGE SIZE:    " << msg.size() << "     ";
+    std::cerr << "MESSAGE:    " << msg << "    ";
     ss_msg << std::to_string(msg.size()) << ':' << msg; // prepend message length
     return _address_to_socket.at(address).write(ss_msg.str());
 }
@@ -193,7 +195,7 @@ void server_network_manager::broadcast_message(server_msg &msg, const std::vecto
     // send object_diff to all requested players
     try {
         for(auto& player : players) {
-            if (player != exclude) {
+            if (player.get_id() != exclude.get_id()) {
                 int nof_bytes_written = send_message(msg_string, _player_id_to_address.at(player.get_id()));
             }
         }

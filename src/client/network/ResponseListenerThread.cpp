@@ -33,6 +33,7 @@ wxThread::ExitCode ResponseListenerThread::Entry() {
                     messageLengthStream << buffer[pos];
                     pos++;
                 }
+                std::cerr << "LENGTH:   " << messageLengthStream.str() << "   ";
                 ssize_t messageLength = std::stoi(messageLengthStream.str());
 
                 // initialize a stream for the message

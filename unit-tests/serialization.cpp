@@ -53,6 +53,7 @@ TEST(SerializationTest, FoldRequest) {
     ASSERT_NO_THROW(receive.get_msg_data<fold_req>());
 }
 
+/*
 TEST(SerializationTest, DrawCardRequest) {
     auto draw_card = draw_card_req { 314 };
     auto player_id = UUID::create();
@@ -66,6 +67,7 @@ TEST(SerializationTest, DrawCardRequest) {
     EXPECT_EQ(receive.get_player_id(), send.get_player_id());
     EXPECT_EQ(receive.get_msg_data<draw_card_req>().nof_cards, draw_card.nof_cards);
 }
+*/
 
 TEST(SerializationTest, Card) {
     auto send = card(1, 2, 3);

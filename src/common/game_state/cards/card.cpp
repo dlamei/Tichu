@@ -6,8 +6,6 @@
 #include "../../exceptions/TichuException.h"
 
 
-//card::card(std::string id) : unique_serializable(id) { }
-
 card::card(int rank, int suit, int val):
         _rank(rank),
         _suit(suit),

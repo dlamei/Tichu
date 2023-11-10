@@ -87,21 +87,17 @@ void GameController::updateGameState(const game_state &newGameState) {
     // the existing game state is now old
     auto oldGameState = GameController::_currentGameState;
 
+    //current Game state is now the new one
+    GameController::_currentGameState = newGameState;
+    
     // save the new game state as our current game state
     if (oldGameState) {
         auto old = oldGameState.value();
-        GameController::_currentGameState = newGameState;
-
-        //if(oldGameState != nullptr) {
 
         // check if a new round started, and display message accordingly
         if (old.get_round_number() > 0 && old.get_round_number() < newGameState.get_round_number()) {
             GameController::showNewRoundMessage(old, newGameState);
         }
-
-        // delete the old game state, we don't need it anymore
-        //delete oldGameState;
-        //}
     }
 
     if(GameController::_currentGameState.value().is_finished()) {
@@ -116,17 +112,12 @@ void GameController::updateGameState(const game_state &newGameState) {
 }
 
 void send_request(const client_msg_variant& req) {
-    auto request = client_msg(GameController::get_game_state().value().get_id(), GameController::get_me().value().get_id(), req);
+    auto request = client_msg(GameController::get_me().value().get_id(), GameController::get_game_state().value().get_id(), req);
     ClientNetworkManager::sendRequest(request);
 }
 
 void GameController::startGame() {
     send_request(start_game_req());
-}
-
-
-void GameController::drawCard() {
-    send_request(draw_card_req());
 }
 
 

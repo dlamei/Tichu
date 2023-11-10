@@ -188,7 +188,7 @@ void MainGamePanel::buildCardPiles(const game_state &gameState, player me) {
             drawPile->SetToolTip("Draw card");
             drawPile->SetCursor(wxCursor(wxCURSOR_HAND));
             drawPile->Bind(wxEVT_LEFT_UP, [](wxMouseEvent& event) {
-                GameController::drawCard();
+                //what happens when draw pile
             });
         } else {
             drawPile->SetToolTip("Draw pile");

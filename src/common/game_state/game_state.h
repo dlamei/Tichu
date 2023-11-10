@@ -73,7 +73,6 @@ public:
     bool remove_player(const player &player, std::string& err);
     bool add_player(const player &player, std::string& err);
     bool start_game(std::string& err);
-    bool draw_card(player &player, std::string& err);
     bool play_card(player &player, const card& card_id, std::string& err);
     bool fold(player &player, std::string& err);
 

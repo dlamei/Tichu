@@ -138,8 +138,10 @@ ServerMsgType server_msg::get_type() const {
 void process_response(const request_response &resp) {
     if (resp.success) {
         if (resp.state_json) {
+            try {
             game_state state = game_state::from_json(*resp.state_json.value());
             GameController::updateGameState(state);
+            } catch (std::exception e){}
 
         } else {
             GameController::showError("Network error", "Expected a state as JSON inside the request_response. But there was none.");

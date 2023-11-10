@@ -46,10 +46,6 @@ void client_msg::write_into_json(rapidjson::Value &json,
                 data.played_card.write_into_json(json, alloc);
             },
 
-            [&] (const draw_card_req& data) {
-                int_into_json("nof_cards", data.nof_cards, json, alloc);
-            },
-
             [&] (const start_game_req& data) {},
             [&] (const fold_req& data) {},
 
@@ -73,11 +69,6 @@ client_msg_variant msg_variant_from_json(ClientMsgType type, const rapidjson::Va
         case play_card: {
             card card = card::from_json(json);
             return play_card_req { card };
-        }
-
-        case draw_card: {
-            int nof_cards = int_from_json("nof_cards", json).value();
-            return draw_card_req { nof_cards };
         }
 
         default:
