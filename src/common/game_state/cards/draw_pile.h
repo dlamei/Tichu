@@ -8,7 +8,7 @@
 #include <algorithm>
 #include "../../serialization/serializable.h"
 #include "../../game_state/player/player.h"
-#include "../../../../rapidjson/include/rapidjson/document.h"
+#include <rapidjson/document.h>
 
 
 class draw_pile : public serializable {

@@ -2,120 +2,85 @@ cmake_minimum_required(VERSION 3.15)
 project(Tichu) # your project name
 set(CMAKE_CXX_STANDARD 20)
 
-include_directories(sockpp/include)
-
-# find_package(wxWidgets COMPONENTS core base net REQUIRED)
-# include(${wxWidgets_USE_FILE})
-
 set(COMMON_SOURCE_FILES
-        src/common/game_state/cards/card.cpp src/common/game_state/cards/card.h
-        src/common/game_state/game_state.cpp src/common/game_state/game_state.h
-        src/common/game_state/player/hand.cpp src/common/game_state/player/hand.h
-        src/common/game_state/player/player.cpp src/common/game_state/player/player.h
-        src/common/game_state/cards/draw_pile.cpp src/common/game_state/cards/draw_pile.h
-        src/common/game_state/cards/discard_pile.cpp src/common/game_state/cards/discard_pile.h
-        # client requests
-        src/common/network/client_msg.cpp src/common/network/client_msg.h
-        # server responses
-        src/common/network/server_msg.cpp src/common/network/server_msg.h
-        # serialization
-        src/common/serialization/serializable.h
-        src/common/serialization/serializable.cpp
-        src/common/logging.h
+		src/common/game_state/cards/card.cpp src/common/game_state/cards/card.h
+		src/common/game_state/game_state.cpp src/common/game_state/game_state.h
+		src/common/game_state/player/hand.cpp src/common/game_state/player/hand.h
+		src/common/game_state/player/player.cpp src/common/game_state/player/player.h
+		src/common/game_state/cards/draw_pile.cpp src/common/game_state/cards/draw_pile.h
+		src/common/game_state/cards/discard_pile.cpp src/common/game_state/cards/discard_pile.h
+		src/common/network/client_msg.cpp src/common/network/client_msg.h
+		src/common/network/server_msg.cpp src/common/network/server_msg.h
+		src/common/serialization/serializable.h
+		src/common/serialization/serializable.cpp
+		src/common/logging.h
 )
 
-# define a variable CLIENT_SOURCE_FILES that contains the paths to all source files required to compile the client executable
 set(CLIENT_SOURCE_FILES
-        src/client/main.cpp
-        #src/client/app/Tichu.cpp src/client/app/Tichu.h
-        #src/client/GameController.cpp src/client/GameController.h
-        # UI
-        #src/client/windows/GameWindow.cpp src/client/windows/GameWindow.h
-        #src/client/uiElements/ImagePanel.cpp src/client/uiElements/ImagePanel.h
-        #src/client/panels/ConnectionPanel.cpp src/client/panels/ConnectionPanel.h
-        #src/client/panels/MainGamePanel.cpp src/client/panels/MainGamePanel.h
-        #src/client/uiElements/InputField.cpp src/client/uiElements/InputField.h
-        #src/client/uiElements/ImagePanel.cpp src/client/uiElements/ImagePanel.h
-        # network
-        #src/client/network/ClientNetworkManager.cpp src/client/network/ClientNetworkManager.h
-        #src/client/network/ResponseListenerThread.cpp src/client/network/ResponseListenerThread.h
-        src/client/GUI/window.cpp
-        src/client/GUI/window.h
-        src/client/GUI/gl_utils.cpp
-        src/client/GUI/gl_utils.h
-        src/client/GUI/Application.cpp
-        src/client/GUI/Application.h
-        src/client/GUI/renderer.cpp
-        src/client/GUI/renderer.h
-        src/client/GUI/imgui_build.cpp
-        src/client/GUI/imgui_build.h
-        src/client/app/Tichu.h
-        src/client/app/Tichu.cpp
+		src/client/main.cpp
+		src/client/GUI/window.cpp
+		src/client/GUI/window.h
+		src/client/GUI/gl_utils.cpp
+		src/client/GUI/gl_utils.h
+		src/client/GUI/Application.cpp
+		src/client/GUI/Application.h
+		src/client/GUI/renderer.cpp
+		src/client/GUI/renderer.h
+		src/client/GUI/imgui_build.cpp
+		src/client/GUI/imgui_build.h
+		src/client/app/Tichu.h
+		src/client/app/Tichu.cpp
 )
 
-# define a variable SERVER_SOURCE_FILES that contains the paths to all source files required to compile the server executable
 set(SERVER_SOURCE_FILES
-        src/server/main.cpp
-        src/server/game_instance.cpp src/server/game_instance.h
-        src/server/game_instance_manager.cpp src/server/game_instance_manager.h
-        src/server/player_manager.cpp src/server/player_manager.h
-        src/server/server_network_manager.cpp src/server/server_network_manager.h
-
-        # serialization
-        src/server/request_handler.h src/server/request_handler.cpp
+		src/server/main.cpp
+		src/server/game_instance.cpp src/server/game_instance.h
+		src/server/game_instance_manager.cpp src/server/game_instance_manager.h
+		src/server/player_manager.cpp src/server/player_manager.h
+		src/server/server_network_manager.cpp src/server/server_network_manager.h
+		src/server/request_handler.h src/server/request_handler.cpp
 )
 
 
-# set source files for client-executable
-add_executable(Tichu-client ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES}
-)
-# set compile directives for client-executable
+add_executable(Tichu-client ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES})
+add_executable(Tichu-server ${SERVER_SOURCE_FILES} ${COMMON_SOURCE_FILES})
+
 target_compile_definitions(Tichu-client PRIVATE TICHU_CLIENT=1 RAPIDJSON_HAS_STDSTRING=1)
-# link with wxWidgets
-#target_link_libraries(Tichu-client ${wxWidgets_LIBRARIES})
-# Comment out if you don't want to print network-related messages into the console
 target_compile_definitions(Tichu-client PRIVATE PRINT_NETWORK_MESSAGES=1)
 
-# set source files for server-executable
-add_executable(Tichu-server ${SERVER_SOURCE_FILES} ${COMMON_SOURCE_FILES})
-# set compile directives for server-executable
 target_compile_definitions(Tichu-server PRIVATE TICHU_SERVER=1 RAPIDJSON_HAS_STDSTRING=1)
-# Comment out if you don't want to print network-related messages into the console
 target_compile_definitions(Tichu-server PRIVATE PRINT_NETWORK_MESSAGES=1)
 
-add_subdirectory(sockpp)
 add_subdirectory(libs)
 
 target_link_libraries(Tichu-client
-	glad
-	glfw
-	spdlog
-	imgui
-	glm
-	stb
-	)
+		glad
+		glfw
+		spdlog
+		imgui
+		glm
+		stb
+		rapidjson
+)
 
 target_link_libraries(Tichu-server
-	spdlog
-	)
+		spdlog
+		rapidjson
+)
 
 # linking to sockpp
 if(WIN32)
-    message("Detected Win32")
+	target_link_libraries(Tichu-client sockpp)
+	target_link_libraries(Tichu-server sockpp)
 
-    target_link_libraries(Tichu-client sockpp)
-    target_link_libraries(Tichu-server sockpp)
-
-    # Necessary to get sockets working under Windows (with MingW)
-    target_link_libraries(Tichu-client wsock32 ws2_32)
+	target_link_libraries(Tichu-client wsock32 ws2_32)
 else()
-    message("Not Win32, so probably a Linux") # We assume it's Linux in this case
 
-    set(THREADS_PREFER_PTHREAD_FLAG ON)
-    find_package(Threads REQUIRED)
+	set(THREADS_PREFER_PTHREAD_FLAG ON)
+	find_package(Threads REQUIRED)
 
-    target_link_libraries(Tichu-client sockpp Threads::Threads)
-    target_link_libraries(Tichu-server sockpp Threads::Threads)
+	target_link_libraries(Tichu-client sockpp Threads::Threads)
+	target_link_libraries(Tichu-server sockpp Threads::Threads)
 
 endif()
 
@@ -124,9 +89,7 @@ file(INSTALL assets DESTINATION ${CMAKE_BINARY_DIR})
 
 
 set(CMAKE_CXX_FLAGS "--coverage")
-# set source files for server-library
 add_library(Tichu-lib ${SERVER_SOURCE_FILES} ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES})
-# set compile directives for server-library
 target_compile_definitions(Tichu-lib PRIVATE TICHU_CLIENT=1 TICHU_SERVER=1 RAPIDJSON_HAS_STDSTRING=1)
 
 add_subdirectory(googletest)

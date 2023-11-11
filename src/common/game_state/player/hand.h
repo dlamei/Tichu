@@ -2,7 +2,7 @@
 #define TICHU_HAND_H
 
 #include <vector>
-#include "../../../../rapidjson/include/rapidjson/document.h"
+//#include "../../../../rapidjson/include/rapidjson/document.h"
 #include "../cards/card.h"
 
 class hand : public serializable {

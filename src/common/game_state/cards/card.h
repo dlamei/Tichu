@@ -3,7 +3,8 @@
 
 #include <string>
 #include "../../../../src/common/serialization/serializable.h"
-#include "../../../../rapidjson/include/rapidjson/document.h"
+//#include "../../../../rapidjson/include/rapidjson/document.h"
+#include <rapidjson/document.h>
 
 //Macros for special cards
 #define DRAGON Card(SPECIAL, RED)

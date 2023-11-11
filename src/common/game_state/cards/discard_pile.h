@@ -6,7 +6,8 @@
 #include "card.h"
 #include "../player/player.h"
 #include "../../serialization/serializable.h"
-#include "../../../../rapidjson/include/rapidjson/document.h"
+//#include "../../../../rapidjson/include/rapidjson/document.h"
+#include <rapidjson/document.h>
 
 class discard_pile : public serializable {
 private:

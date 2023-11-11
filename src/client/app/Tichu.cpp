@@ -4,26 +4,6 @@
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
-//bool Tichu::OnInit()
-//{
-//    // Allow loading of JPEG  and PNG image files
-//    wxImage::AddHandler(new wxJPEGHandler());
-//    wxImage::AddHandler(new wxPNGHandler());
-//
-//    // Open main game window
-//    GameWindow* gameWindow = new GameWindow(
-//            "TICHU", // title of window,
-//            wxDefaultPosition, // position of the window
-//            wxDefaultSize // size of the window
-//    );
-//    gameWindow->Show(true);
-//
-//    // Initialize game controller
-//    GameController::init(gameWindow);
-//
-//    return true;
-//}
-
 void show_input_label(const char *label) {
     ImGui::TableNextRow();
     ImGui::TableNextColumn();

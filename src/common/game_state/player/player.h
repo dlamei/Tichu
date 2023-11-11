@@ -6,7 +6,7 @@
 #include <string>
 #include <utility>
 #include "hand.h"
-#include "../../../../rapidjson/include/rapidjson/document.h"
+#include <rapidjson/document.h>
 
 
 class player : public serializable {

@@ -1,3 +1,13 @@
+# --- sockpp ---
+
+add_subdirectory(sockpp)
+include_directories(sockpp/include)
+
+# --- rapidjson ---
+
+add_library(rapidjson INTERFACE)
+target_include_directories(rapidjson INTERFACE rapidjson/include)
+
 # --- glfw ---
 
 add_subdirectory(glfw)
