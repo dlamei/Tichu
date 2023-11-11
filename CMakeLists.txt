@@ -4,8 +4,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 include_directories(sockpp/include)
 
-find_package(wxWidgets COMPONENTS core base net REQUIRED)
-include(${wxWidgets_USE_FILE})
+# find_package(wxWidgets COMPONENTS core base net REQUIRED)
+# include(${wxWidgets_USE_FILE})
 
 set(COMMON_SOURCE_FILES
         src/common/game_state/cards/card.cpp src/common/game_state/cards/card.h
@@ -21,23 +21,36 @@ set(COMMON_SOURCE_FILES
         # serialization
         src/common/serialization/serializable.h
         src/common/serialization/serializable.cpp
+        src/common/logging.h
 )
 
 # define a variable CLIENT_SOURCE_FILES that contains the paths to all source files required to compile the client executable
 set(CLIENT_SOURCE_FILES
         src/client/main.cpp
-        src/client/app/Tichu.cpp src/client/app/Tichu.h
-        src/client/GameController.cpp src/client/GameController.h
+        #src/client/app/Tichu.cpp src/client/app/Tichu.h
+        #src/client/GameController.cpp src/client/GameController.h
         # UI
-        src/client/windows/GameWindow.cpp src/client/windows/GameWindow.h
-        src/client/uiElements/ImagePanel.cpp src/client/uiElements/ImagePanel.h
-        src/client/panels/ConnectionPanel.cpp src/client/panels/ConnectionPanel.h
-        src/client/panels/MainGamePanel.cpp src/client/panels/MainGamePanel.h
-        src/client/uiElements/InputField.cpp src/client/uiElements/InputField.h
-        src/client/uiElements/ImagePanel.cpp src/client/uiElements/ImagePanel.h
+        #src/client/windows/GameWindow.cpp src/client/windows/GameWindow.h
+        #src/client/uiElements/ImagePanel.cpp src/client/uiElements/ImagePanel.h
+        #src/client/panels/ConnectionPanel.cpp src/client/panels/ConnectionPanel.h
+        #src/client/panels/MainGamePanel.cpp src/client/panels/MainGamePanel.h
+        #src/client/uiElements/InputField.cpp src/client/uiElements/InputField.h
+        #src/client/uiElements/ImagePanel.cpp src/client/uiElements/ImagePanel.h
         # network
-        src/client/network/ClientNetworkManager.cpp src/client/network/ClientNetworkManager.h
-        src/client/network/ResponseListenerThread.cpp src/client/network/ResponseListenerThread.h
+        #src/client/network/ClientNetworkManager.cpp src/client/network/ClientNetworkManager.h
+        #src/client/network/ResponseListenerThread.cpp src/client/network/ResponseListenerThread.h
+        src/client/GUI/window.cpp
+        src/client/GUI/window.h
+        src/client/GUI/gl_utils.cpp
+        src/client/GUI/gl_utils.h
+        src/client/GUI/Application.cpp
+        src/client/GUI/Application.h
+        src/client/GUI/renderer.cpp
+        src/client/GUI/renderer.h
+        src/client/GUI/imgui_build.cpp
+        src/client/GUI/imgui_build.h
+        src/client/app/Tichu.h
+        src/client/app/Tichu.cpp
 )
 
 # define a variable SERVER_SOURCE_FILES that contains the paths to all source files required to compile the server executable
@@ -54,11 +67,12 @@ set(SERVER_SOURCE_FILES
 
 
 # set source files for client-executable
-add_executable(Tichu-client ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES})
+add_executable(Tichu-client ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES}
+)
 # set compile directives for client-executable
 target_compile_definitions(Tichu-client PRIVATE TICHU_CLIENT=1 RAPIDJSON_HAS_STDSTRING=1)
 # link with wxWidgets
-target_link_libraries(Tichu-client ${wxWidgets_LIBRARIES})
+#target_link_libraries(Tichu-client ${wxWidgets_LIBRARIES})
 # Comment out if you don't want to print network-related messages into the console
 target_compile_definitions(Tichu-client PRIVATE PRINT_NETWORK_MESSAGES=1)
 
@@ -70,6 +84,20 @@ target_compile_definitions(Tichu-server PRIVATE TICHU_SERVER=1 RAPIDJSON_HAS_STD
 target_compile_definitions(Tichu-server PRIVATE PRINT_NETWORK_MESSAGES=1)
 
 add_subdirectory(sockpp)
+add_subdirectory(libs)
+
+target_link_libraries(Tichu-client
+	glad
+	glfw
+	spdlog
+	imgui
+	glm
+	stb
+	)
+
+target_link_libraries(Tichu-server
+	spdlog
+	)
 
 # linking to sockpp
 if(WIN32)

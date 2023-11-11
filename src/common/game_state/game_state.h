@@ -1,6 +1,3 @@
-//
-// Created by Manuel on 27.01.2021.
-//
 
 #ifndef TICHU_GAME_STATE_H
 #define TICHU_GAME_STATE_H

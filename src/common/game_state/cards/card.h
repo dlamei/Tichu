@@ -1,7 +1,3 @@
-//
-// Created by Manuel on 25.01.2021.
-//
-
 #ifndef TICHU_CARD_H
 #define TICHU_CARD_H
 

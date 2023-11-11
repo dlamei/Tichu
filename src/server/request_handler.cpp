@@ -1,6 +1,3 @@
-//
-// Created by Manuel on 08.02.2022.
-//
 
 #ifndef TICHU_REQUEST_HANDLER_CPP
 #define TICHU_REQUEST_HANDLER_CPP

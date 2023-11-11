@@ -1,6 +1,3 @@
-//
-// Created by Manuel on 15.02.2021.
-//
 
 #include "server_msg.h"
 
@@ -132,42 +129,42 @@ ServerMsgType server_msg::get_type() const {
 }
 
 #ifdef TICHU_CLIENT
-#include "../game_state/game_state.h"
-#include "../../client/GameController.h"
-
-void process_response(const request_response &resp) {
-    if (resp.success) {
-        if (resp.state_json) {
-            game_state state = game_state::from_json(*resp.state_json.value());
-            GameController::updateGameState(state);
-
-        } else {
-            GameController::showError("Network error", "Expected a state as JSON inside the request_response. But there was none.");
-        }
-    } else {
-        GameController::showError("Not possible", resp.err);
-    }
-
-}
-
-void process_response(const full_state_response &resp) {
-    try {
-        game_state state = game_state::from_json(*resp.state_json);
-        GameController::updateGameState(state);
-
-    } catch(std::exception& e) {
-        std::cerr << "Failed to extract game_state from full_state_response" << std::endl
-                  << e.what() << std::endl;
-    }
-}
-
-
-void server_msg::Process() const {
-    std::visit(overloaded {
-            [](const request_response &resp) { process_response(resp); },
-            [](const full_state_response &resp) { process_response(resp); },
-            [](auto resp) {},
-    }, _response);
-}
+//#include "../game_state/game_state.h"
+//#include "../../client/GameController.h"
+//
+//void process_response(const request_response &resp) {
+//    if (resp.success) {
+//        if (resp.state_json) {
+//            game_state state = game_state::from_json(*resp.state_json.value());
+//            GameController::updateGameState(state);
+//
+//        } else {
+//            GameController::showError("Network error", "Expected a state as JSON inside the request_response. But there was none.");
+//        }
+//    } else {
+//        GameController::showError("Not possible", resp.err);
+//    }
+//
+//}
+//
+//void process_response(const full_state_response &resp) {
+//    try {
+//        game_state state = game_state::from_json(*resp.state_json);
+//        GameController::updateGameState(state);
+//
+//    } catch(std::exception& e) {
+//        std::cerr << "Failed to extract game_state from full_state_response" << std::endl
+//                  << e.what() << std::endl;
+//    }
+//}
+//
+//
+//void server_msg::Process() const {
+//    std::visit(overloaded {
+//            [](const request_response &resp) { process_response(resp); },
+//            [](const full_state_response &resp) { process_response(resp); },
+//            [](auto resp) {},
+//    }, _response);
+//}
 
 #endif

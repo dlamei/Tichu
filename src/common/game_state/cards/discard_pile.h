@@ -1,7 +1,3 @@
-//
-// Created by Manuel on 25.01.2021.
-//
-
 #ifndef TICHU_DISCARD_PILE_H
 #define TICHU_DISCARD_PILE_H
 

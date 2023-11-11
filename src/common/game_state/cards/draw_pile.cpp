@@ -1,7 +1,3 @@
-//
-// Created by Manuel on 25.01.2021.
-//
-
 #include "draw_pile.h"
 
 #include <utility>

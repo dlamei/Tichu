@@ -1,7 +1,3 @@
-//
-// Created by manuel on 17.03.21.
-//
-
 #include "server_network_manager.h"
 
 int main() {

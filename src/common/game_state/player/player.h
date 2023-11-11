@@ -1,6 +1,3 @@
-//
-// Created by Manuel on 25.01.2021.
-//
 
 #ifndef TICHU_PLAYER_H
 #define TICHU_PLAYER_H

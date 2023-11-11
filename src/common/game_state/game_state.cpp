@@ -1,6 +1,3 @@
-//
-// Created by Manuel on 27.01.2021.
-//
 #include "game_state.h"
 
 #include <iostream>

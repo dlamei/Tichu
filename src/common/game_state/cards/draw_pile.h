@@ -1,6 +1,3 @@
-//
-// Created by Manuel on 25.01.2021.
-//
 
 #ifndef TICHU_DRAW_PILE_H
 #define TICHU_DRAW_PILE_H

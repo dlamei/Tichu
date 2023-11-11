@@ -1,5 +1,15 @@
-#include <wx/wx.h>
-#include "app/Tichu.h"
+#include "GUI/Application.h"
 
-// Macro which will generate a main function which serves as entry point into the program
-wxIMPLEMENT_APP(Tichu);
+int main() {
+
+    ApplicationCreateInfo info {
+        .title = "Tichu",
+        .width = 1200,
+        .height = 1200,
+    };
+
+    Application app(info);
+    app.run();
+
+    return 0;
+}
