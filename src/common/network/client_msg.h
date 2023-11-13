@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <variant>
-#include "../../../rapidjson/include/rapidjson/document.h"
+#include <rapidjson/document.h>
 #include "../serialization/serializable.h"
 #include "../exceptions/TichuException.h"
 #include "../game_state/cards/card.h"

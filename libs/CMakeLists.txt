@@ -7,6 +7,7 @@ include_directories(sockpp/include)
 
 add_library(rapidjson INTERFACE)
 target_include_directories(rapidjson INTERFACE rapidjson/include)
+target_compile_definitions(rapidjson INTERFACE RAPIDJSON_HAS_STD_STRING=1)
 
 # --- glfw ---
 
@@ -59,3 +60,25 @@ target_include_directories( imgui
 		imgui/misc/cpp
 )
 
+
+# --- group libraries by client / server ---
+
+add_library(CLIENT_LIBS INTERFACE)
+target_compile_definitions(CLIENT_LIBS INTERFACE TICHU_CLIENT=1)
+target_link_libraries(CLIENT_LIBS INTERFACE
+		glad
+		glfw
+		imgui
+		glm
+		stb
+		rapidjson
+		spdlog
+		sockpp
+)
+
+add_library(SERVER_LIBS INTERFACE)
+target_compile_definitions(SERVER_LIBS INTERFACE TICHU_SERVER=1)
+target_link_libraries(SERVER_LIBS INTERFACE
+		spdlog
+		rapidjson
+)

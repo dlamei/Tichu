@@ -46,8 +46,8 @@ void Application::update() {
     Renderer::bind_frame_buffer();
 
     for (auto &layer : _layers) {
-        layer->on_imgui();
         layer->on_update(time_step);
+        layer->on_imgui();
     }
 
     Renderer::flush();

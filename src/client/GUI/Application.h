@@ -61,6 +61,8 @@ public:
 
     // returns the size of the viewport window
     [[nodiscard]] static const glm::uvec2 &get_viewport_size() { return get_instance()->_viewport_size; }
+    // returns the size of the window
+    [[nodiscard]] static const glm::uvec2 &get_window_size() { return get_instance()->_window_size; }
     // returns the application instance
     [[nodiscard]] static const Application *get_instance();
 

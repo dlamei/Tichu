@@ -22,20 +22,27 @@ struct ConnectionPanelInput {
 };
 
 
-void show_connection_panel(ConnectionPanelInput *input);
+void show_connection_panel(ConnectionPanelInput &input);
+
+enum class MessageType {
+    ERROR,
+    WARN,
+    INFO,
+};
 
 // a popup message box, e.g ERROR, WARNING, INFO, etc...
 class MessageBox {
 public:
-    // title containing the imgui id, look at imgui docks for more info
-    std::string title {};
+    MessageType type;
+    // unique id for this message box
+    size_t id;
     // the text contained in the MessageBox
     std::string message;
-    // tells the owner of this object to discard it
-    bool close {false};
+    // tells the owner of this object that this message box should close
+    bool should_close { false };
 
-    explicit MessageBox(std::string msg)
-        : message(std::move(msg)), title("MessageBox###" + std::to_string(COUNT++)) {}
+    explicit MessageBox(MessageType typ, std::string msg)
+        : message(std::move(msg)), id(COUNT++), type(typ) {}
 
         // draws the imgui widget
     void on_imgui();
@@ -43,6 +50,11 @@ public:
 private:
 
     inline static size_t COUNT = 0;
+};
+
+enum Panel {
+    CONNECTION_PANEL = 1 << 0,
+    GAME_PANEL = 1 << 1,
 };
 
 class TichuGame : public Layer {
@@ -57,10 +69,11 @@ private:
 
     void show_message_boxes();
 
+    Panel _state {Panel::CONNECTION_PANEL};
+
     ConnectionPanelInput _connection_input{};
     // all message boxes currently shown. item should be removed if close field is true
     std::vector<MessageBox> _messages{};
-
 };
 
 #endif //TICHUUI_TICHU_H

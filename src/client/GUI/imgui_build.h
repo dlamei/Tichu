@@ -30,10 +30,10 @@ namespace ImGui {
     const ImVec4 YELLOW = ImVec4(0.78f, 0.75f, 0.25f, 1.0f);
     const ImVec4 BLUE = ImVec4(0.0f, 0.27f, 0.8f, 1.0f);
     const ImVec4 MAGENTA = ImVec4(0.25f, 0.1f, 0.35f, 1.0f);
-    const ImVec4 ORANGE_COL = ImVec4(0.95f, 0.4f, 0.12f, 1.0f);
+    const ImVec4 ORANGE = ImVec4(0.95f, 0.4f, 0.12f, 1.0f);
 
     const ImVec4 LIGHT_MAGENTA = MAGENTA + LIGHTEN;
-    const ImVec4 LIGHT_ORANGE = ORANGE_COL + LIGHTEN;
+    const ImVec4 LIGHT_ORANGE = ORANGE + LIGHTEN;
     const ImVec4 LIGHT_RED = RED + LIGHTEN;
     const ImVec4 LIGHT_GREEN = GREEN + LIGHTEN;
     const ImVec4 LIGHT_YELLOW = YELLOW + LIGHTEN;

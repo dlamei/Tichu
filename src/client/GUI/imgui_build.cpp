@@ -17,7 +17,7 @@ namespace ImGui {
         const auto BACKGROUND = BLACK;
 
         const auto ACCENT = RED;
-        const auto ACCENT_HOVER = ORANGE_COL;
+        const auto ACCENT_HOVER = ORANGE;
 
         ImGui::StyleColorsDark();
 
