@@ -6,6 +6,7 @@
 #include <imgui_impl_glfw.h>
 #include <GLFW/glfw3.h>
 
+// embed font in executable
 const uint8_t c_RobotRegular[] = {
 #include "font.embed"
 };
@@ -13,9 +14,9 @@ const uint8_t c_RobotRegular[] = {
 namespace ImGui {
 
     void SetOneDarkTheme() {
-        const auto BACKGROUND = BLACK_COL;
+        const auto BACKGROUND = BLACK;
 
-        const auto ACCENT = RED_COL;
+        const auto ACCENT = RED;
         const auto ACCENT_HOVER = ORANGE_COL;
 
         ImGui::StyleColorsDark();
@@ -24,9 +25,9 @@ namespace ImGui {
 
         style.WindowBorderSize = 0;
         style.PopupBorderSize = 0;
-        style.FramePadding = {10, 5};
-        style.FrameRounding = 12;
-        style.WindowRounding = 20;
+        style.FramePadding = {10, 10};
+        style.FrameRounding = 10;
+        style.WindowRounding = 10;
         style.TabRounding = 12;
         style.GrabRounding = 2;
         style.DockingSeparatorSize = 5;
@@ -35,25 +36,25 @@ namespace ImGui {
         colors[ImGuiCol_WindowBg] = BACKGROUND;
 
         // Headers
-        colors[ImGuiCol_Header] = DARK_GREY_COL;
-        colors[ImGuiCol_HeaderHovered] = GREY_COL;
-        colors[ImGuiCol_HeaderActive] = LIGHT_GREY_COL;
+        colors[ImGuiCol_Header] = DARK_GREY;
+        colors[ImGuiCol_HeaderHovered] = GREY;
+        colors[ImGuiCol_HeaderActive] = LIGHT_GREY;
         colors[ImGuiCol_MenuBarBg] = BACKGROUND;
 
         // Buttons
         colors[ImGuiCol_Button] = BACKGROUND;
-        colors[ImGuiCol_ButtonHovered] = LIGHT_GREY_COL;
-        colors[ImGuiCol_ButtonActive] = GREY_COL;
+        colors[ImGuiCol_ButtonHovered] = LIGHT_GREY;
+        colors[ImGuiCol_ButtonActive] = GREY;
 
         // Frame BG
-        colors[ImGuiCol_FrameBg] = DARK_GREY_COL;
-        colors[ImGuiCol_FrameBgHovered] = LIGHT_GREY_COL;
-        colors[ImGuiCol_FrameBgActive] = LIGHT_GREY_COL;
+        colors[ImGuiCol_FrameBg] = DARK_GREY;
+        colors[ImGuiCol_FrameBgHovered] = LIGHT_GREY;
+        colors[ImGuiCol_FrameBgActive] = LIGHT_GREY;
 
         // Seperator
         colors[ImGuiCol_SeparatorHovered] = ACCENT;
         colors[ImGuiCol_SeparatorActive] = ACCENT_HOVER;
-        colors[ImGuiCol_ResizeGrip] = GREY_COL;
+        colors[ImGuiCol_ResizeGrip] = GREY;
         colors[ImGuiCol_ResizeGripHovered] = ACCENT;
         colors[ImGuiCol_ResizeGripActive] = ACCENT_HOVER;
         colors[ImGuiCol_Border] = BACKGROUND;
@@ -64,7 +65,7 @@ namespace ImGui {
 
         // Docking
         colors[ImGuiCol_DockingPreview] = ACCENT;
-        colors[ImGuiCol_DockingEmptyBg] = DARK_GREY_COL;
+        colors[ImGuiCol_DockingEmptyBg] = DARK_GREY;
 
         // NavWindow
         colors[ImGuiCol_NavWindowingHighlight] = ACCENT;
@@ -76,19 +77,19 @@ namespace ImGui {
         colors[ImGuiCol_DragDropTarget] = ACCENT;
 
         // Tabs
-        colors[ImGuiCol_Tab] = LIGHT_GREY_COL;
-        colors[ImGuiCol_TabHovered] = DARK_GREY_COL;
+        colors[ImGuiCol_Tab] = LIGHT_GREY;
+        colors[ImGuiCol_TabHovered] = DARK_GREY;
         colors[ImGuiCol_TabActive] = BACKGROUND;
-        colors[ImGuiCol_TabUnfocused] = GREY_COL;
+        colors[ImGuiCol_TabUnfocused] = GREY;
         colors[ImGuiCol_TabUnfocusedActive] = BACKGROUND;
 
         // Title
-        colors[ImGuiCol_TitleBg] = GREY_COL;
-        colors[ImGuiCol_TitleBgActive] = LIGHT_GREY_COL;
-        colors[ImGuiCol_TitleBgCollapsed] = DARK_GREY_COL;
+        colors[ImGuiCol_TitleBg] = GREY;
+        colors[ImGuiCol_TitleBgActive] = LIGHT_GREY;
+        colors[ImGuiCol_TitleBgCollapsed] = DARK_GREY;
 
         // Navigation
-        colors[ImGuiCol_TextSelectedBg] = LIGHT_GREY_COL;
+        colors[ImGuiCol_TextSelectedBg] = LIGHT_GREY;
         colors[ImGuiCol_NavHighlight] = ACCENT;
     }
 
@@ -102,6 +103,9 @@ namespace ImGui {
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         io.ConfigDockingWithShift = true;
         //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
+        io.IniFilename = nullptr;
+        io.LogFilename = nullptr;
 
         ImGuiStyle &style = ImGui::GetStyle();
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {

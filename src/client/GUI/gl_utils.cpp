@@ -2,6 +2,7 @@
 #include <stb_image.h>
 #include <cstddef>
 #include <algorithm>
+#include <glm/gtc/type_ptr.hpp>
 #include "../../src/common/logging.h"
 
 #define INTERNAL_FORMAT GL_RGBA8
@@ -10,9 +11,12 @@
 #define GL_VERTEX_BUFFER GL_ARRAY_BUFFER
 #define GL_INDEX_BUFFER GL_ELEMENT_ARRAY_BUFFER
 
-void Vertex::bind_layout() {
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+void Vertex2D::bind_layout() {
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void *) offsetof(Vertex2D, pos));
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void *) offsetof(Vertex2D, uv));
+    glEnableVertexAttribArray(1);
 }
 
 namespace gl_utils {
@@ -29,6 +33,14 @@ namespace gl_utils {
 
     void resize_viewport(uint32_t width, uint32_t height) {
         glViewport(0, 0, width, height);
+    }
+
+    void draw_indexed(uint32_t index_count) {
+        glDrawElements(GL_TRIANGLES, (int)index_count, GL_UNSIGNED_INT, nullptr);
+    }
+
+    void draw(uint32_t vert_count) {
+        glDrawArrays(GL_TRIANGLES, 0, (int)vert_count);
     }
 
     void create_texture2d(uint32_t width, uint32_t height, uint32_t *id) {
@@ -117,8 +129,15 @@ namespace gl_utils {
     }
 }
 
+#define GET_ID(id, opt_shared_ptr)    \
+if (!opt_shared_ptr.has_value()) {     \
+    WARN("{} ({}): item was not initialized!", __FUNCTION__, #opt_shared_ptr); \
+    return;                         \
+}                                   \
+auto id = *opt_shared_ptr.value();
+
 Texture::~Texture() {
-    if (_gl_texture.has_value() && _gl_texture.value().unique()) {
+    if (_gl_texture.has_value() && _gl_texture.value().use_count() == 1) {
         glDeleteTextures(1, &*_gl_texture.value());
     }
 }
@@ -135,11 +154,7 @@ Texture::Texture(uint32_t width, uint32_t height, uint32_t n_channels, uint32_t 
 }
 
 void Texture::bind() {
-    if (!_gl_texture.has_value()) {
-        WARN("Texture::bind was not initialized!");
-        return;
-    }
-
+    GET_ID(id, _gl_texture);
     glBindTexture(GL_TEXTURE_2D, *_gl_texture.value());
 }
 
@@ -160,7 +175,7 @@ GLenum buffer_type_to_gl_enum(BufferType typ) {
         case BufferType::INDEX:
             return GL_INDEX_BUFFER;
         case BufferType::VERTEX:
-            return GL_ARRAY_BUFFER;
+            return GL_VERTEX_BUFFER;
         default:
             ASSERT(false, "found unknown BufferType");
     }
@@ -173,7 +188,7 @@ Buffer::Buffer(BufferType typ, uint32_t size, uint32_t stride, uint32_t gl_buffe
 }
 
 Buffer::~Buffer() {
-    if (_gl_buffer.has_value() && _gl_buffer.value().unique()) {
+    if (_gl_buffer.has_value() && _gl_buffer.value().use_count() == 1) {
         glDeleteBuffers(1, &*_gl_buffer.value());
     }
 }
@@ -189,19 +204,17 @@ Buffer Buffer::vertex(void *data, uint32_t size, uint32_t stride) {
     return Buffer { BufferType::VERTEX, size, stride, id};
 }
 
-Buffer Buffer::index(void *data, uint32_t size, uint32_t stride) {
+Buffer Buffer::index32(uint32_t *data, uint32_t size) {
     uint32_t id;
-    gl_utils::create_buffer(GL_INDEX_BUFFER, &id, data, size);
-    return Buffer { BufferType::INDEX, size, stride, id };
+    gl_utils::create_buffer(GL_INDEX_BUFFER, &id, data, size * sizeof(uint32_t));
+    return Buffer { BufferType::INDEX, size, sizeof(uint32_t), id };
 }
 
 void Buffer::bind() const {
-    if (!_gl_buffer.has_value()) {
-        WARN("Buffer::bind was not initialized!");
-        return;
-    }
+    GET_ID(id, _gl_buffer);
 
-    glBindBuffer(buffer_type_to_gl_enum(_typ), *_gl_buffer.value());
+    auto typ = buffer_type_to_gl_enum(_typ);
+    glBindBuffer(typ, id);
 }
 
 void Buffer::unbind(BufferType typ) {
@@ -222,40 +235,63 @@ Shader Shader::from_src(const char *vertex_src, const char *fragment_src) {
 }
 
 Shader::~Shader() {
-    if (_gl_shader.has_value() && _gl_shader.value().unique()) {
+    if (_gl_shader.has_value() && _gl_shader.value().use_count() == 1) {
         glDeleteProgram(*_gl_shader.value());
     }
 }
 
 void Shader::bind() {
-    if (!_gl_shader.has_value()) {
-        WARN("Shader::bind was not initialized!");
-        return;
-    }
-
-    glUseProgram(*_gl_shader.value());
+    GET_ID(id, _gl_shader);
+    glUseProgram(id);
 }
 
 void Shader::unbind() {
     glUseProgram(0);
 }
 
+int get_uniform_location(uint32_t id, const std::string &name) {
+    auto location = glGetUniformLocation(id, name.c_str());
+    if (location == -1) {
+        WARN("Could not find uniform {}", name);
+    }
+    return location;
+}
+
+void Shader::set_int(const std::string &name, int32_t value) {
+    GET_ID(id, _gl_shader);
+    glUseProgram(id);
+    int location = get_uniform_location(id, name);
+    glUniform1i(location, value);
+}
+
+void Shader::set_float(const std::string &name, float value) {
+    GET_ID(id, _gl_shader);
+    glUseProgram(id);
+    int location = get_uniform_location(id, name);
+    glUniform1f(location, value);
+}
+
+void Shader::set_mat4(const std::string &name, const glm::mat4 &mat) {
+    GET_ID(id, _gl_shader);
+    glUseProgram(id);
+    int location = get_uniform_location(id, name);
+    glUniformMatrix4fv(location, 1, false, glm::value_ptr(mat));
+}
+
 FrameBuffer::~FrameBuffer() {
-    if (_gl_frame_buffer.has_value() && _gl_frame_buffer.value().unique()) {
+    if (_gl_frame_buffer.has_value() && _gl_frame_buffer.value().use_count() == 1) {
         glDeleteFramebuffers(1, &*_gl_frame_buffer.value());
     }
 }
 
 void FrameBuffer::bind() {
-    if (!_gl_frame_buffer.has_value()) {
-        WARN("FrameBuffer::bind was not initialized!");
-        return;
-    }
+    GET_ID(id, _gl_frame_buffer);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, *_gl_frame_buffer.value());
-    int dw = (int)_width / 2;
-    int dh = (int)_height / 2;
-    glViewport(-dw, -dh, (int)_width, (int)_height);
+    glBindFramebuffer(GL_FRAMEBUFFER, id);
+    glViewport(0, 0, _width, _height);
+    //int dw = (int)_width / 2;
+    //int dh = (int)_height / 2;
+    //glViewport(-dw, -dh, (int)_width, (int)_height);
 }
 
 void FrameBuffer::unbind() {
@@ -285,8 +321,3 @@ FrameBuffer::FrameBuffer(uint32_t width, uint32_t height, uint32_t gl_frame_buff
     : _gl_frame_buffer(std::make_shared<uint32_t>(gl_frame_buffer)), _width(width), _height(height)
 {
 }
-
-void draw_impl(const Buffer &buffer) {
-    glDrawArrays(GL_TRIANGLES, 0, buffer.size() / buffer.stride());
-}
-

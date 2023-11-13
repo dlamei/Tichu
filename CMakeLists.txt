@@ -28,8 +28,8 @@ set(CLIENT_SOURCE_FILES
 		src/client/GUI/renderer.h
 		src/client/GUI/imgui_build.cpp
 		src/client/GUI/imgui_build.h
-		src/client/app/Tichu.h
-		src/client/app/Tichu.cpp
+        src/client/Tichu.h
+        src/client/Tichu.cpp
 )
 
 set(SERVER_SOURCE_FILES

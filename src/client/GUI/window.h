@@ -1,3 +1,7 @@
+//
+// light abstraction over glfw
+//
+
 #ifndef TICHU_WINDOW_H
 #define TICHU_WINDOW_H
 
@@ -7,6 +11,7 @@
 
 struct GLFWwindow;
 
+// helper struct for creating a window
 struct WindowCreateInfo {
     std::string title{ "Window Title" };
     uint32_t width { 100 }, height { 100 };
@@ -20,9 +25,11 @@ public:
     explicit Window(const WindowCreateInfo &info);
     void destroy();
 
+    // updates the window
     void on_update();
 
     double get_time();
+    // return true if the window was closed externally
     [[nodiscard]] bool should_close() const;
 
     void set_vsync(bool enable = true);
@@ -37,10 +44,7 @@ private:
 
     void init(const WindowCreateInfo &info);
 
-    void build_dock_frame() const;
-
     GLFWwindow *_window{};
-
     uint64_t _frame_count {0};
 };
 

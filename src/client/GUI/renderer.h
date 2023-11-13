@@ -5,6 +5,7 @@
 
 class RGB;
 
+// helper class for color
 class RGBA {
 public:
     RGBA();
@@ -39,6 +40,7 @@ inline bool operator!=(const RGBA &c1, const RGBA &c2) {
 
 std::ostream &operator<<(std::ostream &os, const RGBA &c);
 
+// helper class for color when alpha is assumed to be 255
 class RGB {
 public:
     RGB();
@@ -71,15 +73,31 @@ inline bool operator!=(const RGB &c1, const RGB &c2) {
 
 std::ostream &operator<<(std::ostream &os, const RGB &c);
 
+// provides some basic functions for simple immediate mode rendering
 namespace Renderer {
+    // initialize the renderer
     void init();
-    void update();
+    void flush();
+
+    void draw_rect(glm::vec2 pos, glm::vec2 size);
+    void draw_tri(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3);
+
+    // clear the screen with the given color
     void clear(RGBA clear_color);
 
+    // resize the framebuffer to the current size of the viewport
     void resize_frame_buffer();
+
+    // bind the main framebuffer
     void bind_frame_buffer();
+
+    // unbind framebuffer
     void unbind_frame_buffer();
+
+    // get the main framebuffer
     const FrameBuffer &get_frame_buffer();
+
+    void set_camera(float left, float right, float bottom, float top);
 
 }
 

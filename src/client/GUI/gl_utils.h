@@ -1,3 +1,9 @@
+//
+// helper functions and classes for opengl
+//
+
+
+
 #ifndef TICHU_GL_UTILS_H
 #define TICHU_GL_UTILS_H
 
@@ -9,9 +15,9 @@
 #include <optional>
 #include <filesystem>
 
-struct Vertex {
-    glm::vec3 pos;
-    //glm::vec2 uv;
+struct Vertex2D {
+    glm::vec2 pos;
+    glm::vec2 uv;
 
     static void bind_layout();
 };
@@ -20,8 +26,12 @@ namespace gl_utils {
 
     void init_opengl();
     void resize_viewport(uint32_t width, uint32_t height);
+
+    void draw(uint32_t vert_count);
+    void draw_indexed(uint32_t index_count);
 }
 
+// opengl texture that internally handles creating & destroying memory
 class Texture {
 public:
 
@@ -57,14 +67,22 @@ public:
 
     static Shader from_src(const char *vertex_src, const char *fragment_src);
 
+    // functions for setting shader unifroms
+    void set_int(const std::string &name, int32_t value);
+    void set_float(const std::string &name, float value);
+    void set_mat4(const std::string &name, const glm::mat4 &mat);
+
 private:
     explicit Shader(uint32_t gl_shader);
+
 
     std::optional<std::shared_ptr<uint32_t>> _gl_shader{};
 };
 
 enum class BufferType {
+    // index buffer
     INDEX,
+    // vertex buffer
     VERTEX,
     NONE,
 };
@@ -75,16 +93,23 @@ public:
     Buffer() = default;
     ~Buffer();
 
+    // get the number of elements in the buffer
+    [[nodiscard]] uint32_t count() const { return _size / _stride; }
+    // get the size of the entire buffer in bytes
     [[nodiscard]] uint32_t size() const { return _size; }
+    // get the size of a single element in bytes
     [[nodiscard]] uint32_t stride() const { return _stride; }
+    // get the type of the buffer
     [[nodiscard]] BufferType type() const { return _typ; }
     [[nodiscard]] uint32_t native_buffer() const { return *_gl_buffer.value(); }
 
     void bind() const;
     static void unbind(BufferType typ);
 
+    // vertex buffer constructor
     static Buffer vertex(void *data, uint32_t size, uint32_t stride);
-    static Buffer index(void *data, uint32_t size, uint32_t stride);
+    // index buffer constructor
+    static Buffer index32(uint32_t *data, uint32_t size);
 
     template<typename VERTEX>
     static Buffer vertex(VERTEX *data, uint32_t count) {
@@ -99,6 +124,7 @@ private:
     BufferType _typ { BufferType::NONE };
 };
 
+// opengl framebuffer abstraction. currently only allows for texture2D attachments
 class FrameBuffer {
 public:
 
@@ -121,14 +147,5 @@ private:
     std::optional<std::shared_ptr<uint32_t>> _gl_frame_buffer{};
     std::vector<Texture> _attachments{};
 };
-
-void draw_impl(const Buffer &buffer);
-
-template<typename VERTEX>
-void draw(const Buffer &buffer) {
-    buffer.bind();
-    VERTEX::bind_layout();
-    draw_impl(buffer);
-}
 
 #endif //TICHU_GL_UTILS_H

@@ -2,7 +2,7 @@
 #include "window.h"
 #include "renderer.h"
 #include "imgui_build.h"
-#include "../app/Tichu.h"
+#include "../Tichu.h"
 
 #include "../../common/logging.h"
 
@@ -25,48 +25,48 @@ Application::Application(const ApplicationCreateInfo &info) {
 }
 
 void Application::run() {
+    _last_frame_time = (float)_window->get_time();
+
     while (!_window->should_close()) {
         _window->on_update();
-
-        //Renderer::resize_frame_buffer();
-        //Renderer::bind_frame_buffer();
-
-        //Renderer::clear({200, 200, 100});
-        //Renderer::update();
-
-        //Renderer::unbind_frame_buffer();
-
-        ImGui::begin_frame();
-        build_dock_frame();
-
-        static ConnectionPanelInput input{};
-        show_connection_panel(&input);
-
-
-        //ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0.f, 0.f});
-        //ImGui::Begin("main", nullptr, ImGuiWindowFlags_NoTitleBar);
-        //ImGui::PopStyleVar();
-
-        //ImGui::BeginChild("main");
-        //auto viewportSize = ImGui::GetWindowSize();
-
-        //ImGui::Image(Renderer::get_frame_buffer().get_attachment(0), viewportSize);
-
-        //ImGui::EndChild();
-        //ImGui::End();
-
-        //ImGui::ShowDemoWindow();
-
-        ImGui::end_frame();
-
-        _frame_count += 1;
+        update();
     }
 }
 
+void Application::update() {
+
+    auto time = (float)_window->get_time();
+    auto time_step = TimeStep(time - _last_frame_time);
+    _last_frame_time = time;
+
+    ImGui::begin_frame();
+    build_dock_frame();
+
+    Renderer::resize_frame_buffer();
+    Renderer::bind_frame_buffer();
+
+    for (auto &layer : _layers) {
+        layer->on_imgui();
+        layer->on_update(time_step);
+    }
+
+    Renderer::flush();
+    Renderer::unbind_frame_buffer();
+
+    ImGui::end_frame();
+
+    _frame_count += 1;
+}
+
 Application::~Application() {
+    for (auto &layer : _layers) {
+        layer->on_detach();
+    }
+
     _window->destroy();
 }
 
+// creates a viewport window that is always in the background, called viewport
 void Application::build_dock_frame() {
 
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
@@ -96,7 +96,7 @@ void Application::build_dock_frame() {
 
         auto main_dock = ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_HiddenTabBar | ImGuiDockNodeFlags_NoDockingOverMe);
 
-        ImGui::DockBuilderDockWindow("main", main_dock);
+        ImGui::DockBuilderDockWindow("viewport", main_dock);
         ImGui::DockBuilderFinish(dockspace_id);
     }
 
@@ -105,9 +105,18 @@ void Application::build_dock_frame() {
     _viewport_size = glm::uvec2(viewport->Size.x, viewport->Size.y);
     auto win_size = _window->get_window_size();
     _window_size = { win_size.first, win_size.second };
+
+    auto win_pos = _window->get_mouse_pos();
+    _window_mouse_pos = {win_pos.first, win_pos.second};
 }
 
 const Application *Application::get_instance() {
     ASSERT(s_instance, "Application was not initialized");
     return s_instance;
 }
+
+void Application::push_layer(const std::shared_ptr<Layer> &layer) {
+    layer->on_attach();
+    _layers.push_back(layer);
+}
+
