@@ -1,22 +1,9 @@
-// undgramechosvr.cpp
-//
-// A simple multi-threaded TCP/IP UDP echo server for sockpp library.
-//
-// This runs a UDP echo server for both IPv4 and IPv6, each in a separate
-// thread. They both use the same port number, either as provided by the user
-// on the command line, or defaulting to 12345.
-//
-// USAGE:
-//  	undgramechosvr [port]
-//
-// You can test with a netcat client, like:
-// 		$ nc -u localhost 12345		# IPv4
-// 		$ nc -6u localhost 12345	# IPv6
+// can_socket.cpp
 //
 // --------------------------------------------------------------------------
 // This file is part of the "sockpp" C++ socket library.
 //
-// Copyright (c) 2019 Frank Pagliughi
+// Copyright (c) 2021 Frank Pagliughi
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -47,47 +34,60 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // --------------------------------------------------------------------------
 
-#include <iostream>
-#include "sockpp/unix_dgram_socket.h"
-#include "sockpp/version.h"
+#include "sockpp/can_socket.h"
+#include "sockpp/socket.h"
+#include <sys/ioctl.h>
+#include <linux/sockios.h>
 
 using namespace std;
+using namespace std::chrono;
 
-// --------------------------------------------------------------------------
-// The main thread creates the UDP socket, and then starts them running the
-// echo service in a loop.
+namespace sockpp {
 
-int main(int argc, char* argv[])
+/////////////////////////////////////////////////////////////////////////////
+
+can_socket::can_socket(const can_address& addr)
 {
-	cout << "Sample Unix-domain datagram echo server for 'sockpp' "
-		<< sockpp::SOCKPP_VERSION << '\n' << endl;
+	socket_t h = create_handle(SOCK_RAW, CAN_RAW);
 
-	sockpp::initialize();
-
-	sockpp::unix_dgram_socket sock;
-	if (!sock) {
-		cerr << "Error creating the socket: " << sock.last_error_str() << endl;
-		return 1;
+	if (check_socket_bool(h)) {
+		reset(h);
+		bind(addr);
 	}
-
-	if (!sock.bind(sockpp::unix_address("/tmp/undgramechosvr.sock"))) {
-		cerr << "Error binding the socket: " << sock.last_error_str() << endl;
-		return 1;
-	}
-
-	// Run the socket in this thread.
-	ssize_t n;
-	char buf[512];
-
-	sockpp::unix_address srcAddr;
-
-	cout << "Awaiting packets on: '" << sock.address() << "'" << endl;
-
-	// Read some data, also getting the address of the sender,
-	// then just send it back.
-	while ((n = sock.recv_from(buf, sizeof(buf), &srcAddr)) > 0)
-		sock.send_to(buf, n, srcAddr);
-
-	return 0;
 }
 
+system_clock::time_point can_socket::last_frame_time()
+{
+	timeval tv {};
+
+	// TODO: Handle error
+	::ioctl(handle(), SIOCGSTAMP, &tv);
+	return to_timepoint(tv);
+}
+
+double can_socket::last_frame_timestamp()
+{
+	timeval tv {};
+
+	// TODO: Handle error
+	::ioctl(handle(), SIOCGSTAMP, &tv);
+	return double(tv.tv_sec) + 1.0e-6 * tv.tv_usec;
+}
+
+
+// --------------------------------------------------------------------------
+
+ssize_t can_socket::recv_from(can_frame *frame, int flags,
+							  can_address* srcAddr /*=nullptr*/)
+{
+	sockaddr* p = srcAddr ? srcAddr->sockaddr_ptr() : nullptr;
+    socklen_t len = srcAddr ? srcAddr->size() : 0;
+
+	// TODO: Check returned length
+	return check_ret(::recvfrom(handle(), frame, sizeof(can_frame),
+								flags, p, &len));
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// End namespace sockpp
+}

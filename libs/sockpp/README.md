@@ -10,51 +10,49 @@ The base `socket` class wraps a system socket handle, and maintains its lifetime
 
 Currently supports: IPv4, IPv6, and Unix-Domain Sockets on Linux, Mac, and Windows. Other *nix and POSIX systems should work with little or no modification.
 
+There is also some experimental support for CAN bus programming on Linux using the SocketCAN package. This gives CAN bus adapters a network interface, with limitations dictated by the CAN message protocol.
+
 All code in the library lives within the `sockpp` C++ namespace.
 
 ## Latest News
 
 The library is reaching a stable API, and is on track for a 1.0 release in the near future. Until then, there may be a few more breaking changes, but hopefully those will be fewer than we have seen so far.
 
-On that note, despite being recently refactored and re-versioned at 0.x, earlier implementations of this library have been in use on production systems since ~2003, particularly with remote embedded Linux data loggers. Things that we now call IoT gateways and edge devices. It can be counted on to be reliable.
+On that note, despite being recently refactored and re-versioned at 0.x, earlier implementations of this library have been in use on production systems since ~2003, particularly with remote embedded Linux data loggers. Things that we now call IoT gateways and edge devices. It can be counted on to be reliable, and if not, please report an issue!
 
 To keep up with the latest announcements for this project, follow me at:
 
 **Twitter:** [@fmpagliughi](https://twitter.com/fmpagliughi)
 
-If you're using this library, tweet at me or send me a message, and let me know how you're using it.  I'm always curious to see where it's wound up!
+If you're using this library, tweet at me or send me a message, and let me know how you're using it.  I'm always curious to see where it winds up!
 
-## Unreleased Features in this Branch
+## New in v0.8.1
 
-The following updates exist in this branch in the repository, but have yet to be formally released:
+This release attempts to fix some of the outstanding build issues on Windows with MSVC and resolve some old issues and PR commits.
 
-- [#37] socket::get_option() not returning length on Windows.
-- [#39] Using *SSIZE_T* for *ssize_t* in Windows 
-- Now `acceptor::open()` uses the *SO_REUSEPORT* option instead of *SO_REUSEADDR* on non-Windows systenms. Also made reuse optional.
+- Cherry picked most of the non-TLS commits in PR [#17](https://github.com/fpagliughi/sockpp/pull/17)
+    - Connector timeouts
+    - Stateless reads & writes for streaming sockets w/ functions returning `ioresult`
+    - Some small bug fixes
+    - No shutdown on invalid sockets
+- [#38](https://github.com/fpagliughi/sockpp/issues/38) Made system libs public for static builds to fix Windows
+- [#73](https://github.com/fpagliughi/sockpp/issue/73) Clone a datagram (UDP) socket
+- [#74](https://github.com/fpagliughi/sockpp/issue/74) Added `<sys/time.h>` to properly get `timeval` in *nix builds.
+- [#56](https://github.com/fpagliughi/sockpp/issue/56) handling unix paths with maximum length (no NUL term)
+- Fixed outstanding build warnings on Windows when using MSVC
 
-## New in v0.7
 
-This release mainly targeted bug fixes, API inconsistencies, and numerous small features that had been overlooked previously.
+## New in v0.8.0
 
-- Base `socket` class
-    - `shutdown()` added
-    - `create()` added
-    - `bind()` moved into base socket (from `acceptor`)
-- Unix-domain socket pairs (stream and datagram)
-- Non-blocking I/O
-- Scatter/Gather I/O
-- `stream_socket` cloning.
-- Set and get socket options using template types.
-- `stream_socket::read_n()` and `write_n()` now properly handle EINTR return.
-- `to_timeval()` can convert from any `std::chrono::duration` type.
-- `socket::close()` and `shutdown()` check for errors, set last error, and return a bool.
-- _tcpechomt.cpp_: Example of a client sharing a socket between read and write threads - using `clone()`.
-- Windows enhancements:
-    - Implemented socket timeouts on Windows
-    - Fixed bug in Windows socket cloning.
-    - Fixed bug in Windows `socket::last_error_string`.
-    - Unit tests working on Windows
-- More unit tests
+This was primarily a release of code that had been sitting in the develop branch for nearly a year. That code mostly improved CMake functionality for downstream projects.
+
+- [Breaking] Library initializer now uses a static singleton created via `socket_initializer::initialize()` call, which can be called repeatedly with no ill effect. Also added global `socketpp::initialize()` function as shortcut.
+- Improvements to CMake to better follow modern standards.
+    - CMake required version bumped up to 3.12
+    - Generating CMake files for downstream projects (config, target, version)
+    - Windows builds default to shared DLL, not static library
+    - Lots of cleanup
+
 
 ## Contributing
 
@@ -64,8 +62,6 @@ For more information, refer to: [CONTRIBUTING.md](https://github.com/fpagliughi/
 
 ## TODO
 
-- **Unit Tests** - The framework for unit and regression tests is in place (using _Catch2_), along with the GitHub Travis CI integration. But the library could use a lot more tests.
-- **Consolidate Header Files** - The last round of refactoring left a large number of header files with a single line of code in each. This may be OK, in that it separates all the protocols and families, but seems a waste of space.
 - **Secure Sockets** - It would be extremely handy to have support for SSL/TLS built right into the library as an optional feature.
 - **SCTP** - The _SCTP_ protocol never caught on, but it seems intriguing, and might be nice to have in the library for experimentation, if not for some internal applications.
 
@@ -78,18 +74,22 @@ CMake is the supported build system.
 - A conforming C++-14 compiler.
     - _gcc_ v5.0 or later (or) _clang_ v3.8 or later.
     - _Visual Studio 2015_, or later on WIndows.
-- _CMake_ v3.5 or newer.
+- _CMake_ v3.12 or newer.
 - _Doxygen_ (optional) to generate API docs.
 - _Catch2_ (optional) to build and run unit tests.
 
-Build like this on Linux:
+To build with default options:
 
 ```
 $ cd sockpp
-$ mkdir build ; cd build
-$ cmake ..
-$ make
-$ sudo make install
+$ cmake -Bbuild .
+$ cmake --build build/
+```
+
+To install:
+
+```
+$ cmake --build build/ --target install
 ```
 
 ### Build Options
@@ -103,7 +103,15 @@ SOCKPP_BUILD_STATIC | OFF | Whether to build the static library
 SOCKPP_BUILD_DOCUMENTATION | OFF | Create and install the HTML based API documentation (requires _Doxygen)_
 SOCKPP_BUILD_EXAMPLES | OFF | Build example programs
 SOCKPP_BUILD_TESTS | OFF | Build the unit tests (requires _Catch2_)
+SOCKPP_BUILD_CAN | OFF | Build SocketCAN support. (Linux only)
 
+Set these using the '-D' switch in the CMake configuration command. For example, to build documentation and example apps:
+
+```
+$ cd sockpp
+$ cmake -Bbuild -DSOCKPP_BUILD_DOCUMENTATION=ON -DSOCKPP_BUILD_EXAMPLES=ON .
+$ cmake --build build/
+```
 
 ## TCP Sockets
 
@@ -115,7 +123,7 @@ For IPv4 the `tcp_acceptor` and `tcp_connector` classes are used to create serve
 
 ### TCP Server: `tcp_acceptor`
 
-The `tcp_acceptor` is used to set up a server and read_message for incoming connections.
+The `tcp_acceptor` is used to set up a server and listen for incoming connections.
 
     int16_t port = 12345;
     sockpp::tcp_acceptor acc(port);
@@ -151,16 +159,16 @@ See the [tcpechosvr.cpp](https://github.com/fpagliughi/sockpp/blob/master/exampl
 
 The TCP client is somewhat simpler in that a `tcp_connector` object is created and connected, then can be used to read and write data directly.
 
-    sockpp::tcp_connector _conn;
+    sockpp::tcp_connector conn;
     int16_t port = 12345;
 
-    if (!_conn.connect(sockpp::inet_address("localhost", port)))
-        report_error(_conn.last_error_str());
+    if (!conn.connect(sockpp::inet_address("localhost", port)))
+        report_error(conn.last_error_str());
 
-    _conn.write_n("Hello", 5);
+    conn.write_n("Hello", 5);
 
     char buf[16];
-    ssize_t n = _conn.read(buf, sizeof(buf));
+    ssize_t n = conn.read(buf, sizeof(buf));
 
 See the [tcpecho.cpp](https://github.com/fpagliughi/sockpp/blob/master/examples/tcp/tcpecho.cpp) example.
 
@@ -189,7 +197,7 @@ The same style of  connectors and acceptors can be used for TCP connections over
     tcp6_acceptor
     tcp6_socket
     udp6_socket
-    
+
 Examples are in the [examples/tcp](https://github.com/fpagliughi/sockpp/tree/master/examples/tcp) directory.
 
 ### Unix Domain Sockets
@@ -204,20 +212,56 @@ The same is true for local connection on *nix systems that implement Unix Domain
 
 Examples are in the [examples/unix](https://github.com/fpagliughi/sockpp/tree/master/examples/unix) directory.
 
+### SocketCAN (CAN bus on Linux)
+
+The Controller Area Network (CAN bus) is a relatively simple protocol typically used by microcontrollers to communicate inside an automobile or industrial machine. Linux has the _SocketCAN_ package which allows processes to share acces to a physical CAN bus interface using sockets in user space. See: [Linux SocketCAN](https://www.kernel.org/doc/html/latest/networking/can.html)
+
+At the lowest level, CAN devices write individual packets, called "frames" to a specific numeric addresses on the bus. 
+
+For examle a device with a temperature sensor might read the temperature persoidically and write it to the bus as a raw 32-bit integer, like:
+
+```
+can_address addr("CAN0");
+can_socket sock(addr);
+
+// The agreed ID to broadcast temperature on the bus
+canid_t canID = 0x40;
+
+while (true) {
+    this_thread::sleep_for(1s);
+
+    // Write the time to the CAN bus as a 32-bit int
+    int32_t t = read_temperature();
+
+    can_frame frame { canID, &t, sizeof(t) };
+    sock.send(frame);
+}
+```
+
+A receiver to get a frame might look like this:
+
+```
+can_address addr("CAN0");
+can_socket sock(addr);
+
+can_frame frame;
+sock.recv(&frame);
+```
+
 ## Implementation Details
 
-The socket class hierarchy is built upon a base `socket` class. Most simple applications will probably not use `socket` directly, but rather use top-level classes defined for a specific address family like `tcp_connector` and `tcp_acceptor`.
+The socket class hierarchy is built upon a base `socket` class. Most simple applications will probably not use `socket` directly, but rather use derived classes defined for a specific address family like `tcp_connector` and `tcp_acceptor`.
 
 The socket objects keep a handle to an underlying OS socket handle and a cached value for the last error that occurred for that socket. The socket handle is typically an integer file descriptor, with values >=0 for open sockets, and -1 for an unopened or invalid socket. The value used for unopened sockets is defined as a constant, `INVALID_SOCKET`, although it usually doesn't need to be tested directly, as the object itself will evaluate to _false_ if it's uninitialized or in an error state. A typical error check would be like this:
 
-    tcp_connector _conn({"localhost", 12345});
+    tcp_connector conn({"localhost", 12345});
 
-    if (!_conn)
-        cerr << _conn.last_error_str() << std::endl;
+    if (!conn)
+        cerr << conn.last_error_str() << std::endl;
 
 The default constructors for each of the socket classes do nothing, and simply set the underlying handle to `INVALID_SOCKET`. They do not create a socket object. The call to actively connect a `connector` object or open an `acceptor` object will create an underlying OS socket and then perform the requested operation.
 
-An application can generally perform most low-level operations with the library. Unconnected and unbound sockets can be created with the static `create()` function in most of the classes, and then manually bind and read_message on those sockets.
+An application can generally perform most low-level operations with the library. Unconnected and unbound sockets can be created with the static `create()` function in most of the classes, and then manually bind and listen on those sockets.
 
 The `socket::handle()` method exposes the underlying OS handle which can then be sent to any platform API call that is not exposed by the library.
 
@@ -242,11 +286,11 @@ It is a common patern, especially in client applications, to have one thread to 
 
 The solution for this case is to use the `socket::clone()` method to make a copy of the socket. This will use the system's `dup()` function or similar create another socket with a duplicated copy of the socket handle. This has the added benefit that each copy of the socket can maintain an independent lifetime. The underlying socket will not be closed until both objects go out of scope.
 
-    sockpp::tcp_connector _conn({host, port});
-    
-    auto rdSock = _conn.clone();
+    sockpp::tcp_connector conn({host, port});
+
+    auto rdSock = conn.clone();
     std::thread rdThr(read_thread_func, std::move(rdSock));
 
-The `socket::shutdown()` method can be used to communicate the intent to close the socket from one of these objects to the other without needing another thread signaling mechanism. 
+The `socket::shutdown()` method can be used to communicate the intent to close the socket from one of these objects to the other without needing another thread signaling mechanism.
 
 See the [tcpechomt.cpp](https://github.com/fpagliughi/sockpp/blob/master/examples/tcp/tcpechomt.cpp) example.

@@ -1,22 +1,9 @@
-// undgramechosvr.cpp
-//
-// A simple multi-threaded TCP/IP UDP echo server for sockpp library.
-//
-// This runs a UDP echo server for both IPv4 and IPv6, each in a separate
-// thread. They both use the same port number, either as provided by the user
-// on the command line, or defaulting to 12345.
-//
-// USAGE:
-//  	undgramechosvr [port]
-//
-// You can test with a netcat client, like:
-// 		$ nc -u localhost 12345		# IPv4
-// 		$ nc -6u localhost 12345	# IPv6
+// can_address.cpp
 //
 // --------------------------------------------------------------------------
 // This file is part of the "sockpp" C++ socket library.
 //
-// Copyright (c) 2019 Frank Pagliughi
+// Copyright (c) 2014-2021 Frank Pagliughi
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -47,47 +34,71 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // --------------------------------------------------------------------------
 
-#include <iostream>
-#include "sockpp/unix_dgram_socket.h"
-#include "sockpp/version.h"
+#include "sockpp/can_address.h"
+#include "sockpp/socket.h"
+#include <cstring>
+#include <stdexcept>
+#include <sys/ioctl.h>
+#include <net/if.h>
 
 using namespace std;
 
+namespace sockpp {
+
+/////////////////////////////////////////////////////////////////////////////
+
+constexpr sa_family_t can_address::ADDRESS_FAMILY;
+
 // --------------------------------------------------------------------------
-// The main thread creates the UDP socket, and then starts them running the
-// echo service in a loop.
 
-int main(int argc, char* argv[])
+can_address::can_address(unsigned ifindex) : addr_{}
 {
-	cout << "Sample Unix-domain datagram echo server for 'sockpp' "
-		<< sockpp::SOCKPP_VERSION << '\n' << endl;
-
-	sockpp::initialize();
-
-	sockpp::unix_dgram_socket sock;
-	if (!sock) {
-		cerr << "Error creating the socket: " << sock.last_error_str() << endl;
-		return 1;
-	}
-
-	if (!sock.bind(sockpp::unix_address("/tmp/undgramechosvr.sock"))) {
-		cerr << "Error binding the socket: " << sock.last_error_str() << endl;
-		return 1;
-	}
-
-	// Run the socket in this thread.
-	ssize_t n;
-	char buf[512];
-
-	sockpp::unix_address srcAddr;
-
-	cout << "Awaiting packets on: '" << sock.address() << "'" << endl;
-
-	// Read some data, also getting the address of the sender,
-	// then just send it back.
-	while ((n = sock.recv_from(buf, sizeof(buf), &srcAddr)) > 0)
-		sock.send_to(buf, n, srcAddr);
-
-	return 0;
+	addr_.can_family = AF_CAN;
+	addr_.can_ifindex = ifindex;
 }
 
+can_address::can_address(const string& iface) : addr_{}
+{
+	unsigned idx = if_nametoindex(iface.c_str());
+
+	if (idx != 0) {
+		addr_.can_family = AF_CAN;
+		addr_.can_ifindex = idx;
+	}
+}
+
+can_address::can_address(const sockaddr& addr)
+{
+    auto domain = addr.sa_family;
+    if (domain != AF_CAN)
+        throw std::invalid_argument("Not a SocketCAN address");
+
+    std::memcpy(&addr_, &addr, sizeof(sockaddr));
+}
+
+string can_address::iface() const
+{
+	if (addr_.can_family == AF_UNSPEC)
+		return string("none");
+
+	if (addr_.can_ifindex == 0)
+		return string("any");
+
+	char buf[IF_NAMESIZE];
+	const char* iface = if_indextoname(addr_.can_ifindex, buf);
+
+	return string(iface ? iface : "unknown");
+}
+
+
+// --------------------------------------------------------------------------
+
+ostream& operator<<(ostream& os, const can_address& addr)
+{
+	os << "can:" << addr.iface();
+	return os;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// End namespace sockpp
+}

@@ -3,6 +3,7 @@ cmake-build-debug-wsl/
 build
 .idea
 .vscode
+.vs
 .cache
 
 CMakeCache.txt

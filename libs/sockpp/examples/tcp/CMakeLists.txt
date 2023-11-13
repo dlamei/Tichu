@@ -6,7 +6,7 @@
 # ---------------------------------------------------------------------------
 # This file is part of the "sockpp" C++ socket library.
 #
-# Copyright (c) 2017-2018 Frank Pagliughi
+# Copyright (c) 2017-2022 Frank Pagliughi
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -44,45 +44,43 @@ find_package(Threads REQUIRED)
 
 # --- Executables ---
 
-# IPv4
+set(THREADED_EXECUTABLES
+  tcpechosvr
+  tcpechomt
+  tcp6echosvr
+)
 
-add_executable(tcpechosvr tcpechosvr.cpp)
-add_executable(tcpecho tcpecho.cpp)
-add_executable(tcpechotest tcpechotest.cpp)
-add_executable(tcpechomt tcpechomt.cpp)
-
-# IPv6
-
-add_executable(tcp6echosvr tcp6echosvr.cpp)
-add_executable(tcp6echo tcp6echo.cpp)
-
-# --- Link for executables ---
-
-message(STATUS "Using library for samples: ${SOCKPP_LIB}")
-
-target_link_libraries(tcpechosvr ${SOCKPP_LIB} Threads::Threads)
-target_link_libraries(tcpecho ${SOCKPP_LIB})
-target_link_libraries(tcpechotest ${SOCKPP_LIB})
-target_link_libraries(tcpechomt ${SOCKPP_LIB} Threads::Threads)
-
-target_link_libraries(tcp6echosvr ${SOCKPP_LIB} Threads::Threads)
-target_link_libraries(tcp6echo ${SOCKPP_LIB})
-
-
-# --- Install ---
-
-set(INSTALL_TARGETS
-	tcpechosvr
+set(EXECUTABLES
 	tcpecho
 	tcpechotest
-	tcpechomt
-	tcp6echosvr
 	tcp6echo
+  ${THREADED_EXECUTABLES}
 )
 
+foreach(EXECUTABLE ${EXECUTABLES})
+	add_executable(${EXECUTABLE} ${EXECUTABLE}.cpp)
+	
+	target_include_directories(${EXECUTABLE}
+		PUBLIC
+			${SOCKPP_INCLUDE_DIR}
+		PRIVATE
+			${SOCKPP_GENERATED_DIR}/include
+	)
+	
+  set_target_properties(${EXECUTABLE} PROPERTIES
+    CXX_EXTENSIONS OFF
+  )
 
-install(TARGETS ${INSTALL_TARGETS}
-	RUNTIME DESTINATION bin
-	LIBRARY DESTINATION lib
-)
+	target_link_libraries(${EXECUTABLE} ${SOCKPP_LIB})
+endforeach()
+
+# --- Additional linkage to Threads ---
+
+foreach(EXECUTABLE ${THREADED_EXECUTABLES})
+  target_link_libraries(${EXECUTABLE} Threads::Threads)
+endforeach()
+
+# --- Install examples ---
+
+install(TARGETS ${EXECUTABLES} RUNTIME DESTINATION bin)
 

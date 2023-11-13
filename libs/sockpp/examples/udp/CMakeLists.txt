@@ -44,29 +44,39 @@ find_package(Threads REQUIRED)
 
 # --- Executables ---
 
-add_executable(udpechosvr udpechosvr.cpp)
-add_executable(udpecho udpecho.cpp)
-add_executable(udp6echo udp6echo.cpp)
+set(THREADED_EXECUTABLES
+  udpechosvr
+)
 
-# --- Link for executables ---
-
-message(STATUS "Using library for samples: ${SOCKPP_LIB}")
-
-target_link_libraries(udpechosvr ${SOCKPP_LIB} Threads::Threads)
-target_link_libraries(udpecho ${SOCKPP_LIB})
-target_link_libraries(udp6echo ${SOCKPP_LIB})
-
-# --- Install ---
-
-set(INSTALL_TARGETS
-	udpechosvr
+set(EXECUTABLES
 	udpecho
 	udp6echo
+  ${THREADED_EXECUTABLES}
 )
 
-install(TARGETS ${INSTALL_TARGETS}
-	RUNTIME DESTINATION bin
-	LIBRARY DESTINATION lib
-)
+foreach(EXECUTABLE ${EXECUTABLES})
+	add_executable(${EXECUTABLE} ${EXECUTABLE}.cpp)
+	
+	target_include_directories(${EXECUTABLE}
+		PUBLIC
+			${SOCKPP_INCLUDE_DIR}
+		PRIVATE
+			${SOCKPP_GENERATED_DIR}/include
+	)
+	
+  set_target_properties(${EXECUTABLE} PROPERTIES
+    CXX_EXTENSIONS OFF
+  )
 
+	target_link_libraries(${EXECUTABLE} ${SOCKPP_LIB})
+endforeach()
 
+# --- Additional linkage to Threads ---
+
+foreach(EXECUTABLE ${THREADED_EXECUTABLES})
+  target_link_libraries(${EXECUTABLE} Threads::Threads)
+endforeach()
+
+# --- Install examples ---
+
+install(TARGETS ${EXECUTABLES} RUNTIME DESTINATION bin)

@@ -65,36 +65,10 @@ timeval to_timeval(const microseconds& dur)
 }
 
 /////////////////////////////////////////////////////////////////////////////
-//								socket
+//							socket_initializer
 /////////////////////////////////////////////////////////////////////////////
 
-int socket::get_last_error()
-{
-	#if defined(_WIN32)
-		return ::WSAGetLastError();
-	#else
-		int err = errno;
-		return err;
-	#endif
-}
-
-// --------------------------------------------------------------------------
-
-bool socket::close(socket_t h)
-{
-	#if defined(_WIN32)
-		return ::closesocket(h) >= 0;
-	#else
-		return ::close(h) >= 0;
-	#endif
-}
-
-// --------------------------------------------------------------------------
-// Closes the socket and updates the last error on failure.
-
-// --------------------------------------------------------------------------
-
-void socket::initialize()
+socket_initializer::socket_initializer()
 {
 	#if defined(_WIN32)
 		WSADATA wsadata;
@@ -105,12 +79,30 @@ void socket::initialize()
 	#endif
 }
 
-// --------------------------------------------------------------------------
-
-void socket::destroy()
+socket_initializer::~socket_initializer()
 {
 	#if defined(_WIN32)
 		::WSACleanup();
+	#endif
+}
+
+// --------------------------------------------------------------------------
+
+void initialize()
+{
+	socket_initializer::initialize();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//									socket
+/////////////////////////////////////////////////////////////////////////////
+
+bool socket::close(socket_t h)
+{
+	#if defined(_WIN32)
+		return ::closesocket(h) >= 0;
+	#else
+		return ::close(h) >= 0;
 	#endif
 }
 
@@ -130,16 +122,55 @@ socket socket::clone() const
 {
 	socket_t h = INVALID_SOCKET;
 	#if defined(_WIN32)
-		WSAPROTOCOL_INFO protInfo;
-		if (::WSADuplicateSocket(handle_, ::GetCurrentProcessId(), &protInfo) == 0)
-			h = ::WSASocket(AF_INET, SOCK_STREAM, 0, &protInfo, 0, WSA_FLAG_OVERLAPPED);
-		// TODO: Set lastErr_ on failure
+		WSAPROTOCOL_INFOW protInfo;
+		if (::WSADuplicateSocketW(handle_, ::GetCurrentProcessId(), &protInfo) == 0)
+			h = check_socket(::WSASocketW(AF_INET, SOCK_STREAM, 0, &protInfo,
+                                          0, WSA_FLAG_OVERLAPPED));
 	#else
 		h = ::dup(handle_);
 	#endif
 
 	return socket(h); 
 }
+
+// --------------------------------------------------------------------------
+
+#if !defined(_WIN32)
+
+int socket::get_flags() const
+{
+	int flags = ::fcntl(handle_, F_GETFL, 0);
+	lastErr_ = (flags == -1) ? get_last_error() : 0;
+	return flags;
+}
+
+bool socket::set_flags(int flags)
+{
+	if (::fcntl(handle_, F_SETFL, flags) == -1) {
+		set_last_error();
+		return false;
+	}
+	return true;
+}
+
+bool socket::set_flag(int flag, bool on /*=true*/)
+{
+	int flags = get_flags();
+	if (flags == -1) {
+		return false;
+	}
+
+	flags = on ? (flags | flag) : (flags & ~flag);
+	return set_flags(flags);
+}
+
+bool socket::is_non_blocking() const
+{
+	int flags = get_flags();
+	return (flags == -1) ? false : ((flags & O_NONBLOCK) != 0);
+}
+
+#endif
 
 // --------------------------------------------------------------------------
 
@@ -164,8 +195,6 @@ std::tuple<socket, socket> socket::pair(int domain, int type, int protocol /*=0*
 		sock0.clear(ENOTSUP);
 		sock1.clear(ENOTSUP);
 	#endif
-
-	// TODO: Should we set an "unsupported" error on Windows?
 
 	return std::make_tuple<socket, socket>(std::move(sock0), std::move(sock1));
 }
@@ -259,25 +288,7 @@ bool socket::set_non_blocking(bool on /*=true*/)
 		unsigned long mode = on ? 1 : 0;
 		return check_ret_bool(::ioctlsocket(handle_, FIONBIO, &mode));
 	#else
-		/**
-		 * TODO: Consider a generic function:
-		 *   bool set_flag(int flag, bool on=true);
-		 * Used like:
-		 *   set_flag(O_NONBLOCK, on);
-		 */
-		int flags = ::fcntl(handle_, F_GETFL, 0);
-
-		if (flags == -1) {
-			set_last_error();
-			return false;
-		}
-		flags = on ? (flags | O_NONBLOCK) : (flags & ~O_NONBLOCK);
-
-		if (::fcntl(handle_, F_SETFL, flags) == -1) {
-			set_last_error();
-			return false;
-		}
-		return true;
+		return set_flag(O_NONBLOCK, on);
 	#endif
 }
 
@@ -294,7 +305,11 @@ std::string socket::error_str(int err)
 
 bool socket::shutdown(int how /*=SHUT_RDWR*/)
 {
-	return check_ret_bool(::shutdown(handle_, how));
+	if(handle_ != INVALID_SOCKET) {
+		return check_ret_bool(::shutdown(release(), how));
+	}
+
+	return false;
 }
 
 // --------------------------------------------------------------------------
@@ -310,6 +325,7 @@ bool socket::close()
 	}
 	return true;
 }
+
 
 /////////////////////////////////////////////////////////////////////////////
 // End namespace sockpp

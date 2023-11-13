@@ -48,6 +48,7 @@
 #define __sockpp_socket_h
 
 #include "sockpp/sock_address.h"
+#include "sockpp/result.h"
 #include <chrono>
 #include <string>
 #include <tuple>
@@ -62,14 +63,107 @@ namespace sockpp {
 	#define SOCKPP_SOCKET_T_DEFINED
 #endif
 
-
+/**
+ * Converts a number of microseconds to a relative timeval.
+ * @param dur A chrono duration of microseconds.
+ * @return A timeval
+ */
 timeval to_timeval(const std::chrono::microseconds& dur);
 
+/**
+ * Converts a chrono duration to a relative timeval.
+ * @param dur A chrono duration.
+ * @return A timeval.
+ */
 template<class Rep, class Period>
 timeval to_timeval(const std::chrono::duration<Rep,Period>& dur) {
 	return to_timeval(std::chrono::duration_cast<std::chrono::microseconds>(dur));
 }
 
+/**
+ * Converts a relative timeval to a chrono duration.
+ * @param tv A timeval.
+ * @return A chrono duration.
+ */
+inline std::chrono::microseconds to_duration(const timeval& tv)
+{
+    auto dur = std::chrono::seconds{tv.tv_sec}
+				+ std::chrono::microseconds{tv.tv_usec};
+    return std::chrono::duration_cast<std::chrono::microseconds>(dur);
+}
+
+/**
+ * Converts an absolute timeval to a chrono time_point.
+ * @param tv A timeval.
+ * @return A chrono time_point.
+ */
+inline std::chrono::system_clock::time_point to_timepoint(const timeval& tv)
+{
+	return std::chrono::system_clock::time_point {
+        std::chrono::duration_cast<std::chrono::system_clock::duration>(to_duration(tv))
+	};
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//							socket_initializer
+/////////////////////////////////////////////////////////////////////////////
+
+/**
+ * RAII singleton class to initialize and then shut down the library.
+ *
+ * The singleton object of this class should be created before any other
+ * classes in the library are used.
+ *
+ * This is only required on some platforms, particularly Windows, but is
+ * harmless on other platforms. On some, such as POSIX, the initializer sets
+ * optional parameters for the library, and the destructor does nothing.
+ */
+class socket_initializer
+{
+	/** Initializes the sockpp library */
+	socket_initializer();
+
+	socket_initializer(const socket_initializer&) =delete;
+	socket_initializer& operator=(const socket_initializer&) =delete;
+
+	friend class socket;
+
+public:
+	/**
+	 * Creates the initializer singleton on the first call as a static
+	 * object which will get destructed on program termination with the
+	 * other static objects in reverse order as they were created,
+	 */
+	static void initialize() {
+		static socket_initializer sock_init;
+	}
+	/**
+	 * Destructor shuts down the sockpp library.
+	 */
+	~socket_initializer();
+};
+
+/**
+ * Initializes the sockpp library.
+ *
+ * This initializes the library by creating a static singleton
+ * RAII object which does any platform-specific initialization the first
+ * time it's call in a process, and then performs cleanup automatically
+ * when the object is destroyed at program termination.
+ *
+ * This should be call at least once before any other sockpp objects are
+ * created or used. It can be called repeatedly with subsequent calls
+ * having no effect
+ *
+ * This is primarily required for Win32, to startup the WinSock DLL.
+ *
+ * On Unix-style platforms it disables SIGPIPE signals. Errors are handled
+ * by functon return values and exceptions.
+ */
+void initialize();
+
+/////////////////////////////////////////////////////////////////////////////
+//									socket
 /////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -98,6 +192,8 @@ class socket
 	socket(const socket&) =delete;
 	socket& operator=(const socket&) =delete;
 
+    friend class ioresult;
+
 protected:
 	/**
 	 * Closes the socket without checking for errors or updating the last
@@ -118,7 +214,9 @@ protected:
 	 * lastErr_ member variable. Normally this would be called from
 	 * @ref check_ret.
 	 */
-	static int get_last_error();
+	static int get_last_error() {
+		return ioresult::get_last_error();
+	}
 	/**
 	 * Cache the last system error code into this object.
 	 * This should be called after a failed system call to store the error
@@ -142,7 +240,7 @@ protected:
      * Checks the value and if less than zero, sets last error. 
      * @tparam T A signed integer type of any size
 	 * @param ret The return value from a library or system call.
-	 * @return @em true if the value is a typical system _success value (>=0)
+	 * @return @em true if the value is a typical system success value (>=0)
 	 *  	   or @em false is is an error (<0)
 	 */
     template <typename T>
@@ -176,6 +274,15 @@ protected:
 		return ret != INVALID_SOCKET;
 	}
 
+	#if !defined(_WIN32)
+		/** Gets the flags on the socket handle. */
+		int get_flags() const;
+		/** Sets the flags on the socket handle. */
+		bool set_flags(int flags);
+		/** Sets a single flag on or off */
+		bool set_flag(int flag, bool on=true);
+	#endif
+
 public:
 	/**
 	 * Creates an unconnected (invalid) socket
@@ -202,17 +309,22 @@ public:
 	 */
 	virtual ~socket() { close(); }
 	/**
-	 * Initializes the socket (sockpp) library.
-	 * This is only required for Win32. On platforms that use a standard
-	 * socket implementation this is an empty call.
+	 * Creates an OS handle to a socket.
+	 *
+	 * This is normally only required for internal or diagnostics code.
+	 *
+	 * @param domain The communications domain for the sockets (i.e. the
+	 *  			 address family)
+	 * @param type The communication semantics for the sockets (SOCK_STREAM,
+	 *  		   SOCK_DGRAM, etc).
+	 * @param protocol The particular protocol to be used with the sockets
+	 *
+	 * @return An OS socket handle with the requested communications
+	 *  	   characteristics, or INVALID_SOCKET on failure.
 	 */
-	static void initialize();
-	/**
-	 * Shuts down the socket library.
-	 * This is only required for Win32. On platforms that use a standard
-	 * socket implementation this is an empty call.
-	 */
-	static void destroy();
+	static socket_t create_handle(int domain, int type, int protocol=0) {
+		return socket_t(::socket(domain, type, protocol));
+	}
 	/**
 	 * Creates a socket with the specified communications characterics.
 	 * Not that this is not normally how a socket is creates in the sockpp
@@ -333,7 +445,7 @@ public:
 	/**
 	 * Binds the socket to the specified address.
 	 * @param addr The address to which we get bound.
-	 * @return @em true on _success, @em false on error
+	 * @return @em true on success, @em false on error
 	 */
 	bool bind(const sock_address& addr);
 	/**
@@ -413,9 +525,15 @@ public:
 	 * complete (read, write, accept, etc) will return immediately with the
 	 * error EWOULDBLOCK.
 	 * @param on Whether to turn non-blocking mode on or off.
-	 * @return @em true on _success, @em false on failure.
+	 * @return @em true on success, @em false on failure.
 	 */
 	bool set_non_blocking(bool on=true);
+	#if !defined(_WIN32)
+		/**
+		 * Determines if the socket is non-blocking
+		 */
+		bool is_non_blocking() const;
+	#endif
     /**
      * Gets a string describing the specified error.
      * This is typically the returned message from the system strerror().
@@ -443,7 +561,7 @@ public:
 	 *  	@li SHUT_RD   (0) Further reads disallowed.
 	 *  	@li SHUT_WR   (1) Further writes disallowed
 	 *  	@li SHUT_RDWR (2) Further reads and writes disallowed.
-	 * @return @em true on _success, @em false on error.
+	 * @return @em true on success, @em false on error.
 	 */
 	bool shutdown(int how=SHUT_RDWR);
 	/**
@@ -452,26 +570,7 @@ public:
 	 * used again until reassigned.
 	 * @return @em true if the sock is closed, @em false on error.
 	 */
-	bool close();
-};
-
-/////////////////////////////////////////////////////////////////////////////
-
-/**
- * RAII class to initialize and then shut down the library.
- * A single object of this class can be declared before any other classes in
- * the library are used. The lifetime of the object should span the use of
- * the other classes in the library, so declaring an object at the top of
- * main() is usually the best choice.
- * This is only required on some platforms, particularly Windows, but is
- * harmless on other platforms. On some, such as POSIX, the initializer sets
- * optional parameters for the library, and the destructor does nothing.
- */
-class socket_initializer
-{
-public:
-	socket_initializer() { socket::initialize(); }
-	~socket_initializer() { socket::destroy(); }
+	virtual bool close();
 };
 
 /////////////////////////////////////////////////////////////////////////////

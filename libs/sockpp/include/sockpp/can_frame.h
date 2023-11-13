@@ -1,15 +1,19 @@
 /**
- * @file version.h
+ * @file can_frame.h
  *
- * Version information for the "sockpp" C++ socket library.
+ * Class for the Linux SocketCAN frames.
  *
- * This file is auto-generated from the CMake build.
+ * @author Frank Pagliughi
+ * @author SoRo Systems, Inc.
+ * @author www.sorosys.com
+ *
+ * @date March 2021
  */
 
 // --------------------------------------------------------------------------
 // This file is part of the "sockpp" C++ socket library.
 //
-// Copyright (c) 2019 Frank Pagliughi
+// Copyright (c) 2021 Frank Pagliughi
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,20 +44,60 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // --------------------------------------------------------------------------
 
-#ifndef __sockpp_version_h
-#define __sockpp_version_h
+#ifndef __sockpp_can_frame_h
+#define __sockpp_can_frame_h
 
+#include "sockpp/platform.h"
 #include <string>
+#include <cstring>
+//#include <sys/un.h>
+#include <linux/can.h>
 
 namespace sockpp {
 
-    constexpr int SOCKPP_VERSION_MAJOR = 0;
-    constexpr int SOCKPP_VERSION_MINOR = 7;
-    constexpr int SOCKPP_VERSION_PATCH = 0;
+/////////////////////////////////////////////////////////////////////////////
 
-    const std::string SOCKPP_VERSION { "v0.7.0" };
+/**
+ * Class that represents a Linux SocketCAN frame.
+ * This inherits from the Linux CAN frame struct, just providing easier
+   construction.
+ */
+class can_frame : public ::can_frame
+{
+	using base = ::can_frame;
 
+	/** The size of the underlying address struct, in bytes */
+	static constexpr size_t SZ = sizeof(::can_frame);
+
+public:
+	/**
+	 * Constructs an empty frame.
+	 * The frame is initialized to all zeroes.
+	 */
+	can_frame() : base{} {}
+	/**
+	 * Constructs a frame with the specified ID and data.
+	 * @param canID The CAN identifier for the frame
+	 * @param data The data field for the frame
+	 */
+	can_frame(canid_t canID, const std::string& data)
+		: can_frame{ canID, data.data(), data.length() } {}
+	/**
+	 * Constructs a frame with the specified ID and data.
+	 * @param canID The CAN identifier for the frame
+	 * @param data The data field for the frame
+	 * @param n The number of bytes in the data field
+	 */
+	can_frame(canid_t canID, const void* data, size_t n) : base{} {
+		this->can_id = canID;
+		this->can_dlc = n;
+		::memcpy(&this->data, data, n);
+	}
+};
+
+/////////////////////////////////////////////////////////////////////////////
+// end namespace sockpp
 }
 
-#endif		// __sockpp_version_h
+#endif		// __sockpp_can_frame_h
 

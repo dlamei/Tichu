@@ -54,7 +54,7 @@ namespace sockpp {
 
 /**
  * Class for creating a streaming server.
- * Objects of this class bind and read_message on streaming ports for incoming
+ * Objects of this class bind and listen on streaming ports for incoming
  * connections. Normally, a server thread creates one of these and blocks on
  * the call to accept incoming connections. The call to accept creates and
  * returns a @ref stream_socket which can then be used for the actual
@@ -113,7 +113,7 @@ public:
 	acceptor(acceptor&& acc) : base(std::move(acc)) {}
 	/**
 	 * Creates an unbound acceptor socket with an open OS socket handle.
-	 * An application would need to manually bind and read_message to this
+	 * An application would need to manually bind and listen to this
 	 * acceptor to get incoming connections.
 	 * @param domain The communications domain (address family).
 	 * @return An open, but unbound acceptor socket.
@@ -131,7 +131,7 @@ public:
 	/**
 	 * Sets the socket listening on the address to which it is bound.
 	 * @param queSize The listener queue size.
-	 * @return @em true on _success, @em false on error
+	 * @return @em true on success, @em false on error
 	 */
 	bool listen(int queSize=DFLT_QUE_SIZE) {
 		return check_ret_bool(::listen(handle(), queSize));
@@ -144,7 +144,7 @@ public:
 	 * @param reuseSock Whether the SO_REUSEPORT (or SO_REUSEADDR on Win32)
 	 *  				socket option should be used before binding and
 	 *  				listening.
-	 * @return @em true on _success, @em false on error
+	 * @return @em true on success, @em false on error
 	 */
 	bool open(const sock_address& addr, int queSize=DFLT_QUE_SIZE, bool reuseSock=true);
 	/**
@@ -189,7 +189,7 @@ public:
 	acceptor_tmpl() {}
 	/**
 	 * Creates a acceptor and starts it listening on the specified address.
-	 * @param addr The TCP address on which to read_message.
+	 * @param addr The TCP address on which to listen.
 	 * @param queSize The listener queue size.
 	 */
 	acceptor_tmpl(const addr_t& addr, int queSize=DFLT_QUE_SIZE) {
@@ -199,7 +199,7 @@ public:
 	 * Creates a acceptor and starts it listening on the specified port.
 	 * The acceptor binds to the specified port for any address on the local
 	 * host.
-	 * @param port The TCP port on which to read_message.
+	 * @param port The TCP port on which to listen.
 	 * @param queSize The listener queue size.
 	 */
 	acceptor_tmpl(in_port_t port, int queSize=DFLT_QUE_SIZE) {
@@ -213,7 +213,7 @@ public:
 	acceptor_tmpl(acceptor_tmpl&& acc) : base(std::move(acc)) {}
 	/**
 	 * Creates an unbound acceptor socket with an open OS socket handle.
-	 * An application would need to manually bind and read_message to this
+	 * An application would need to manually bind and listen to this
 	 * acceptor to get incoming connections.
 	 * @return An open, but unbound acceptor socket.
 	 */
@@ -237,7 +237,7 @@ public:
 	/**
 	 * Binds the socket to the specified address.
 	 * @param addr The address to which we get bound.
-	 * @return @em true on _success, @em false on error
+	 * @return @em true on success, @em false on error
 	 */
 	bool bind(const addr_t& addr) { return base::bind(addr); }
 	/**
@@ -245,7 +245,7 @@ public:
 	 * listening.
 	 * @param addr The address to which this server should be bound.
 	 * @param queSize The listener queue size.
-	 * @return @em true on _success, @em false on error
+	 * @return @em true on success, @em false on error
 	 */
 	bool open(const addr_t& addr, int queSize=DFLT_QUE_SIZE) {
 		return base::open(addr, queSize);
@@ -253,9 +253,9 @@ public:
 	/**
 	 * Opens the acceptor socket, binds the socket to all adapters and starts it
 	 * listening.
-	 * @param port The TCP port on which to read_message.
+	 * @param port The TCP port on which to listen.
 	 * @param queSize The listener queue size.
-	 * @return @em true on _success, @em false on error
+	 * @return @em true on success, @em false on error
 	 */
 	bool open(in_port_t port, int queSize=DFLT_QUE_SIZE) {
 		return open(addr_t(port), queSize);

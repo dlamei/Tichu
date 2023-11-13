@@ -1,22 +1,12 @@
-// undgramechosvr.cpp
+// canrecv.cpp
 //
-// A simple multi-threaded TCP/IP UDP echo server for sockpp library.
+// Linux SoxketCAN reader example.
 //
-// This runs a UDP echo server for both IPv4 and IPv6, each in a separate
-// thread. They both use the same port number, either as provided by the user
-// on the command line, or defaulting to 12345.
-//
-// USAGE:
-//  	undgramechosvr [port]
-//
-// You can test with a netcat client, like:
-// 		$ nc -u localhost 12345		# IPv4
-// 		$ nc -6u localhost 12345	# IPv6
 //
 // --------------------------------------------------------------------------
 // This file is part of the "sockpp" C++ socket library.
 //
-// Copyright (c) 2019 Frank Pagliughi
+// Copyright (c) 2021-2023 Frank Pagliughi
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -48,46 +38,57 @@
 // --------------------------------------------------------------------------
 
 #include <iostream>
-#include "sockpp/unix_dgram_socket.h"
+#include <iomanip>
+#include <string>
+#include <chrono>
+#include <thread>
+#include "sockpp/can_socket.h"
+#include "sockpp/can_frame.h"
 #include "sockpp/version.h"
+
+#include <net/if.h>
+#include <sys/ioctl.h>
 
 using namespace std;
 
+// The clock to use to get time and pace the app.
+using sysclock = chrono::system_clock;
+
 // --------------------------------------------------------------------------
-// The main thread creates the UDP socket, and then starts them running the
-// echo service in a loop.
 
 int main(int argc, char* argv[])
 {
-	cout << "Sample Unix-domain datagram echo server for 'sockpp' "
-		<< sockpp::SOCKPP_VERSION << '\n' << endl;
+	cout << "Sample SocketCAN reader for 'sockpp' "
+		<< sockpp::SOCKPP_VERSION << endl;
+
+	string canIface = (argc > 1) ? argv[1] : "can0";
+	canid_t canID = (argc > 2) ? atoi(argv[2]) : 0x20;
 
 	sockpp::initialize();
 
-	sockpp::unix_dgram_socket sock;
+	sockpp::can_address addr(canIface);
+	sockpp::can_socket sock(addr);
+
 	if (!sock) {
-		cerr << "Error creating the socket: " << sock.last_error_str() << endl;
+		cerr << "Error binding to the CAN interface '" << canIface << "'\n\t"
+			<< sock.last_error_str() << endl;
 		return 1;
 	}
 
-	if (!sock.bind(sockpp::unix_address("/tmp/undgramechosvr.sock"))) {
-		cerr << "Error binding the socket: " << sock.last_error_str() << endl;
-		return 1;
+	cout << "Created CAN socket on " << sock.address() << endl;
+	cout.setf(ios::fixed, ios::floatfield);
+	cout << setfill('0');
+
+	while (true) {
+		sockpp::can_frame frame;
+		sock.recv(&frame);
+		auto t = sock.last_frame_timestamp();
+
+		cout << t << "  ";
+		for (uint8_t i=0; i<frame.can_dlc; ++i)
+			cout << hex << uppercase << setw(2) << unsigned(frame.data[i]) << " ";
+		cout << endl;
 	}
 
-	// Run the socket in this thread.
-	ssize_t n;
-	char buf[512];
-
-	sockpp::unix_address srcAddr;
-
-	cout << "Awaiting packets on: '" << sock.address() << "'" << endl;
-
-	// Read some data, also getting the address of the sender,
-	// then just send it back.
-	while ((n = sock.recv_from(buf, sizeof(buf), &srcAddr)) > 0)
-		sock.send_to(buf, n, srcAddr);
-
-	return 0;
+	return (!sock) ? 1 : 0;
 }
-

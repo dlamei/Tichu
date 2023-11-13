@@ -1,19 +1,19 @@
 /**
- * @file unix_address.h
+ * @file can_address.h
  *
- * Class for a UNIX-domain socket address.
+ * Class for the Linux SocketCAN socket address.
  *
  * @author Frank Pagliughi
  * @author SoRo Systems, Inc.
  * @author www.sorosys.com
  *
- * @date February 2014
+ * @date March 2021
  */
 
 // --------------------------------------------------------------------------
 // This file is part of the "sockpp" C++ socket library.
 //
-// Copyright (c) 2014-2017 Frank Pagliughi
+// Copyright (c) 2014-2021 Frank Pagliughi
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -44,8 +44,8 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // --------------------------------------------------------------------------
 
-#ifndef __sockpp_unix_addr_h
-#define __sockpp_unix_addr_h
+#ifndef __sockpp_can_addr_h
+#define __sockpp_can_addr_h
 
 #include "sockpp/platform.h"
 #include "sockpp/sock_address.h"
@@ -53,81 +53,87 @@
 #include <string>
 #include <cstring>
 #include <sys/un.h>
+#include <linux/can.h>
 
 namespace sockpp {
 
 /////////////////////////////////////////////////////////////////////////////
 
 /**
- * Class that represents a UNIX domain address.
- * This inherits from the UNIX form of a socket address, @em sockaddr_un.
+ * Class that represents a Linux SocketCAN address.
+ * This inherits from the CAN form of a socket address, @em sockaddr_can.
  */
-class unix_address : public sock_address
+class can_address : public sock_address
 {
-	/** The underlying C struct for unix-domain addresses  */
-	sockaddr_un addr_;
+	/** The underlying C struct for SocketCAN addresses  */
+	sockaddr_can addr_;
 
 	/** The size of the underlying address struct, in bytes */
-	static constexpr size_t SZ = sizeof(sockaddr_un);
+	static constexpr size_t SZ = sizeof(sockaddr_can);
 
 public:
     /** The address family for this type of address */
-	static constexpr sa_family_t ADDRESS_FAMILY = AF_UNIX;
+	static constexpr sa_family_t ADDRESS_FAMILY = AF_CAN;
 
-	/** The max length of the file path */
-	static constexpr size_t MAX_PATH_NAME = sizeof(sockaddr_un::sun_path);
+	/** Iface to use to indicate binding to all interfaces */
+	static const unsigned ALL_IFACE = 0;
 
 	/**
 	 * Constructs an empty address.
 	 * The address is initialized to all zeroes.
 	 */
-	unix_address() : addr_() {}
+	can_address() : addr_() {}
 	/**
-	 * Constructs an address given the specified path.
-	 * @param path The path to the socket file.
+	 * Creates an address for binding to a specific CAN interface
+	 * @param ifindex The interface index to use. This must, obviously, be
+	 *  			  an index to a CAN interface.
 	 */
-	unix_address(const std::string& path);
+	explicit can_address(unsigned ifindex);
+	/**
+	 * Constructs an address for the specified CAN interface.
+	 * The interface might be "can0", "can1", "vcan0", etc.
+	 * @param iface The name of the CAN interface
+	 */
+	can_address(const std::string& iface);
 	/**
 	 * Constructs the address by copying the specified structure.
      * @param addr The generic address
-     * @throws std::invalid_argument if the address is not a UNIX-domain
-     *            address (i.e. family is not AF_UNIX)
+     * @throws std::invalid_argument if the address is not a SocketCAN
+     *            address (i.e. family is not AF_CAN)
 	 */
-	explicit unix_address(const sockaddr& addr);
+	explicit can_address(const sockaddr& addr);
 	/**
 	 * Constructs the address by copying the specified structure.
 	 * @param addr The other address
 	 */
-	unix_address(const sock_address& addr) {
+	can_address(const sock_address& addr) {
 		std::memcpy(&addr_, addr.sockaddr_ptr(), SZ);
 	}
 	/**
 	 * Constructs the address by copying the specified structure.
      * @param addr The other address
      * @throws std::invalid_argument if the address is not properly
-     *            initialized as a UNIX-domain address (i.e. family is not
-     *            AF_UNIX)
+     *            initialized as a SocketCAN address (i.e. family is not
+     *            AF_CAN)
 	 */
-	unix_address(const sockaddr_un& addr);
+	can_address(const sockaddr_can& addr) : addr_(addr) {}
 	/**
 	 * Constructs the address by copying the specified address.
 	 * @param addr The other address
 	 */
-	unix_address(const unix_address& addr) : addr_(addr.addr_) {}
+	can_address(const can_address& addr) : addr_(addr.addr_) {}
 	/**
 	 * Checks if the address is set to some value.
 	 * This doesn't attempt to determine if the address is valid, simply
 	 * that it's not all zero.
 	 * @return @em true if the address has been set, @em false otherwise.
 	 */
-	bool is_set() const { return addr_.sun_path[0] != '\0'; }
+	bool is_set() const { return family() != AF_UNSPEC; }
 	/**
-	 * Gets the path to which this address refers.
-	 * @return The path to which this address refers.
+	 * Gets the name of the CAN interface to which this address refers.
+	 * @return The name of the CAN interface to which this address refers.
 	 */
-	std::string path() const {
-		return std::string(addr_.sun_path, strnlen(addr_.sun_path, MAX_PATH_NAME));
-	}
+	std::string iface() const;
 	/**
 	 * Gets the size of the address structure.
 	 * Note: In this implementation, this should return sizeof(this) but
@@ -139,7 +145,7 @@ public:
 	socklen_t size() const override { return socklen_t(SZ); }
 
     // TODO: Do we need a:
-    //   create(path)
+    //   create(iface)
     // to mimic the inet_address behavior?
 
     /**
@@ -157,22 +163,22 @@ public:
 		return reinterpret_cast<sockaddr*>(&addr_);
 	}
 	/**
-	 * Gets a const pointer to this object cast to a @em sockaddr_un.
-	 * @return const sockaddr_un pointer to this object.
+	 * Gets a const pointer to this object cast to a @em sockaddr_can.
+	 * @return const sockaddr_can pointer to this object.
 	 */
-	const sockaddr_un* sockaddr_un_ptr() const { return &addr_; }
+	const sockaddr_can* sockaddr_can_ptr() const { return &addr_; }
 	/**
-	 * Gets a pointer to this object cast to a @em sockaddr_un.
-	 * @return sockaddr_un pointer to this object.
+	 * Gets a pointer to this object cast to a @em sockaddr_can.
+	 * @return sockaddr_can pointer to this object.
 	 */
-	sockaddr_un* sockaddr_un_ptr() { return &addr_; }
+	sockaddr_can* sockaddr_can_ptr() { return &addr_; }
 	/**
 	 * Gets a printable string for the address.
 	 * @return A string representation of the address in the form
 	 *  	   "unix:<path>"
 	 */
 	std::string to_string() const {
-		return std::string("unix:") + path();
+		return std::string("can:") + iface();
 	}
 };
 
@@ -184,11 +190,11 @@ public:
  * @param addr The address
  * @return A reference to the output stream.
  */
-std::ostream& operator<<(std::ostream& os, const unix_address& addr);
+std::ostream& operator<<(std::ostream& os, const can_address& addr);
 
 /////////////////////////////////////////////////////////////////////////////
 // end namespace sockpp
 }
 
-#endif		// __sockpp_unix_addr_h
+#endif		// __sockpp_can_addr_h
 

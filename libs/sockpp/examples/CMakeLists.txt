@@ -1,11 +1,11 @@
 # CMakeLists.txt
 #
-# Source CMake build file (src/) for the 'sockpp' library.
+# CMake build file for the examples in the 'sockpp' library.
 #
 # ---------------------------------------------------------------------------
 # This file is part of the "sockpp" C++ socket library.
 #
-# Copyright (c) 2017-2018 Frank Pagliughi
+# Copyright (c) 2022 Frank Pagliughi
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -36,54 +36,12 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # ---------------------------------------------------------------------------
 
-add_library(sockpp-objs OBJECT
-	acceptor.cpp
-	connector.cpp
-	datagram_socket.cpp
-	exception.cpp
-	inet_address.cpp
-	inet6_address.cpp
-  result.cpp
-	socket.cpp
-	stream_socket.cpp
-)
+add_subdirectory(tcp)
+add_subdirectory(udp)
 
 if(UNIX)
-	target_sources(sockpp-objs PUBLIC
-		${CMAKE_CURRENT_SOURCE_DIR}/unix/unix_address.cpp
-	)
+	add_subdirectory(unix)
 	if(SOCKPP_BUILD_CAN)
-		target_sources(sockpp-objs PUBLIC
-      ${CMAKE_CURRENT_SOURCE_DIR}/linux/can_address.cpp
-      ${CMAKE_CURRENT_SOURCE_DIR}/linux/can_socket.cpp
-		)
+		add_subdirectory(linux)
 	endif()
 endif()
-
-target_compile_features(sockpp-objs PUBLIC cxx_std_14)
-
-# Position indepence is only necessary for older compilers, but doesn't hurt
-set_target_properties(sockpp-objs 
-	PROPERTIES 
-		POSITION_INDEPENDENT_CODE 1
-		CXX_EXTENSIONS OFF
-)
-
-target_include_directories(sockpp-objs
-	PUBLIC
-		$<BUILD_INTERFACE:${SOCKPP_INCLUDE_DIR}>
-		$<INSTALL_INTERFACE:include>
-	PRIVATE 
-		${SOCKPP_GENERATED_DIR}/include
-		${CMAKE_SOURCE_DIR}/src
-)
-
-# --- Warnings ---
-
-# Maybe set '-Werror' for Release builds?
-target_compile_options(sockpp-objs PRIVATE
-  $<$<CXX_COMPILER_ID:MSVC>:/W3>
-  $<$<CXX_COMPILER_ID:Clang>:-Wall -Wextra -Wpedantic -Wdocumentation>
-  $<$<NOT:$<CXX_COMPILER_ID:MSVC,Clang>>:-Wall -Wextra -Wpedantic>
-)
-

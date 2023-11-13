@@ -13,8 +13,7 @@
 // --------------------------------------------------------------------------
 // This file is part of the "sockpp" C++ socket library.
 //
-// Copyright (c) 2014-2017 Frank Pagliughi
-// All rights reserved.
+// Copyright (c) 2014-2023 Frank Pagliughi All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -94,8 +93,6 @@ public:
 	 * specified socket object and transfers ownership of the socket. 
 	 */
 	stream_socket(stream_socket&& sock) : base(std::move(sock)) {}
-
-
 	/**
 	 * Creates a socket with the specified communications characterics.
 	 * Not that this is not normally how a socket is creates in the sockpp
@@ -113,7 +110,6 @@ public:
 	 *  	   characteristics.
 	 */
 	static stream_socket create(int domain, int protocol=0);
-
 	/**
 	 * Move assignment.
 	 * @param rhs The other socket to move into this one.
@@ -124,13 +120,12 @@ public:
 		return *this;
 	}
 	/**
-	 * Creates a new stream_socket that refers to this one.
+	 * Creates a new stream socket that refers to this one.
 	 * This creates a new object with an independent lifetime, but refers
 	 * back to this same socket. On most systems, this duplicates the file
-	 * handle using the dup() call.
-	 * A typical use of this is to have separate threads for reading and
-	 * writing the socket. One thread would get the original socket and the
-	 * other would get the cloned one.
+	 * handle using the dup() call. A typical use of this is to have
+	 * separate threads for reading and writing the socket. One thread would
+	 * get the original socket and the other would get the cloned one.
 	 * @return A new stream socket object that refers to the same socket as
 	 *  	   this one.
 	 */
@@ -139,22 +134,45 @@ public:
 		return stream_socket(h);
 	}
 	/**
-	 * Reads from the port
+	 * Reads from the socket.
 	 * @param buf Buffer to get the incoming data.
 	 * @param n The number of bytes to try to read.
-	 * @return The number of bytes read on _success, or @em -1 on error.
+	 * @return The number of bytes read on success, or @em -1 on error.
 	 */
 	virtual ssize_t read(void *buf, size_t n);
+	/**
+	 * Read that returns the error code on a failure.
+	 * This is the same as a standard @ref read, but returns the error code
+	 * directly on a failure.
+	 * @param buf Buffer to get the incoming data.
+	 * @param n The number of bytes to try to read.
+	 * @return The result of the operation. On success, the number of bytes
+	 *  	   read; on failure the error code.
+	 */
+    virtual ioresult read_r(void *buf, size_t n);
 	/**
 	 * Best effort attempts to read the specified number of bytes.
 	 * This will make repeated read attempts until all the bytes are read in
 	 * or until an error occurs.
 	 * @param buf Buffer to get the incoming data.
 	 * @param n The number of bytes to try to read.
-	 * @return The number of bytes read on _success, or @em -1 on error. If
+	 * @return The number of bytes read on success, or @em -1 on error. If
 	 *  	   successful, the number of bytes read should always be 'n'.
 	 */
 	virtual ssize_t read_n(void *buf, size_t n);
+	/**
+	 * Best effort attempts to read the specified number of bytes, returning
+	 * the error code on failure.
+	 * This will make repeated read attempts until all the bytes are read in
+	 * or until an error occurs. It's the same as @ref read_n, but returns
+	 * the error code on failure.
+	 *
+	 * @param buf Buffer to get the incoming data.
+	 * @param n The number of bytes to try to read.
+	 * @return The number of bytes read on success, or @em -1 on error. If
+	 *  	   successful, the number of bytes read should always be 'n'.
+	 */
+    virtual ioresult read_n_r(void *buf, size_t n);
     /**
      * Reads discontiguous memory ranges from the socket.
      * @param ranges The vector of memory ranges to fill
@@ -166,7 +184,7 @@ public:
 	 * Sets the timeout that the device uses for read operations. Not all
 	 * devices support timeouts, so the caller should prepare for failure.
 	 * @param to The amount of time to wait for the operation to complete.
-	 * @return @em true on _success, @em false on failure.
+	 * @return @em true on success, @em false on failure.
 	 */
 	virtual bool read_timeout(const std::chrono::microseconds& to);
 	/**
@@ -174,7 +192,7 @@ public:
 	 * Sets the timout that the device uses for read operations. Not all
 	 * devices support timouts, so the caller should prepare for failure.
 	 * @param to The amount of time to wait for the operation to complete.
-	 * @return @em true on _success, @em false on failure.
+	 * @return @em true on success, @em false on failure.
 	 */
 	template<class Rep, class Period>
 	bool read_timeout(const std::chrono::duration<Rep,Period>& to) {
@@ -188,17 +206,34 @@ public:
 	 */
 	virtual ssize_t write(const void *buf, size_t n);
 	/**
+	 * Writes the buffer to the socket, returning the error code on failure.
+	 * @param buf The buffer to write
+	 * @param n The number of bytes in the buffer.
+	 * @return The number of bytes written, or @em -1 on error.
+	 */
+    virtual ioresult write_r(const void *buf, size_t n);
+	/**
 	 * Best effort attempt to write the whole buffer to the socket.
 	 * @param buf The buffer to write
 	 * @param n The number of bytes in the buffer.
-	 * @return The number of bytes written, or @em -1 on error. If
-	 *  	   successful, the number of bytes written should always be 'n'.
+	 * @return The number of bytes written, or @em -1 on error. On success,
+	 *  	   the number of bytes written should always be 'n'.
 	 */
 	virtual ssize_t write_n(const void *buf, size_t n);
 	/**
+	 * Best effort attempt to write the whole buffer to the socket,
+	 * returning the error code on error.
+	 * @param buf The buffer to write
+	 * @param n The number of bytes in the buffer.
+	 * @return An I/O result with number of bytes written, or the error code
+	 *  	   on failure. On success, the number of bytes written should
+	 *  	   always be 'n'.
+	 */
+    virtual ioresult write_n_r(const void *buf, size_t n);
+	/**
 	 * Best effort attempt to write a string to the socket.
 	 * @param s The string to write.
-	 * @return The number of bytes written, or @em -1 on error. On _success,
+	 * @return The number of bytes written, or @em -1 on error. On success,
 	 *  	   the number of bytes written should always be the length of
 	 *  	   the string.
 	 */
@@ -216,7 +251,7 @@ public:
 	 * Sets the timout that the device uses for write operations. Not all
 	 * devices support timouts, so the caller should prepare for failure.
 	 * @param to The amount of time to wait for the operation to complete.
-	 * @return @em true on _success, @em false on failure.
+	 * @return @em true on success, @em false on failure.
 	 */
 	virtual bool write_timeout(const std::chrono::microseconds& to);
 	/**
@@ -224,7 +259,7 @@ public:
 	 * Sets the timout that the device uses for write operations. Not all
 	 * devices support timouts, so the caller should prepare for failure.
 	 * @param to The amount of time to wait for the operation to complete.
-	 * @return @em true on _success, @em false on failure.
+	 * @return @em true on success, @em false on failure.
 	 */
 	template<class Rep, class Period>
 	bool write_timeout(const std::chrono::duration<Rep,Period>& to) {

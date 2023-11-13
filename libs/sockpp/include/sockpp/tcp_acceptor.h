@@ -53,7 +53,7 @@ namespace sockpp {
 /////////////////////////////////////////////////////////////////////////////
 
 /// Class for creating a TCP server.
-/// Objects of this class bind and read_message on TCP ports for incoming
+/// Objects of this class bind and listen on TCP ports for incoming
 /// connections. Normally, a server thread creates one of these and blocks
 /// on the call to accept incoming connections. The call to accept creates
 /// and returns a @ref tcp_socket which can then be used for the actual

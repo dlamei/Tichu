@@ -64,10 +64,9 @@ int main(int argc, char* argv[])
 	size_t n  = (argc > 3) ? size_t(atoll(argv[3])) : DFLT_N;
 	size_t sz = (argc > 4) ? size_t(atoll(argv[4])) : DFLT_SZ;
 
-	sockpp::socket_initializer sockInit;
+	sockpp::initialize();
 
 	auto t_start = high_resolution_clock::now();
-
 
 	sockpp::tcp_connector conn({host, port});
 	if (!conn) {
@@ -89,10 +88,10 @@ int main(int argc, char* argv[])
 
     random_device rd;
     mt19937 reng(rd());
-    uniform_int_distribution<char> dist(0, 25);
+    uniform_int_distribution<int> dist(0, 25);
 
 	for (size_t i=0; i<sz; ++i)
-		s.push_back('a' + dist(reng));
+		s.push_back('a' + static_cast<char>(dist(reng)));
 
 	auto t_start_tx = high_resolution_clock::now();
 
@@ -103,9 +102,9 @@ int main(int argc, char* argv[])
 		}
 
 		sret.resize(s.length());
-		int n = conn.read_n(&sret[0], s.length());
+		ssize_t n = conn.read_n(&sret[0], s.length());
 
-		if (n != (int) s.length()) {
+		if (n != (ssize_t) s.length()) {
 			cerr << "Error reading from UNIX stream" << endl;
 			break;
 		}

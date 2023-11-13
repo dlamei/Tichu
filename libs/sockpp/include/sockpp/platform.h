@@ -61,8 +61,6 @@
 		#define _CRT_SECURE_NO_DEPRECATE
 	#endif
 
-	//#include <cstddef>
-	//#include <windows.h>
 	#include <winsock2.h>
 	#include <ws2tcpip.h>
 
@@ -78,27 +76,28 @@
 	#ifndef _SSIZE_T_DEFINED 
 		#define _SSIZE_T_DEFINED 
 		#undef ssize_t
-        using ssize_t = SSIZE_T;
+		using ssize_t = SSIZE_T;
 	#endif // _SSIZE_T_DEFINED
 
-    #ifndef _SUSECONDS_T
-        #define _SUSECONDS_T
-        typedef long suseconds_t;	// signed # of microseconds in timeval
-    #endif	// _SUSECONDS_T
+	#ifndef _SUSECONDS_T
+		#define _SUSECONDS_T
+		typedef long suseconds_t;	// signed # of microseconds in timeval
+	#endif	// _SUSECONDS_T
  
-    #define SHUT_RD SD_RECEIVE
-    #define SHUT_WR SD_SEND
-    #define SHUT_RDWR SD_BOTH
+	#define SHUT_RD SD_RECEIVE
+	#define SHUT_WR SD_SEND
+	#define SHUT_RDWR SD_BOTH
 
-    struct iovec
-    {
-        void* iov_base;
+	struct iovec
+	{
+		void* iov_base;
 		size_t iov_len;
-    };
+	};
 
 #else
 	#include <unistd.h>
 	#include <sys/socket.h>
+	#include <sys/time.h>
 	#include <sys/uio.h>
 	#include <arpa/inet.h>
 	#ifdef __FreeBSD__

@@ -1,7 +1,5 @@
-# build folder
-/cmake-build-debug
-
 # Directories for temporaries & build targets
+build/
 obj/
 lib/
 

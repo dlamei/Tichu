@@ -44,36 +44,44 @@ find_package(Threads REQUIRED)
 
 # --- Executables ---
 
-add_executable(unechosvr unechosvr.cpp)
-add_executable(unecho unecho.cpp)
-add_executable(unechotest unechotest.cpp)
-
-add_executable(undgramechosvr undgramechosvr.cpp)
-add_executable(undgramecho undgramecho.cpp)
-
-# --- Link for executables ---
-
-message(STATUS "Using library for unix samples: ${SOCKPP_LIB}")
-
-target_link_libraries(unechosvr ${SOCKPP_LIB} Threads::Threads)
-target_link_libraries(unecho ${SOCKPP_LIB})
-target_link_libraries(unechotest ${SOCKPP_LIB})
-
-target_link_libraries(undgramechosvr ${SOCKPP_LIB} Threads::Threads)
-target_link_libraries(undgramecho ${SOCKPP_LIB})
-
-# --- Install ---
-
-set(INSTALL_TARGETS
-	unechosvr
-	unecho
-	unechotest
-	undgramechosvr
-	undgramecho
+set(THREADED_EXECUTABLES
+  unechosvr
+  undgramechosvr
 )
 
-install(TARGETS ${INSTALL_TARGETS}
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
+set(EXECUTABLES
+  unecho
+  unechotest
+  undgramecho
+  ${THREADED_EXECUTABLES}
 )
+
+# --- Executables ---
+
+foreach(EXECUTABLE ${EXECUTABLES})
+	add_executable(${EXECUTABLE} ${EXECUTABLE}.cpp)
+	
+	target_include_directories(${EXECUTABLE}
+		PUBLIC
+			${SOCKPP_INCLUDE_DIR}
+		PRIVATE
+			${SOCKPP_GENERATED_DIR}/include
+	)
+	
+  set_target_properties(${EXECUTABLE} PROPERTIES
+    CXX_EXTENSIONS OFF
+  )
+
+	target_link_libraries(${EXECUTABLE} ${SOCKPP_LIB})
+endforeach()
+
+# --- Additional linkage to Threads ---
+
+foreach(EXECUTABLE ${THREADED_EXECUTABLES})
+  target_link_libraries(${EXECUTABLE} Threads::Threads)
+endforeach()
+
+# --- Install examples ---
+
+install(TARGETS ${EXECUTABLES} RUNTIME DESTINATION bin)
 
