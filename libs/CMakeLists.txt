@@ -1,7 +1,34 @@
 # --- sockpp ---
 
-add_subdirectory(sockpp)
-include_directories(sockpp/include)
+add_library(sockpp STATIC)
+
+target_sources(sockpp PUBLIC
+		sockpp/src/acceptor.cpp
+		sockpp/src/connector.cpp
+		sockpp/src/datagram_socket.cpp
+		sockpp/src/exception.cpp
+		sockpp/src/inet_address.cpp
+		sockpp/src/inet6_address.cpp
+		sockpp/src/result.cpp
+		sockpp/src/socket.cpp
+		sockpp/src/stream_socket.cpp
+)
+
+set_target_properties(sockpp
+		PROPERTIES
+		POSITION_INDEPENDENT_CODE 1
+		CXX_EXTENSIONS OFF
+)
+
+if (UNIX)
+	target_sources(sockpp PUBLIC sockpp/src/unix/unix_address.cpp)
+endif()
+
+target_include_directories(sockpp
+		PUBLIC
+		sockpp/include
+		sockpp/src
+)
 
 # --- rapidjson ---
 
@@ -81,4 +108,10 @@ target_compile_definitions(SERVER_LIBS INTERFACE TICHU_SERVER=1)
 target_link_libraries(SERVER_LIBS INTERFACE
 		spdlog
 		rapidjson
+		sockpp
 )
+
+if (WIN32)
+	target_link_libraries(CLIENT_LIBS INTERFACE wsock32 ws2_32)
+	target_link_libraries(SERVER_LIBS INTERFACE wsock32 ws2_32)
+endif()

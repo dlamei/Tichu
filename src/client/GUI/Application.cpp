@@ -17,6 +17,7 @@ Application::Application(const ApplicationCreateInfo &info) {
         .title = info.title,
         .width = info.width,
         .height = info.height,
+        .vsync = true,
     };
 
     _window = std::make_unique<Window>(win_info);
@@ -31,6 +32,11 @@ void Application::run() {
         _window->on_update();
         update();
     }
+}
+
+void Application::update_frame() {
+    ASSERT(s_instance, "application was not initialized");
+    s_instance->update();
 }
 
 void Application::update() {

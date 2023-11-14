@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.15)
 project(Tichu)
 set(CMAKE_CXX_STANDARD 20)
 
+if (WIN32)
+	add_compile_options(/EHsc)
+endif()
+
 add_subdirectory(libs)
 
 set(COMMON_SOURCE_FILES
@@ -19,7 +23,6 @@ set(COMMON_SOURCE_FILES
 )
 
 set(CLIENT_SOURCE_FILES
-		src/client/main.cpp
 		src/client/GUI/window.cpp
 		src/client/GUI/window.h
 		src/client/GUI/gl_utils.cpp
@@ -32,10 +35,10 @@ set(CLIENT_SOURCE_FILES
 		src/client/GUI/imgui_build.h
         src/client/Tichu.h
         src/client/Tichu.cpp
+		src/client/GUI/KeyCodes.h
 )
 
 set(SERVER_SOURCE_FILES
-		src/server/main.cpp
 		src/server/game_instance.cpp src/server/game_instance.h
 		src/server/game_instance_manager.cpp src/server/game_instance_manager.h
 		src/server/player_manager.cpp src/server/player_manager.h
@@ -44,13 +47,12 @@ set(SERVER_SOURCE_FILES
 )
 
 # --- copy assets into build directory ---
-set(CMAKE_INSTALL_MESSAGE LAZY)
 file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
 
 # --- client / server targets ---
 add_compile_definitions(PRINT_NETWORK_MESSAGES=1)
-add_executable(Tichu-client ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES})
-add_executable(Tichu-server ${SERVER_SOURCE_FILES} ${COMMON_SOURCE_FILES})
+add_executable(Tichu-client ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES} src/client/main.cpp)
+add_executable(Tichu-server ${SERVER_SOURCE_FILES} ${COMMON_SOURCE_FILES} src/server/main.cpp)
 
 target_link_libraries(Tichu-client CLIENT_LIBS)
 target_link_libraries(Tichu-server SERVER_LIBS)

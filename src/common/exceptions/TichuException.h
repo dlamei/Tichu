@@ -1,7 +1,3 @@
-//
-// Created by Manuel on 09.03.2021.
-//
-
 #ifndef TICHU_TICHUEXCEPTION_H
 #define TICHU_TICHUEXCEPTION_H
 

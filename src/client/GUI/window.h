@@ -8,6 +8,8 @@
 #include <string>
 #include <optional>
 #include <vector>
+#include <cstdint>
+#include "KeyCodes.h"
 
 struct GLFWwindow;
 
@@ -15,6 +17,7 @@ struct GLFWwindow;
 struct WindowCreateInfo {
     std::string title{ "Window Title" };
     uint32_t width { 100 }, height { 100 };
+    bool vsync = true;
     std::optional<std::vector<uint32_t>> icon{};
 };
 
@@ -27,6 +30,12 @@ public:
 
     // updates the window
     void on_update();
+
+    // check if given key is pressed
+    bool is_key_pressed(KeyCode key) const;
+
+    //check if given mouse button is pressed
+    bool is_mouse_pressed(KeyCode mouse_button = KeyCode::MOUSE_BUTTON_1) const;
 
     double get_time();
     // return true if the window was closed externally

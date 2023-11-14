@@ -69,7 +69,9 @@ private:
 
     void show_message_boxes();
 
-    Panel _state {Panel::CONNECTION_PANEL};
+    Panel _state {CONNECTION_PANEL};
+
+    Texture texture;
 
     ConnectionPanelInput _connection_input{};
     // all message boxes currently shown. item should be removed if close field is true

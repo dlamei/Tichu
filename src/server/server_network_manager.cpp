@@ -13,7 +13,7 @@ server_network_manager::server_network_manager() {
     if (_instance == nullptr) {
         _instance = this;
     }
-    sockpp::socket_initializer socket_initializer; // Required to initialise sockpp
+    sockpp::socket_initializer::initialize(); // Required to initialise sockpp
     this->connect(default_server_host, default_port);   // variables from "default.conf"
 }
 
@@ -63,7 +63,7 @@ void server_network_manager::listener_loop() {
 // Once a message is fully received, the string is passed on to the 'handle_incoming_message()' function
 void server_network_manager::read_message(sockpp::tcp_socket socket, const std::function<void(const std::string&,
                                                                                               const sockpp::tcp_socket::addr_t &)> &message_handler) {
-    sockpp::socket_initializer sockInit;    // initializes socket framework underneath
+    sockpp::socket_initializer::initialize(); // Required to initialise sockpp
 
     char buffer[512]; // 512 bytes
     ssize_t count = 0;

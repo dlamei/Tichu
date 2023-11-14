@@ -8,6 +8,10 @@
 #define WARN(...) ::spdlog::warn(__VA_ARGS__)
 #define ERROR(...) ::spdlog::error(__VA_ARGS__)
 
+#if NDEBUG
+#define ASSERT(x, ...)
+#else
 #define ASSERT(x, ...) { if(!x) {ERROR("Assertion Failed: {0}", __VA_ARGS__); exit(-1); } }
+#endif
 
 #endif //TICHU_LOGGING_H

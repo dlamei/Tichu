@@ -2,12 +2,9 @@
 // helper functions and classes for opengl
 //
 
-
-
 #ifndef TICHU_GL_UTILS_H
 #define TICHU_GL_UTILS_H
 
-#include <glad/glad.h>
 #include <glm/glm.hpp>
 
 #include <memory>
@@ -15,9 +12,82 @@
 #include <optional>
 #include <filesystem>
 
-struct Vertex2D {
-    glm::vec2 pos;
+class RGB;
+
+// helper class for color
+class RGBA {
+public:
+    RGBA();
+    explicit RGBA(uint8_t value);
+    RGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+    RGBA(uint8_t r, uint8_t g, uint8_t b);
+
+    static RGBA from_norm(glm::vec3 val);
+    static RGBA from_norm(glm::vec4 val);
+
+    [[nodiscard]] inline uint8_t red() const;
+    [[nodiscard]] inline uint8_t green() const;
+    [[nodiscard]] inline uint8_t blue() const;
+    [[nodiscard]] inline uint8_t alpha() const;
+
+    [[nodiscard]] glm::vec4 normalized() const;
+
+    explicit operator uint32_t() const;
+    explicit operator RGB() const;
+
+private:
+    uint32_t m_Data;
+};
+
+inline bool operator==(const RGBA &c1, const RGBA &c2) {
+    return (uint32_t)c1 == (uint32_t)c2;
+}
+
+inline bool operator!=(const RGBA &c1, const RGBA &c2) {
+    return (uint32_t)c1 != (uint32_t)c2;
+}
+
+std::ostream &operator<<(std::ostream &os, const RGBA &c);
+
+// helper class for color when alpha is assumed to be 255
+// we can't just use RGBA because we want to be able to fill textures with these types, so RGB 3 bytes and RGBA 4 bytes
+class RGB {
+public:
+    RGB();
+    explicit RGB(uint8_t value);
+    RGB(uint8_t r, uint8_t g, uint8_t b);
+
+    static RGB from_norm(glm::vec3 val);
+
+    [[nodiscard]] inline uint8_t red() const { return _red; }
+    [[nodiscard]] inline uint8_t green() const { return _green; }
+    [[nodiscard]] inline uint8_t blue() const { return _blue; }
+
+    [[nodiscard]] glm::vec3 normalized() const;
+
+    explicit operator RGBA() const;
+
+private:
+    uint8_t _blue;
+    uint8_t _green;
+    uint8_t _red;
+};
+
+inline bool operator==(const RGB &c1, const RGB &c2) {
+    return (RGBA)c1 == (RGBA)c2;
+}
+
+inline bool operator!=(const RGB &c1, const RGB &c2) {
+    return (RGBA)c1 != (RGBA)c2;
+}
+
+std::ostream &operator<<(std::ostream &os, const RGB &c);
+
+struct Vertex {
+    glm::vec3 pos;
     glm::vec2 uv;
+    glm::vec4 col;
+    float tex_id;
 
     static void bind_layout();
 };
@@ -39,8 +109,9 @@ public:
 
     Texture() = default;
 
-    void bind();
-    static void unbind();
+    void fill(void *data, size_t size);
+    void bind(int i = 0);
+    static void unbind(int i = 0);
 
     static Texture load(const std::filesystem::path &path);
     static Texture empty(uint32_t width, uint32_t height);
@@ -69,6 +140,7 @@ public:
 
     // functions for setting shader unifroms
     void set_int(const std::string &name, int32_t value);
+    void set_int_arr(const std::string &name, int32_t *data, size_t count);
     void set_float(const std::string &name, float value);
     void set_mat4(const std::string &name, const glm::mat4 &mat);
 
@@ -107,9 +179,11 @@ public:
     static void unbind(BufferType typ);
 
     // vertex buffer constructor
-    static Buffer vertex(void *data, uint32_t size, uint32_t stride);
+    static Buffer vertex(void *data, uint32_t count, uint32_t stride);
     // index buffer constructor
-    static Buffer index32(uint32_t *data, uint32_t size);
+    static Buffer index32(uint32_t *data, uint32_t count);
+
+    void set_data(void *data, size_t size);
 
     template<typename VERTEX>
     static Buffer vertex(VERTEX *data, uint32_t count) {

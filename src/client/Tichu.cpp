@@ -55,7 +55,6 @@ void show_connection_panel(ConnectionPanelInput *input) {
     ImGui::Begin("Connection", nullptr,
                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking |
                  ImGuiWindowFlags_NoScrollbar);
-    ImGui::SetWindowFontScale(1.3);
 
     ImGui::BeginTable("input fields", 2);
     ImGui::TableSetupColumn("field name", ImGuiTableColumnFlags_WidthFixed);
@@ -108,12 +107,20 @@ void show_main_framebuffer() {
 }
 
 void TichuGame::on_update(TimeStep ts) {
-    Renderer::set_camera(0, 10, 0, 10);
+    float ar = Application::get_aspect_ratio();
+    int scale = 5;
+    if (ar >= 1) {
+        Renderer::set_camera(-(scale * ar), scale * ar, -scale, scale);
+    } else {
+        ar = 1 / ar;
+        Renderer::set_camera(-scale, scale, -(scale * ar), scale * ar);
+    }
+    Renderer::clear(RGBA{255});
 
-    for (int i = 0; i < 10; i++) {
-        for (int j = 0; j < 10; j++) {
+    for (int i = -scale; i < scale; i++) {
+        for (int j = -scale; j < scale; j++) {
             if ((i + j) % 2) {
-                Renderer::draw_rect({i, j}, {1, 1});
+                Renderer::draw_rect({i, j}, {1, 1}, texture);
             }
         }
     }
@@ -135,17 +142,17 @@ void TichuGame::on_imgui() {
     // always show available messages
     show_message_boxes();
 
-    if (_state & Panel::CONNECTION_PANEL) {
+    if (_state & CONNECTION_PANEL) {
         show_connection_panel(&_connection_input);
     }
 
-    if (_state & Panel::GAME_PANEL) {
+    if (_state & GAME_PANEL) {
         show_main_framebuffer();
-
     }
 
+
     if (_connection_input.connect) {
-        _state = Panel::GAME_PANEL;
+        _state = GAME_PANEL;
     }
 
     ImGui::Begin("Debug popup");
@@ -162,6 +169,7 @@ void TichuGame::on_imgui() {
 }
 
 void TichuGame::on_attach() {
+    texture = Texture::load("assets/tichu_logo.png");
 }
 
 std::pair<std::string, ImVec4> msg_type_to_string_and_color(MessageType typ) {
@@ -195,7 +203,6 @@ void MessageBox::on_imgui() {
     center_next_window_once();
     ImGui::Begin(title.c_str(), nullptr,
                  ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse);
-    ImGui::SetWindowFontScale(1.3f);
     ImGui::TextWrapped("%s", message.c_str());
 
     ImGui::NewLine();

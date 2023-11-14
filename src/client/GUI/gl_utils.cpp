@@ -1,4 +1,5 @@
 #include "gl_utils.h"
+#include <glad/glad.h>
 #include <stb_image.h>
 #include <cstddef>
 #include <algorithm>
@@ -6,17 +7,160 @@
 #include "../../src/common/logging.h"
 
 #define INTERNAL_FORMAT GL_RGBA8
-#define EXTERNAL_FORMAT GL_RGBA
+#define DATA_FORMAT GL_RGBA
 
 #define GL_VERTEX_BUFFER GL_ARRAY_BUFFER
 #define GL_INDEX_BUFFER GL_ELEMENT_ARRAY_BUFFER
 
-void Vertex2D::bind_layout() {
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void *) offsetof(Vertex2D, pos));
-    glEnableVertexAttribArray(0);
+GLenum glCheckError_(const char *file, int line)
+{
+    GLenum errorCode;
+    while ((errorCode = glGetError()) != GL_NO_ERROR)
+    {
+        std::string error;
+        switch (errorCode)
+        {
+            case GL_INVALID_ENUM:                  error = "INVALID_ENUM"; break;
+            case GL_INVALID_VALUE:                 error = "INVALID_VALUE"; break;
+            case GL_INVALID_OPERATION:             error = "INVALID_OPERATION"; break;
+            case GL_STACK_OVERFLOW:                error = "STACK_OVERFLOW"; break;
+            case GL_STACK_UNDERFLOW:               error = "STACK_UNDERFLOW"; break;
+            case GL_OUT_OF_MEMORY:                 error = "OUT_OF_MEMORY"; break;
+            case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
+            default: error = "UNKNOWN_ERROR"; break;
+        }
+        ERROR("{} | {} ({})", error, file, line);
+    }
+    return errorCode;
+}
+#define glCheckError() glCheckError_(__FILE__, __LINE__)
 
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void *) offsetof(Vertex2D, uv));
+inline uint32_t to_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    return (r << 24) | (g << 16) | (b << 8) | a;
+}
+
+RGBA::RGBA()
+        : m_Data(to_rgba(255, 255, 255, 255)) {};
+RGBA::RGBA(uint8_t value)
+        : m_Data(to_rgba(value, value, value, 255)) {};
+RGBA::RGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+        : m_Data(to_rgba(r, g, b, a)) {};
+RGBA::RGBA(uint8_t r, uint8_t g, uint8_t b)
+        : m_Data(to_rgba(r, g, b, 255)) {}
+
+RGBA RGBA::from_norm(glm::vec3 val)
+{
+    auto r = static_cast<uint8_t>(val.r * 255);
+    auto g = static_cast<uint8_t>(val.g * 255);
+    auto b = static_cast<uint8_t>(val.b * 255);
+    return {r, g, b};
+}
+
+RGBA RGBA::from_norm(glm::vec4 val)
+{
+    auto r = static_cast<uint8_t>(val.r * 255);
+    auto g = static_cast<uint8_t>(val.g * 255);
+    auto b = static_cast<uint8_t>(val.b * 255);
+    auto a = static_cast<uint8_t>(val.a * 255);
+    return {r, g, b, a};
+}
+
+inline uint8_t RGBA::red() const
+{
+    return m_Data >> 24 & 0xff;
+}
+
+inline uint8_t RGBA::green() const
+{
+    return m_Data >> 16 & 0xff;
+}
+
+inline uint8_t RGBA::blue() const
+{
+    return m_Data >> 8 & 0xff;
+}
+
+inline uint8_t RGBA::alpha() const
+{
+    return m_Data & 0xff;
+}
+
+glm::vec4 RGBA::normalized() const
+{
+    float r = (float)red() / 255.f;
+    float g = (float)green() / 255.f;
+    float b = (float)blue() / 255.f;
+    float a = (float)alpha() / 255.f;
+
+    return { r, g, b, a };
+}
+
+RGBA::operator uint32_t() const
+{
+    return m_Data;
+}
+
+RGBA::operator RGB() const
+{
+    return {red(), green(), blue()};
+}
+
+std::ostream &operator<<(std::ostream &os, const RGBA &c) {
+    os << "{ r: " << (uint32_t)c.red() << ", g: " << (uint32_t)c.green() << ", b: "
+       << (uint32_t)c.blue() << ", a: " << (uint32_t)c.alpha() << " }";
+    return os;
+}
+
+RGB::RGB()
+        : _red(255), _blue(255), _green(255) {}
+
+RGB::RGB(const uint8_t value)
+        : _red(value), _blue(value), _green(value) {}
+
+RGB::RGB(uint8_t r, uint8_t g, uint8_t b)
+        : _red(r), _blue(b), _green(g) {}
+
+RGB RGB::from_norm(glm::vec3 val)
+{
+    auto r = static_cast<uint8_t>(val.r * 255);
+    auto g = static_cast<uint8_t>(val.g * 255);
+    auto b = static_cast<uint8_t>(val.b * 255);
+    return {r, g, b};
+}
+
+glm::vec3 RGB::normalized() const
+{
+    float r = (float)red() / 255.f;
+    float g = (float)green() / 255.f;
+    float b = (float)blue() / 255.f;
+
+    return { r, g, b };
+}
+
+RGB::operator RGBA() const
+{
+    return {_red, _green, _blue};
+}
+
+std::ostream &operator<<(std::ostream &os, const RGB &c) {
+    os << "{ r: " << (uint32_t)c.red() << ", g: " << (uint32_t)c.green() << ", b: "
+       << (uint32_t)c.blue() << " }";
+    return os;
+}
+
+
+void Vertex::bind_layout() {
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void *) offsetof(Vertex, pos));
+
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void *) offsetof(Vertex, uv));
+
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void *) offsetof(Vertex, col));
+
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void *) offsetof(Vertex, tex_id));
 }
 
 namespace gl_utils {
@@ -29,21 +173,22 @@ namespace gl_utils {
         uint32_t VAO;
         glGenVertexArrays(1, &VAO);
         glBindVertexArray(VAO);
+        glCheckError();
     }
 
     void resize_viewport(uint32_t width, uint32_t height) {
         glViewport(0, 0, width, height);
     }
 
-    void draw_indexed(uint32_t index_count) {
+    void draw_indexed(const uint32_t index_count) {
         glDrawElements(GL_TRIANGLES, (int)index_count, GL_UNSIGNED_INT, nullptr);
     }
 
-    void draw(uint32_t vert_count) {
+    void draw(const uint32_t vert_count) {
         glDrawArrays(GL_TRIANGLES, 0, (int)vert_count);
     }
 
-    void create_texture2d(uint32_t width, uint32_t height, uint32_t *id) {
+    void create_texture2d(const uint32_t width, const uint32_t height, uint32_t *id) {
         glGenTextures(1, id);
         glBindTexture(GL_TEXTURE_2D, *id);
 
@@ -51,9 +196,10 @@ namespace gl_utils {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, INTERNAL_FORMAT, width, height, 0, EXTERNAL_FORMAT, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, INTERNAL_FORMAT, (int)width, (int)height, 0, DATA_FORMAT, GL_UNSIGNED_BYTE, nullptr);
 
         glBindTexture(GL_TEXTURE_2D, 0);
+        glCheckError();
     }
 
     void load_texture2d(const std::string &path, uint32_t *width, uint32_t *height, uint32_t *n_channels, uint32_t *id) {
@@ -69,7 +215,7 @@ namespace gl_utils {
         stbi_set_flip_vertically_on_load(true);
         unsigned char *data = stbi_load(path.c_str(), &w, &h, &nrChannels, 0);
         if (data) {
-            glTexImage2D(GL_TEXTURE_2D, 0, INTERNAL_FORMAT, w, h, 0, EXTERNAL_FORMAT, GL_UNSIGNED_BYTE, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, INTERNAL_FORMAT, w, h, 0, DATA_FORMAT, GL_UNSIGNED_BYTE, data);
         } else {
             WARN("Failed to load texture: {}", path);
         }
@@ -80,13 +226,15 @@ namespace gl_utils {
         *width = (uint32_t)w;
         *height = (uint32_t)h;
         *n_channels = (uint32_t)nrChannels;
+        glCheckError();
     }
 
     void create_buffer(GLenum type, uint32_t *id, void *data, uint32_t size) {
         glGenBuffers(1, id);
         glBindBuffer(type, *id);
-        glBufferData(type, size, data, GL_STATIC_DRAW);
+        glBufferData(type, size, data, GL_DYNAMIC_DRAW);
         glBindBuffer(type, 0);
+        glCheckError();
     }
 
     void compile_shader_module(GLenum typ, const char *shader_src, uint32_t *id) {
@@ -105,6 +253,7 @@ namespace gl_utils {
         }
 
         *id = module;
+        glCheckError();
     }
 
     void link_shader_modules(uint32_t vertex_module, uint32_t fragment_module, uint32_t *id) {
@@ -115,17 +264,19 @@ namespace gl_utils {
 
         glDeleteShader(vertex_module);
         glDeleteShader(fragment_module);
+        glCheckError();
 
         int success;
         char infoLog[1024];
-        glGetShaderiv(shader, GL_LINK_STATUS, &success);
+        glGetProgramiv(shader, GL_LINK_STATUS, &success);
         if (!success) {
-            glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+            glGetProgramInfoLog(shader, 1024, NULL, infoLog);
             ERROR("SHADER_LINKING_ERROR:");
             ERROR("{}", infoLog);
         }
 
         *id = shader;
+        glCheckError();
     }
 }
 
@@ -153,12 +304,24 @@ Texture::Texture(uint32_t width, uint32_t height, uint32_t n_channels, uint32_t 
 {
 }
 
-void Texture::bind() {
+void Texture::fill(void* data, size_t size) {
     GET_ID(id, _gl_texture);
-    glBindTexture(GL_TEXTURE_2D, *_gl_texture.value());
+    uint32_t data_size = width() * height() * 4; //4 for rgba
+    ASSERT(data_size == size, "Texture::fill: size != width * height");
+    glBindTexture(GL_TEXTURE_2D, id);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, (int)width(), (int)height(), GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, data);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glCheckError();
 }
 
-void Texture::unbind() {
+void Texture::bind(int i) {
+    GET_ID(id, _gl_texture);
+    glActiveTexture(GL_TEXTURE0 + i);
+    glBindTexture(GL_TEXTURE_2D, id);
+}
+
+void Texture::unbind(int i) {
+    glActiveTexture(GL_TEXTURE0 + i);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -193,21 +356,27 @@ Buffer::~Buffer() {
     }
 }
 
-Buffer Buffer::vertex(void *data, uint32_t size, uint32_t stride) {
+Buffer Buffer::vertex(void *data, uint32_t count, uint32_t stride) {
     uint32_t id;
 
     glGenBuffers(1, &id);
     glBindBuffer(GL_ARRAY_BUFFER, id);
-    glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, count, data, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    return Buffer { BufferType::VERTEX, size, stride, id};
+    return Buffer { BufferType::VERTEX, count, stride, id};
 }
 
-Buffer Buffer::index32(uint32_t *data, uint32_t size) {
+Buffer Buffer::index32(uint32_t *data, uint32_t count) {
     uint32_t id;
-    gl_utils::create_buffer(GL_INDEX_BUFFER, &id, data, size * sizeof(uint32_t));
-    return Buffer { BufferType::INDEX, size, sizeof(uint32_t), id };
+    gl_utils::create_buffer(GL_INDEX_BUFFER, &id, data, count * sizeof(uint32_t));
+    return Buffer { BufferType::INDEX, count, sizeof(uint32_t), id };
+}
+
+void Buffer::set_data(void* data, size_t size) {
+    bind();
+    auto typ = buffer_type_to_gl_enum(_typ);
+    glBufferData(typ, size, data, GL_DYNAMIC_DRAW);
 }
 
 void Buffer::bind() const {
@@ -262,6 +431,13 @@ void Shader::set_int(const std::string &name, int32_t value) {
     glUseProgram(id);
     int location = get_uniform_location(id, name);
     glUniform1i(location, value);
+}
+
+void Shader::set_int_arr(const std::string& name, int32_t* data, size_t count) {
+    GET_ID(id, _gl_shader);
+    glUseProgram(id);
+    int location = get_uniform_location(id, name);
+    glUniform1iv(location, count, data);
 }
 
 void Shader::set_float(const std::string &name, float value) {

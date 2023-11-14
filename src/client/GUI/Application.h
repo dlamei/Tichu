@@ -1,6 +1,7 @@
 #ifndef TICHU_APPLICATION_H
 #define TICHU_APPLICATION_H
 
+#include "renderer.h"
 #include <string>
 #include <memory>
 #include <vector>
@@ -25,9 +26,12 @@ public:
     [[nodiscard]] inline float milliseconds() const { return m_Time * 1000.0f; }
 };
 
+
 // interface for running custom code in the application
 class Layer {
 public:
+
+    virtual ~Layer() = default;
 
     // called when pushing the layer to the app
     virtual void on_attach() {};
@@ -57,8 +61,13 @@ public:
     // runs the app
     void run();
 
+    // used to update the application when e.g the window is being resized
+    static void update_frame();
+
     void push_layer(const std::shared_ptr<Layer> &layer);
 
+    // returns the aspect ratio of the viewport
+    [[nodiscard]] static float get_aspect_ratio() { const auto size = get_viewport_size(); return (float)size.x / (float)size.y; }
     // returns the size of the viewport window
     [[nodiscard]] static const glm::uvec2 &get_viewport_size() { return get_instance()->_viewport_size; }
     // returns the size of the window

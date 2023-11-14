@@ -96,7 +96,6 @@ std::optional<game_instance_ptr> game_instance_manager::try_add_player_to_any_ga
             }
         }
         return {};
-    //TODO: not any game?
 }
 
 

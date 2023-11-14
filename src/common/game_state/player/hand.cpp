@@ -1,6 +1,7 @@
 #include "hand.h"
 
 #include <utility>
+#include <algorithm>
 
 #include "../../exceptions/TichuException.h"
 

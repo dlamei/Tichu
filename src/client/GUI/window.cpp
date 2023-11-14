@@ -5,6 +5,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <cmath>
+#include <iostream>
+
+//#include "../../../libs/glfw/src/internal.h"
+#include "Application.h"
 #include "../../src/common/logging.h"
 
 static bool s_GLFWInitialized = false;
@@ -68,6 +72,14 @@ void Window::init(const WindowCreateInfo &info) {
 
     glfwSetInputMode(_window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
     glfwSetWindowUserPointer(_window, this);
+    set_vsync(info.vsync);
+
+    glfwSetWindowSizeCallback(_window, [](GLFWwindow *window, int width, int height) {
+        Window &data = *(Window *)glfwGetWindowUserPointer(window);
+
+        Application::update_frame();
+        glfwSwapBuffers(data.get_native_window());
+    });
 
     gl_utils::init_opengl();
     ImGui::init_imgui(*this);
@@ -81,6 +93,16 @@ void Window::on_update() {
     glfwPollEvents();
     glfwSwapBuffers(_window);
 
+}
+
+bool Window::is_key_pressed(KeyCode key) const {
+    const auto state = glfwGetKey(_window, (int)key);
+    return state == GLFW_PRESS || state == GLFW_REPEAT;
+}
+
+bool Window::is_mouse_pressed(KeyCode mouse_button) const {
+    const auto state = glfwGetMouseButton(_window, (int)mouse_button);
+    return state == GLFW_PRESS;
 }
 
 double Window::get_time() {
