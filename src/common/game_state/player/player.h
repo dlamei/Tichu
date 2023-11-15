@@ -9,6 +9,7 @@
 #include <string>
 #include <utility>
 #include "hand.h"
+#include "won_cards_pile.h"
 #include "../../../../rapidjson/include/rapidjson/document.h"
 
 
@@ -16,34 +17,35 @@ class player : public serializable {
 private:
     UUID _id;
     std::string _player_name;
-    bool _has_folded;
-    int _score;
+    bool _team;
+    bool _is_finished;
     hand _hand;
+    won_cards_pile _won_cards;
+    bool _tichu;
+    bool _grand_tichu;
 
 #ifdef TICHU_SERVER
     UUID _game_id;
 #endif
 
-    /*
-     * Deserialization constructor
-     */
 public:
     player(UUID id,
            std::string name,
-           int score,
+           bool team,
+           bool is_finished,
            hand hand,
-           bool has_folded);
+           won_cards_pile won_cards,
+           bool tichu,
+           bool grand_tichu);
 
 // constructors
     explicit player(std::string name);   // for client
 
     bool operator==(const player &other) const {
         return (_player_name == other._player_name
-        && _score == other._score
         && _hand == other._hand
-        && _has_folded == other._has_folded
 #ifdef TICHU_SERVER
-        && _game_id == other._game_id
+&& _game_id == other._game_id
 #endif
         );
     }
@@ -53,28 +55,36 @@ public:
     }
 
 #ifdef TICHU_SERVER
-    player(UUID id, std::string name);  // for server
+    player(UUID id, std::string name, bool team);  // for server
 
     const UUID &get_game_id() { return _game_id; };
     void set_game_id(UUID game_id) { _game_id = std::move(game_id); };
 #endif
 
     // accessors
-    [[nodiscard]] int get_score() const noexcept;
+    [[nodiscard]] bool get_team() const noexcept { return _team; }
+    [[nodiscard]] bool get_is_finished() const noexcept { return _is_finished; }
+    [[nodiscard]] bool get_tichu() const noexcept { return _tichu; }
+    [[nodiscard]] int get_grand_tichu() const noexcept { return _grand_tichu; }
     [[nodiscard]] const UUID &get_id() const noexcept { return _id; }
-    [[nodiscard]] bool has_folded() const noexcept;
-    [[nodiscard]] int get_nof_cards() const noexcept;
-    [[nodiscard]] const hand& get_hand() const noexcept;
-    [[nodiscard]] const std::string& get_player_name() const noexcept;
+    [[nodiscard]] int get_nof_cards() const noexcept { return _hand.get_nof_cards(); }
+    [[nodiscard]] const hand& get_hand() const noexcept { return _hand; }
+    [[nodiscard]] const std::string& get_player_name() const noexcept { return this->_player_name; }
+
+    [[nodiscard]] int get_hand_score() const noexcept { return _hand.get_score(); }
+    [[nodiscard]] int get_won_score() const noexcept { return _won_cards.get_score(); }
 
 #ifdef TICHU_SERVER
     // state update functions
-    bool fold(std::string& err);
-    bool add_card(const card &card, std::string& err);
-    std::optional<card> remove_card(const card &card_id, std::string& err);
+    bool add_card_to_hand(const Card &card, std::string& err);
+    void remove_cards_from_hand(const card_combination &cards, std::string& err);
 
+    void finish() { _is_finished = true; }
+
+    bool add_cards_to_won_pile(const std::vector<card_combination> &combis, std::string& err);
+    
     void wrap_up_round(std::string& err);
-    void setup_round(std::string& err);
+    void setup_round(std::string& err) { }
 #endif
 
 

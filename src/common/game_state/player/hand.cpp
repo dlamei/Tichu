@@ -4,28 +4,19 @@
 
 #include "../../exceptions/TichuException.h"
 
-hand::hand(std::vector<card> cards) : _cards(std::move(cards)) { }
+hand::hand(std::vector<Card> cards) : _cards(std::move(cards)) { }
 
 int hand::get_score() const {
     int res = 0;
-    bool already_counted[7] = { false, false, false, false, false, false, false }; // for the 7 card types
-    for (const auto & card : _cards) {
-        int card_value = card.get_value();
-        if(!already_counted[card_value - 1]) {
-            already_counted[card_value - 1] = true;
-            if(card_value == 7) {
-                res += 10;
-            } else {
-                res += card_value;
-            }
-        }
+    for(Card card : _cards) {
+        res += card.get_value();
     }
     return res;
 }
 
-std::optional<card> hand::try_get_card(const card &card) const {
+std::optional<Card> hand::try_get_card(const Card &card) const {
     auto it = std::find_if(_cards.begin(), _cards.end(),
-                           [&card](const class card &x) { return x == card;});
+                           [&card](const class Card &x) { return x == card;});
     if (it < _cards.end()) {
         return *it;
     }
@@ -33,43 +24,47 @@ std::optional<card> hand::try_get_card(const card &card) const {
 }
 
 
-std::optional<card> hand::remove_card(int idx) {
+std::optional<Card> hand::remove_card(int idx) {
     return remove_card(_cards.begin() + idx);
 }
 
-std::optional<card> hand::remove_card(const card& card) {
+std::optional<Card> hand::remove_card(const Card& card) {
     auto pos = std::find(_cards.begin(), _cards.end(), card);
     return remove_card(pos);
 }
 
-std::optional<card> hand::remove_card(std::vector<card>::iterator pos) {
+std::optional<Card> hand::remove_card(std::vector<Card>::iterator pos) {
     if (pos >= _cards.begin() && pos < _cards.end()) {
-        card res = *pos;
+        Card res = *pos;
         _cards.erase(pos);
         return res;
     }
     return {};
 }
 
-std::vector<card>::iterator hand::get_card_iterator() {
-    return _cards.begin();
-}
-
 
 #ifdef TICHU_SERVER
-void hand::setup_round(std::string &err) {
-    // remove all cards (if any) and clear it
+
+int hand::wrap_up_round() {
+    int score = get_score();
     _cards.clear();
+    return score;
 }
 
-bool hand::add_card(const card &new_card, std::string &err) {
+bool hand::add_card(const Card &new_card, std::string &err) {
     _cards.push_back(new_card);
     return true;
 }
 
-std::optional<card> hand::remove_card(const card &card, std::string &err) {
+void hand::add_cards(const std::vector<Card> &cards, std::string &err) {
+    for(Card card : cards) {
+        add_card(card, err);
+    }
+}
+
+std::optional<Card> hand::remove_card(const Card &card, std::string &err) {
     auto it = std::find_if(_cards.begin(), _cards.end(),
-                           [&card](const class card &x) { return x == card;});
+                           [&card](const class Card &x) { return x == card;});
     if (it < _cards.end()) {
         return remove_card(it);
     } else {
@@ -77,6 +72,16 @@ std::optional<card> hand::remove_card(const card &card, std::string &err) {
         return {};
     }
 }
+
+bool hand::remove_cards(const std::vector<Card> &cards, std::string& err) {
+        for(Card card : cards) {
+            if(!(remove_card(card, err))){
+                return false;
+            }
+        }
+        return true;
+}
+
 #endif
 
 
@@ -85,7 +90,7 @@ void hand::write_into_json(rapidjson::Value &json, rapidjson::Document::Allocato
 }
 
 std::optional<hand> hand::from_json(const rapidjson::Value &json) {
-    auto cards = vec_from_json<card>("cards", json);
+    auto cards = vec_from_json<Card>("cards", json);
 
     if (!(cards)) {
         throw TichuException("Could not parse hand from json. 'cards' were missing.");

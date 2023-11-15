@@ -6,92 +6,61 @@
 
 player::player(std::string name) :
         _id(UUID::create()),
-        _player_name(std::move(name)), _has_folded(false), _score(0), _hand(hand()) {}
+        _player_name(std::move(name)),
+        _team(false),
+        _is_finished(false),
+        _hand(hand()),
+        _won_cards(won_cards_pile()),
+        _tichu(false),
+        _grand_tichu(false)
+{ }
 
-player::player(UUID id, std::string name,
-               int score, hand hand, bool has_folded) :
+player::player(UUID id, std::string name, bool team, bool is_finished, hand hand, won_cards_pile won_cards, bool tichu, bool grand_tichu) :
         _id(std::move(id)),
         _player_name(std::move(name)),
-        _hand(std::move(hand)),
-        _score(score),
-        _has_folded(has_folded)
+        _team(team),
+        _is_finished(is_finished),
+        _hand(hand),
+        _won_cards(won_cards),
+        _tichu(tichu),
+        _grand_tichu(grand_tichu)
 { }
 
 #ifdef TICHU_SERVER
-player::player(UUID id, std::string name) :
-        _id(std::move(id)),
-        _player_name(std::move(name)),
-        _has_folded(false),
-        _score(0),
-        _hand()
+player::player(UUID id, std::string name, bool team) :
+        _id(id),
+        _player_name(name),
+        _team(team),
+        _is_finished(false),
+        _hand(hand()),
+        _won_cards(won_cards_pile()),
+        _tichu(false),
+        _grand_tichu(false)
 { }
 
 #endif
 
 
-int player::get_score() const noexcept {
-    return _score;
-}
-
-const std::string& player::get_player_name() const noexcept {
-    return this->_player_name;
-}
-
-const hand& player::get_hand() const noexcept {
-    return this->_hand;
-}
-
-bool player::has_folded() const noexcept {
-    return this->_has_folded;
-}
-
-int player::get_nof_cards() const noexcept {
-    return _hand.get_nof_cards();
-}
-
-
 #ifdef TICHU_SERVER
-void player::setup_round(std::string& err) {
-    _has_folded = false;
-    _hand.setup_round(err);
-}
 
-void player::wrap_up_round(std::string &err) {
-    int cards_value = _hand.get_score();
-    int new_score = _score;
-    if (cards_value > 0) {
-        new_score = _score + cards_value;
-    } else {
-        // The player got rid of all cards. Deduct 10 points
-        new_score = std::max(0, _score - 10);
-    }
-    _score = new_score;
-}
-
-bool player::fold(std::string &err) {
-    if (has_folded()) {
-        err = "This player has already folded.";
-        return false;
-    }
-    _has_folded = true;
-    return true;
-}
-
-bool player::add_card(const card &card, std::string &err) {
-    if (has_folded()) {
-        err = "Player has already folded and is not allowed to draw any cards";
-        return false;
-    }
+bool player::add_card_to_hand(const Card &card, std::string &err) {
     return _hand.add_card(card, err);
 }
 
-std::optional<card> player::remove_card(const card &card_id, std::string &err) {
-    //card = nullptr;
-    if (has_folded()) {
-        err = "Player has already folded and is not allowed to play any cards";
-        return {};
-    }
-    return _hand.remove_card(card_id, err);
+void player::remove_cards_from_hand(const card_combination &combi, std::string& err) { 
+    _hand.remove_cards(combi.get_cards(), err);
+}
+
+bool player::add_cards_to_won_pile(const std::vector<card_combination> &combis, std::string& err) {
+    _won_cards.add_cards(combis);
+    return true;
+}
+
+void player::wrap_up_round(std::string &err) {
+    _hand.wrap_up_round();
+    _won_cards.wrap_up_round();
+    _tichu = false;
+    _grand_tichu = false;
 }
 
 #endif
@@ -100,27 +69,38 @@ std::optional<card> player::remove_card(const card &card_id, std::string &err) {
 void player::write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& alloc) const {
     string_into_json("id", _id.string(), json, alloc);
     string_into_json("player_name", _player_name, json, alloc);
-    bool_into_json("has_folded", _has_folded, json, alloc);
-    int_into_json("score", _score, json, alloc);
+    bool_into_json("team", _team, json, alloc);
+    bool_into_json("is_finished", _is_finished, json, alloc);
     _hand.write_into_json_obj("hand", json, alloc);
+    _won_cards.write_into_json_obj("won_cards", json, alloc);
+    bool_into_json("tichu", _tichu, json, alloc);
+    bool_into_json("grand_tichu", _grand_tichu, json, alloc);
 }
 
 
 player player::from_json(const rapidjson::Value &json) {
     //auto player_name = primitive_from_json<std::string>("player_name", json);
     //auto score = primitive_from_json<int>("score", json);
-    auto player_name = string_from_json("player_name", json);
-    auto score = int_from_json("score", json);
-    auto hand = hand::from_json(json["hand"].GetObject());
-    auto has_folded = bool_from_json("has_folded", json);
     auto id = string_from_json("id", json);
+    auto player_name = string_from_json("player_name", json);
+    auto team = bool_from_json("team", json);
+    auto is_finished = bool_from_json("is_finished", json);
+    auto hand = hand::from_json(json["hand"].GetObject());
+    auto won_cards = won_cards_pile::from_json(json["won_cards"].GetObject());
+    auto tichu = bool_from_json("tichu", json);
+    auto grand_tichu = bool_from_json("grand_tichu", json);
 
-    if (player_name && score && hand && has_folded && id) {
+
+    if (id && player_name && team && is_finished && hand && won_cards && tichu && grand_tichu) {
         return player { UUID(id.value()),
                         player_name.value(),
-                        score.value(),
+                        team.value(),
+                        is_finished.value(),
                         hand.value(),
-                        has_folded.value()};
+                        won_cards.value(),
+                        tichu.value(),
+                        grand_tichu.value()
+                    };
     }
     else {
         throw TichuException("Failed to deserialize player from json. Required json entries were missing.");

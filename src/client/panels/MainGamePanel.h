@@ -37,7 +37,7 @@ private:
     double const otherPlayerHandDistanceFromCenter = 180.0;
     double const otherPlayerLabelDistanceFromCenter = 275.0;
 
-    wxPoint const discardPileOffset = wxPoint(-84, -42);
+    wxPoint const activePileOffset = wxPoint(-84, -42);
     wxPoint const drawPileOffset = wxPoint(4, -42);
     wxPoint const turnIndicatorOffset = wxPoint(-100, 98);
 

@@ -39,13 +39,13 @@ public:
 
     // Try to add 'player' to any game. Returns true if 'player' is successfully added to a game_instance.
     // The joined game_instance will be written into 'game_instance_ptr'.
-    static std::optional<game_instance_ptr> try_add_player_to_any_game(player &player, std::string& err);
+    static std::optional<game_instance_ptr> try_add_player_to_any_game(player_ptr player, std::string& err);
     // Try to add 'player' to the provided 'game_instance_ptr'. Returns true if success and false otherwise.
-    static bool try_add_player(player &player, game_instance &game_instance_ptr, std::string& err);
+    static bool try_add_player(player_ptr player, game_instance &game_instance_ptr, std::string& err);
 
 
-    static bool try_remove_player(player &player, const UUID &game_id, std::string &err);
-    static bool try_remove_player(player &player, game_instance &game_instance_ptr, std::string& err);
+    static bool try_remove_player(player_ptr player, const UUID &game_id, std::string &err);
+    static bool try_remove_player(player_ptr player, game_instance &game_instance_ptr, std::string& err);
 
 };
 
