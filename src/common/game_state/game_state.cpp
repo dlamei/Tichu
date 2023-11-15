@@ -381,8 +381,8 @@ bool game_state::play_combi(player &player, const card_combination& combi, std::
         }
 
         //update player
-        bool is_pass = combi.get_combination_type() == PASS;
-        update_current_player(player,is_pass, err);
+        bool is_dog = combi.get_combination_type() == SWITCH;
+        update_current_player(player,is_dog, err);
         
 
         // checks if player, trick, round or game is finished

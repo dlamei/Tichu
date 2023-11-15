@@ -79,6 +79,7 @@ void card_combination::update_combination_type_and_rank() {
             _combination_rank = _cards.at(0).get_rank();
         }
         _combination_type = SINGLE;
+        return;
     }
 
     // DOUBLE , TRIPPLE , BOMB
@@ -245,16 +246,13 @@ bool card_combination::can_be_played_on(const std::optional<card_combination> &o
     }
     
     //pass
-    if(!other_opt) {
-        if(this->_combination_type == PASS) {
-            return false;
-        } else {
-            return true;
-        }
-    }
+    if(this->_combination_type == PASS) {
+        return true;
+    } 
     
+    if(!other_opt) { return true; }
     card_combination other = other_opt.value();
-
+    
     //bombs
     if(this->_combination_type == BOMB) {
         if(other.get_combination_type() != BOMB) { return true; }

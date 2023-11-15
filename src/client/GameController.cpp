@@ -153,6 +153,7 @@ void GameController::add_or_remove_Selected_card(int card_idx) {
 
 void GameController::playCombi(const card_combination &combiToPlay) {
     send_request(play_combi_req{combiToPlay});
+    _selected_cards.clear();
 }
 
 
