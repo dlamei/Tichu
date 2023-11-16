@@ -30,7 +30,9 @@ game_state::game_state() :
         _starting_player_idx(0),
 
         _is_started(false),
-        _is_finished(false),
+        _is_game_finished(false),
+        _is_round_finished(false),
+        _is_trick_finished(false),
 
         _last_player_idx(0)
 { }
@@ -51,7 +53,9 @@ game_state::game_state(UUID id) :
                 _starting_player_idx(0),
 
                 _is_started(false),
-                _is_finished(false),
+                _is_game_finished(false),
+                _is_round_finished(false),
+                _is_trick_finished(false),
 
                 _last_player_idx(0)
                                   
@@ -67,7 +71,9 @@ game_state::game_state(UUID id,
                        int next_player_idx,
                        int starting_player_idx,
                        bool is_started,
-                       bool is_finished, 
+                       bool is_game_finished, 
+                       bool is_round_finished, 
+                       bool is_trick_finished, 
                        int last_player_idx
                        ) : 
                 _id(std::move(id)),
@@ -85,7 +91,9 @@ game_state::game_state(UUID id,
                 _starting_player_idx(starting_player_idx),
         
                 _is_started(is_started),
-                _is_finished(is_finished),
+                _is_game_finished(is_game_finished),
+                _is_round_finished(is_round_finished),
+                _is_trick_finished(is_trick_finished),
         
                 _last_player_idx(last_player_idx)
 { }         
@@ -148,7 +156,7 @@ bool game_state::check_is_game_over(std::string& err) {
 }
 
 void game_state::wrap_up_game(std::string& err) {
-
+    _is_game_finished = true;
 }
 
 // 
@@ -194,7 +202,8 @@ bool game_state::check_is_round_finished(player &player, std::string& err) {
 }
 
 void game_state::wrap_up_round(player &current_player, std::string& err) {
-    //_is_finished = true;
+    _is_round_finished = true;
+
     int first_player_idx = get_player_index(_round_finish_order.at(0));
     int last_player_idx = _next_player_idx;
     // team A doppelsieg
@@ -275,6 +284,7 @@ bool game_state::check_is_trick_finished(player &player, std::string& err) {
 }
 
 void game_state::wrap_up_trick(player &player, std::string &err) {
+    _is_trick_finished = true;
     // move cards to won_cards_pile to right player
     _players.at(_last_player_idx)->add_cards_to_won_pile(_active_pile.get_pile(), err);
     _active_pile.clear_cards();
@@ -352,6 +362,8 @@ void game_state::wrap_up_player(player &player, std::string &err) {
 
 //   [Game Logic]
 bool game_state::play_combi(player &player, const card_combination& combi, std::string &err) {
+    _is_round_over = false;
+    _is_trick_over = false;
     int player_idx = get_player_index(player);
     if(player_idx < 0 || player_idx > 3){
         err = "couldn't find player index";
@@ -436,11 +448,12 @@ void game_state::write_into_json(rapidjson::Value &json,
     int_into_json("score_team_A", _score_team_A, json, alloc);
     int_into_json("score_team_B", _score_team_B, json, alloc);
 
-    bool_into_json("is_finished", _is_finished, json, alloc);
+    bool_into_json("is_game_finished", _is_game_finished, json, alloc);
+    bool_into_json("is_round_finished", _is_round_finished, json, alloc);
+    bool_into_json("is_trick_finished", _is_trick_finished, json, alloc);
     bool_into_json("is_started", _is_started, json, alloc);
 
     int_into_json("last_player_idx", _last_player_idx, json, alloc);
-
 
 }
 
@@ -469,14 +482,17 @@ game_state game_state::from_json(const rapidjson::Value &json) {
 
 
         auto is_started = bool_from_json("is_started", json);
-        auto is_finished = bool_from_json("is_finished", json);
+        auto is_game_finished = bool_from_json("is_game_finished", json);
+        auto is_round_finished = bool_from_json("is_round_finished", json);
+        auto is_trick_finished = bool_from_json("is_trick_finished", json);
 
         auto last_player_idx = int_from_json("last_player_idx", json);
 
         if (id && players && round_finish_order /*&& draw_pile 
             && active_pile */ && score_team_A && score_team_B 
             && next_player_idx && starting_player_idx 
-            && is_started && is_finished && last_player_idx) {
+            && is_started && is_game_finished && is_round_finished 
+            && is_trick_finished && last_player_idx) {
             return game_state {
                     UUID(id.value()),
                     player_ptrs,
@@ -488,7 +504,9 @@ game_state game_state::from_json(const rapidjson::Value &json) {
                     next_player_idx.value(),
                     starting_player_idx.value(),
                     is_started.value(),
-                    is_finished.value(),
+                    is_game_finished.value(),
+                    is_round_finished.value(),
+                    is_trick_finished.value(),
                     last_player_idx.value()
             };
 

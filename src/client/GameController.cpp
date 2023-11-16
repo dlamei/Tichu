@@ -102,12 +102,16 @@ void GameController::updateGameState(const game_state &newGameState) {
     // save the new game state as our current game state
     if (oldGameState) {
         auto old = oldGameState.value();
-
-        //GameController::showNewRoundMessage(old, newGameState);
         
     }
 
-    if(GameController::_currentGameState.value().is_finished()) {
+    if(GameController::_currentGameState.value().is_trick_finished()) {
+        //GameController::showNewTrickMessage();
+    }
+    if(GameController::_currentGameState.value().is_round_finished()) {
+        GameController::showNewRoundMessage(GameController::_currentGameState.value(), newGameState);
+    }
+    if(GameController::_currentGameState.value().is_game_finished()) {
         GameController::showGameOverMessage();
     }
 
@@ -125,10 +129,6 @@ void send_request(const client_msg_variant& req) {
 
 void GameController::startGame() {
     send_request(start_game_req());
-}
-
-void GameController::clear_selected_cards() {
-    _selected_cards.clear();
 }
 
 void GameController::play(const player &me) {

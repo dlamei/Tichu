@@ -55,7 +55,6 @@ void MainGamePanel::buildGameState(const game_state &gameState, player me) {
     this->Layout();
 }
 
-
 void MainGamePanel::buildOtherPlayerHand(const game_state &gameState, player otherPlayer, double playerAngle) {
 
     // define the ellipse which represents the virtual player circle
@@ -88,7 +87,6 @@ void MainGamePanel::buildOtherPlayerHand(const game_state &gameState, player oth
         new ImagePanel(this, "assets/tichu_hand_0.png", wxBITMAP_TYPE_ANY, handPosition, nonRotatedSize);
     }
 }
-
 
 void MainGamePanel::buildOtherPlayerLabels(const game_state &gameState, player otherPlayer, double playerAngle, int side) {
 
@@ -142,13 +140,7 @@ void MainGamePanel::buildOtherPlayerLabels(const game_state &gameState, player o
         int score;
         if((player_idx % 2) == 0) { score = gameState.get_score_team_A(); }
         else { score = gameState.get_score_team_B(); }
-        this->buildStaticText(
-                std::to_string(score) + " minus points",
-                labelPosition + wxSize(-100, -9),
-                wxSize(200, 18),
-                textAlignment
-        );
-
+        
         // Show other player's status label
         std::string statusText = "waiting...";
         bool bold = false;
@@ -167,7 +159,6 @@ void MainGamePanel::buildOtherPlayerLabels(const game_state &gameState, player o
         );
     }
 }
-
 
 void MainGamePanel::buildCardPiles(const game_state &gameState, player me) {
 
@@ -251,7 +242,6 @@ void MainGamePanel::buildTurnIndicator(const game_state &gameState, player me) {
     }
 }
 
-
 void MainGamePanel::buildThisPlayer(const game_state &gameState, player me) {
 
     // Setup two nested box sizers, in order to align our player's UI to the bottom center
@@ -295,13 +285,6 @@ void MainGamePanel::buildThisPlayer(const game_state &gameState, player me) {
         int score;
         if((player_idx % 2) == 0) { score = gameState.get_score_team_A(); }
         else { score = gameState.get_score_team_B(); }
-        wxStaticText *playerPoints = buildStaticText(
-                std::to_string(score) + " minus points",
-                wxDefaultPosition,
-                wxSize(200, 18),
-                wxALIGN_CENTER
-        );
-        innerLayout->Add(playerPoints, 0, wxALIGN_CENTER | wxBOTTOM, 8);
 
         // if our player folded, we display that as status
         if (me.get_is_finished()) {

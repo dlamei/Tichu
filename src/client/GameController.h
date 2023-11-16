@@ -15,9 +15,15 @@ public:
     static void connectToServer();
     static void updateGameState(const game_state &newGameState);
     static void startGame();
-    static void clear_selected_cards();
+
+    // creates a combi out of selected cards and calls playCombi
     static void play(const player &me);
+
+    // if card wasn't selected yet it adds the card_idx to selected cards
+    // if card was already selected it removes the card_idx from selected cards
     static void add_or_remove_Selected_card(int card_idx);
+
+    //sends a play_combi_request and clears the selected cards
     static void playCombi(const card_combination &CombiToPlay);
 
     static wxEvtHandler* getMainThreadEventHandler();

@@ -59,6 +59,7 @@ bool player::add_cards_to_won_pile(const std::vector<card_combination> &combis, 
 void player::wrap_up_round(std::string &err) {
     _hand.wrap_up_round();
     _won_cards.wrap_up_round();
+    _is_finished = false;
     _tichu = false;
     _grand_tichu = false;
 }

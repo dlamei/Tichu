@@ -35,7 +35,9 @@ private:
     int _starting_player_idx;
     
     bool _is_started;
-    bool _is_finished;
+    bool _is_game_finished;
+    bool _is_round_finished;
+    bool _is_trick_finished;
 
     int _last_player_idx;
 
@@ -56,7 +58,9 @@ public:
             int next_player_idx,
             int starting_player_idx,
             bool is_started,
-            bool is_finished,
+            bool is_game_finished,
+            bool is_round_finished,
+            bool is_trick_finished,
             int last_player_idx
             );
 
@@ -69,7 +73,9 @@ public:
     [[nodiscard]] const UUID &get_id() const { return _id; }
     [[nodiscard]] bool is_started() const { return _is_started; }
     [[nodiscard]] bool is_full() const { return _players.size() == _max_nof_players; }
-    [[nodiscard]] bool is_finished() const { return _is_finished; }
+    [[nodiscard]] bool is_game_finished() const { return _is_game_finished; }
+    [[nodiscard]] bool is_round_finished() const { return _is_round_finished; }
+    [[nodiscard]] bool is_trick_finished() const { return _is_trick_finished; }
     [[nodiscard]] bool is_player_in_game(const player& player) const;
     [[nodiscard]] bool is_allowed_to_play_now(const player& player) const;
     [[nodiscard]] const std::vector<player_ptr>& get_players() const { return _players; }
