@@ -53,6 +53,7 @@ int hand::wrap_up_round() {
 
 bool hand::add_card(const Card &new_card, std::string &err) {
     _cards.push_back(new_card);
+    std::sort(_cards.begin(),_cards.end());
     return true;
 }
 

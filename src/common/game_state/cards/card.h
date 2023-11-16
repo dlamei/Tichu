@@ -47,9 +47,9 @@ public:
         if(*this == PHONIX) { return false; }
         if(other == PHONIX) { return true; }
         if(this->get_rank() == other.get_rank()) { 
-            return this->get_rank() < other.get_rank();
-        } else {
             return this->get_suit() < other.get_suit();
+        } else {
+            return this->get_rank() < other.get_rank();
         }
     }
 

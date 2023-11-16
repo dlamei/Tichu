@@ -9,7 +9,6 @@ card_combination::card_combination(std::vector<Card> cards) {
     for(Card c : cards){
         _cards.push_back(c);
     }
-    std::sort(_cards.begin(),_cards.end());
     update_combination_type_and_rank();
 }
 
@@ -44,6 +43,8 @@ bool card_combination::are_all_same_rank() {
 }
 
 void card_combination::update_combination_type_and_rank() {
+
+    std::sort(_cards.begin(), _cards.end());
     
     int size = _cards.size();
     bool has_phoenix = count_occurances(PHONIX);
@@ -117,6 +118,16 @@ void card_combination::update_combination_type_and_rank() {
                 _combination_type = FULLHOUSE;  
                 _combination_rank = _cards.at(2).get_rank(); 
                 return; 
+            } 
+            else if(count_occurances(_cards.at(0)) == 1 && count_occurances(_cards.at(2)) == 3) {
+                _combination_type = FULLHOUSE;  
+                _combination_rank = _cards.at(2).get_rank(); 
+                return; 
+            }
+            else if(count_occurances(_cards.at(0)) == 3) {
+                _combination_type = FULLHOUSE;  
+                _combination_rank = _cards.at(0).get_rank(); 
+                return; 
             }
         } else {
             if(count_occurances(_cards.at(0)) == 3) {
@@ -148,20 +159,21 @@ void card_combination::update_combination_type_and_rank() {
     Card previous = _cards.at(0);
     if(size >= 5){
         if(has_phoenix){
-            int number_of_non_one_gaps = 0;
+            int number_of_two_gaps = 0;
             bool first_loop = true;
             previous = _cards.at(0);
             for(Card card : _cards) {
                 if(first_loop) { first_loop = false; continue; }
                 if(card == PHONIX) { break; }
-                if(card.get_rank() - previous.get_rank() != 1) { ++number_of_non_one_gaps; break; }
+                if(card.get_rank() - previous.get_rank() == 2) { ++number_of_two_gaps; break; }
+                if(card.get_rank() - previous.get_rank() == 0) { number_of_two_gaps = 2; break; }
                 previous = card;
             }
-            if(number_of_non_one_gaps <= 1) {
+            if(number_of_two_gaps <= 1) {
                 _combination_type = STRASS; 
                 _combination_rank = _cards.at(0).get_rank();
                 return; 
-                }
+            }
         } else {
             bool is_Strass = true;
             bool first_loop = true;
@@ -252,6 +264,7 @@ bool card_combination::can_be_played_on(const std::optional<card_combination> &o
     
     if(!other_opt) { return true; }
     card_combination other = other_opt.value();
+    if(other.get_combination_type() == SWITCH) { return true; }
     
     //bombs
     if(this->_combination_type == BOMB) {

@@ -386,29 +386,18 @@ bool game_state::play_combi(player &player, const card_combination& combi, std::
         
 
         // checks if player, trick, round or game is finished
-        if( check_is_player_finished(player, err) ) {
-
-            wrap_up_player(player, err);
-
-            if( check_is_trick_finished(player, err) ) { 
-
-                wrap_up_trick(player, err);
-
-                if( check_is_round_finished(player, err) ) {
-
-                    wrap_up_round(player, err);
-
-                    if( check_is_game_over(err) ) {
-
-                        wrap_up_game(err);
-
-                    }
-                    setup_round(err);
+        if( check_is_player_finished(player, err) ) { wrap_up_player(player, err); } 
+        if( check_is_trick_finished(player, err) ) { 
+            wrap_up_trick(player, err); 
+            if( check_is_round_finished(player, err) ) { 
+                wrap_up_round(player, err); 
+                if( check_is_game_over(err) ) { 
+                    wrap_up_game(err);  
                 }
-                setup_trick(player, err);
+            setup_round(err); 
             }
-            setup_player(player, err);
-        } 
+        setup_trick(player, err); 
+        }
         if(combi.get_combination_type() != PASS){
         _last_player_idx = get_player_index(player);
         }

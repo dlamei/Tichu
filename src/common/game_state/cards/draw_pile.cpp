@@ -41,8 +41,8 @@ void draw_pile::setup_game(std::string &err) {
             int card_value = 0;
             if(card_rank == 5) { card_value = 5; }
             else if(card_rank == 10 || card_rank == 13) { card_value = 10;}
-            else if(card_rank == 1 && card_suit == 2) { card_value = -25; }
-            else if(card_rank == 1 && card_suit == 1) { card_value = 25; }
+            else if(card_rank == 1 && card_suit == 1) { card_value = -25; }
+            else if(card_rank == 1 && card_suit == 2) { card_value = 25; }
             _cards.push_back(Card(card_rank, card_suit, card_value));
         }
     }
