@@ -24,7 +24,7 @@ bool game_instance::is_started() {
 }
 
 bool game_instance::is_finished() {
-    return _game_state.is_finished();
+    return _game_state.is_game_finished();
 }
 
 void broadcast_full_state_response(const game_state &state, player_ptr player) {
@@ -33,7 +33,7 @@ void broadcast_full_state_response(const game_state &state, player_ptr player) {
     server_network_manager::broadcast_message(resp, state.get_players(), player);
 }
 
-bool game_instance::play_combi(player_ptr player, const card_combination& combi, std::string& err) {
+bool game_instance::play_combi(player_ptr player, card_combination& combi, std::string& err) {
     modification_lock.lock();
     if (_game_state.play_combi(*player, combi, err)) {
         broadcast_full_state_response(_game_state, player);

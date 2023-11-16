@@ -20,14 +20,14 @@ void won_cards_pile::wrap_up_round() {
     _cards.clear();
 }
 
-void won_cards_pile::add_cards(const Card &new_card, std::string &err) {
+void won_cards_pile::add_card(const Card &new_card) {
     _cards.push_back(new_card);
 }
 
 void won_cards_pile::add_cards(const card_combination &combi){
     std::vector<Card> cards = combi.get_cards();
     for(Card card : cards) {
-        add_cards(card);
+        add_card(card);
     }
 }
 

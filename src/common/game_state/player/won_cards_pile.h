@@ -21,7 +21,7 @@ public:
 #ifdef TICHU_SERVER
 // state update functions
     void wrap_up_round();
-    void add_cards(const Card &card, std::string &err);
+    void add_card(const Card &card);
     void add_cards(const card_combination &combi);
     void add_cards(const std::vector<card_combination> &combis);
 #endif

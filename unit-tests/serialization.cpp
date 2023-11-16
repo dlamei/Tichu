@@ -163,7 +163,7 @@ TEST(SerializationTest, FullStateResponse) {
 
     auto draw = draw_pile(all_cards[4]);
     std::vector<player> round_finish_order = std::vector<player>();
-    auto state = game_state(UUID::create(), players, round_finish_order, draw, active_pile(), 42, 60, 0, 0, false, false, 4);
+    auto state = game_state(UUID::create(), players, round_finish_order, draw, active_pile(), 42, 60, 0, 0, false, false, false, false, 4);
     auto send_json = state.to_json();
 
     print_json(*send_json);

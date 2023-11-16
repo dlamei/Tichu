@@ -109,7 +109,7 @@ public:
     void wrap_up_player(player &player, std::string &err);
 
 
-    bool play_combi(player &player, const card_combination& combi, std::string& err);
+    bool play_combi(player &player, card_combination& combi, std::string& err);
     
 
 #endif

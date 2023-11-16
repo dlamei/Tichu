@@ -32,8 +32,7 @@ public:
     bool start_game(player_ptr player, std::string& err);
     bool try_add_player(player_ptr new_player, std::string& err);
     bool try_remove_player(player_ptr player, std::string& err);
-    bool play_combi(player_ptr player, const card_combination& combi, std::string& err);
-    bool draw_card(player_ptr player, std::string& err);
+    bool play_combi(player_ptr player, card_combination& combi, std::string& err);
 
 };
 

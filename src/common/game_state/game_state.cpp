@@ -299,7 +299,7 @@ bool game_state::add_player(const player_ptr player_ptr, std::string& err) {
         err = "Could not join game, because the requested game is already started.";
         return false;
     }
-    if (_is_finished) {
+    if (_is_game_finished) {
         err = "Could not join game, because the requested game is already finished.";
         return false;
     }
@@ -318,8 +318,8 @@ bool game_state::add_player(const player_ptr player_ptr, std::string& err) {
     return true;
 }
 
-void game_state::update_current_player(player &player, bool is_pass, std::string& err) {
-    if(is_pass) {
+void game_state::update_current_player(player &player, bool is_dog, std::string& err) {
+    if(is_dog) {
         _next_player_idx = (_next_player_idx + 1) % 4;
     }
     do {
@@ -361,9 +361,9 @@ void game_state::wrap_up_player(player &player, std::string &err) {
 }
 
 //   [Game Logic]
-bool game_state::play_combi(player &player, const card_combination& combi, std::string &err) {
-    _is_round_over = false;
-    _is_trick_over = false;
+bool game_state::play_combi(player &player, card_combination& combi, std::string &err) {
+    _is_round_finished = false;
+    _is_trick_finished = false;
     int player_idx = get_player_index(player);
     if(player_idx < 0 || player_idx > 3){
         err = "couldn't find player index";
@@ -377,7 +377,7 @@ bool game_state::play_combi(player &player, const card_combination& combi, std::
         err = "It's not this players turn yet.";
         return false;
     }
-    if (_is_finished) {
+    if (_is_game_finished) {
         err = "Could not play card, because the requested game is already finished.";
         return false;
     }
@@ -398,7 +398,9 @@ bool game_state::play_combi(player &player, const card_combination& combi, std::
         
 
         // checks if player, trick, round or game is finished
-        if( check_is_player_finished(player, err) ) { wrap_up_player(player, err); } 
+        if( check_is_player_finished(player, err) ) { 
+            wrap_up_player(player, err); 
+        } 
         if( check_is_trick_finished(player, err) ) { 
             wrap_up_trick(player, err); 
             if( check_is_round_finished(player, err) ) { 

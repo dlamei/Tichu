@@ -173,32 +173,17 @@ void GameController::showStatus(const std::string& message) {
 
 void GameController::showNewRoundMessage(const game_state &oldGameState, const game_state &newGameState) {
     std::string title = "Round Completed";
-    std::string message = "The players gained the following minus points:\n";
+    std::string message = "The teams have the following points:\n";
     std::string buttonLabel = "Start next round";
 
-    // add the point differences of all players to the messages
-    for(int i = 0; i < oldGameState.get_players().size(); i++) {
+        std::string scoreText_A = std::to_string(newGameState.get_score_team_A());
+        std::string Name_team_A = "Team A: ";
+        message += "\n" + Name_team_A + ":     " + scoreText_A;
 
-        const player &oldPlayerState = *(oldGameState.get_players().at(i));
-        const player &newPlayerState = *(newGameState.get_players().at(i));
-
-        int scoreDelta;
-        if((i % 2) == 0) {
-            scoreDelta = newGameState.get_score_team_A() - oldGameState.get_score_team_A();
-        } else {
-            scoreDelta = newGameState.get_score_team_B() - oldGameState.get_score_team_B();
-        }
-        std::string scoreText = std::to_string(scoreDelta);
-        if(scoreDelta > 0) {
-            scoreText = "+" + scoreText;
-        }
-
-        std::string playerName = newPlayerState.get_player_name();
-        if(newPlayerState.get_id() == GameController::_me.value().get_id()) {
-            playerName = "You";
-        }
-        message += "\n" + playerName + ":     " + scoreText;
-    }
+        std::string scoreText_B = std::to_string(newGameState.get_score_team_B());
+        std::string Name_team_B = "Team B: ";
+        message += "\n" + Name_team_B + ":     " + scoreText_B;
+    
 
     wxMessageDialog dialogBox = wxMessageDialog(nullptr, message, title, wxICON_NONE);
     dialogBox.SetOKLabel(wxMessageDialog::ButtonLabel(buttonLabel));

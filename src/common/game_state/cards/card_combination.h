@@ -33,7 +33,7 @@ public:
     int count_occurances(Card card);
     bool are_all_same_rank();
     void update_combination_type_and_rank();
-    bool can_be_played_on(const std::optional<card_combination> &other, std::string &err) const;
+    bool can_be_played_on(const std::optional<card_combination> &other, std::string &err);
 
 // serializable interface
     void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;

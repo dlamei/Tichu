@@ -43,7 +43,7 @@ bool card_combination::are_all_same_rank() {
 }
 
 void card_combination::update_combination_type_and_rank() {
-
+    // making sure cards are sorted before determining type / rank
     std::sort(_cards.begin(), _cards.end());
     
     int size = _cards.size();
@@ -250,7 +250,8 @@ void card_combination::update_combination_type_and_rank() {
     return; 
 }
 
-bool card_combination::can_be_played_on(const std::optional<card_combination> &other_opt, std::string & err) const {
+bool card_combination::can_be_played_on(const std::optional<card_combination> &other_opt, std::string & err) {
+    update_combination_type_and_rank();
     //nothing
     if(this->_combination_type == NONE) {
         err = "Invalid combination";
@@ -278,6 +279,20 @@ bool card_combination::can_be_played_on(const std::optional<card_combination> &o
             }
     }
     
+    // single Phoenix
+    if(this->_combination_type == SINGLE && this->_combination_rank == -1) {
+        if(other.get_combination_type() == SINGLE) {
+            if(other.get_combination_rank() != 15) {
+                _combination_rank = other.get_combination_rank();
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
     if( this->_combination_type == other.get_combination_type() 
         && this->get_cards().size() == other.get_cards().size()) {
         if( this->_combination_rank > other.get_combination_rank()) {

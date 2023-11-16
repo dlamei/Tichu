@@ -17,10 +17,16 @@ TEST(CombiTest, Singles){
     single_king.push_back(Card(KING, BLUE, 10));
     card_combination combi_single_king(single_king);
 
+    std::vector<Card> dragon;
+    dragon.push_back(DRAGON);
+    card_combination combi_dragon(dragon);
+
     EXPECT_EQ(combi_single_two.get_combination_type(), SINGLE);
     EXPECT_EQ(combi_single_two.get_combination_rank(), TWO);
     EXPECT_EQ(combi_single_king.get_combination_type(), SINGLE);
     EXPECT_EQ(combi_single_king.get_combination_rank(), KING);
+    EXPECT_EQ(combi_dragon.get_combination_rank(), 15);
+    EXPECT_EQ(combi_dragon.get_combination_rank(), 15);
 }
 
 TEST(CombiTest, Doubles){
@@ -158,6 +164,14 @@ TEST(CombiTest, CanBePlayedOn) {
     single_king.push_back(Card(KING, BLUE, 10));
     card_combination combi_single_king(single_king);
 
+    std::vector<Card> phoenix;
+    phoenix.push_back(PHONIX);
+    card_combination combi_phoenix(PHONIX);
+
+    std::vector<Card> dragon;
+    dragon.push_back(DRAGON);
+    card_combination combi_dragon(dragon);
+
     std::vector<Card> double_three;
     double_three.push_back(Card(THREE, SCHWARZ, 0));
     double_three.push_back(Card(THREE, GREEN , 0));
@@ -243,6 +257,13 @@ TEST(CombiTest, CanBePlayedOn) {
     // SINGLE
     EXPECT_EQ(combi_single_king.can_be_played_on(combi_single_two, err), true);
     EXPECT_EQ(combi_single_two.can_be_played_on(combi_single_king, err), false);
+
+    // DRAGON & PHOENIX
+    EXPECT_EQ(combi_phoenix.can_be_played_on(combi_single_two, err), true);
+    EXPECT_EQ(combi_phoenix.get_combination_rank(), 2);
+    EXPECT_EQ(combi_phoenix.can_be_played_on(combi_single_king, err), true);
+    EXPECT_EQ(combi_phoenix.get_combination_rank(), 13);
+    EXPECT_EQ(combi_phoenix.can_be_played_on(combi_dragon, err), false);
     
     // DOUBLE
     EXPECT_EQ(combi_double_ace.can_be_played_on(combi_double_three, err), true);
