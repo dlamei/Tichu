@@ -6,18 +6,15 @@
 #include "../../exceptions/TichuException.h"
 
 
-Card::Card(int rank, int suit, int val):
-        _rank(rank),
-        _suit(suit),
-        _value(val) {}
+Card::Card(int rank, int suit, int val) : _rank(rank), _suit(suit), _value(val) {}
 
-
-bool Card::can_be_played_on(const Card &other) const noexcept {
-    return true;
-    //TODO:
-    // return true if this card has a one higher or of equal value OR if 'other' is Tichu and this is 1
-    int value_delta = this->get_value() - other.get_value();
-    return value_delta == 0 || value_delta == 1 || (other.get_value() == 7 && this->get_value() == 1);
+Card::Card(int rank, int suit) : _rank(rank), _suit(suit) {
+    int value = 0;
+    if(rank == 5) { value = 5; }
+    else if(rank == 10 || rank == 13) { value = 10;}
+    else if(rank == 1 && suit == 1) { value = -25; }
+    else if(rank == 1 && suit == 2) { value = 25; }
+    _value = value;
 }
 
 

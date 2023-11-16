@@ -32,6 +32,7 @@ private:
 
 public:
     Card(int rank, int suit, int val);
+    Card(int rank, int suit);
 
     bool operator==(const Card& other) const {
         return _rank == other._rank && _suit == other._suit && _value == other._value;
@@ -57,9 +58,6 @@ public:
     [[nodiscard]] int get_rank() const noexcept { return _rank; }
     [[nodiscard]] int get_suit() const noexcept { return _suit; }
     [[nodiscard]] int get_value() const noexcept { return _value; }
-
-// card functions
-    bool can_be_played_on(const Card &other) const noexcept;
 
 // serializable interface
     void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;

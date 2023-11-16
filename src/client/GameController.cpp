@@ -102,7 +102,6 @@ void GameController::updateGameState(const game_state &newGameState) {
     // save the new game state as our current game state
     if (oldGameState) {
         auto old = oldGameState.value();
-        
     }
 
     if(GameController::_currentGameState.value().is_trick_finished()) {
