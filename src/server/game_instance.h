@@ -29,12 +29,10 @@ public:
     bool is_finished();
 
     // game update functions
-    bool start_game(player &player, std::string& err);
-    bool try_add_player(player &new_player, std::string& err);
-    bool try_remove_player(player &player, std::string& err);
-    bool play_card(player &player, const card& card_id, std::string& err);
-    bool draw_card(player &player, std::string& err);
-    bool fold(player &player, std::string& err);
+    bool start_game(player_ptr player, std::string& err);
+    bool try_add_player(player_ptr new_player, std::string& err);
+    bool try_remove_player(player_ptr player, std::string& err);
+    bool play_combi(player_ptr player, card_combination& combi, std::string& err);
 
 };
 

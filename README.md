@@ -304,7 +304,7 @@ private:
     serializable_value<bool>* _is_started;
     serializable_value<bool>* _is_finished;
     serializable_value<int>* _round_number;
-    serializable_value<int>* _current_player_idx;
+    serializable_value<int>* _next_player_idx;
     serializable_value<int>* _starting_player_idx;
 
     // deserialization constructor
@@ -315,7 +315,7 @@ private:
             std::vector<player*>& players,
             serializable_value<bool>* is_started,
             serializable_value<bool>* is_finished,
-            serializable_value<int>* current_player_idx,
+            serializable_value<int>* next_player_idx,
             serializable_value<int>* round_number,
             serializable_value<int>* starting_player_idx);
 
@@ -351,9 +351,9 @@ void game_state::write_into_json(rapidjson::Value &json,
     _is_started->write_into_json(is_started_val, allocator);
     json.AddMember("is_started", is_started_val, allocator);
 
-    rapidjson::Value current_player_idx_val(rapidjson::kObjectType);
-    _current_player_idx->write_into_json(current_player_idx_val, allocator);
-    json.AddMember("current_player_idx", current_player_idx_val, allocator);
+    rapidjson::Value next_player_idx_val(rapidjson::kObjectType);
+    _next_player_idx->write_into_json(next_player_idx_val, allocator);
+    json.AddMember("next_player_idx", next_player_idx_val, allocator);
 
     rapidjson::Value starting_player_idx_val(rapidjson::kObjectType);
     _starting_player_idx->write_into_json(starting_player_idx_val, allocator);
@@ -383,7 +383,7 @@ For **deserialization**, the `from_json(...)` function is used, which is impleme
 // DESERIALIZATION CONSTRUCTOR receives pointers for all its properties and stores them
 game_state::game_state(std::string id, draw_pile *draw_pile, discard_pile *discard_pile,
                        std::vector<player *> &players, serializable_value<bool> *is_started,
-                       serializable_value<bool> *is_finished, serializable_value<int> *current_player_idx,
+                       serializable_value<bool> *is_finished, serializable_value<int> *next_player_idx,
                        serializable_value<int>* round_number, serializable_value<int> *starting_player_idx)
         : unique_serializable(id),  // initialize the unique_serializable base-class
           _draw_pile(draw_pile),
@@ -391,7 +391,7 @@ game_state::game_state(std::string id, draw_pile *draw_pile, discard_pile *disca
           _players(players),
           _is_started(is_started),
           _is_finished(is_finished),
-          _current_player_idx(current_player_idx),
+          _next_player_idx(next_player_idx),
           _round_number(round_number),
           _starting_player_idx(starting_player_idx)
 { }
@@ -402,7 +402,7 @@ game_state* game_state::from_json(const rapidjson::Value &json) {
     // Make sure the json contains all required information
     if (json.HasMember("is_finished")
         && json.HasMember("is_started")
-        && json.HasMember("current_player_idx")
+        && json.HasMember("next_player_idx")
         && json.HasMember("round_number")
         && json.HasMember("starting_player_idx")
         && json.HasMember("players")
@@ -421,7 +421,7 @@ game_state* game_state::from_json(const rapidjson::Value &json) {
                               deserialized_players,
                               serializable_value<bool>::from_json(json["is_started"].GetObject()),
                               serializable_value<bool>::from_json(json["is_finished"].GetObject()),
-                              serializable_value<int>::from_json(json["current_player_idx"].GetObject()),
+                              serializable_value<int>::from_json(json["next_player_idx"].GetObject()),
                               serializable_value<int>::from_json(json["round_number"].GetObject()),
                               serializable_value<int>::from_json(json["starting_player_idx"].GetObject()));
     } else {

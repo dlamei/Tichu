@@ -7,7 +7,7 @@
 #include "../../exceptions/TichuException.h"
 
 
-draw_pile::draw_pile(std::vector<card> cards)
+draw_pile::draw_pile(std::vector<Card> cards)
         : _cards(std::move(cards))
 { }
 
@@ -34,22 +34,17 @@ void draw_pile::setup_game(std::string &err) {
     // add a fresh set of cards
     for (int card_rank = 1; card_rank <= 14; card_rank++) {
         for (int card_suit = 1; card_suit <= 4; card_suit++) {
-            int card_value = 0;
-            if(card_rank == 5) { card_value = 5; }
-            if(card_rank == 10 && card_rank == 13) { card_value = 10;}
-            if(card_rank == 1 && card_suit == 1) { card_value = -25; }
-            if(card_rank == 1 && card_suit == 2) { card_value = 25; }
-            _cards.push_back(card(card_rank, card_suit, card_value));
+            _cards.push_back(Card(card_rank, card_suit));
         }
     }
     // shuffle them
     this->shuffle();
 }
 
-std::optional<card> draw_pile::draw(player &player, std::string &err)  {
+std::optional<Card> draw_pile::draw(player &player, std::string &err)  {
     if (!_cards.empty()) {
         auto drawn_card = _cards.back();
-        if (player.add_card(drawn_card, err)) {
+        if (player.add_card_to_hand(drawn_card, err)) {
             _cards.pop_back();
             return drawn_card;
         }
@@ -59,7 +54,7 @@ std::optional<card> draw_pile::draw(player &player, std::string &err)  {
     return {};
 }
 
-std::optional<card> draw_pile::remove_top(std::string& err) {
+std::optional<Card> draw_pile::remove_top(std::string& err) {
     if (!_cards.empty()) {
         auto drawn_card = _cards.back();
         _cards.pop_back();
@@ -79,7 +74,7 @@ void draw_pile::write_into_json(rapidjson::Value &json, rapidjson::MemoryPoolAll
 
 
 draw_pile draw_pile::from_json(const rapidjson::Value &json) {
-    auto cards = vec_from_json<card>("cards", json);
+    auto cards = vec_from_json<Card>("cards", json);
     if (!cards) {
         throw TichuException("Could not parse draw_pile from json. 'id' or 'cards' were missing.");
     }

@@ -8,6 +8,7 @@
 #include "../serialization/serializable.h"
 #include "../exceptions/TichuException.h"
 #include "../game_state/cards/card.h"
+#include "../game_state/cards/card_combination.h"
 
 // helper type for the visitor
 // visit [https://en.cppreference.com/w/cpp/utility/variant/visit] for more info
@@ -23,8 +24,7 @@ overloaded(Ts...) -> overloaded<Ts...>;
 enum ClientMsgType {
     join_game,
     start_game,
-    play_card,
-    draw_card,
+    play_combi,
     fold,
 };
 
@@ -36,17 +36,15 @@ struct join_game_req {
     std::string player_name;
 };
 
-struct play_card_req {
-    card played_card;
+struct play_combi_req {
+    card_combination played_combi;
 };
 
-struct draw_card_req {
-    int nof_cards = 1;
-};
+
 
 
 // this type can hold only one of these structs at any given time
-using client_msg_variant = std::variant<join_game_req, start_game_req, play_card_req, draw_card_req, fold_req>;
+using client_msg_variant = std::variant<join_game_req, start_game_req, play_combi_req, fold_req>;
 
 
 // maps the given msg_variant to the corresponding enum
@@ -55,8 +53,7 @@ static ClientMsgType request_to_request_type(const client_msg_variant &var) {
             std::visit(overloaded {
                     [](const join_game_req&) { return ClientMsgType::join_game; },
                     [](const start_game_req&) { return ClientMsgType::start_game; },
-                    [](const play_card_req&) { return ClientMsgType::play_card; },
-                    [](const draw_card_req&) { return ClientMsgType::draw_card; },
+                    [](const play_combi_req&) { return ClientMsgType::play_combi; },
                     [](const fold_req&) { return ClientMsgType::fold; },
                     [] (auto) { throw TichuException("client_msg_variant could not be turned into ClientMsgType"); },
             }, var);
@@ -66,8 +63,7 @@ static ClientMsgType request_to_request_type(const client_msg_variant &var) {
 const std::vector<std::pair<ClientMsgType, const char *>>  msg_type_to_string_map {
         {ClientMsgType::join_game,  "join_game"},
         {ClientMsgType::start_game, "start_game"},
-        {ClientMsgType::play_card,  "play_card"},
-        {ClientMsgType::draw_card,  "draw_card"},
+        {ClientMsgType::play_combi,  "play_combi"},
         {ClientMsgType::fold,       "fold"},
 };
 

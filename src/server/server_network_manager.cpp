@@ -173,12 +173,13 @@ void server_network_manager::on_player_left(const UUID &player_id) {
 ssize_t server_network_manager::send_message(const std::string &msg, const std::string& address) {
 
     std::stringstream ss_msg;
+    //std::cerr << "MESSAGE SIZE:    " << msg.size() << "     ";
+    //std::cerr << "MESSAGE:    " << msg << "    ";
     ss_msg << std::to_string(msg.size()) << ':' << msg; // prepend message length
     return _address_to_socket.at(address).write(ss_msg.str());
 }
 
-void server_network_manager::broadcast_message(server_msg &msg, const std::vector<player> &players,
-                                               const player &exclude) {
+void server_network_manager::broadcast_message(server_msg &msg, std::vector<player_ptr> players, player_ptr exclude) {
     auto msg_json = msg.to_json();  // write to JSON format
     std::string msg_string = json_utils::to_string(*msg_json);   // convert to string
 
@@ -189,9 +190,9 @@ void server_network_manager::broadcast_message(server_msg &msg, const std::vecto
     _rw_lock.lock_shared();
     // send object_diff to all requested players
     try {
-        for(auto& player : players) {
-            if (player != exclude) {
-                int nof_bytes_written = send_message(msg_string, _player_id_to_address.at(player.get_id()));
+        for(auto player : players) {
+            if (player->get_id() != exclude->get_id()) {
+                int nof_bytes_written = send_message(msg_string, _player_id_to_address.at(player->get_id()));
             }
         }
     } catch (std::exception& e) {

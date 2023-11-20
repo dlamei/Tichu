@@ -38,12 +38,8 @@ void client_msg::write_into_json(rapidjson::Value &json,
                 string_into_json("player_name", data.player_name, json, alloc);
             },
 
-            [&] (const play_card_req& data) {
-                data.played_card.write_into_json(json, alloc);
-            },
-
-            [&] (const draw_card_req& data) {
-                int_into_json("nof_cards", data.nof_cards, json, alloc);
+            [&] (const play_combi_req& data) {
+                data.played_combi.write_into_json(json, alloc);
             },
 
             [&] (const start_game_req& data) {},
@@ -66,14 +62,9 @@ client_msg_variant msg_variant_from_json(ClientMsgType type, const rapidjson::Va
             return join_game_req { player_name };
         }
 
-        case play_card: {
-            card card = card::from_json(json);
-            return play_card_req { card };
-        }
-
-        case draw_card: {
-            int nof_cards = int_from_json("nof_cards", json).value();
-            return draw_card_req { nof_cards };
+        case play_combi: {
+            card_combination combi = card_combination::from_json(json);
+            return play_combi_req { combi };
         }
 
         default:

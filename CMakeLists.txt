@@ -9,17 +9,21 @@ endif()
 add_subdirectory(libs)
 
 set(COMMON_SOURCE_FILES
-		src/common/game_state/cards/card.cpp src/common/game_state/cards/card.h
-		src/common/game_state/game_state.cpp src/common/game_state/game_state.h
-		src/common/game_state/player/hand.cpp src/common/game_state/player/hand.h
-		src/common/game_state/player/player.cpp src/common/game_state/player/player.h
-		src/common/game_state/cards/draw_pile.cpp src/common/game_state/cards/draw_pile.h
-		src/common/game_state/cards/discard_pile.cpp src/common/game_state/cards/discard_pile.h
-		src/common/network/client_msg.cpp src/common/network/client_msg.h
-		src/common/network/server_msg.cpp src/common/network/server_msg.h
-		src/common/serialization/serializable.h
-		src/common/serialization/serializable.cpp
-		src/common/logging.h
+        src/common/game_state/cards/card.cpp src/common/game_state/cards/card.h
+        src/common/game_state/game_state.cpp src/common/game_state/game_state.h
+        src/common/game_state/player/hand.cpp src/common/game_state/player/hand.h
+        src/common/game_state/player/player.cpp src/common/game_state/player/player.h
+        src/common/game_state/player/won_cards_pile.cpp src/common/game_state/player/won_cards_pile.h
+        src/common/game_state/cards/draw_pile.cpp src/common/game_state/cards/draw_pile.h
+        src/common/game_state/cards/active_pile.cpp src/common/game_state/cards/active_pile.h
+        src/common/game_state/cards/card_combination.cpp src/common/game_state/cards/card_combination.h
+        # client requests
+        src/common/network/client_msg.cpp src/common/network/client_msg.h
+        # server responses
+        src/common/network/server_msg.cpp src/common/network/server_msg.h
+        # serialization
+        src/common/serialization/serializable.h
+        src/common/serialization/serializable.cpp
 )
 
 set(CLIENT_SOURCE_FILES

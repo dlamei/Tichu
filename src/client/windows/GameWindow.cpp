@@ -20,7 +20,7 @@ GameWindow::GameWindow(const wxString& title, const wxPoint& pos, const wxSize& 
 
     // Set the minimum size of the window. The user won't be able to resize the window to a size smaller than this
     this->SetMinSize(wxSize(1000, 720));
-
+    
 }
 
 
@@ -30,6 +30,7 @@ void GameWindow::showPanel(wxPanel* panel) {
     if(this->_currentPanel == panel) {
         return;
     }
+    
 
     // remove previous panel
     if(this->_currentPanel != nullptr) {

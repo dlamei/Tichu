@@ -11,16 +11,16 @@ void MainGamePanel::buildGameState(const game_state &gameState, player me) {
     // remove any existing UI
     this->DestroyChildren();
 
-    const std::vector<player> &players = gameState.get_players();
+    const std::vector<player_ptr> players = gameState.get_players();
     int numberOfPlayers = players.size();
 
     // find our own player object in the list of players
     int myPosition = -1;
-    auto it = std::find_if(players.begin(), players.end(), [me](const player& x) {
-        return x.get_id() == me.get_id();
+    auto it = std::find_if(players.begin(), players.end(), [me](player_ptr x) {
+        return x->get_id() == me.get_id();
     });
     if (it < players.end()) {
-        me = *it;
+        me = **it;
         myPosition = it - players.begin();
     } else {
         GameController::showError("Game state error", "Could not find this player among players of server game.");
@@ -33,7 +33,7 @@ void MainGamePanel::buildGameState(const game_state &gameState, player me) {
     for(int i = 1; i < numberOfPlayers; i++) {
 
         // get player at i-th position after myself
-        player otherPlayer = players.at((myPosition + i) % numberOfPlayers);
+        player otherPlayer = *(players.at((myPosition + i) % numberOfPlayers));
 
         double playerAngle = (double) i * anglePerPlayer;
         int side = (2 * i) - numberOfPlayers; // side < 0 => right, side == 0 => center, side > 0 => left
@@ -54,7 +54,6 @@ void MainGamePanel::buildGameState(const game_state &gameState, player me) {
     // update layout
     this->Layout();
 }
-
 
 void MainGamePanel::buildOtherPlayerHand(const game_state &gameState, player otherPlayer, double playerAngle) {
 
@@ -89,8 +88,9 @@ void MainGamePanel::buildOtherPlayerHand(const game_state &gameState, player oth
     }
 }
 
-
 void MainGamePanel::buildOtherPlayerLabels(const game_state &gameState, player otherPlayer, double playerAngle, int side) {
+
+    int player_idx = gameState.get_player_index(otherPlayer);
 
     long textAlignment = wxALIGN_CENTER;
     int labelOffsetX = 0;
@@ -137,17 +137,14 @@ void MainGamePanel::buildOtherPlayerLabels(const game_state &gameState, player o
                 textAlignment,
                 true
         );
-        this->buildStaticText(
-                std::to_string(otherPlayer.get_score()) + " minus points",
-                labelPosition + wxSize(-100, -9),
-                wxSize(200, 18),
-                textAlignment
-        );
-
+        int score;
+        if((player_idx % 2) == 0) { score = gameState.get_score_team_A(); }
+        else { score = gameState.get_score_team_B(); }
+        
         // Show other player's status label
         std::string statusText = "waiting...";
         bool bold = false;
-        if(otherPlayer.has_folded()) {
+        if(otherPlayer.get_is_finished()) {
             statusText = "Folded!";
         } else if(otherPlayer == gameState.get_current_player()) {
             statusText = "their turn";
@@ -163,36 +160,59 @@ void MainGamePanel::buildOtherPlayerLabels(const game_state &gameState, player o
     }
 }
 
-
 void MainGamePanel::buildCardPiles(const game_state &gameState, player me) {
 
     if(gameState.is_started()) {
 
         // Show discard pile
-        auto topCard = gameState.get_discard_pile().get_top_card();
-        if(topCard) {
-            std::string cardImage = "assets/row-" + std::to_string(topCard->get_suit()) + "-column-" + std::to_string(topCard->get_rank() - 1) + ".png";
+        auto topCombi = gameState.get_active_pile().get_top_combi();
+        if(topCombi) {
+            wxPoint activePilePosition = MainGamePanel::tableCenter + MainGamePanel::activePileOffset;
 
-            wxPoint discardPilePosition = MainGamePanel::tableCenter + MainGamePanel::discardPileOffset;
+            // Setup two nested box sizers, in order to align our player's UI to the bottom center
+            auto* outerLayout = new wxBoxSizer(wxHORIZONTAL);
+            this->SetSizer(outerLayout);
+            auto* innerLayout = new wxBoxSizer(wxVERTICAL);
+            outerLayout->Add(innerLayout, 1, wxALIGN_BOTTOM);
+            
 
-            auto* discardPile = new ImagePanel(this, cardImage, wxBITMAP_TYPE_ANY, discardPilePosition, MainGamePanel::cardSize);
-            discardPile->SetToolTip("Discard pile");
+            int numberOfCards = topCombi.value().get_cards().size();
+            if (numberOfCards > 0) {
+
+            // create horizontal layout for the individual hand cards of our player
+            wxBoxSizer *pileLayout = new wxBoxSizer(wxHORIZONTAL);
+            innerLayout->Add(pileLayout, 0, wxALIGN_CENTER);
+
+            wxSize scaledCardSize = MainGamePanel::cardSize;
+
+            // Adjust card size (if the number of cards does not fit on the screen)
+            if (numberOfCards * (MainGamePanel::cardSize.GetWidth() + 8) >
+                MainGamePanel::panelSize.GetWidth()) { // 8 -> 4 pixel padding on both sides
+                int scaledCardWidth = (MainGamePanel::panelSize.GetWidth() / numberOfCards) - 8;
+                double cardAspectRatio =
+                        (double) MainGamePanel::cardSize.GetHeight() / (double) MainGamePanel::cardSize.GetWidth();
+                int scaledCardHeight = (int) ((double) scaledCardWidth * cardAspectRatio);
+                scaledCardSize = wxSize(scaledCardWidth, scaledCardHeight);
+            }
+
+            // Show all cards
+            for (int i = 0; i < topCombi.value().get_cards().size(); i++) {
+
+                int card_suit = topCombi.value().get_cards().at(i).get_suit();
+                int card_rank = topCombi.value().get_cards().at(i).get_rank();
+                std::string cardFile = "assets/row-" + std::to_string(card_suit) + "-column-" + std::to_string(card_rank - 1) + ".png";
+
+                auto cardPic = new ImagePanel(this, cardFile, wxBITMAP_TYPE_ANY, wxDefaultPosition, scaledCardSize);
+                
+                cardPic->SetToolTip("Last Played combi");
+                pileLayout->Add(cardPic, 0, wxLEFT | wxRIGHT, 1);
+            }
+        }
+            
+
         }
 
-        // Show draw pile
-        wxPoint drawPilePosition = MainGamePanel::tableCenter + MainGamePanel::drawPileOffset;
-
-        auto* drawPile = new ImagePanel(this, "assets/tichu_back.png", wxBITMAP_TYPE_ANY, drawPilePosition, MainGamePanel::cardSize);
-
-        if(gameState.get_current_player() == me && !me.has_folded()) {
-            drawPile->SetToolTip("Draw card");
-            drawPile->SetCursor(wxCursor(wxCURSOR_HAND));
-            drawPile->Bind(wxEVT_LEFT_UP, [](wxMouseEvent& event) {
-                GameController::drawCard();
-            });
-        } else {
-            drawPile->SetToolTip("Draw pile");
-        }
+        
 
     } else {
         // if the game did not start yet, show a back side of a card in the center (only for the mood)
@@ -221,7 +241,6 @@ void MainGamePanel::buildTurnIndicator(const game_state &gameState, player me) {
         );
     }
 }
-
 
 void MainGamePanel::buildThisPlayer(const game_state &gameState, player me) {
 
@@ -262,18 +281,15 @@ void MainGamePanel::buildThisPlayer(const game_state &gameState, player me) {
     } else {
 
         // show our player's minus points
-        wxStaticText *playerPoints = buildStaticText(
-                std::to_string(me.get_score()) + " minus points",
-                wxDefaultPosition,
-                wxSize(200, 18),
-                wxALIGN_CENTER
-        );
-        innerLayout->Add(playerPoints, 0, wxALIGN_CENTER | wxBOTTOM, 8);
+        int player_idx = gameState.get_player_index(me);
+        int score;
+        if((player_idx % 2) == 0) { score = gameState.get_score_team_A(); }
+        else { score = gameState.get_score_team_B(); }
 
         // if our player folded, we display that as status
-        if (me.has_folded()) {
+        if (me.get_is_finished()) {
             wxStaticText *playerStatus = buildStaticText(
-                    "Folded!",
+                    "Finished!",
                     wxDefaultPosition,
                     wxSize(200, 32),
                     wxALIGN_CENTER
@@ -282,9 +298,9 @@ void MainGamePanel::buildThisPlayer(const game_state &gameState, player me) {
 
         // if we haven't folded yet, and it's our turn, display Fold button
         } else if (gameState.get_current_player() == me) {
-            wxButton *foldButton = new wxButton(this, wxID_ANY, "Fold", wxDefaultPosition, wxSize(80, 32));
-            foldButton->Bind(wxEVT_BUTTON, [](wxCommandEvent& event) {
-                GameController::fold();
+            wxButton *foldButton = new wxButton(this, wxID_ANY, "Skip/Play", wxDefaultPosition, wxSize(80, 32));
+            foldButton->Bind(wxEVT_BUTTON, [me](wxCommandEvent& event) {
+                GameController::play(me);
             });
             innerLayout->Add(foldButton, 0, wxALIGN_CENTER | wxBOTTOM, 8);
 
@@ -304,8 +320,8 @@ void MainGamePanel::buildThisPlayer(const game_state &gameState, player me) {
         if (numberOfCards > 0) {
 
             // create horizontal layout for the individual hand cards of our player
-            wxBoxSizer *handLayout = new wxBoxSizer(wxHORIZONTAL);
-            innerLayout->Add(handLayout, 0, wxALIGN_CENTER);
+            wxBoxSizer *pileLayout = new wxBoxSizer(wxHORIZONTAL);
+            innerLayout->Add(pileLayout, 0, wxALIGN_CENTER);
 
             wxSize scaledCardSize = MainGamePanel::cardSize;
 
@@ -322,19 +338,20 @@ void MainGamePanel::buildThisPlayer(const game_state &gameState, player me) {
             // Show all cards
             for (int i = 0; i < me.get_hand().get_cards().size(); i++) {
 
-                const card &handCard = me.get_hand().get_cards().at(i);
+                const Card &handCard = me.get_hand().get_cards().at(i);
                 std::string cardFile = "assets/row-" + std::to_string(handCard.get_suit()) + "-column-" + std::to_string(handCard.get_rank() - 1) + ".png";
 
                 auto cardButton = new ImagePanel(this, cardFile, wxBITMAP_TYPE_ANY, wxDefaultPosition, scaledCardSize);
 
-                if (gameState.get_current_player() == me && !me.has_folded()) {
-                    cardButton->SetToolTip("Play card");
-                    cardButton->SetCursor(wxCursor(wxCURSOR_HAND));
-                    cardButton->Bind(wxEVT_LEFT_UP, [handCard](wxMouseEvent& event) {
-                        GameController::playCard(handCard);
+                if (gameState.get_current_player() == me && !me.get_is_finished()) {
+                    cardButton->SetToolTip("Select card");
+                    //cardButton->SetCursor(wxCursor(wxCURSOR_HAND));
+                    cardButton->Bind(wxEVT_LEFT_UP, [handCard, i](wxMouseEvent& event) {
+                        //GameController::playCombi(handCard);
+                        GameController::add_or_remove_Selected_card(i);
                     });
                 }
-                handLayout->Add(cardButton, 0, wxLEFT | wxRIGHT, 4);
+                pileLayout->Add(cardButton, 0, wxLEFT | wxRIGHT, 4);
             }
         }
     }

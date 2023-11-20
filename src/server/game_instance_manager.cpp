@@ -78,10 +78,10 @@ game_instance_manager::try_get_player_and_game_instance(const UUID& player_id, s
 }
 
 
-std::optional<game_instance_ptr> game_instance_manager::try_add_player_to_any_game(player &player, std::string& err) {
+std::optional<game_instance_ptr> game_instance_manager::try_add_player_to_any_game(player_ptr player, std::string& err) {
 
     // check that player is not already subscribed to another game
-    if (player.get_game_id().empty()) {
+    if (!(player->get_game_id().empty())) {
         err = "Could not join game. Player is already active in a game";
         return {};
     }
@@ -99,10 +99,10 @@ std::optional<game_instance_ptr> game_instance_manager::try_add_player_to_any_ga
 }
 
 
-bool game_instance_manager::try_add_player(player &player, game_instance &game_instance_ptr, std::string& err) {
-    if (player.get_game_id().empty()) {
-        if (player.get_game_id() != game_instance_ptr.get_id()) {
-            err = "Player is already active in a different src with id " + player.get_game_id().string();
+bool game_instance_manager::try_add_player(player_ptr player, game_instance &game_instance_ptr, std::string& err) {
+    if (!(player->get_game_id().empty())) {
+        if (player->get_game_id() != game_instance_ptr.get_id()) {
+            err = "Player is already active in a different src with id " + player->get_game_id().string();
         } else {
             err = "Player is already active in this src";
         }
@@ -110,14 +110,14 @@ bool game_instance_manager::try_add_player(player &player, game_instance &game_i
     }
 
     if (game_instance_ptr.try_add_player(player, err)) {
-        player.set_game_id(game_instance_ptr.get_id());   // mark that this player is playing in a src
+        player->set_game_id(game_instance_ptr.get_id());   // mark that this player is playing in a src
         return true;
     } else {
         return false;
     }
 }
 
-bool game_instance_manager::try_remove_player(player &player, const UUID &game_id, std::string &err) {
+bool game_instance_manager::try_remove_player(player_ptr player, const UUID &game_id, std::string &err) {
     auto game_instance = try_get_game_instance(game_id);
     if (game_instance) {
         return try_remove_player(player, *game_instance.value(), err);
@@ -127,7 +127,7 @@ bool game_instance_manager::try_remove_player(player &player, const UUID &game_i
     }
 }
 
-bool game_instance_manager::try_remove_player(player &player, game_instance &game_instance_ptr, std::string &err) {
+bool game_instance_manager::try_remove_player(player_ptr player, game_instance &game_instance_ptr, std::string &err) {
     return game_instance_ptr.try_remove_player(player, err);
 }
 

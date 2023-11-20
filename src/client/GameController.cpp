@@ -1,6 +1,7 @@
 #include "GameController.h"
 #include "../common/network/client_msg.h"
 #include "network/ClientNetworkManager.h"
+#include <algorithm>
 
 
 // initialize static members
@@ -10,6 +11,7 @@ MainGamePanel* GameController::_mainGamePanel = nullptr;
 
 std::optional<player> GameController::_me = {};
 std::optional<game_state> GameController::_currentGameState = {};
+std::vector<int> GameController::_selected_cards = {};
 //player* GameController::_me = nullptr;
 //game_state GameController::_currentGameState = nullptr;
 
@@ -32,6 +34,9 @@ void GameController::init(GameWindow* gameWindow) {
 
     // Set status bar
     GameController::showStatus("Not connected");
+
+    GameController::_gameWindow->Layout();
+    
 }
 
 
@@ -79,32 +84,33 @@ void GameController::connectToServer() {
     auto request = client_msg(GameController::_me.value().get_id(), UUID(), req);
     ClientNetworkManager::sendRequest(request);
 
+    GameController::_selected_cards = std::vector<int>();
+
 }
 
 
 void GameController::updateGameState(const game_state &newGameState) {
 
+
+
     // the existing game state is now old
     auto oldGameState = GameController::_currentGameState;
 
+    //current Game state is now the new one
+    GameController::_currentGameState = newGameState;
+    
     // save the new game state as our current game state
     if (oldGameState) {
         auto old = oldGameState.value();
-        GameController::_currentGameState = newGameState;
-
-        //if(oldGameState != nullptr) {
-
-        // check if a new round started, and display message accordingly
-        if (old.get_round_number() > 0 && old.get_round_number() < newGameState.get_round_number()) {
-            GameController::showNewRoundMessage(old, newGameState);
-        }
-
-        // delete the old game state, we don't need it anymore
-        //delete oldGameState;
-        //}
     }
 
-    if(GameController::_currentGameState.value().is_finished()) {
+    if(GameController::_currentGameState.value().is_trick_finished()) {
+        //GameController::showNewTrickMessage();
+    }
+    if(GameController::_currentGameState.value().is_round_finished()) {
+        GameController::showNewRoundMessage(GameController::_currentGameState.value(), newGameState);
+    }
+    if(GameController::_currentGameState.value().is_game_finished()) {
         GameController::showGameOverMessage();
     }
 
@@ -116,7 +122,7 @@ void GameController::updateGameState(const game_state &newGameState) {
 }
 
 void send_request(const client_msg_variant& req) {
-    auto request = client_msg(GameController::get_game_state().value().get_id(), GameController::get_me().value().get_id(), req);
+    auto request = client_msg(GameController::get_me().value().get_id(), GameController::get_game_state().value().get_id(), req);
     ClientNetworkManager::sendRequest(request);
 }
 
@@ -124,19 +130,29 @@ void GameController::startGame() {
     send_request(start_game_req());
 }
 
-
-void GameController::drawCard() {
-    send_request(draw_card_req());
+void GameController::play(const player &me) {
+    std::vector<Card> cards;
+    auto c = GameController::_selected_cards;
+    auto hand_cards = me.get_hand().get_cards();
+    for(int card_idx : GameController::_selected_cards) {
+        cards.push_back(hand_cards.at(card_idx));
+    }
+    card_combination combi(cards);
+    playCombi(combi);
 }
 
-
-void GameController::fold() {
-    send_request(fold_req());
+void GameController::add_or_remove_Selected_card(int card_idx) {
+    auto card = std::find(GameController::_selected_cards.begin(), GameController::_selected_cards.end(), card_idx);
+    if(card == GameController::_selected_cards.end()){
+        GameController::_selected_cards.push_back(card_idx);
+    } else {
+        GameController::_selected_cards.erase(card);
+    }
 }
 
-
-void GameController::playCard(const card &cardToPlay) {
-    send_request(play_card_req{cardToPlay});
+void GameController::playCombi(const card_combination &combiToPlay) {
+    send_request(play_combi_req{combiToPlay});
+    _selected_cards.clear();
 }
 
 
@@ -157,27 +173,17 @@ void GameController::showStatus(const std::string& message) {
 
 void GameController::showNewRoundMessage(const game_state &oldGameState, const game_state &newGameState) {
     std::string title = "Round Completed";
-    std::string message = "The players gained the following minus points:\n";
+    std::string message = "The teams have the following points:\n";
     std::string buttonLabel = "Start next round";
 
-    // add the point differences of all players to the messages
-    for(int i = 0; i < oldGameState.get_players().size(); i++) {
+        std::string scoreText_A = std::to_string(newGameState.get_score_team_A());
+        std::string Name_team_A = "Team A: ";
+        message += "\n" + Name_team_A + ":     " + scoreText_A;
 
-        const player &oldPlayerState = oldGameState.get_players().at(i);
-        const player &newPlayerState = newGameState.get_players().at(i);
-
-        int scoreDelta = newPlayerState.get_score() - oldPlayerState.get_score();
-        std::string scoreText = std::to_string(scoreDelta);
-        if(scoreDelta > 0) {
-            scoreText = "+" + scoreText;
-        }
-
-        std::string playerName = newPlayerState.get_player_name();
-        if(newPlayerState.get_id() == GameController::_me.value().get_id()) {
-            playerName = "You";
-        }
-        message += "\n" + playerName + ":     " + scoreText;
-    }
+        std::string scoreText_B = std::to_string(newGameState.get_score_team_B());
+        std::string Name_team_B = "Team B: ";
+        message += "\n" + Name_team_B + ":     " + scoreText_B;
+    
 
     wxMessageDialog dialogBox = wxMessageDialog(nullptr, message, title, wxICON_NONE);
     dialogBox.SetOKLabel(wxMessageDialog::ButtonLabel(buttonLabel));
@@ -192,15 +198,17 @@ void GameController::showGameOverMessage() {
 
     // sort players by score
     auto players = GameController::_currentGameState.value().get_players();
-    std::sort(players.begin(), players.end(), [](const player &a, const player &b) -> bool {
-        return a.get_score() < b.get_score();
+    std::sort(players.begin(), players.end(), [](player_ptr a, player_ptr &b) -> bool {
+        return ((a->get_team())?_currentGameState.value().get_score_team_B():_currentGameState.value().get_score_team_A())
+               < ((b->get_team())?_currentGameState.value().get_score_team_B():_currentGameState.value().get_score_team_A());
     });
-
+ 
     // list all players
     for(int i = 0; i < players.size(); i++) {
 
-        const player &playerState = players.at(i);
-        std::string scoreText = std::to_string(playerState.get_score());
+        const player &playerState = *(players.at(i));
+        std::string scoreText = std::to_string(((i % 2) == 0) ? _currentGameState.value().get_score_team_A() : 
+                                                _currentGameState.value().get_score_team_B());
 
         // first entry is the winner
         std::string winnerText;
