@@ -2,7 +2,7 @@
 
 add_library(sockpp STATIC)
 
-target_sources(sockpp PUBLIC
+target_sources(sockpp PRIVATE
 		sockpp/src/acceptor.cpp
 		sockpp/src/connector.cpp
 		sockpp/src/datagram_socket.cpp
@@ -21,7 +21,7 @@ set_target_properties(sockpp
 )
 
 if (UNIX)
-	target_sources(sockpp PUBLIC sockpp/src/unix/unix_address.cpp)
+	target_sources(sockpp PRIVATE sockpp/src/unix/unix_address.cpp)
 endif()
 
 target_include_directories(sockpp

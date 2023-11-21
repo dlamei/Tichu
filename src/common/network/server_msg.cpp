@@ -132,6 +132,7 @@ ServerMsgType server_msg::get_type() const {
 }
 
 #ifdef TICHU_CLIENT
+/*
 #include "../game_state/game_state.h"
 #include "../../client/GameController.h"
 
@@ -172,4 +173,5 @@ void server_msg::Process() const {
     }, _response);
 }
 
+ */
 #endif

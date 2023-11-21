@@ -11,7 +11,7 @@
 #include "card_combination.h"
 #include "../player/player.h"
 #include "../../serialization/serializable.h"
-#include "../../../../rapidjson/include/rapidjson/document.h"
+#include <rapidjson/document.h>
 
 class active_pile : public serializable {
 private:

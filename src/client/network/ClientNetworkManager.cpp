@@ -134,5 +134,5 @@ void ClientNetworkManager::parseResponse(const std::string& message) {
     } catch (std::exception e) {
         GameController::showError("JSON parsing error", "Failed to parse message from server:\n" + message + "\n" + (std::string) e.what());
     }
-    
+
 }

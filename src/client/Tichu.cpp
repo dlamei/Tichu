@@ -3,6 +3,14 @@
 #include "GUI/imgui_build.h"
 #include "misc/cpp/imgui_stdlib.h"
 #include "GUI/renderer.h"
+#include "sockpp/exception.h"
+#include "../../src/common/network/client_msg.h"
+
+bool ConnectionData::validate() {
+    if (name.size() > 64 || name.empty()) return false;
+    if (host.empty()) return false;
+    return true;
+}
 
 // centering function for the next window. will only center once
 void center_next_window_once() {
@@ -40,7 +48,7 @@ void team_selectable(const char *label, TeamSelection *selection, TeamSelection 
 }
 
 /// displays the connection panel, data is read and written into the input argument
-void show_connection_panel(ConnectionPanelInput *input) {
+void show_connection_panel(ConnectionData *input) {
 
     auto height = ImGui::GetFontSize();
 
@@ -89,6 +97,9 @@ void show_connection_panel(ConnectionPanelInput *input) {
     }
     ImGui::EndTable();
 
+    center_next_label(input->status.c_str());
+    ImGui::TextColored(ImGui::LIGHT_GREY, "%s", input->status.c_str());
+
     ImGui::End();
 }
 
@@ -104,6 +115,11 @@ void show_main_framebuffer() {
 
     ImGui::PopStyleVar();
     ImGui::PopStyleColor();
+}
+
+void TichuGame::on_attach() {
+    sockpp::socket_initializer::initialize();
+    texture = Texture::load("assets/tichu_logo.png");
 }
 
 void TichuGame::on_update(TimeStep ts) {
@@ -134,7 +150,7 @@ void TichuGame::show_message_boxes() {
     // remove closed messages
     auto end = _messages.end();
     auto begin = _messages.begin();
-    _messages.erase(std::remove_if(begin, end, [](const MessageBox &msg) { return msg.should_close; }), end);
+    _messages.erase(std::remove_if(begin, end, [](const MessageWindow &msg) { return msg.should_close; }), end);
 
 }
 
@@ -143,7 +159,7 @@ void TichuGame::on_imgui() {
     show_message_boxes();
 
     if (_state & CONNECTION_PANEL) {
-        show_connection_panel(&_connection_input);
+        show_connection_panel(&_connection_data);
     }
 
     if (_state & GAME_PANEL) {
@@ -151,40 +167,103 @@ void TichuGame::on_imgui() {
     }
 
 
-    if (_connection_input.connect) {
-        _state = GAME_PANEL;
+    if (_connection_data.connect) {
+        // reset button press
+        _connection_data.connect = false;
+
+        if (_connection_data.validate()) {
+            connect_to_server();
+        } else {
+            show_msg(MessageType::WARN, "invalid input");
+        }
     }
 
-    ImGui::Begin("Debug popup");
-    if (ImGui::Button("info")) {
-        _messages.emplace_back(MessageType::INFO, "this is an info popup, that informs the player");
-    }
-    if (ImGui::Button("warn")) {
-        _messages.emplace_back(MessageType::WARN, "this is a warning popup, that warns the player");
-    }
-    if (ImGui::Button("error")) {
-        _messages.emplace_back(MessageType::ERROR, "this is an error popup, that tells the player something went wrong");
-    }
-    ImGui::End();
 }
 
-void TichuGame::on_attach() {
-    texture = Texture::load("assets/tichu_logo.png");
+void listen_to_response(ConnectionData &data, MessageQueue<std::string> *queue) {
+    auto join_game = join_game_req {.player_name = "test_name"};
+    auto client_req = client_msg(data.id, UUID(), join_game).to_json();
+    auto msg = json_utils::to_string(*client_req);
+    msg = std::to_string(msg.size()) + ":" + msg;
+    data.connection.write(msg);
+    char buffer[512];
+   while (true) {
+       ssize_t count = data.connection.read(buffer, sizeof(buffer));
+       if (count <= 0) break;
+
+        INFO_LOG("received: {}", buffer);
+   }
+
+}
+
+void TichuGame::connect_to_server() {
+    sockpp::inet_address address;
+
+    if (_connection_data.connection.is_connected()) {
+        WARN_LOG("connect_to_server was called while already connected!");
+        _connection_data.connection.shutdown();
+        _listener.join();
+    }
+
+    try {
+        address = sockpp::inet_address(_connection_data.host, _connection_data.port);
+    } catch (const sockpp::getaddrinfo_error& e) {
+        show_msg(MessageType::ERROR, "Failed to resolve address " + e.hostname());
+        return;
+    }
+
+    if (!_connection_data.connection.connect(address)) {
+        show_msg(MessageType::ERROR, "Failed to connect to server " + address.to_string());
+        return;
+    }
+
+    _connection_data.status = "Connected to " + address.to_string();
+
+    try {
+        _listener = std::thread(listen_to_response, std::ref(_connection_data), &_server_msgs);
+    } catch (std::exception &e) {
+        ERROR_LOG("while creating listener thread: {}", e.what());
+    }
+}
+
+void TichuGame::on_detach() {
+    if (_connection_data.connection.is_connected()) {
+        _connection_data.connection.shutdown();
+        _listener.join();
+    }
 }
 
 std::pair<std::string, ImVec4> msg_type_to_string_and_color(MessageType typ) {
     switch (typ) {
         case MessageType::ERROR:
-            return { "error", ImGui::RED };
+            return { "Error", ImGui::RED };
         case MessageType::WARN:
-            return { "warning", ImGui::ORANGE };
+            return { "Warning", ImGui::ORANGE };
         case MessageType::INFO:
-            return { "info", ImGui::BLACK };
+            return { "Info", ImGui::BLACK };
     }
     return { "unknown", ImGui::BLACK };
 }
 
-void MessageBox::on_imgui() {
+void text_wrapped_centered(const std::string& text)
+{
+    float win_width = ImGui::GetWindowSize().x;
+    float text_width = ImGui::CalcTextSize(text.c_str()).x;
+
+    float text_indentation = (win_width - text_width) * 0.5f;
+
+    float min_indentation = 20.0f;
+    if (text_indentation <= min_indentation) {
+        text_indentation = min_indentation;
+    }
+
+    ImGui::SameLine(text_indentation);
+    ImGui::PushTextWrapPos(win_width - text_indentation);
+    ImGui::TextWrapped("%s", text.c_str());
+    ImGui::PopTextWrapPos();
+}
+
+void MessageWindow::on_imgui() {
     auto [title, title_color] = msg_type_to_string_and_color(type);
 
     // add imgui unique id to the title (view docs for more info)
@@ -203,7 +282,10 @@ void MessageBox::on_imgui() {
     center_next_window_once();
     ImGui::Begin(title.c_str(), nullptr,
                  ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse);
-    ImGui::TextWrapped("%s", message.c_str());
+
+    ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());
+
+    text_wrapped_centered(message);
 
     ImGui::NewLine();
 

@@ -14,7 +14,7 @@
 static bool s_GLFWInitialized = false;
 
 static void GLFWErrorCallback(int error, const char *msg) {
-    ERROR("GLFW Error ({0}): {1}", error, msg);
+    ERROR_LOG("GLFW Error ({0}): {1}", error, msg);
 }
 
 

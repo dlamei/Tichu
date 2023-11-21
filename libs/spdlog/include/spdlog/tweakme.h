@@ -100,9 +100,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
-// Uncomment to customize level names (e.g. "MY TRACE")
+// Uncomment to customize level names (e.g. "MY TRACE_LOG")
 //
-// #define SPDLOG_LEVEL_NAMES { "MY TRACE", "MY DEBUG", "MY INFO", "MY WARNING", "MY ERROR", "MY
+// #define SPDLOG_LEVEL_NAMES { "MY TRACE_LOG", "MY DEBUG", "MY Info", "MY WARNING", "MY ERROR", "MY
 // CRITICAL", "OFF" }
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -121,7 +121,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
-// Uncomment and set to compile time level with zero cost (default is INFO).
+// Uncomment and set to compile time level with zero cost (default is Info).
 // Macros like SPDLOG_DEBUG(..), SPDLOG_INFO(..)  will expand to empty statements if not enabled
 //
 // #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_INFO

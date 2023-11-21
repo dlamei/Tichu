@@ -29,7 +29,7 @@ GLenum glCheckError_(const char *file, int line)
             case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
             default: error = "UNKNOWN_ERROR"; break;
         }
-        ERROR("{} | {} ({})", error, file, line);
+        ERROR_LOG("{} | {} ({})", error, file, line);
     }
     return errorCode;
 }
@@ -100,10 +100,10 @@ RGBA::operator uint32_t() const
     return m_Data;
 }
 
-RGBA::operator RGB() const
-{
-    return {red(), green(), blue()};
-}
+//RGBA::operator RGB() const
+//{
+//    return {red(), green(), blue()};
+//}
 
 std::ostream &operator<<(std::ostream &os, const RGBA &c) {
     os << "{ r: " << (uint32_t)c.red() << ", g: " << (uint32_t)c.green() << ", b: "
@@ -111,42 +111,42 @@ std::ostream &operator<<(std::ostream &os, const RGBA &c) {
     return os;
 }
 
-RGB::RGB()
-        : _red(255), _blue(255), _green(255) {}
-
-RGB::RGB(const uint8_t value)
-        : _red(value), _blue(value), _green(value) {}
-
-RGB::RGB(uint8_t r, uint8_t g, uint8_t b)
-        : _red(r), _blue(b), _green(g) {}
-
-RGB RGB::from_norm(glm::vec3 val)
-{
-    auto r = static_cast<uint8_t>(val.r * 255);
-    auto g = static_cast<uint8_t>(val.g * 255);
-    auto b = static_cast<uint8_t>(val.b * 255);
-    return {r, g, b};
-}
-
-glm::vec3 RGB::normalized() const
-{
-    float r = (float)red() / 255.f;
-    float g = (float)green() / 255.f;
-    float b = (float)blue() / 255.f;
-
-    return { r, g, b };
-}
-
-RGB::operator RGBA() const
-{
-    return {_red, _green, _blue};
-}
-
-std::ostream &operator<<(std::ostream &os, const RGB &c) {
-    os << "{ r: " << (uint32_t)c.red() << ", g: " << (uint32_t)c.green() << ", b: "
-       << (uint32_t)c.blue() << " }";
-    return os;
-}
+//RGB::RGB()
+//        : _red(255), _blue(255), _green(255) {}
+//
+//RGB::RGB(const uint8_t value)
+//        : _red(value), _blue(value), _green(value) {}
+//
+//RGB::RGB(uint8_t r, uint8_t g, uint8_t b)
+//        : _red(r), _blue(b), _green(g) {}
+//
+//RGB RGB::from_norm(glm::vec3 val)
+//{
+//    auto r = static_cast<uint8_t>(val.r * 255);
+//    auto g = static_cast<uint8_t>(val.g * 255);
+//    auto b = static_cast<uint8_t>(val.b * 255);
+//    return {r, g, b};
+//}
+//
+//glm::vec3 RGB::normalized() const
+//{
+//    float r = (float)red() / 255.f;
+//    float g = (float)green() / 255.f;
+//    float b = (float)blue() / 255.f;
+//
+//    return { r, g, b };
+//}
+//
+//RGB::operator RGBA() const
+//{
+//    return {_red, _green, _blue};
+//}
+//
+//std::ostream &operator<<(std::ostream &os, const RGB &c) {
+//    os << "{ r: " << (uint32_t)c.red() << ", g: " << (uint32_t)c.green() << ", b: "
+//       << (uint32_t)c.blue() << " }";
+//    return os;
+//}
 
 
 void Vertex::bind_layout() {
@@ -217,7 +217,7 @@ namespace gl_utils {
         if (data) {
             glTexImage2D(GL_TEXTURE_2D, 0, INTERNAL_FORMAT, w, h, 0, DATA_FORMAT, GL_UNSIGNED_BYTE, data);
         } else {
-            WARN("Failed to load texture: {}", path);
+            WARN_LOG("Failed to load texture: {}", path);
         }
         stbi_image_free(data);
 
@@ -248,8 +248,8 @@ namespace gl_utils {
         if (!success)
         {
             glGetShaderInfoLog(module, 1024, NULL, infoLog);
-            ERROR("SHADER_COMPILATION_ERROR:");
-            ERROR("{}", infoLog);
+            ERROR_LOG("SHADER_COMPILATION_ERROR:");
+            ERROR_LOG("{}", infoLog);
         }
 
         *id = module;
@@ -271,8 +271,8 @@ namespace gl_utils {
         glGetProgramiv(shader, GL_LINK_STATUS, &success);
         if (!success) {
             glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-            ERROR("SHADER_LINKING_ERROR:");
-            ERROR("{}", infoLog);
+            ERROR_LOG("SHADER_LINKING_ERROR:");
+            ERROR_LOG("{}", infoLog);
         }
 
         *id = shader;
@@ -282,7 +282,7 @@ namespace gl_utils {
 
 #define GET_ID(id, opt_shared_ptr)    \
 if (!opt_shared_ptr.has_value()) {     \
-    WARN("{} ({}): item was not initialized!", __FUNCTION__, #opt_shared_ptr); \
+    WARN_LOG("{} ({}): item was not initialized!", __FUNCTION__, #opt_shared_ptr); \
     return;                         \
 }                                   \
 auto id = *opt_shared_ptr.value();
@@ -421,7 +421,7 @@ void Shader::unbind() {
 int get_uniform_location(uint32_t id, const std::string &name) {
     auto location = glGetUniformLocation(id, name.c_str());
     if (location == -1) {
-        WARN("Could not find uniform {}", name);
+        WARN_LOG("Could not find uniform {}", name);
     }
     return location;
 }
@@ -482,7 +482,7 @@ FrameBuffer FrameBuffer::from_texture(const Texture &texture) {
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.native_texture(), 0);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        ERROR("FrameBuffer::from_texture: framebuffer is not complete");
+        ERROR_LOG("FrameBuffer::from_texture: framebuffer is not complete");
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

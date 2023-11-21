@@ -533,8 +533,8 @@ void TypeParameterizedTestSuiteRegistry::RegisterInstantiation(
   if (it != suites_.end()) {
     it->second.instantiated = true;
   } else {
-    GTEST_LOG_(ERROR) << "Unknown type parameterized test suit '"
-                      << test_suite_name << "'";
+    GTEST_LOG_(ERROR_LOG) << "Unknown type parameterized test suit '"
+                          << test_suite_name << "'";
   }
 }
 
@@ -2778,9 +2778,9 @@ void ReportInvalidTestSuiteType(const char* test_suite_name,
       << "probably rename one of the classes to put the tests into different\n"
       << "test suites.";
 
-  GTEST_LOG_(ERROR) << FormatFileLocation(code_location.file.c_str(),
-                                          code_location.line)
-                    << " " << errors.GetString();
+  GTEST_LOG_(ERROR_LOG) << FormatFileLocation(code_location.file.c_str(),
+                                              code_location.line)
+                        << " " << errors.GetString();
 }
 }  // namespace internal
 
@@ -5019,9 +5019,9 @@ class ScopedPrematureExitFile {
     if (!premature_exit_filepath_.empty()) {
       int retval = remove(premature_exit_filepath_.c_str());
       if (retval) {
-        GTEST_LOG_(ERROR) << "Failed to remove premature exit filepath \""
-                          << premature_exit_filepath_ << "\" with error "
-                          << retval;
+        GTEST_LOG_(ERROR_LOG) << "Failed to remove premature exit filepath \""
+                              << premature_exit_filepath_ << "\" with error "
+                              << retval;
       }
     }
 #endif

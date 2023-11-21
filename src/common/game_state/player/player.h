@@ -10,7 +10,7 @@
 #include <utility>
 #include "hand.h"
 #include "won_cards_pile.h"
-#include "../../../../rapidjson/include/rapidjson/document.h"
+#include <rapidjson/document.h>
 
 
 class player : public serializable {

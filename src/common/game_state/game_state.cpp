@@ -12,51 +12,10 @@ enum COMBI{
 };
 
 game_state::game_state() :
-        _id(UUID::create()),
-
-        _players(std::vector<player_ptr>()),
-        _round_finish_order(std::vector<player>()),
-      
-        _draw_pile(draw_pile()),
-        _active_pile(active_pile()),
-
-        _score_team_A(0),
-        _score_team_B(0),
-
-        _next_player_idx(0),
-        _starting_player_idx(0),
-
-        _is_started(false),
-        _is_game_finished(false),
-        _is_round_finished(false),
-        _is_trick_finished(false),
-
-        _last_player_idx(0)
-{ }
+        _id(UUID::create()) {}
 
 game_state::game_state(UUID id) : 
-                _id(std::move(id)),
-
-                _players(std::vector<player_ptr>()),
-                _round_finish_order(std::vector<player>()),
-
-                _draw_pile(draw_pile()),
-                _active_pile(active_pile()),
-
-                _score_team_A(0),
-                _score_team_B(0),
-
-                _next_player_idx(0),
-                _starting_player_idx(0),
-
-                _is_started(false),
-                _is_game_finished(false),
-                _is_round_finished(false),
-                _is_trick_finished(false),
-
-                _last_player_idx(0)
-                                  
-{ }
+                _id(std::move(id)) {}
 
 game_state::game_state(UUID id, 
                        std::vector<player_ptr>& players, 

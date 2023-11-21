@@ -4,8 +4,8 @@
 
 #include <algorithm>
 #include <vector>
-#include "../../../../rapidjson/include/rapidjson/document.h"
-#include "../../../../src/common/serialization/serializable.h"
+#include <rapidjson/document.h>
+#include "../../../src/common/serialization/serializable.h"
 #include "card.h"
 
 class card_combination : public serializable {

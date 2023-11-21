@@ -2,7 +2,7 @@
 #define TICHU_WON_CARDS_PILE_H
 
 #include <vector>
-#include "../../../../rapidjson/include/rapidjson/document.h"
+#include <rapidjson/document.h>
 #include "../cards/card.h"
 #include "../cards/card_combination.h"
 

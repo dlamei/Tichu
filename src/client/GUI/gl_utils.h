@@ -12,7 +12,7 @@
 #include <optional>
 #include <filesystem>
 
-class RGB;
+//class RGB;
 
 // helper class for color
 class RGBA {
@@ -33,7 +33,7 @@ public:
     [[nodiscard]] glm::vec4 normalized() const;
 
     explicit operator uint32_t() const;
-    explicit operator RGB() const;
+    //explicit operator RGB() const;
 
 private:
     uint32_t m_Data;
@@ -51,37 +51,37 @@ std::ostream &operator<<(std::ostream &os, const RGBA &c);
 
 // helper class for color when alpha is assumed to be 255
 // we can't just use RGBA because we want to be able to fill textures with these types, so RGB 3 bytes and RGBA 4 bytes
-class RGB {
-public:
-    RGB();
-    explicit RGB(uint8_t value);
-    RGB(uint8_t r, uint8_t g, uint8_t b);
-
-    static RGB from_norm(glm::vec3 val);
-
-    [[nodiscard]] inline uint8_t red() const { return _red; }
-    [[nodiscard]] inline uint8_t green() const { return _green; }
-    [[nodiscard]] inline uint8_t blue() const { return _blue; }
-
-    [[nodiscard]] glm::vec3 normalized() const;
-
-    explicit operator RGBA() const;
-
-private:
-    uint8_t _blue;
-    uint8_t _green;
-    uint8_t _red;
-};
-
-inline bool operator==(const RGB &c1, const RGB &c2) {
-    return (RGBA)c1 == (RGBA)c2;
-}
-
-inline bool operator!=(const RGB &c1, const RGB &c2) {
-    return (RGBA)c1 != (RGBA)c2;
-}
-
-std::ostream &operator<<(std::ostream &os, const RGB &c);
+//class RGB {
+//public:
+//    RGB();
+//    explicit RGB(uint8_t value);
+//    RGB(uint8_t r, uint8_t g, uint8_t b);
+//
+//    static RGB from_norm(glm::vec3 val);
+//
+//    [[nodiscard]] inline uint8_t red() const { return _red; }
+//    [[nodiscard]] inline uint8_t green() const { return _green; }
+//    [[nodiscard]] inline uint8_t blue() const { return _blue; }
+//
+//    [[nodiscard]] glm::vec3 normalized() const;
+//
+//    explicit operator RGBA() const;
+//
+//private:
+//    uint8_t _blue;
+//    uint8_t _green;
+//    uint8_t _red;
+//};
+//
+//inline bool operator==(const RGB &c1, const RGB &c2) {
+//    return (RGBA)c1 == (RGBA)c2;
+//}
+//
+//inline bool operator!=(const RGB &c1, const RGB &c2) {
+//    return (RGBA)c1 != (RGBA)c2;
+//}
+//
+//std::ostream &operator<<(std::ostream &os, const RGB &c);
 
 struct Vertex {
     glm::vec3 pos;

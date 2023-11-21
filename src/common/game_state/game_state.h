@@ -19,24 +19,24 @@ private:
 
     UUID _id;
 
-    std::vector<player_ptr> _players;
-    std::vector<player> _round_finish_order;
+    std::vector<player_ptr> _players{};
+    std::vector<player> _round_finish_order{};
 
-    draw_pile _draw_pile;
-    active_pile _active_pile;
+    draw_pile _draw_pile{};
+    active_pile _active_pile{};
 
-    int _score_team_A;
-    int _score_team_B;
+    int _score_team_A{0};
+    int _score_team_B{0};
 
-    int _next_player_idx;
-    int _starting_player_idx;
+    int _next_player_idx{0};
+    int _starting_player_idx{0};
     
-    bool _is_started;
-    bool _is_game_finished;
-    bool _is_round_finished;
-    bool _is_trick_finished;
+    bool _is_started{false};
+    bool _is_game_finished{false};
+    bool _is_round_finished{false};
+    bool _is_trick_finished{false};
 
-    int _last_player_idx;
+    int _last_player_idx{0};
 
     // from_diff constructor
     explicit game_state(UUID id);

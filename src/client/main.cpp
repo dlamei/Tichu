@@ -9,7 +9,7 @@ int main() {
     };
 
     Application app(info);
-    app.push_layer(std::make_shared<TichuGame>(TichuGame()));
+    app.push_layer(std::make_shared<TichuGame>());
     app.run();
 
     return 0;
