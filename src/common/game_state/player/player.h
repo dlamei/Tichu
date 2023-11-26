@@ -43,9 +43,9 @@ public:
 
     bool operator==(const player &other) const {
         return (_player_name == other._player_name
-        && _hand == other._hand
+                && _hand == other._hand
 #ifdef TICHU_SERVER
-&& _game_id == other._game_id
+                && _game_id == other._game_id
 #endif
         );
     }
@@ -63,15 +63,23 @@ public:
 
     // accessors
     [[nodiscard]] bool get_team() const noexcept { return _team; }
+
     [[nodiscard]] bool get_is_finished() const noexcept { return _is_finished; }
+
     [[nodiscard]] bool get_tichu() const noexcept { return _tichu; }
+
     [[nodiscard]] int get_grand_tichu() const noexcept { return _grand_tichu; }
+
     [[nodiscard]] const UUID &get_id() const noexcept { return _id; }
+
     [[nodiscard]] int get_nof_cards() const noexcept { return _hand.get_nof_cards(); }
-    [[nodiscard]] const hand& get_hand() const noexcept { return _hand; }
-    [[nodiscard]] const std::string& get_player_name() const noexcept { return this->_player_name; }
+
+    [[nodiscard]] const hand &get_hand() const noexcept { return _hand; }
+
+    [[nodiscard]] const std::string &get_player_name() const noexcept { return this->_player_name; }
 
     [[nodiscard]] int get_hand_score() const noexcept { return _hand.get_score(); }
+
     [[nodiscard]] int get_won_score() const noexcept { return _won_cards.get_score(); }
 
 #ifdef TICHU_SERVER
@@ -89,8 +97,9 @@ public:
 
 
     // serialization
-    static player from_json(const rapidjson::Value& json);
-    virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& alloc) const override;
+    static player from_json(const rapidjson::Value &json);
+
+    virtual void write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType &alloc) const override;
 
 };
 

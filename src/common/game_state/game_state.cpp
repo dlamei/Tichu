@@ -7,71 +7,66 @@
 
 #include "../exceptions/TichuException.h"
 
-enum COMBI{
-    NONE, SINGLE, DOUBLE, TRIPLE, BOMB, FULLHOUSE, STRASS, TREPPE, PASS, SWITCH
-};
-
 game_state::game_state() :
         _id(UUID::create()) {}
 
-game_state::game_state(UUID id) : 
-                _id(std::move(id)) {}
+game_state::game_state(UUID id) :
+        _id(std::move(id)) {}
 
-game_state::game_state(UUID id, 
-                       std::vector<player_ptr>& players, 
-                       std::vector<player>& round_finish_order, 
-                       draw_pile draw_pile, 
+game_state::game_state(UUID id,
+                       std::vector<player_ptr> &players,
+                       std::vector<player> &round_finish_order,
+                       draw_pile draw_pile,
                        active_pile active_pile,
                        int score_team_A,
                        int score_team_B,
                        int next_player_idx,
                        int starting_player_idx,
                        bool is_started,
-                       bool is_game_finished, 
-                       bool is_round_finished, 
-                       bool is_trick_finished, 
+                       bool is_game_finished,
+                       bool is_round_finished,
+                       bool is_trick_finished,
                        int last_player_idx
-                       ) : 
-                _id(std::move(id)),
+) :
+        _id(std::move(id)),
 
-                _players(players),
-                _round_finish_order(round_finish_order),
-            
-                _draw_pile(draw_pile),
-                _active_pile(active_pile),
-        
-                _score_team_A(score_team_A),
-                _score_team_B(score_team_B),
-        
-                _next_player_idx(next_player_idx),
-                _starting_player_idx(starting_player_idx),
-        
-                _is_started(is_started),
-                _is_game_finished(is_game_finished),
-                _is_round_finished(is_round_finished),
-                _is_trick_finished(is_trick_finished),
-        
-                _last_player_idx(last_player_idx)
-{ }         
+        _players(players),
+        _round_finish_order(round_finish_order),
+
+        _draw_pile(draw_pile),
+        _active_pile(active_pile),
+
+        _score_team_A(score_team_A),
+        _score_team_B(score_team_B),
+
+        _next_player_idx(next_player_idx),
+        _starting_player_idx(starting_player_idx),
+
+        _is_started(is_started),
+        _is_game_finished(is_game_finished),
+        _is_round_finished(is_round_finished),
+        _is_trick_finished(is_trick_finished),
+
+        _last_player_idx(last_player_idx) {}
 
 // accessors
 std::optional<player> game_state::get_current_player() const {
-    if(_players.empty()) {
+    if (_players.empty()) {
         return {};
     }
     return *(_players[_next_player_idx]);
 }
 
 int game_state::get_player_index(const player &player) const {
-    for(int i = 0; i < _players.size(); ++i) {
-        if(*(_players.at(i)) == player) { return i; }
+    for (int i = 0; i < _players.size(); ++i) {
+        if (*(_players.at(i)) == player) { return i; }
     }
     return -1;
 }
 
 bool game_state::is_player_in_game(const player &player) const {
-    for(int i = 0; i < _players.size(); ++i) {
-        if(*(_players.at(i)) == player) { return true; }
+    for (int i = 0; i < _players.size(); ++i) {
+        if (*(_players.at(i)) == player) { return true; }
     }
     return false;
 }
@@ -316,7 +311,7 @@ void game_state::wrap_up_player(player &player, std::string &err) {
 
 }
 
-//   [Game Logic]
+//   [GamePanel Logic]
 bool game_state::play_combi(player &player, card_combination& combi, std::string &err) {
     _is_round_finished = false;
     _is_trick_finished = false;
@@ -384,7 +379,6 @@ bool game_state::play_combi(player &player, card_combination& combi, std::string
 #endif
 
 
-
 // Serializable interface
 void game_state::write_into_json(rapidjson::Value &json,
                                  rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &alloc) const {
@@ -392,7 +386,7 @@ void game_state::write_into_json(rapidjson::Value &json,
     string_into_json("id", _id.string(), json, alloc);
 
     std::vector<player> players;
-    for(auto player : _players) { players.push_back(*player); }
+    for (auto player: _players) { players.push_back(*player); }
 
     vec_into_json("players", players, json, alloc);
     vec_into_json("round_finish_order", _round_finish_order, json, alloc);
@@ -418,58 +412,58 @@ void game_state::write_into_json(rapidjson::Value &json,
 game_state game_state::from_json(const rapidjson::Value &json) {
     //TODO: remove check
 
-        auto id = string_from_json("id", json);
+    auto id = string_from_json("id", json);
 
-        auto players = vec_from_json<player>("players", json);
-        std::vector<player_ptr> player_ptrs;
-        if(players){
-        for(auto plyr : players.value()) {
+    auto players = vec_from_json<player>("players", json);
+    std::vector<player_ptr> player_ptrs;
+    if (players) {
+        for (auto plyr: players.value()) {
             player_ptrs.push_back(std::make_shared<player>(plyr));
         }
-        }
-        auto round_finish_order = vec_from_json<player>("round_finish_order", json);
+    }
+    auto round_finish_order = vec_from_json<player>("round_finish_order", json);
 
-        auto draw_pile = draw_pile::from_json(json["draw_pile"].GetObject());
-        auto active_pile = active_pile::from_json(json["active_pile"].GetObject());
+    auto draw_pile = draw_pile::from_json(json["draw_pile"].GetObject());
+    auto active_pile = active_pile::from_json(json["active_pile"].GetObject());
 
-        auto next_player_idx = int_from_json("next_player_idx", json);
-        auto starting_player_idx = int_from_json("starting_player_idx", json);
+    auto next_player_idx = int_from_json("next_player_idx", json);
+    auto starting_player_idx = int_from_json("starting_player_idx", json);
 
-        auto score_team_A = int_from_json("score_team_A", json);
-        auto score_team_B = int_from_json("score_team_B", json);
+    auto score_team_A = int_from_json("score_team_A", json);
+    auto score_team_B = int_from_json("score_team_B", json);
 
 
-        auto is_started = bool_from_json("is_started", json);
-        auto is_game_finished = bool_from_json("is_game_finished", json);
-        auto is_round_finished = bool_from_json("is_round_finished", json);
-        auto is_trick_finished = bool_from_json("is_trick_finished", json);
+    auto is_started = bool_from_json("is_started", json);
+    auto is_game_finished = bool_from_json("is_game_finished", json);
+    auto is_round_finished = bool_from_json("is_round_finished", json);
+    auto is_trick_finished = bool_from_json("is_trick_finished", json);
 
-        auto last_player_idx = int_from_json("last_player_idx", json);
+    auto last_player_idx = int_from_json("last_player_idx", json);
 
-        if (id && players && round_finish_order /*&& draw_pile 
-            && active_pile */ && score_team_A && score_team_B 
-            && next_player_idx && starting_player_idx 
-            && is_started && is_game_finished && is_round_finished 
-            && is_trick_finished && last_player_idx) {
-            return game_state {
-                    UUID(id.value()),
-                    player_ptrs,
-                    round_finish_order.value(),
-                    draw_pile,
-                    active_pile,
-                    score_team_A.value(),
-                    score_team_B.value(),
-                    next_player_idx.value(),
-                    starting_player_idx.value(),
-                    is_started.value(),
-                    is_game_finished.value(),
-                    is_round_finished.value(),
-                    is_trick_finished.value(),
-                    last_player_idx.value()
-            };
+    if (id && players && round_finish_order /*&& draw_pile
+            && active_pile */ && score_team_A && score_team_B
+        && next_player_idx && starting_player_idx
+        && is_started && is_game_finished && is_round_finished
+        && is_trick_finished && last_player_idx) {
+        return game_state{
+                UUID(id.value()),
+                player_ptrs,
+                round_finish_order.value(),
+                draw_pile,
+                active_pile,
+                score_team_A.value(),
+                score_team_B.value(),
+                next_player_idx.value(),
+                starting_player_idx.value(),
+                is_started.value(),
+                is_game_finished.value(),
+                is_round_finished.value(),
+                is_trick_finished.value(),
+                last_player_idx.value()
+        };
 
-        } else {
-            throw TichuException("Failed to deserialize game_state. Required entries were missing.");
-        }
+    } else {
+        throw TichuException("Failed to deserialize game_state. Required entries were missing.");
+    }
 }
 

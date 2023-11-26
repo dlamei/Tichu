@@ -20,11 +20,11 @@ server_msg request_handler::handle_request(const client_msg &req) {
 
     // Get common properties of requests
     ClientMsgType type = req.get_type();
-    const auto& game_id = req.get_game_id();
-    const auto& player_id = req.get_player_id();
+    const auto &game_id = req.get_game_id();
+    const auto &player_id = req.get_player_id();
 
     // Switch behavior according to request type
-    switch(type) {
+    switch (type) {
 
         // ##################### JOIN GAME #####################  //
         case ClientMsgType::join_game: {
@@ -40,7 +40,7 @@ server_msg request_handler::handle_request(const client_msg &req) {
                 if (game_instance_ptr) {
                     // game_instance_ptr got updated to the joined game
                     // return response with full game_state attached
-                    auto resp = request_response{true, game_instance_ptr.value()->get_game_state().to_json(), err };
+                    auto resp = request_response{true, game_instance_ptr.value()->get_game_state().to_json(), err};
                     return server_msg(game_instance_ptr.value()->get_id(), resp);
                     //return request_response(game_instance_ptr.value()->get_id(), req_id, true, game_instance_ptr.value()->get_game_state().to_json(), err);
                 } else {
@@ -55,7 +55,7 @@ server_msg request_handler::handle_request(const client_msg &req) {
                     if (game_instance_manager::try_add_player(player, *game_instance.value(), err)) {
                         // return response with full game_state attached
                         auto resp = request_response{true,
-                                                    game_instance.value()->get_game_state().to_json(), err};
+                                                     game_instance.value()->get_game_state().to_json(), err};
                         return server_msg(game_id, resp);
 
                     } else {
@@ -72,7 +72,7 @@ server_msg request_handler::handle_request(const client_msg &req) {
         }
 
 
-        // ##################### START GAME ##################### //
+            // ##################### START GAME ##################### //
         case ClientMsgType::start_game: {
             auto game_and_player = game_instance_manager::try_get_player_and_game_instance(player_id, err);
             if (game_and_player) {
@@ -87,7 +87,7 @@ server_msg request_handler::handle_request(const client_msg &req) {
         }
 
 
-        // ##################### PLAY CARD ##################### //
+            // ##################### PLAY CARD ##################### //
         case ClientMsgType::play_combi: {
             auto game_and_player = game_instance_manager::try_get_player_and_game_instance(player_id, err);
             if (game_and_player) {
@@ -104,25 +104,25 @@ server_msg request_handler::handle_request(const client_msg &req) {
             return server_msg(game_instance->get_id(), resp);
         }
 
-        // ##################### FOLD ##################### //
-        /*
-        case ClientMsgType::fold: {
-            auto game_and_player = game_instance_manager::try_get_player_and_game_instance(player_id, err);
-            if (game_and_player) {
-                auto [player, game_instance] = game_and_player.value();
-                if (game_instance->fold(*player, err)) {
-                    auto resp = request_response{true, game_instance->get_game_state().to_json(), err};
-                    return server_msg(game_instance->get_id(), resp);
+            // ##################### FOLD ##################### //
+            /*
+            case ClientMsgType::fold: {
+                auto game_and_player = game_instance_manager::try_get_player_and_game_instance(player_id, err);
+                if (game_and_player) {
+                    auto [player, game_instance] = game_and_player.value();
+                    if (game_instance->fold(*player, err)) {
+                        auto resp = request_response{true, game_instance->get_game_state().to_json(), err};
+                        return server_msg(game_instance->get_id(), resp);
+                    }
                 }
+                auto resp = request_response{false, {}, err};
+                return server_msg(UUID(), resp);
             }
-            auto resp = request_response{false, {}, err};
-            return server_msg(UUID(), resp);
-        }
-        */
+            */
 
-        // ##################### UNKNOWN REQUEST ##################### //
+            // ##################### UNKNOWN REQUEST ##################### //
         default: {
-            auto resp = request_response{false, {}, "Unknown ClientMsgType " + client_msg::msg_type_to_string(type)};
+            auto resp = request_response{false, {}, "Unknown ClientMsgType " + std::to_string(type)};
             return server_msg(UUID(), resp);
         }
     }

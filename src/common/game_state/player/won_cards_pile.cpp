@@ -4,11 +4,11 @@
 
 #include "../../exceptions/TichuException.h"
 
-won_cards_pile::won_cards_pile(std::vector<Card> cards) : _cards(std::move(cards)) { }
+won_cards_pile::won_cards_pile(std::vector<Card> cards) : _cards(std::move(cards)) {}
 
 int won_cards_pile::get_score() const {
     int res = 0;
-    for(Card card : _cards) {
+    for (Card card: _cards) {
         res += card.get_value();
     }
     return res;
@@ -42,7 +42,7 @@ void won_cards_pile::add_cards(const std::vector<card_combination> &combis) {
 #endif
 
 
-void won_cards_pile::write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType& alloc) const {
+void won_cards_pile::write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType &alloc) const {
     vec_into_json("cards", _cards, json, alloc);
 }
 

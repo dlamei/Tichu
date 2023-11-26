@@ -156,8 +156,8 @@ namespace ImGui {
     }
 
     void Image(const Texture &texture, const ImVec2 &size, const ImVec2 &uv0, const ImVec2 &uv1,
-                      const ImVec4 &tint_col, const ImVec4 &border_col) {
-        ImGui::Image((void *)(size_t)texture.native_texture(), size, uv0, uv1, tint_col, border_col);
+               const ImVec4 &tint_col, const ImVec4 &border_col) {
+        ImGui::Image((void *) (size_t) texture.native_texture(), size, uv0, uv1, tint_col, border_col);
     }
 
 }

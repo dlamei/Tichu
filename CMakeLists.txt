@@ -40,6 +40,8 @@ set(CLIENT_SOURCE_FILES
         src/client/Tichu.h
         src/client/Tichu.cpp
 		src/client/GUI/KeyCodes.h
+		src/client/panels.cpp
+		src/client/panels.h
 )
 
 set(SERVER_SOURCE_FILES
@@ -54,9 +56,10 @@ set(SERVER_SOURCE_FILES
 file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
 
 # --- client / server targets ---
-add_compile_definitions(PRINT_NETWORK_MESSAGES=1)
 add_executable(Tichu-client ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES} src/client/main.cpp)
 add_executable(Tichu-server ${SERVER_SOURCE_FILES} ${COMMON_SOURCE_FILES} src/server/main.cpp)
+target_compile_definitions(Tichu-client PUBLIC PRINT_NETWORK_MESSAGES=1)
+target_compile_definitions(Tichu-server PUBLIC PRINT_NETWORK_MESSAGES=1)
 
 target_link_libraries(Tichu-client CLIENT_LIBS)
 target_link_libraries(Tichu-server SERVER_LIBS)

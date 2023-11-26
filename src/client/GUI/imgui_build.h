@@ -8,6 +8,7 @@
 #define TICHU_IMGUI_BUILD_H
 
 #define IMGUI_DEFINE_MATH_OPERATORS
+
 #include <imgui.h>
 #include <imgui_internal.h>
 #include "window.h"
@@ -53,7 +54,7 @@ namespace ImGui {
             ImGui::PopStyleVar(style_count);
         }
 
-        void push_style(ImGuiStyleVar idx, float val)  {
+        void push_style(ImGuiStyleVar idx, float val) {
             ImGui::PushStyleVar(idx, val);
             style_count++;
         }
@@ -81,7 +82,9 @@ namespace ImGui {
     // should be called at the end of every frame
     void end_frame();
 
-    void Image(const Texture &texture, const ImVec2& size, const ImVec2& uv0 = ImVec2(0, 1), const ImVec2& uv1 = ImVec2(1, 0), const ImVec4& tint_col = ImVec4(1, 1, 1, 1), const ImVec4& border_col = ImVec4(0, 0, 0, 0));
+    void Image(const Texture &texture, const ImVec2 &size, const ImVec2 &uv0 = ImVec2(0, 1),
+               const ImVec2 &uv1 = ImVec2(1, 0), const ImVec4 &tint_col = ImVec4(1, 1, 1, 1),
+               const ImVec4 &border_col = ImVec4(0, 0, 0, 0));
 }
 
 #endif //TICHU_IMGUI_BUILD_H

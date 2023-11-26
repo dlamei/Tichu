@@ -3,15 +3,22 @@
 
 #include <spdlog/spdlog.h>
 
-#define TRACE_LOG(...) ::spdlog::trace(__VA_ARGS__)
-#define INFO_LOG(...) ::spdlog::info(__VA_ARGS__)
-#define WARN_LOG(...) ::spdlog::warn(__VA_ARGS__)
-#define ERROR_LOG(...) ::spdlog::error(__VA_ARGS__)
+inline void init_logger() {
+    spdlog::set_level(spdlog::level::trace);
+}
+
+#define DEBUG(...) ::spdlog::debug(__VA_ARGS__)
+#define INFO(...) ::spdlog::info(__VA_ARGS__)
+#define WARN(...) ::spdlog::warn(__VA_ARGS__)
+#ifdef ERROR
+#undef ERROR
+#endif
+#define ERROR(...) ::spdlog::error(__VA_ARGS__)
 
 #if NDEBUG
 #define ASSERT(x, ...)
 #else
-#define ASSERT(x, ...) { if(!x) {ERROR_LOG("Assertion Failed: {0}", __VA_ARGS__); assert(false); } }
+#define ASSERT(x, ...) { if(!(x)) {ERROR("Assertion Failed: {0}", __VA_ARGS__); assert(false); } }
 #endif
 
 #endif //TICHU_LOGGING_H

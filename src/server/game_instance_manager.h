@@ -23,26 +23,31 @@ private:
     static std::unordered_map<UUID, game_instance_ptr> games_lut;
 
     static std::shared_ptr<game_instance> create_new_game();
+
     static std::shared_ptr<game_instance> find_joinable_game_instance();
 
 public:
 
     // returns true if the desired game_instance '_game_id' was found or false otherwise.
     // The found game instance is written into game_instance_ptr.
-    static std::optional<game_instance_ptr> try_get_game_instance(const UUID& game_id);
+    static std::optional<game_instance_ptr> try_get_game_instance(const UUID &game_id);
+
     // returns true if the desired player '_player_id' was found and is connected to a game_instance.
     // The found player and game_instance will be written into 'player' and 'game_instance_ptr'
-    static  std::optional<std::tuple<std::shared_ptr<player>, game_instance_ptr >> try_get_player_and_game_instance(const UUID& player_id, std::string& err);
+    static std::optional<std::tuple<std::shared_ptr<player>, game_instance_ptr >>
+    try_get_player_and_game_instance(const UUID &player_id, std::string &err);
 
     // Try to add 'player' to any game. Returns true if 'player' is successfully added to a game_instance.
     // The joined game_instance will be written into 'game_instance_ptr'.
-    static std::optional<game_instance_ptr> try_add_player_to_any_game(player_ptr player, std::string& err);
+    static std::optional<game_instance_ptr> try_add_player_to_any_game(player_ptr player, std::string &err);
+
     // Try to add 'player' to the provided 'game_instance_ptr'. Returns true if success and false otherwise.
-    static bool try_add_player(player_ptr player, game_instance &game_instance_ptr, std::string& err);
+    static bool try_add_player(player_ptr player, game_instance &game_instance_ptr, std::string &err);
 
 
     static bool try_remove_player(player_ptr player, const UUID &game_id, std::string &err);
-    static bool try_remove_player(player_ptr player, game_instance &game_instance_ptr, std::string& err);
+
+    static bool try_remove_player(player_ptr player, game_instance &game_instance_ptr, std::string &err);
 
 };
 

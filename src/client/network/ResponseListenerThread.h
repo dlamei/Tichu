@@ -7,20 +7,22 @@
 #include "sockpp/tcp_connector.h"
 
 
-class ResponseListenerThread : public wxThread {
+class ResponseListenerThread
+:
+public wxThread{
 
-public:
-    ResponseListenerThread(sockpp::tcp_connector* connection);
-    ~ResponseListenerThread();
+        public:
+        ResponseListenerThread(sockpp::tcp_connector * connection);
+        ~ResponseListenerThread();
 
-protected:
-    virtual ExitCode Entry();
+        protected:
+        virtual ExitCode Entry();
 
-private:
-    void outputError(std::string title, std::string message);
+        private:
+        void outputError(std::string title, std::string message);
 
 
-    sockpp::tcp_connector* _connection;
+        sockpp::tcp_connector* _connection;
 
 };
 

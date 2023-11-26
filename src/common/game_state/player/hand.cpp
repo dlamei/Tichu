@@ -5,11 +5,11 @@
 
 #include "../../exceptions/TichuException.h"
 
-hand::hand(std::vector<Card> cards) : _cards(std::move(cards)) { }
+hand::hand(std::vector<Card> cards) : _cards(std::move(cards)) {}
 
 int hand::get_score() const {
     int res = 0;
-    for(Card card : _cards) {
+    for (Card card: _cards) {
         res += card.get_value();
     }
     return res;
@@ -17,7 +17,7 @@ int hand::get_score() const {
 
 std::optional<Card> hand::try_get_card(const Card &card) const {
     auto it = std::find_if(_cards.begin(), _cards.end(),
-                           [&card](const class Card &x) { return x == card;});
+                           [&card](const class Card &x) { return x == card; });
     if (it < _cards.end()) {
         return *it;
     }
@@ -29,7 +29,7 @@ std::optional<Card> hand::remove_card(int idx) {
     return remove_card(_cards.begin() + idx);
 }
 
-std::optional<Card> hand::remove_card(const Card& card) {
+std::optional<Card> hand::remove_card(const Card &card) {
     auto pos = std::find(_cards.begin(), _cards.end(), card);
     return remove_card(pos);
 }
@@ -87,7 +87,7 @@ bool hand::remove_cards(const std::vector<Card> &cards, std::string& err) {
 #endif
 
 
-void hand::write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType& alloc) const {
+void hand::write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType &alloc) const {
     vec_into_json("cards", _cards, json, alloc);
 }
 

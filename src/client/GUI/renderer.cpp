@@ -26,15 +26,17 @@ struct RenderContext {
     std::array<Vertex, MAX_VERTICES> vertices{};
     std::array<index_t, MAX_INDICES> indices{};
     std::array<Texture, MAX_INDICES> textures{};
-    int texture_index { 1 };
+    int texture_index{1};
 
-    Vertex *vertex_ptr { nullptr };
-    index_t *index_ptr { nullptr };
+    Vertex *vertex_ptr{nullptr};
+    index_t *index_ptr{nullptr};
 
     glm::mat4 camera{};
 
     uint32_t vertex_count{};
     uint32_t index_count{};
+
+    Renderer::RectMode rect_mode = Renderer::RectMode::CORNER;
 };
 
 static RenderContext s_render_cntxt = {};
@@ -75,6 +77,11 @@ namespace Renderer {
     }
 
     int push_texture(const Texture &tex) {
+        if (!tex.is_init()) {
+            WARN("called push_texture with uninitialized texture");
+            return 0;
+        }
+
         for (int i = 0; i < s_render_cntxt.texture_index; i++) {
             if (s_render_cntxt.textures.at(i).native_texture() == tex.native_texture()) return i;
         }
@@ -93,7 +100,17 @@ namespace Renderer {
         s_render_cntxt.index_ptr++;
     }
 
-    void draw_rect(const glm::vec2 &pos, const glm::vec2 &size, RGBA tint, const Texture &texture) {
+    void rect_impl(const glm::vec2 &_pos, const glm::vec2 &size, RGBA tint, const Texture &texture) {
+        glm::vec2 pos{};
+        switch (s_render_cntxt.rect_mode) {
+            case RectMode::CORNER:
+                pos = _pos;
+                break;
+            case RectMode::CENTER:
+                pos = _pos - size / 2.f;
+                break;
+        }
+
         const uint32_t vert_count = 4;
         const uint32_t indx_count = 6;
 
@@ -101,26 +118,26 @@ namespace Renderer {
         if (s_render_cntxt.index_count + indx_count >= RenderContext::MAX_INDICES) flush();
         if (s_render_cntxt.texture_index + 1 >= RenderContext::MAX_TEXTURE_SLOT) flush();
 
-        auto tex_id = (float)push_texture(texture);
+        auto tex_id = (float) push_texture(texture);
 
         Vertex v{};
         v.col = tint.normalized();
         v.tex_id = tex_id;
 
-        v.pos = { pos.x, pos.y, 0 };
-        v.uv = { 0, 0 };
+        v.pos = {pos.x, pos.y, 0};
+        v.uv = {0, 0};
         push_vert(v);
 
-        v.pos = { pos.x + size.x, pos.y, 0 };
-        v.uv = { 1, 0 };
+        v.pos = {pos.x + size.x, pos.y, 0};
+        v.uv = {1, 0};
         push_vert(v);
 
-        v.pos = { pos.x + size.x, pos.y + size.y, 0 };
-        v.uv = { 1, 1 };
+        v.pos = {pos.x + size.x, pos.y + size.y, 0};
+        v.uv = {1, 1};
         push_vert(v);
 
-        v.pos = { pos.x, pos.y + size.y, 0 };
-        v.uv = { 0, 1 };
+        v.pos = {pos.x, pos.y + size.y, 0};
+        v.uv = {0, 1};
         push_vert(v);
 
         push_index(0);
@@ -134,12 +151,12 @@ namespace Renderer {
         s_render_cntxt.index_count += indx_count;
     }
 
-    void draw_rect(const glm::vec2 &pos, const glm::vec2 &size, RGBA color) {
-        draw_rect(pos, size, color, s_render_cntxt.white_texture);
+    void rect(const glm::vec2 &pos, const glm::vec2 &size, RGBA color) {
+        rect_impl(pos, size, color, s_render_cntxt.white_texture);
     }
 
-    void draw_rect(const glm::vec2 &pos, const glm::vec2 &size, const Texture& texture) {
-        draw_rect(pos, size, {255, 255, 255, 255}, texture);
+    void rect(const glm::vec2 &pos, const glm::vec2 &size, const Texture &texture) {
+        rect_impl(pos, size, {255, 255, 255, 255}, texture);
     }
 
 
@@ -152,7 +169,7 @@ namespace Renderer {
 
         Vertex v{};
         v.col = color.normalized();
-        v.uv = { 0, 0 };
+        v.uv = {0, 0};
         v.tex_id = 0;
 
         v.pos = glm::vec3(p1, 0);
@@ -171,8 +188,10 @@ namespace Renderer {
     }
 
     void flush() {
-        s_render_cntxt.vertex_buffer.set_data(s_render_cntxt.vertices.data(), s_render_cntxt.vertex_count * sizeof(Vertex));
-        s_render_cntxt.index_buffer.set_data(s_render_cntxt.indices.data(), s_render_cntxt.index_count * sizeof(index_t));
+        s_render_cntxt.vertex_buffer.set_data(s_render_cntxt.vertices.data(),
+                                              s_render_cntxt.vertex_count * sizeof(Vertex));
+        s_render_cntxt.index_buffer.set_data(s_render_cntxt.indices.data(),
+                                             s_render_cntxt.index_count * sizeof(index_t));
         s_render_cntxt.shader.set_mat4("u_camera", s_render_cntxt.camera);
 
         s_render_cntxt.shader.bind();
@@ -209,8 +228,7 @@ namespace Renderer {
 
     void resize_frame_buffer() {
         auto size = Application::get_viewport_size();
-        auto dsize = size - s_render_cntxt.frame_buffer.get_size();
-        if (dsize.x * dsize.x + dsize.y * dsize.y > 100) {
+        if (s_render_cntxt.frame_buffer.get_size() != size) {
             auto texture = Texture::empty(size.x, size.y);
             s_render_cntxt.frame_buffer = FrameBuffer::from_texture(texture);
         }
@@ -218,6 +236,10 @@ namespace Renderer {
 
     void set_camera(float left, float right, float bottom, float top) {
         s_render_cntxt.camera = glm::ortho(left, right, bottom, top, -20.f, 20.f);
+    }
+
+    void set(RectMode mode) {
+        s_render_cntxt.rect_mode = mode;
     }
 
 }

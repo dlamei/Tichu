@@ -283,7 +283,7 @@
 
 3. 为什么开发中段有一段长期空档？
 
-   主要是个人因素，例如加入新家庭成员。另外，Milo Yip 也花了许多业余时间去翻译 Jason Gregory 的《Game Engine Architecture》至中文版《游戏引擎架构》。
+   主要是个人因素，例如加入新家庭成员。另外，Milo Yip 也花了许多业余时间去翻译 Jason Gregory 的《GamePanel Engine Architecture》至中文版《游戏引擎架构》。
 
 4. 为什么这个项目从 Google Code 搬到 GitHub？
 

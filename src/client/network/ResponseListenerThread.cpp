@@ -8,7 +8,7 @@
 #include "ClientNetworkManager.h"
 
 
-ResponseListenerThread::ResponseListenerThread(sockpp::tcp_connector* connection) {
+ResponseListenerThread::ResponseListenerThread(sockpp::tcp_connector *connection) {
     this->_connection = connection;
 }
 
@@ -53,25 +53,29 @@ wxThread::ExitCode ResponseListenerThread::Entry() {
                 // process message (if we've received entire message)
                 if (bytesReadSoFar == messageLength) {
                     std::string message = messageStream.str();
-                    GameController::getMainThreadEventHandler()->CallAfter([message]{
+                    GameController::getMainThreadEventHandler()->CallAfter([message] {
                         ClientNetworkManager::parseResponse(message);
                     });
 
                 } else {
-                    this->outputError("Network error", "Could not read entire message. TCP stream ended early. Difference is " + std::to_string(messageLength - bytesReadSoFar) + " bytes");
+                    this->outputError("Network error",
+                                      "Could not read entire message. TCP stream ended early. Difference is " +
+                                      std::to_string(messageLength - bytesReadSoFar) + " bytes");
                 }
 
-            } catch (std::exception& e) {
+            } catch (std::exception &e) {
                 // Make sure the connection isn't terminated only because of a read error
                 this->outputError("Network error", "Error while reading message: " + (std::string) e.what());
             }
         }
 
         if (count <= 0) {
-            this->outputError("Network error", "Read error [" + std::to_string(this->_connection->last_error()) + "]: " + this->_connection->last_error_str());
+            this->outputError("Network error",
+                              "Read error [" + std::to_string(this->_connection->last_error()) + "]: " +
+                              this->_connection->last_error_str());
         }
 
-    } catch(const std::exception& e) {
+    } catch (const std::exception &e) {
         this->outputError("Network error", "Error in listener thread: " + (std::string) e.what());
     }
 
@@ -82,7 +86,7 @@ wxThread::ExitCode ResponseListenerThread::Entry() {
 
 
 void ResponseListenerThread::outputError(std::string title, std::string message) {
-    GameController::getMainThreadEventHandler()->CallAfter([title, message]{
+    GameController::getMainThreadEventHandler()->CallAfter([title, message] {
         GameController::showError(title, message);
     });
 }

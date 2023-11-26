@@ -20,24 +20,28 @@ private:
 public:
 // constructors
     draw_pile() = default;
+
     explicit draw_pile(std::vector<Card> cards);
 
 
 // accessors
     [[nodiscard]] bool is_empty() const noexcept;
+
     [[nodiscard]] int get_nof_cards() const noexcept;
-    [[nodiscard]] const std::vector<Card> &get_cards() const { return _cards;}
+
+    [[nodiscard]] const std::vector<Card> &get_cards() const { return _cards; }
 
 #ifdef TICHU_SERVER
-// state update functions
-    void setup_game(std::string& err);  // Fills the stack with all cards of the game
-    std::optional<Card> draw(player &player, std::string& err);
-    std::optional<Card> remove_top(std::string& err);
+    // state update functions
+        void setup_game(std::string& err);  // Fills the stack with all cards of the game
+        std::optional<Card> draw(player &player, std::string& err);
+        std::optional<Card> remove_top(std::string& err);
 #endif
 
 // serialization
-    void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
-    static draw_pile from_json(const rapidjson::Value& json);
+    void write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator) const override;
+
+    static draw_pile from_json(const rapidjson::Value &json);
 };
 
 

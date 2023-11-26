@@ -7,12 +7,14 @@
 
 // include server address configurations
 #include "../common/network/default.conf"
+#include "../common/logging.h"
 
 
 server_network_manager::server_network_manager() {
     if (_instance == nullptr) {
         _instance = this;
     }
+    init_logger();
     sockpp::socket_initializer::initialize(); // Required to initialise sockpp
     this->connect(default_server_host, default_port);   // variables from "default.conf"
 }
@@ -61,7 +63,7 @@ void server_network_manager::listener_loop() {
 
 // Runs in a thread and reads anything coming in on the 'socket'.
 // Once a message is fully received, the string is passed on to the 'handle_incoming_message()' function
-void server_network_manager::read_message(sockpp::tcp_socket socket, const std::function<void(const std::string&,
+void server_network_manager::read_message(sockpp::tcp_socket socket, const std::function<void(const std::string &,
                                                                                               const sockpp::tcp_socket::addr_t &)> &message_handler) {
     sockpp::socket_initializer::initialize(); // Required to initialise sockpp
 
@@ -83,7 +85,7 @@ void server_network_manager::read_message(sockpp::tcp_socket socket, const std::
 
             // put everything after the message length declaration into a stringstream
             std::stringstream ss_msg;
-            ss_msg.write(&buffer[i+1], count - (i + 1));
+            ss_msg.write(&buffer[i + 1], count - (i + 1));
             msg_bytes_read = count - (i + 1);
 
             // read the remaining packages
@@ -98,10 +100,12 @@ void server_network_manager::read_message(sockpp::tcp_socket socket, const std::
                 std::string msg = ss_msg.str();
                 message_handler(msg, socket.peer_address());    // attempt to parse client_msg from 'msg'
             } else {
-                std::cerr << "Could not read entire message. TCP stream ended before. Difference is " << msg_length - msg_bytes_read << std::endl;
+                std::cerr << "Could not read entire message. TCP stream ended before. Difference is "
+                          << msg_length - msg_bytes_read << std::endl;
             }
-        } catch (std::exception& e) { // Make sure the connection isn't torn down only because of a read error
-            std::cerr << "Error while reading message from " << socket.peer_address() << std::endl << e.what() << std::endl;
+        } catch (std::exception &e) { // Make sure the connection isn't torn down only because of a read error
+            std::cerr << "Error while reading message from " << socket.peer_address() << std::endl << e.what()
+                      << std::endl;
         }
     }
     if (count <= 0) {
@@ -114,7 +118,8 @@ void server_network_manager::read_message(sockpp::tcp_socket socket, const std::
 }
 
 
-void server_network_manager::handle_incoming_message(const std::string& msg, const sockpp::tcp_socket::addr_t& peer_address) {
+void server_network_manager::handle_incoming_message(const std::string &msg,
+                                                     const sockpp::tcp_socket::addr_t &peer_address) {
     try {
         // try to parse a json from the 'msg'
         rapidjson::Document req_json;
@@ -154,7 +159,7 @@ void server_network_manager::handle_incoming_message(const std::string& msg, con
 
         // send response back to client
         send_message(res_msg, peer_address.to_string());
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
         std::cerr << "Failed to execute client request. Content was :\n"
                   << msg << std::endl
                   << "Error was " << e.what() << std::endl;
@@ -170,12 +175,15 @@ void server_network_manager::on_player_left(const UUID &player_id) {
     _rw_lock.unlock();
 }
 
-ssize_t server_network_manager::send_message(const std::string &msg, const std::string& address) {
+ssize_t server_network_manager::send_message(const std::string &msg, const std::string &address) {
 
     std::stringstream ss_msg;
     //std::cerr << "MESSAGE SIZE:    " << msg.size() << "     ";
     //std::cerr << "MESSAGE:    " << msg << "    ";
-    ss_msg << std::to_string(msg.size()) << ':' << msg; // prepend message length
+    //ss_msg << std::to_string(msg.size()) << ':' << msg; // prepend message length
+    ASSERT(msg.size() <= MAX_MESSAGE_SIZE, "message size is too large");
+    ss_msg << std::setfill('0') << std::setw(MESSAGE_SIZE_LENGTH) << (int) msg.size();
+    ss_msg << ':' << msg; // prepend message length
     return _address_to_socket.at(address).write(ss_msg.str());
 }
 
@@ -190,12 +198,12 @@ void server_network_manager::broadcast_message(server_msg &msg, std::vector<play
     _rw_lock.lock_shared();
     // send object_diff to all requested players
     try {
-        for(auto player : players) {
+        for (auto player: players) {
             if (player->get_id() != exclude->get_id()) {
                 int nof_bytes_written = send_message(msg_string, _player_id_to_address.at(player->get_id()));
             }
         }
-    } catch (std::exception& e) {
+    } catch (std::exception &e) {
         std::cerr << "Encountered error when sending state update: " << e.what() << std::endl;
     }
     _rw_lock.unlock_shared();

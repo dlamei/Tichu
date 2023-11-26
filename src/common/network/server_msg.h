@@ -17,7 +17,7 @@ struct request_response {
 };
 
 struct full_state_response {
-   json_value_ptr state_json;
+    json_value_ptr state_json;
 };
 
 using server_msg_variant = std::variant<request_response, full_state_response>;
@@ -25,8 +25,8 @@ using server_msg_variant = std::variant<request_response, full_state_response>;
 // Identifier for the different response types.
 // The ServerMsgType is sent with every server_msg to identify the type of server_msg
 // during deserialization on the client side.
-enum class ServerMsgType {
-    req_response,
+enum class ServerMsgType: int {
+    req_response = 0,
     full_state_response
 };
 
@@ -38,24 +38,22 @@ protected:
     UUID _game_id;
 
 public:
-    explicit server_msg(UUID game_id, server_msg_variant ); // base constructor
-
-    static std::string msg_type_to_string(ServerMsgType type);
-    static ServerMsgType string_to_msg_type(const std::string &msg_str);
+    explicit server_msg(UUID game_id, server_msg_variant); // base constructor
 
     [[nodiscard]] ServerMsgType get_type() const;
     [[nodiscard]] const UUID &get_game_id() const { return _game_id; }
 
+    template<typename T>
+    T get_msg_data() const {
+        return std::get<T>(_response);
+    }
+
     // Tries to create the specific server_msg from the provided json.
     // Throws exception if parsing fails -> Use only inside "try{ }catch()" block
-    static server_msg from_json(const rapidjson::Value& json);
+    static server_msg from_json(const rapidjson::Value &json);
 
     // Serializes the server_msg into a json object that can be sent over the network
-    void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
-
-#ifdef TICHU_CLIENT
-    void Process() const;
-#endif
+    void write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator) const override;
 };
 
 

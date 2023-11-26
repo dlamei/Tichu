@@ -10,10 +10,22 @@ namespace Renderer {
     void init();
     void flush();
 
-    void draw_rect(const glm::vec2 &pos, const glm::vec2 &size, RGBA color);
-    void draw_rect(const glm::vec2 &pos, const glm::vec2 &size, const Texture &texture);
-    void draw_rect(const glm::vec2 &pos, const glm::vec2 &size, RGBA tint, const Texture &texture);
+    // how to handle rectangle position
+    enum class RectMode {
+        // rectangle position defined by the top left corner (default)
+        CORNER,
+        // rectangle position defined by the center of the rectangle
+        CENTER,
+    };
+
+    void rect(const glm::vec2 &pos, const glm::vec2 &size, RGBA color);
+    void rect(const glm::vec2 &pos, const glm::vec2 &size, const Texture &texture);
+
+    void rect_impl(const glm::vec2 &pos, const glm::vec2 &size, RGBA tint, const Texture &texture);
+
     void draw_tri(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, RGBA color);
+
+    void set(RectMode mode);
 
     // clear the screen with the given color
     void clear(RGBA clear_color);

@@ -15,11 +15,11 @@ std::optional<player_ptr> player_manager::try_get_player(const UUID &player_id) 
         //player_ptr = it->second;
         player = it->second;
     }
-        _rw_lock.unlock_shared();
+    _rw_lock.unlock_shared();
     return player;
 }
 
-player_ptr player_manager::add_or_get_player(const std::string& name, const UUID& player_id) {
+player_ptr player_manager::add_or_get_player(const std::string &name, const UUID &player_id) {
     auto player_ptr = try_get_player(player_id);
 
     if (player_ptr) {
@@ -33,7 +33,7 @@ player_ptr player_manager::add_or_get_player(const std::string& name, const UUID
     return player_val;
 }
 
-std::optional<player_ptr> player_manager::remove_player(const UUID& player_id) {
+std::optional<player_ptr> player_manager::remove_player(const UUID &player_id) {
     auto player = try_get_player(player_id);
     if (player) {
         _rw_lock.lock();    // exclusive

@@ -2,10 +2,10 @@
 
 int main() {
 
-    ApplicationCreateInfo info {
-        .title = "Tichu",
-        .width = 1500,
-        .height = 1000,
+    ApplicationCreateInfo info{
+            .title = "Tichu",
+            .width = 1500,
+            .height = 1000,
     };
 
     Application app(info);

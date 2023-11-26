@@ -1,171 +1,34 @@
 #include "Tichu.h"
 
-#include "GUI/imgui_build.h"
-#include "misc/cpp/imgui_stdlib.h"
 #include "GUI/renderer.h"
-#include "sockpp/exception.h"
 #include "../../src/common/network/client_msg.h"
+#include "../common/network/server_msg.h"
 
-bool ConnectionData::validate() {
-    if (name.size() > 64 || name.empty()) return false;
-    if (host.empty()) return false;
-    return true;
-}
-
-// centering function for the next window. will only center once
-void center_next_window_once() {
-    auto pos = Application::get_window_size();
-    ImGui::SetNextWindowPos({(float) pos.x / 2.f, (float) pos.y / 2.f}, ImGuiCond_Once, {0.5f, 0.5f});
-}
-
-// centering function for an item with a label, e.g Button
-void center_next_label(const char *label, float alignment = 0.5f) {
-    ImGuiStyle &style = ImGui::GetStyle();
-
-    float size = ImGui::CalcTextSize(label).x + style.FramePadding.x * 2.0f;
-    float avail = ImGui::GetContentRegionAvail().x;
-
-    float off = (avail - size) * alignment;
-    if (off > 0.0f)
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + off);
-}
-
-
-// show to label for an input field
-void show_input_label(const char *label) {
-    ImGui::TableNextRow();
-    ImGui::TableNextColumn();
-    ImGui::Text("%s", label);
-    ImGui::TableNextColumn();
-}
-
-// creates a selectable for the given team
-void team_selectable(const char *label, TeamSelection *selection, TeamSelection team, float height) {
-    ImGui::TableNextColumn();
-    if (ImGui::RoundedSelectable(label, team == *selection, 0, {0, height})) {
-        *selection = team;
-    }
-}
-
-/// displays the connection panel, data is read and written into the input argument
-void show_connection_panel(ConnectionData *input) {
-
-    auto height = ImGui::GetFontSize();
-
-    auto style = ImGui::ScopedStyle{};
-    style.push_style(ImGuiStyleVar_WindowRounding, 20);
-    style.push_style(ImGuiStyleVar_WindowMinSize, {750, height * 18});
-    style.push_style(ImGuiStyleVar_CellPadding, {height / 2, height / 2});
-    style.push_style(ImGuiStyleVar_WindowPadding, {height, height});
-    style.push_style(ImGuiStyleVar_SelectableTextAlign, {0.5, 0.5});
-
-    center_next_window_once();
-    ImGui::Begin("Connection", nullptr,
-                 ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking |
-                 ImGuiWindowFlags_NoScrollbar);
-
-    ImGui::BeginTable("input fields", 2);
-    ImGui::TableSetupColumn("field name", ImGuiTableColumnFlags_WidthFixed);
-    ImGui::TableSetupColumn("field input", ImGuiTableColumnFlags_WidthStretch);
-
-    show_input_label("SERVER ADDRESS    ");
-    ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-    ImGui::InputText("##address", &input->host);
-
-    show_input_label("SERVER PORT    ");
-    ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-    ImGui::InputScalar("##port", ImGuiDataType_U32, &input->port);
-
-    show_input_label("PLAYER NAME    ");
-    ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-    ImGui::InputText("##name", &input->name);
-
-    ImGui::EndTable();
-
-    ImGui::BeginTable("buttons", 3);
-    team_selectable("TEAM 1", &input->team, TeamSelection::TEAM_1, height * 2);
-    team_selectable("TEAM 2", &input->team, TeamSelection::TEAM_2, height * 2);
-    team_selectable("RANDOM", &input->team, TeamSelection::RANDOM, height * 2);
-
-    ImGui::TableNextRow();
-    ImGui::TableNextRow();
-    ImGui::TableNextColumn();
-    ImGui::TableNextColumn();
-    ImGui::TableNextColumn();
-    if (ImGui::ButtonEx("CONNECT", {ImGui::GetContentRegionAvail().x, height * 2})) {
-        input->connect = true;
-    }
-    ImGui::EndTable();
-
-    center_next_label(input->status.c_str());
-    ImGui::TextColored(ImGui::LIGHT_GREY, "%s", input->status.c_str());
-
-    ImGui::End();
-}
-
-/// shows the framebuffer in the viewport window
-void show_main_framebuffer() {
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::DARK_GREY);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {0, 0});
-
-    ImGui::Begin("viewport");
-    auto size = Application::get_viewport_size();
-    ImGui::Image(Renderer::get_frame_buffer().get_attachment(0), {(float) size.x, (float) size.y});
-    ImGui::End();
-
-    ImGui::PopStyleVar();
-    ImGui::PopStyleColor();
-}
 
 void TichuGame::on_attach() {
     sockpp::socket_initializer::initialize();
-    texture = Texture::load("assets/tichu_logo.png");
+    GamePanel::init();
+}
+
+void TichuGame::on_detach() {
+    if (_connection.is_connected()) {
+        _connection.shutdown();
+        _listener.join();
+    }
 }
 
 void TichuGame::on_update(TimeStep ts) {
-    float ar = Application::get_aspect_ratio();
-    int scale = 5;
-    if (ar >= 1) {
-        Renderer::set_camera(-(scale * ar), scale * ar, -scale, scale);
-    } else {
-        ar = 1 / ar;
-        Renderer::set_camera(-scale, scale, -(scale * ar), scale * ar);
-    }
-    Renderer::clear(RGBA{255});
-
-    for (int i = -scale; i < scale; i++) {
-        for (int j = -scale; j < scale; j++) {
-            if ((i + j) % 2) {
-                Renderer::draw_rect({i, j}, {1, 1}, texture);
-            }
-        }
-    }
-}
-
-void TichuGame::show_message_boxes() {
-    for (auto &messages: _messages) {
-        messages.on_imgui();
-    }
-
-    // remove closed messages
-    auto end = _messages.end();
-    auto begin = _messages.begin();
-    _messages.erase(std::remove_if(begin, end, [](const MessageWindow &msg) { return msg.should_close; }), end);
-
+    process_messages();
 }
 
 void TichuGame::on_imgui() {
     // always show available messages
-    show_message_boxes();
+    Message::show_windows(&_messages);
 
-    if (_state & CONNECTION_PANEL) {
-        show_connection_panel(&_connection_data);
+    // connection
+    if (_state == PanelState::CONNECTION) {
+        ConnectionPanel::show(&_connection_data);
     }
-
-    if (_state & GAME_PANEL) {
-        show_main_framebuffer();
-    }
-
 
     if (_connection_data.connect) {
         // reset button press
@@ -178,41 +41,95 @@ void TichuGame::on_imgui() {
         }
     }
 
+
+    // game
+    if (_state == PanelState::GAME) {
+        GamePanel::show();
+    }
+
+
 }
 
-void listen_to_response(ConnectionData &data, MessageQueue<std::string> *queue) {
-    auto join_game = join_game_req {.player_name = "test_name"};
-    auto client_req = client_msg(data.id, UUID(), join_game).to_json();
-    auto msg = json_utils::to_string(*client_req);
-    msg = std::to_string(msg.size()) + ":" + msg;
-    data.connection.write(msg);
-    char buffer[512];
-   while (true) {
-       ssize_t count = data.connection.read(buffer, sizeof(buffer));
-       if (count <= 0) break;
+void send_message(sockpp::connector &connection, const client_msg &msg) {
+    if (connection.is_connected()) {
+        auto msg_str = json_utils::to_string(*msg.to_json());
+        msg_str = std::to_string(msg_str.size()) + ":" + msg_str;
+        connection.write(msg_str);
+    } else {
+        WARN("called send_message without an active connection");
+    }
+}
 
-        INFO_LOG("received: {}", buffer);
-   }
+std::optional<server_msg> parse_message(const std::string &msg) {
+    rapidjson::Document json = rapidjson::Document(rapidjson::kObjectType);
+    json.Parse(msg.c_str());
+    try {
+        return server_msg::from_json(json);
+    } catch (const std::exception &e) {
+        ERROR("failed to parse message from server:\n{}\n{}", msg, e.what());
+        return {};
+    }
+}
+
+void listen_to_messages(sockpp::tcp_connector &connection, MessageQueue<server_msg> *queue) {
+    ssize_t count{};
+    char msg_size_str[MESSAGE_SIZE_LENGTH];
+    //TODO: better error handling
+    while (true) {
+        // read the length of the message
+        count = connection.read_n(msg_size_str, MESSAGE_SIZE_LENGTH);
+        if (count != MESSAGE_SIZE_LENGTH) break;
+
+        int size = 0;
+        try {
+            size = std::stoi(msg_size_str);
+        } catch (std::exception &e) {
+            // maybe delimiter so we can try to recover, but since its tcp not sure if necessary
+            ERROR("while trying to parse message size from string: {}", msg_size_str);
+            break;
+        }
+        DEBUG("message size: {}", size);
+
+        // skip the ':' after the message size
+        char c{};
+        connection.read_n(&c, 1);
+        ASSERT(c == ':', "invalid message format");
+
+        std::vector<char> buffer;
+        buffer.resize(size);
+        connection.read_n(buffer.data(), size);
+        std::string message = std::string(buffer.begin(), buffer.end());
+        DEBUG("message: {}", message);
+
+        //TODO:
+        // what do we do if parsing / reading failed?
+        // does that not automatically mean that there is a bug in the encode / decoding
+        // so not fixable at runtime ?
+        auto msg = parse_message(message);
+        if (msg) {
+            queue->push(msg.value());
+        }
+    }
 
 }
 
 void TichuGame::connect_to_server() {
     sockpp::inet_address address;
 
-    if (_connection_data.connection.is_connected()) {
-        WARN_LOG("connect_to_server was called while already connected!");
-        _connection_data.connection.shutdown();
+    if (_connection.is_connected()) {
+        WARN("connect_to_server was called while already connected!");
+        _connection.shutdown();
         _listener.join();
     }
 
     try {
         address = sockpp::inet_address(_connection_data.host, _connection_data.port);
-    } catch (const sockpp::getaddrinfo_error& e) {
-        show_msg(MessageType::ERROR, "Failed to resolve address " + e.hostname());
+    } catch (const std::exception &e) {
+        show_msg(MessageType::ERROR, std::format("Failed to resolve address: {}", e.what()));
         return;
     }
 
-    if (!_connection_data.connection.connect(address)) {
+    if (!_connection.connect(address)) {
         show_msg(MessageType::ERROR, "Failed to connect to server " + address.to_string());
         return;
     }
@@ -220,77 +137,68 @@ void TichuGame::connect_to_server() {
     _connection_data.status = "Connected to " + address.to_string();
 
     try {
-        _listener = std::thread(listen_to_response, std::ref(_connection_data), &_server_msgs);
+        _listener = std::thread(listen_to_messages, std::ref(_connection), &_server_msgs);
     } catch (std::exception &e) {
-        ERROR_LOG("while creating listener thread: {}", e.what());
+        ERROR("while creating listener thread: {}", e.what());
+        return;
+    }
+
+    // send join request after listener is created
+    auto client_req = client_msg(_connection_data.id, UUID(), join_game_req{.player_name = _connection_data.name});
+    send_message(_connection, client_req);
+}
+
+void TichuGame::process_messages() {
+    std::optional<server_msg> message{};
+    while ((message = _server_msgs.try_pop())) {
+        auto msg = message.value();
+
+        switch (msg.get_type()) {
+            case ServerMsgType::req_response: {
+                auto data = msg.get_msg_data<request_response>();
+                process(data);
+                break;
+            }
+            case ServerMsgType::full_state_response: {
+                auto data = msg.get_msg_data<full_state_response>();
+                process(data);
+                _state = PanelState::GAME;
+                break;
+            }
+            default:
+                show_msg(MessageType::ERROR, std::format("unknown ServerMsgType: {} was not handled!", (int)msg.get_type()));
+                break;
+        }
     }
 }
 
-void TichuGame::on_detach() {
-    if (_connection_data.connection.is_connected()) {
-        _connection_data.connection.shutdown();
-        _listener.join();
+void TichuGame::process(const request_response &data) {
+    if (!data.success) {
+        show_msg(MessageType::ERROR, data.err);
+        return;
+    }
+
+    _state = PanelState::GAME;
+    if (!data.state_json) {
+        show_msg(MessageType::ERROR, "network: request_response did not contain state_json");
+        return;
+    }
+
+    try {
+        game_state state = game_state::from_json(*data.state_json.value());
+        GamePanel::update(state);
+    } catch (std::exception &e) {
+        show_msg(MessageType::ERROR, "network: could not parse game_state from req_response");
+    }
+
+}
+
+void TichuGame::process(const full_state_response &data) {
+    try {
+        game_state state = game_state::from_json(*data.state_json);
+        GamePanel::update(state);
+    } catch (std::exception &e) {
+        show_msg(MessageType::ERROR, "network: could not parse game_state from req_response");
     }
 }
 
-std::pair<std::string, ImVec4> msg_type_to_string_and_color(MessageType typ) {
-    switch (typ) {
-        case MessageType::ERROR:
-            return { "Error", ImGui::RED };
-        case MessageType::WARN:
-            return { "Warning", ImGui::ORANGE };
-        case MessageType::INFO:
-            return { "Info", ImGui::BLACK };
-    }
-    return { "unknown", ImGui::BLACK };
-}
-
-void text_wrapped_centered(const std::string& text)
-{
-    float win_width = ImGui::GetWindowSize().x;
-    float text_width = ImGui::CalcTextSize(text.c_str()).x;
-
-    float text_indentation = (win_width - text_width) * 0.5f;
-
-    float min_indentation = 20.0f;
-    if (text_indentation <= min_indentation) {
-        text_indentation = min_indentation;
-    }
-
-    ImGui::SameLine(text_indentation);
-    ImGui::PushTextWrapPos(win_width - text_indentation);
-    ImGui::TextWrapped("%s", text.c_str());
-    ImGui::PopTextWrapPos();
-}
-
-void MessageWindow::on_imgui() {
-    auto [title, title_color] = msg_type_to_string_and_color(type);
-
-    // add imgui unique id to the title (view docs for more info)
-    title += "###" + std::to_string(id);
-
-    auto width = 700.f;
-    auto style = ImGui::ScopedStyle{};
-    style.push_style(ImGuiStyleVar_WindowMinSize, {width, 0});
-    style.push_color(ImGuiCol_TitleBg, title_color);
-    style.push_color(ImGuiCol_TitleBgActive, title_color);
-    style.push_color(ImGuiCol_Button, ImGui::DARK_GREY);
-    style.push_style(ImGuiStyleVar_WindowRounding, 20);
-    style.push_style(ImGuiStyleVar_WindowPadding, {20, 20});
-    style.push_style(ImGuiStyleVar_WindowTitleAlign, {0.5f, 0.5f});
-
-    center_next_window_once();
-    ImGui::Begin(title.c_str(), nullptr,
-                 ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse);
-
-    ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());
-
-    text_wrapped_centered(message);
-
-    ImGui::NewLine();
-
-    if (ImGui::ButtonEx("close", {ImGui::GetContentRegionAvail().x, 0})) {
-        should_close = true;
-    }
-    ImGui::End();
-}

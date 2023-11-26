@@ -11,8 +11,7 @@
 class Window;
 
 // helper class for time
-class TimeStep
-{
+class TimeStep {
 private:
     float m_Time;
 
@@ -23,6 +22,7 @@ public:
     explicit operator float() const { return m_Time; }
 
     [[nodiscard]] inline float seconds() const { return m_Time; }
+
     [[nodiscard]] inline float milliseconds() const { return m_Time * 1000.0f; }
 };
 
@@ -41,6 +41,7 @@ public:
 
     // can help separating gui and render code
     virtual void on_update(TimeStep ts) {};
+
     virtual void on_imgui() {};
 };
 
@@ -48,7 +49,7 @@ public:
 // helper struct for creating an app
 struct ApplicationCreateInfo {
     std::string title = "Application";
-    uint32_t width { 100 }, height { 100 };
+    uint32_t width{100}, height{100};
 };
 
 // only single instance allowed
@@ -56,6 +57,7 @@ class Application {
 public:
 
     explicit Application(const ApplicationCreateInfo &info);
+
     ~Application();
 
     // runs the app
@@ -67,23 +69,32 @@ public:
     void push_layer(const std::shared_ptr<Layer> &layer);
 
     // returns the aspect ratio of the viewport
-    [[nodiscard]] static float get_aspect_ratio() { const auto size = get_viewport_size(); return (float)size.x / (float)size.y; }
+    [[nodiscard]] static float get_aspect_ratio() {
+        const auto size = get_viewport_size();
+        return (float) size.x / (float) size.y;
+    }
+
     // returns the size of the viewport window
     [[nodiscard]] static const glm::uvec2 &get_viewport_size() { return get_instance()->_viewport_size; }
+    [[nodiscard]] static const glm::uvec2 &get_viewport_pos() { return get_instance()->_viewport_pos;}
+
     // returns the size of the window
     [[nodiscard]] static const glm::uvec2 &get_window_size() { return get_instance()->_window_size; }
+
+    [[nodiscard]] static glm::vec2 get_mouse_pos();
+
     // returns the application instance
     [[nodiscard]] static const Application *get_instance();
 
 private:
 
     void build_dock_frame();
+
     void update();
 
     std::unique_ptr<Window> _window;
-    glm::uvec2 _window_size {}, _viewport_size {};
-    glm::ivec2 _window_mouse_pos {}, _viewport_mouse_pos {};
-    uint64_t _frame_count {0};
+    glm::uvec2 _window_size{}, _viewport_size{}, _viewport_pos;
+    uint64_t _frame_count{0};
     float _last_frame_time{0};
 
     std::vector<std::shared_ptr<Layer>> _layers;

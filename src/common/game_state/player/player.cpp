@@ -12,10 +12,10 @@ player::player(std::string name) :
         _hand(hand()),
         _won_cards(won_cards_pile()),
         _tichu(false),
-        _grand_tichu(false)
-{ }
+        _grand_tichu(false) {}
 
-player::player(UUID id, std::string name, bool team, bool is_finished, hand hand, won_cards_pile won_cards, bool tichu, bool grand_tichu) :
+player::player(UUID id, std::string name, bool team, bool is_finished, hand hand, won_cards_pile won_cards, bool tichu,
+               bool grand_tichu) :
         _id(std::move(id)),
         _player_name(std::move(name)),
         _team(team),
@@ -23,8 +23,7 @@ player::player(UUID id, std::string name, bool team, bool is_finished, hand hand
         _hand(hand),
         _won_cards(won_cards),
         _tichu(tichu),
-        _grand_tichu(grand_tichu)
-{ }
+        _grand_tichu(grand_tichu) {}
 
 #ifdef TICHU_SERVER
 player::player(UUID id, std::string name, bool team) :
@@ -67,7 +66,7 @@ void player::wrap_up_round(std::string &err) {
 #endif
 
 
-void player::write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& alloc) const {
+void player::write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType &alloc) const {
     string_into_json("id", _id.string(), json, alloc);
     string_into_json("player_name", _player_name, json, alloc);
     bool_into_json("team", _team, json, alloc);
@@ -93,17 +92,16 @@ player player::from_json(const rapidjson::Value &json) {
 
 
     if (id && player_name && team && is_finished && hand && won_cards && tichu && grand_tichu) {
-        return player { UUID(id.value()),
-                        player_name.value(),
-                        team.value(),
-                        is_finished.value(),
-                        hand.value(),
-                        won_cards.value(),
-                        tichu.value(),
-                        grand_tichu.value()
-                    };
-    }
-    else {
+        return player{UUID(id.value()),
+                      player_name.value(),
+                      team.value(),
+                      is_finished.value(),
+                      hand.value(),
+                      won_cards.value(),
+                      tichu.value(),
+                      grand_tichu.value()
+        };
+    } else {
         throw TichuException("Failed to deserialize player from json. Required json entries were missing.");
     }
 }

@@ -7,23 +7,23 @@
 #include "../../common/network/client_msg.h"
 
 
-class ClientNetworkManager {
+class ClientNetworkManager{
 
-public:
-    static void init(const std::string& host, const uint16_t port);
+        public:
+        static void init(const std::string& host, const uint16_t port);
 
-    static void sendRequest(const client_msg& request);
+        static void sendRequest(const client_msg& request);
 
-    static void parseResponse(const std::string& message);
+        static void parseResponse(const std::string& message);
 
-private:
-    static bool connect(const std::string& host, const uint16_t port);
+        private:
+        static bool connect(const std::string& host, const uint16_t port);
 
 
-    static sockpp::tcp_connector* _connection;
+        static sockpp::tcp_connector* _connection;
 
-    static bool _connectionSuccess;
-    static bool _failedToConnect;
+        static bool _connectionSuccess;
+        static bool _failedToConnect;
 
 };
 

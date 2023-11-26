@@ -8,20 +8,18 @@
 
 
 draw_pile::draw_pile(std::vector<Card> cards)
-        : _cards(std::move(cards))
-{ }
-
+        : _cards(std::move(cards)) {}
 
 
 void draw_pile::shuffle() {
     std::shuffle(_cards.begin(), _cards.end(), std::mt19937(std::random_device()()));
 }
 
-bool draw_pile::is_empty() const noexcept  {
+bool draw_pile::is_empty() const noexcept {
     return _cards.empty();
 }
 
-int draw_pile::get_nof_cards() const noexcept  {
+int draw_pile::get_nof_cards() const noexcept {
     return _cards.size();
 }
 
@@ -68,7 +66,8 @@ std::optional<Card> draw_pile::remove_top(std::string& err) {
 #endif
 
 
-void draw_pile::write_into_json(rapidjson::Value &json, rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &alloc) const {
+void draw_pile::write_into_json(rapidjson::Value &json,
+                                rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &alloc) const {
     vec_into_json("cards", _cards, json, alloc);
 }
 

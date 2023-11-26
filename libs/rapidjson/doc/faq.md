@@ -282,7 +282,7 @@ Alternatively, if we don't want to explicitly refer to the root value of `addres
 
 3. Why there is a long empty period of development?
 
-   It is basically due to personal issues, such as getting new family members. Also, Milo Yip has spent a lot of spare time on translating "Game Engine Architecture" by Jason Gregory into Chinese.
+   It is basically due to personal issues, such as getting new family members. Also, Milo Yip has spent a lot of spare time on translating "GamePanel Engine Architecture" by Jason Gregory into Chinese.
 
 4. Why did the repository move from Google Code to GitHub?
 

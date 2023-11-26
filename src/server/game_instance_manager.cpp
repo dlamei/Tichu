@@ -33,7 +33,7 @@ game_instance_ptr game_instance_manager::find_joinable_game_instance() {
     // remove all finished games
     if (!to_remove.empty()) {
         games_lut_lock.lock();
-        for (auto& game_id : to_remove) {
+        for (auto &game_id: to_remove) {
             games_lut.erase(game_id);
         }
         games_lut_lock.unlock();
@@ -62,12 +62,12 @@ std::optional<game_instance_ptr> game_instance_manager::try_get_game_instance(co
 }
 
 std::optional<std::tuple<player_ptr, game_instance_ptr>>
-game_instance_manager::try_get_player_and_game_instance(const UUID& player_id, std::string& err) {
+game_instance_manager::try_get_player_and_game_instance(const UUID &player_id, std::string &err) {
     auto player = player_manager::try_get_player(player_id);
     if (player) {
         auto game_instance_ptr = game_instance_manager::try_get_game_instance(player.value()->get_game_id());
         if (game_instance_ptr) {
-            return std::tuple {player.value(), game_instance_ptr.value()};
+            return std::tuple{player.value(), game_instance_ptr.value()};
         } else {
             err = "Could not find _game_id" + player.value()->get_game_id().string() + " associated with this player";
         }
@@ -78,7 +78,8 @@ game_instance_manager::try_get_player_and_game_instance(const UUID& player_id, s
 }
 
 
-std::optional<game_instance_ptr> game_instance_manager::try_add_player_to_any_game(player_ptr player, std::string& err) {
+std::optional<game_instance_ptr>
+game_instance_manager::try_add_player_to_any_game(player_ptr player, std::string &err) {
 
     // check that player is not already subscribed to another game
     if (!(player->get_game_id().empty())) {
@@ -86,20 +87,20 @@ std::optional<game_instance_ptr> game_instance_manager::try_add_player_to_any_ga
         return {};
     }
 
-        // Join any non-full, non-started game
-        for (int i = 0; i < 10; i++) {
-            // make at most 10 attempts of joining a src (due to concurrency, the game could already be full or started by the time
-            // try_add_player_to_any_game() is invoked) But with only few concurrent requests it should succeed in the first iteration.
-            auto game_instance_ptr = find_joinable_game_instance();
-            if (try_add_player(player, *game_instance_ptr, err)) {
-                return game_instance_ptr;
-            }
+    // Join any non-full, non-started game
+    for (int i = 0; i < 10; i++) {
+        // make at most 10 attempts of joining a src (due to concurrency, the game could already be full or started by the time
+        // try_add_player_to_any_game() is invoked) But with only few concurrent requests it should succeed in the first iteration.
+        auto game_instance_ptr = find_joinable_game_instance();
+        if (try_add_player(player, *game_instance_ptr, err)) {
+            return game_instance_ptr;
         }
-        return {};
+    }
+    return {};
 }
 
 
-bool game_instance_manager::try_add_player(player_ptr player, game_instance &game_instance_ptr, std::string& err) {
+bool game_instance_manager::try_add_player(player_ptr player, game_instance &game_instance_ptr, std::string &err) {
     if (!(player->get_game_id().empty())) {
         if (player->get_game_id() != game_instance_ptr.get_id()) {
             err = "Player is already active in a different src with id " + player->get_game_id().string();

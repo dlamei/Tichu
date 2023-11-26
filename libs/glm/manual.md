@@ -2406,8 +2406,8 @@ LibreOffice includes several applications that make it the most powerful Free an
 * [*Rastergrid*](http://rastergrid.com/blog/), many technical articles with companion programs using GLM by Daniel Rákos\
 * [*OpenGL Tutorial*](http://www.opengl-tutorial.org), tutorials for OpenGL 3.1 and later
 * [*OpenGL Programming on Wikibooks*](http://en.wikibooks.org/wiki/OpenGL_Programming): For beginners who are discovering OpenGL.
-* [*3D Game Engine Programming*](http://3dgep.com/): Learning the latest 3D Game Engine Programming techniques.
-* [Game Tutorials](http://www.gametutorials.com/opengl-4-matrices-and-glm/), graphics and game programming.
+* [*3D GamePanel Engine Programming*](http://3dgep.com/): Learning the latest 3D GamePanel Engine Programming techniques.
+* [GamePanel Tutorials](http://www.gametutorials.com/opengl-4-matrices-and-glm/), graphics and game programming.
 * [open.gl](https://open.gl/), OpenGL tutorial
 * [c-jump](http://www.c-jump.com/bcc/common/Talk3/Math/GLM/GLM.html), GLM tutorial
 * [Learn OpenGL](http://learnopengl.com/), OpenGL tutorial

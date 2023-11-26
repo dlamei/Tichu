@@ -8,4 +8,5 @@ class request_handler {
 public:
     static server_msg handle_request(const client_msg &req);
 };
+
 #endif //TICHU_REQUEST_HANDLER_H

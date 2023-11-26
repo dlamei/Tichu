@@ -45,7 +45,7 @@ Execute the following commands in a console:
 6. Click `Build > Build all in 'Debug'`
 7. Wait until Tichu-server, Tichu-client and Tichu-tests are compiled
 
-## 2. Run the Game
+## 2. Run the GamePanel
 1. Open a console in the project folder, navigate into "cmake-build-debug" `cd cmake-build-debug`
 2. Run server `./Tichu-server`
 3. In new consoles run as many clients as you want players `./Tichu-client`
@@ -288,7 +288,7 @@ std::cout << json_utils::to_string(req_json) << std::endl;
 ```
 
 
-### 4.3 Game State
+### 4.3 GamePanel State
 
 The `game_state` class stores all parameters that are required to represent the game on the client (resp. server) side. In order to synchronize this `game_state` among all players, the `game_state` can also be **serialized** and **deserialized**. If a `client_msg` was successfully executed on the server, then the `request_response` that is sent back to the client contains a serialized version of the updated `game_state`. All other players receive the updated `game_state` at the same time through a `full_state_response`.
 

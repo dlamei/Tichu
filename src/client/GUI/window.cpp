@@ -14,13 +14,11 @@
 static bool s_GLFWInitialized = false;
 
 static void GLFWErrorCallback(int error, const char *msg) {
-    ERROR_LOG("GLFW Error ({0}): {1}", error, msg);
+    ERROR("GLFW Error ({0}): {1}", error, msg);
 }
 
 
-
-Window::Window(const WindowCreateInfo &info)
-{
+Window::Window(const WindowCreateInfo &info) {
     init(info);
 }
 
@@ -46,22 +44,21 @@ void Window::init(const WindowCreateInfo &info) {
 #endif
 
 
-    _window = glfwCreateWindow((int)info.width, (int)info.height, info.title.c_str(),
+    _window = glfwCreateWindow((int) info.width, (int) info.height, info.title.c_str(),
                                nullptr, nullptr);
 
     ASSERT(_window, "Could not create window");
 
     glfwMakeContextCurrent(_window);
-    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+    gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     glfwSwapInterval(1);
 
-    if (info.icon.has_value())
-    {
-        auto logoSize = (double)info.icon.value().size();
+    if (info.icon.has_value()) {
+        auto logoSize = (double) info.icon.value().size();
         GLFWimage images{};
-        images.width = (int)sqrt(logoSize);
+        images.width = (int) sqrt(logoSize);
         images.height = images.width;
-        images.pixels = (uint8_t *)info.icon.value().data();
+        images.pixels = (uint8_t *) info.icon.value().data();
         glfwSetWindowIcon(_window, 1, &images);
     }
 
@@ -75,7 +72,7 @@ void Window::init(const WindowCreateInfo &info) {
     set_vsync(info.vsync);
 
     glfwSetWindowSizeCallback(_window, [](GLFWwindow *window, int width, int height) {
-        Window &data = *(Window *)glfwGetWindowUserPointer(window);
+        Window &data = *(Window *) glfwGetWindowUserPointer(window);
 
         Application::update_frame();
         glfwSwapBuffers(data.get_native_window());
@@ -96,12 +93,12 @@ void Window::on_update() {
 }
 
 bool Window::is_key_pressed(KeyCode key) const {
-    const auto state = glfwGetKey(_window, (int)key);
+    const auto state = glfwGetKey(_window, (int) key);
     return state == GLFW_PRESS || state == GLFW_REPEAT;
 }
 
 bool Window::is_mouse_pressed(KeyCode mouse_button) const {
-    const auto state = glfwGetMouseButton(_window, (int)mouse_button);
+    const auto state = glfwGetMouseButton(_window, (int) mouse_button);
     return state == GLFW_PRESS;
 }
 
@@ -120,18 +117,18 @@ void Window::set_vsync(bool enable) {
 std::pair<float, float> Window::get_mouse_pos() const {
     double mouse_x, mouse_y;
     glfwGetCursorPos(_window, &mouse_x, &mouse_y);
-    return { (float)mouse_x, (float)mouse_y };
+    return {(float) mouse_x, (float) mouse_y};
 }
 
 std::pair<float, float> Window::get_window_pos() const {
     int pos_x, pos_y;
     glfwGetWindowPos(_window, &pos_x, &pos_y);
-    return { (float)pos_x, (float)pos_y };
+    return {(float) pos_x, (float) pos_y};
 }
 
 std::pair<uint32_t, uint32_t> Window::get_window_size() const {
     int w, h;
     glfwGetFramebufferSize(_window, &w, &h);
-    return { w, h };
+    return {w, h};
 }
 
