@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
-#include "../src/common/network/client_msg.h"
-#include "../src/common/network/server_msg.h"
-#include "../src/common/game_state/game_state.h"
+#include "../src/common/network/ClientMsg.h"
+#include "../src/common/network/ServerMsg.h"
+#include "../src/common/game_state/GameState.h"
 #include "../src/common/game_state/cards/draw_pile.h"
 #include "../src/common/game_state/cards/active_pile.h"
 
@@ -18,8 +18,8 @@ TEST(SerializationTest, JoinGameRequest) {
     auto player_id = UUID::create();
     auto game_id = UUID::create();
 
-    auto send = client_msg(player_id, game_id, join_game);
-    auto receive = client_msg::from_json(*send.to_json());
+    auto send = ClientMsg(player_id, game_id, join_game);
+    auto receive = ClientMsg::from_json(*send.to_json());
 
     EXPECT_EQ(receive.get_type(), ClientMsgType::join_game);
     EXPECT_EQ(receive.get_game_id(), send.get_game_id());
@@ -31,8 +31,8 @@ TEST(SerializationTest, StartGameRequest) {
     auto player_id = UUID::create();
     auto game_id = UUID::create();;
 
-    auto send = client_msg(player_id, game_id, start_game_req {});
-    auto receive = client_msg::from_json(*send.to_json());
+    auto send = ClientMsg(player_id, game_id, start_game_req {});
+    auto receive = ClientMsg::from_json(*send.to_json());
 
     EXPECT_EQ(receive.get_type(), ClientMsgType::start_game);
     EXPECT_EQ(receive.get_game_id(), send.get_game_id());
@@ -44,8 +44,8 @@ TEST(SerializationTest, FoldRequest) {
     auto player_id = UUID::create();
     auto game_id = UUID::create();;
 
-    auto send = client_msg(player_id, game_id, fold_req {});
-    auto receive = client_msg::from_json(*send.to_json());
+    auto send = ClientMsg(player_id, game_id, fold_req {});
+    auto receive = ClientMsg::from_json(*send.to_json());
 
     EXPECT_EQ(receive.get_type(), ClientMsgType::fold);
     EXPECT_EQ(receive.get_game_id(), send.get_game_id());
@@ -59,8 +59,8 @@ TEST(SerializationTest, DrawCardRequest) {
     auto player_id = UUID::create();
     auto game_id = UUID::create();;
 
-    auto send = client_msg(player_id, game_id, draw_card);
-    auto receive = client_msg::from_json(*send.to_json());
+    auto send = ClientMsg(player_id, game_id, draw_card);
+    auto receive = ClientMsg::from_json(*send.to_json());
 
     EXPECT_EQ(receive.get_type(), ClientMsgType::draw_card);
     EXPECT_EQ(receive.get_game_id(), send.get_game_id());
@@ -121,9 +121,9 @@ TEST(SerializationTest, DiscardPile) {
     std::vector<Card> cards2 = {
             {Card(11, 12, 13), Card(14, 15, 16), Card(17, 18, 19)},
     };
-    card_combination combi1(cards1);
-    card_combination combi2(cards2);
-    std::vector<card_combination> combis;
+    CardCombination combi1(cards1);
+    CardCombination combi2(cards2);
+    std::vector<CardCombination> combis;
     combis.push_back(combi1);
     combis.push_back(combi2);
     auto send = active_pile(combis);
@@ -163,11 +163,11 @@ TEST(SerializationTest, FullStateResponse) {
 
     auto draw = draw_pile(all_cards[4]);
     std::vector<player> round_finish_order = std::vector<player>();
-    auto state = game_state(UUID::create(), players, round_finish_order, draw, active_pile(), 42, 60, 0, 0, false, false, false, false, 4);
+    auto state = GameState(UUID::create(), players, round_finish_order, draw, active_pile(), 42, 60, 0, 0, false, false, false, false, 4);
     auto send_json = state.to_json();
 
     print_json(*send_json);
-    auto received = game_state::from_json(*send_json);
+    auto received = GameState::from_json(*send_json);
 
     EXPECT_EQ(received.get_id(), state.get_id());
 }

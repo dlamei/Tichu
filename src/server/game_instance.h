@@ -1,5 +1,5 @@
-// The game_instance class is a wrapper around the game_state of an active instance of the game.
-// This class contains functions to modify the contained game_state.
+// The game_instance class is a wrapper around the GameState of an active instance of the game.
+// This class contains functions to modify the contained GameState.
 
 #ifndef TICHU_GAME_H
 #define TICHU_GAME_H
@@ -9,12 +9,12 @@
 #include <mutex>
 
 #include "../common/game_state/player/player.h"
-#include "../common/game_state/game_state.h"
+#include "../common/game_state/GameState.h"
 
 class game_instance {
 
 private:
-    game_state _game_state;
+    GameState _game_state;
 
     bool is_player_allowed_to_play(const player &player);
 
@@ -25,7 +25,7 @@ public:
 
     const UUID &get_id() { return _game_state.get_id(); }
 
-    const game_state &get_game_state();
+    const GameState &get_game_state();
 
     bool is_full();
 
@@ -40,7 +40,7 @@ public:
 
     bool try_remove_player(player_ptr player, std::string &err);
 
-    bool play_combi(player_ptr player, card_combination &combi, std::string &err);
+    bool play_combi(const player_ptr& player, CardCombination &combi, std::string &err);
 
 };
 

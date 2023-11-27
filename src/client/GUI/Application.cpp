@@ -100,10 +100,15 @@ void Application::build_dock_frame() {
         ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
         ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
 
-        auto main_dock = ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_HiddenTabBar |
-                                                                 ImGuiDockNodeFlags_NoDockingOverMe);
+        //auto viewport_dock = ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_HiddenTabBar |
+        //                                                         ImGuiDockNodeFlags_NoDockingOverMe);
+        ImGuiID viewport_dock, stats_dock;
+        ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.25f, &stats_dock, &viewport_dock);
+        ImGui::DockBuilderGetNode(viewport_dock)->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
 
-        ImGui::DockBuilderDockWindow("viewport", main_dock);
+        ImGui::DockBuilderDockWindow("viewport", viewport_dock);
+        ImGui::DockBuilderDockWindow("###GameStats", stats_dock);
+
         ImGui::DockBuilderFinish(dockspace_id);
     }
 
@@ -139,5 +144,4 @@ glm::vec2 Application::get_mouse_pos() {
     auto pos = get_instance()->_window->get_mouse_pos();
     return {pos.first, pos.second};
 }
-
 

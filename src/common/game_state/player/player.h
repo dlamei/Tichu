@@ -44,6 +44,7 @@ public:
     bool operator==(const player &other) const {
         return (_player_name == other._player_name
                 && _hand == other._hand
+                && _id == other._id
 #ifdef TICHU_SERVER
                 && _game_id == other._game_id
 #endif
@@ -85,11 +86,11 @@ public:
 #ifdef TICHU_SERVER
     // state update functions
     bool add_card_to_hand(const Card &card, std::string& err);
-    void remove_cards_from_hand(const card_combination &cards, std::string& err);
+    void remove_cards_from_hand(const CardCombination &cards, std::string& err);
 
     void finish() { _is_finished = true; }
 
-    bool add_cards_to_won_pile(const std::vector<card_combination> &combis, std::string& err);
+    bool add_cards_to_won_pile(const std::vector<CardCombination> &combis, std::string& err);
     
     void wrap_up_round(std::string& err);
     void setup_round(std::string& err) { }

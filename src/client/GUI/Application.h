@@ -2,6 +2,7 @@
 #define TICHU_APPLICATION_H
 
 #include "renderer.h"
+#include "KeyCodes.h"
 #include <string>
 #include <memory>
 #include <vector>
@@ -85,6 +86,8 @@ public:
 
     // returns the application instance
     [[nodiscard]] static const Application *get_instance();
+
+
 
 private:
 

@@ -1,6 +1,6 @@
 
-#ifndef TICHU_GAME_STATE_H
-#define TICHU_GAME_STATE_H
+#ifndef TICHU_GAMESTATE_H
+#define TICHU_GAMESTATE_H
 
 #include <vector>
 #include <string>
@@ -10,7 +10,7 @@
 #include "cards/active_pile.h"
 #include "../serialization/serializable.h"
 
-class game_state : public serializable {
+class GameState : public serializable {
 private:
 
     static const int _max_nof_players = 4;
@@ -39,12 +39,12 @@ private:
     int _last_player_idx{0};
 
     // from_diff constructor
-    explicit game_state(UUID id);
+    explicit GameState(UUID id);
 
 public:
 
     // deserialization constructor
-    game_state(
+    GameState(
             UUID id,
             std::vector<player_ptr> &players,
             std::vector<player> &round_finish_order,
@@ -61,7 +61,7 @@ public:
             int last_player_idx
     );
 
-    game_state();
+    GameState();
 
     // returns the index of 'player' in the '_players' vector
     [[nodiscard]] int get_score_team_A() const { return _score_team_A; }
@@ -122,17 +122,17 @@ public:
         void wrap_up_player(player &player, std::string &err);
 
 
-        bool play_combi(player &player, card_combination& combi, std::string& err);
+        bool play_combi(player &player, CardCombination& combi, std::string& err);
 
 
 #endif
 
 // serializable interface
-    static game_state from_json(const rapidjson::Value &json);
+    static GameState from_json(const rapidjson::Value &json);
 
     void write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType &alloc) const override;
 
 };
 
 
-#endif //TICHU_GAME_STATE_H
+#endif //TICHU_GAMESTATE_H

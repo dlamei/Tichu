@@ -1,24 +1,24 @@
 
-#include "card_combination.h"
+#include "CardCombination.h"
 
 #include <utility>
 
 #include "../../exceptions/TichuException.h"
 
-card_combination::card_combination(std::vector<Card> cards) {
+CardCombination::CardCombination(std::vector<Card> cards) {
     for (Card c: cards) {
         _cards.push_back(c);
     }
     update_combination_type_and_rank();
 }
 
-card_combination::card_combination(Card c) {
+CardCombination::CardCombination(Card c) {
     _cards.push_back(c);
     update_combination_type_and_rank();
 }
 
 
-int card_combination::count_occurances(Card card) {
+int CardCombination::count_occurances(Card card) {
     int count = 0;
     if (card.get_rank() == SPECIAL) {
         for (Card c: _cards) {
@@ -32,7 +32,7 @@ int card_combination::count_occurances(Card card) {
     return count;
 }
 
-bool card_combination::are_all_same_rank() {
+bool CardCombination::are_all_same_rank() {
     int rank = _cards.at(0).get_rank();
     for (Card c: _cards) {
         if (c != PHONIX && c.get_rank() != rank) {
@@ -42,7 +42,7 @@ bool card_combination::are_all_same_rank() {
     return true;
 }
 
-void card_combination::update_combination_type_and_rank() {
+void CardCombination::update_combination_type_and_rank() {
     // making sure cards are sorted before determining type / rank
     std::sort(_cards.begin(), _cards.end());
 
@@ -250,11 +250,12 @@ void card_combination::update_combination_type_and_rank() {
             bool expect_gap = 0;
             bool first_loop = true;
             previous = _cards.at(0);
-            for (Card card: _cards) {
+            for (const Card& card: _cards) {
                 if (first_loop) {
                     first_loop = false;
                     continue;
                 }
+                // TODO: is this right?
                 if (card.get_rank() - previous.get_rank() != expect_gap) {
                     is_Treppe = false;
                     break;
@@ -276,7 +277,7 @@ void card_combination::update_combination_type_and_rank() {
     return;
 }
 
-bool card_combination::can_be_played_on(const std::optional<card_combination> &other_opt, std::string &err) {
+bool CardCombination::can_be_played_on(const std::optional<CardCombination> &other_opt, std::string &err) {
     update_combination_type_and_rank();
     //nothing
     if (this->_combination_type == NONE) {
@@ -290,7 +291,7 @@ bool card_combination::can_be_played_on(const std::optional<card_combination> &o
     }
 
     if (!other_opt) { return true; }
-    card_combination other = other_opt.value();
+    CardCombination other = other_opt.value();
     if (other.get_combination_type() == SWITCH) { return true; }
 
     //bombs
@@ -336,17 +337,17 @@ bool card_combination::can_be_played_on(const std::optional<card_combination> &o
     //TO-DO
 }
 
-void card_combination::write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType &alloc) const {
+void CardCombination::write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType &alloc) const {
     vec_into_json("cards", _cards, json, alloc);
 }
 
-card_combination card_combination::from_json(const rapidjson::Value &json) {
+CardCombination CardCombination::from_json(const rapidjson::Value &json) {
     auto cards = vec_from_json<Card>("cards", json);
 
     if (!(cards)) {
-        throw TichuException("Could not parse json of card_combination. Was missing 'cards'.");
+        throw TichuException("Could not parse json of CardCombination. Was missing 'cards'.");
     }
-    return card_combination{cards.value()};
+    return CardCombination{cards.value()};
 }
 
 

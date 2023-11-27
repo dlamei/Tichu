@@ -20,8 +20,10 @@ namespace Renderer {
 
     void rect(const glm::vec2 &pos, const glm::vec2 &size, RGBA color);
     void rect(const glm::vec2 &pos, const glm::vec2 &size, const Texture &texture);
+    void rect(const glm::vec2 &pos, const glm::vec2 &size, RGBA tint, const Texture &texture);
+    void rect(const glm::vec2 &pos, const glm::vec2 &size, RGBA color, float rotation);
 
-    void rect_impl(const glm::vec2 &pos, const glm::vec2 &size, RGBA tint, const Texture &texture);
+    void rect_impl(const glm::vec2 &pos, const glm::vec2 &size, RGBA tint, const Texture &texture, float rotation);
 
     void draw_tri(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, RGBA color);
 

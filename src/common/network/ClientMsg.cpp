@@ -1,10 +1,10 @@
-#include "client_msg.h"
+#include "ClientMsg.h"
 
 #include <iostream>
 #include <utility>
 
-void client_msg::write_into_json(rapidjson::Value &json,
-                                 rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &alloc) const {
+void ClientMsg::write_into_json(rapidjson::Value &json,
+                                rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &alloc) const {
 
     int_into_json("type", get_type(), json, alloc);
     string_into_json("player_id", _player_id.string(), json, alloc);
@@ -41,7 +41,7 @@ client_msg_variant msg_variant_from_json(ClientMsgType type, const rapidjson::Va
         }
 
         case play_combi: {
-            card_combination combi = card_combination::from_json(json);
+            CardCombination combi = CardCombination::from_json(json);
             return play_combi_req{combi};
         }
 
@@ -51,7 +51,7 @@ client_msg_variant msg_variant_from_json(ClientMsgType type, const rapidjson::Va
 
 }
 
-client_msg client_msg::from_json(const rapidjson::Value &json) {
+ClientMsg ClientMsg::from_json(const rapidjson::Value &json) {
 
     auto type_opt = int_from_json("type", json);
     auto player_id_opt = string_from_json("player_id", json);
@@ -66,18 +66,18 @@ client_msg client_msg::from_json(const rapidjson::Value &json) {
     UUID player_id = UUID(player_id_opt.value());
     UUID game_id = UUID(game_id_opt.value());
 
-    return client_msg(player_id, game_id, msg_variant_from_json(type, json));
+    return ClientMsg(player_id, game_id, msg_variant_from_json(type, json));
 }
 
 
-//std::string client_msg::to_string() const {
-//    return "client_msg of type " + std::to_string((int)get_type()) + " for playerId " + _player_id.string() +
+//std::string ClientMsg::to_string() const {
+//    return "ClientMsg of type " + std::to_string((int)get_type()) + " for playerId " + _player_id.string() +
 //           " and gameId " + _game_id.string();
 //}
 
-ClientMsgType client_msg::get_type() const {
+ClientMsgType ClientMsg::get_type() const {
     return request_to_request_type(_request);
 }
 
-client_msg::client_msg(UUID player_id, UUID game_id, client_msg_variant var)
+ClientMsg::ClientMsg(UUID player_id, UUID game_id, client_msg_variant var)
         : _request(std::move(var)), _player_id(std::move(player_id)), _game_id(std::move(game_id)) {}

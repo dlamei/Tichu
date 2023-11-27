@@ -1,4 +1,6 @@
 #include "game_instance.h"
+
+#include <utility>
 #include "server_network_manager.h"
 
 
@@ -6,7 +8,7 @@ game_instance::game_instance()
         : _game_state() {
 }
 
-const game_state &game_instance::get_game_state() {
+const GameState &game_instance::get_game_state() {
     return _game_state;
 }
 
@@ -26,13 +28,13 @@ bool game_instance::is_finished() {
     return _game_state.is_game_finished();
 }
 
-void broadcast_full_state_response(const game_state &state, player_ptr player) {
-    auto update_msg = full_state_response{state.to_json()};
-    auto resp = server_msg(state.get_id(), update_msg);
-    server_network_manager::broadcast_message(resp, state.get_players(), player);
+void broadcast_full_state_response(const GameState &state, player_ptr player) {
+    auto update_msg = full_state_response{ state };
+    auto resp = ServerMsg(state.get_id(), update_msg);
+    server_network_manager::broadcast_message(resp, state.get_players(), std::move(player));
 }
 
-bool game_instance::play_combi(player_ptr player, card_combination &combi, std::string &err) {
+bool game_instance::play_combi(const player_ptr& player, CardCombination &combi, std::string &err) {
     modification_lock.lock();
     if (_game_state.play_combi(*player, combi, err)) {
         broadcast_full_state_response(_game_state, player);

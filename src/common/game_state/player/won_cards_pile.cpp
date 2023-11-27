@@ -24,15 +24,15 @@ void won_cards_pile::add_card(const Card &new_card) {
     _cards.push_back(new_card);
 }
 
-void won_cards_pile::add_cards(const card_combination &combi){
+void won_cards_pile::add_cards(const CardCombination &combi){
     std::vector<Card> cards = combi.get_cards();
     for(Card card : cards) {
         add_card(card);
     }
 }
 
-void won_cards_pile::add_cards(const std::vector<card_combination> &combis) {
-    for(card_combination combi : combis) {
+void won_cards_pile::add_cards(const std::vector<CardCombination> &combis) {
+    for(CardCombination combi : combis) {
         add_cards(combi);
     }
 }

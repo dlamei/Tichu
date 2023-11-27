@@ -1,13 +1,23 @@
 #include "Tichu.h"
 
 #include "GUI/renderer.h"
-#include "../../src/common/network/client_msg.h"
-#include "../common/network/server_msg.h"
+#include "../common/network/ClientMsg.h"
+
+
+void TichuGame::send_message(const ClientMsg &msg) {
+    if (_connection.is_connected()) {
+        auto msg_str = json_utils::to_string(*msg.to_json());
+        msg_str = std::to_string(msg_str.size()) + ":" + msg_str;
+        _connection.write(msg_str);
+    } else {
+        WARN("called send without an active connection");
+    }
+}
 
 
 void TichuGame::on_attach() {
     sockpp::socket_initializer::initialize();
-    GamePanel::init();
+    GamePanel::load_textures();
 }
 
 void TichuGame::on_detach() {
@@ -19,59 +29,68 @@ void TichuGame::on_detach() {
 
 void TichuGame::on_update(TimeStep ts) {
     process_messages();
+    show();
+    handle_gui_output();
 }
 
-void TichuGame::on_imgui() {
+void TichuGame::show() {
     // always show available messages
     Message::show_windows(&_messages);
 
-    // connection
-    if (_state == PanelState::CONNECTION) {
-        ConnectionPanel::show(&_connection_data);
+    switch (_state) {
+        case PanelState::CONNECTION:
+            ConnectionPanel::show(&_connection_data);
+            break;
+        case PanelState::GAME:
+            GamePanel::show(&_game_panel_data);
+            break;
     }
+}
 
+void TichuGame::handle_gui_output() {
     if (_connection_data.connect) {
         // reset button press
         _connection_data.connect = false;
 
         if (_connection_data.validate()) {
+            _game_panel_data.player_id = _connection_data.id;
             connect_to_server();
         } else {
             show_msg(MessageType::WARN, "invalid input");
         }
     }
 
-
-    // game
-    if (_state == PanelState::GAME) {
-        GamePanel::show();
+    if (_game_panel_data.pressed_start_game) {
+        _game_panel_data.pressed_start_game = false;
+        send_message(ClientMsg(_connection_data.id, UUID(), start_game_req{}));
+        _game_panel_data.state = GamePanel::GAME;
     }
 
+    if (_game_panel_data.pressed_fold) {
+        _game_panel_data.pressed_fold = false;
+        send_message(ClientMsg(_connection_data.id, UUID(), fold_req{}));
+    }
+    if (_game_panel_data.pressed_play) {
+        _game_panel_data.pressed_play = false;
+        auto &selected_cards = _game_panel_data.selected_cards;
+        auto msg = play_combi_req{ CardCombination({selected_cards.begin(), selected_cards.end()}) };
+        send_message(ClientMsg(_connection_data.id, UUID(), msg));
+    }
 
 }
 
-void send_message(sockpp::connector &connection, const client_msg &msg) {
-    if (connection.is_connected()) {
-        auto msg_str = json_utils::to_string(*msg.to_json());
-        msg_str = std::to_string(msg_str.size()) + ":" + msg_str;
-        connection.write(msg_str);
-    } else {
-        WARN("called send_message without an active connection");
-    }
-}
-
-std::optional<server_msg> parse_message(const std::string &msg) {
+std::optional<ServerMsg> parse_message(const std::string &msg) {
     rapidjson::Document json = rapidjson::Document(rapidjson::kObjectType);
     json.Parse(msg.c_str());
     try {
-        return server_msg::from_json(json);
+        return ServerMsg::from_json(json);
     } catch (const std::exception &e) {
         ERROR("failed to parse message from server:\n{}\n{}", msg, e.what());
         return {};
     }
 }
 
-void listen_to_messages(sockpp::tcp_connector &connection, MessageQueue<server_msg> *queue) {
+void listen_to_messages(sockpp::tcp_connector &connection, MessageQueue<ServerMsg> *queue) {
     ssize_t count{};
     char msg_size_str[MESSAGE_SIZE_LENGTH];
     //TODO: better error handling
@@ -144,12 +163,12 @@ void TichuGame::connect_to_server() {
     }
 
     // send join request after listener is created
-    auto client_req = client_msg(_connection_data.id, UUID(), join_game_req{.player_name = _connection_data.name});
-    send_message(_connection, client_req);
+    auto client_req = ClientMsg(_connection_data.id, UUID(), join_game_req{.player_name = _connection_data.name});
+    send_message(client_req);
 }
 
 void TichuGame::process_messages() {
-    std::optional<server_msg> message{};
+    std::optional<ServerMsg> message{};
     while ((message = _server_msgs.try_pop())) {
         auto msg = message.value();
 
@@ -162,7 +181,6 @@ void TichuGame::process_messages() {
             case ServerMsgType::full_state_response: {
                 auto data = msg.get_msg_data<full_state_response>();
                 process(data);
-                _state = PanelState::GAME;
                 break;
             }
             default:
@@ -179,26 +197,34 @@ void TichuGame::process(const request_response &data) {
     }
 
     _state = PanelState::GAME;
-    if (!data.state_json) {
+
+    if (!data.state) {
         show_msg(MessageType::ERROR, "network: request_response did not contain state_json");
         return;
     }
 
     try {
-        game_state state = game_state::from_json(*data.state_json.value());
-        GamePanel::update(state);
+        _state = PanelState::GAME;
+        GamePanel::update(data.state.value());
     } catch (std::exception &e) {
-        show_msg(MessageType::ERROR, "network: could not parse game_state from req_response");
+        show_msg(MessageType::ERROR, "network: could not parse GameState from req_response");
     }
 
 }
 
 void TichuGame::process(const full_state_response &data) {
+
     try {
-        game_state state = game_state::from_json(*data.state_json);
-        GamePanel::update(state);
+        _state = PanelState::GAME;
+        if (data.state.is_started()) {
+            _game_panel_data.state = GamePanel::GAME;
+        } else {
+            _game_panel_data.state = GamePanel::LOBBY;
+        }
+
+        GamePanel::update(data.state);
     } catch (std::exception &e) {
-        show_msg(MessageType::ERROR, "network: could not parse game_state from req_response");
+        show_msg(MessageType::ERROR, "network: could not parse GameState from req_response");
     }
 }
 

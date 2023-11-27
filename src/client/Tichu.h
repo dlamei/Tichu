@@ -8,7 +8,8 @@
 #include "GUI/Application.h"
 #include "panels.h"
 #include "../common/serialization/serializable.h"
-#include "../common/network/server_msg.h"
+#include "../common/network/ServerMsg.h"
+#include "../common/network/ClientMsg.h"
 #include <unordered_set>
 #include <string>
 #include <utility>
@@ -41,7 +42,6 @@ private:
     std::mutex _mutex;
 };
 
-// use bitflags for state, because we can have multiple states at once
 enum class PanelState {
     CONNECTION,
     GAME,
@@ -55,8 +55,6 @@ public:
     void on_detach() override;
 
     void on_update(TimeStep ts) override;
-
-    void on_imgui() override;
 
     void show_msg(MessageType typ, const std::string &msg) {
         // also log message
@@ -86,15 +84,22 @@ private:
     void process(const request_response &data);
     void process(const full_state_response &data);
 
-    //PanelState _state{PanelState::CONNECTION};
-    PanelState _state{PanelState::GAME};
+    // show the active panel
+    void show();
+    // handle the data provided by the user from the gui
+    void handle_gui_output();
+    void send_message(const ClientMsg &msg);
 
-    // input from the ConnectionPanel
-    ConnectionPanel::ConnectionData _connection_data{};
+    //PanelState _state{PanelState::CONNECTION};
+    PanelState _state{PanelState::CONNECTION};
+
+    // output from the ConnectionPanel
+    ConnectionPanel::Data _connection_data{};
+    GamePanel::Data _game_panel_data;
 
     sockpp::tcp_connector _connection{};
     std::thread _listener{};
-    MessageQueue<server_msg> _server_msgs{};
+    MessageQueue<ServerMsg> _server_msgs{};
 
     // all message boxes currently shown. item should be removed if close field is true
     std::vector<Message> _messages{};

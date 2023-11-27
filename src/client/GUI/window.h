@@ -33,10 +33,11 @@ public:
     void on_update();
 
     // check if given key is pressed
-    bool is_key_pressed(KeyCode key) const;
+    [[nodiscard]] bool is_key_pressed(KeyCode key) const;
 
     //check if given mouse button is pressed
-    bool is_mouse_pressed(KeyCode mouse_button = KeyCode::MOUSE_BUTTON_1) const;
+    [[nodiscard]] bool is_mouse_pressed(KeyCode mouse_button = KeyCode::MOUSE_BUTTON_1) const;
+    [[nodiscard]] bool is_mouse_released(KeyCode mouse_button = KeyCode::MOUSE_BUTTON_1) const;
 
     double get_time();
 

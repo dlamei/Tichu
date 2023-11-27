@@ -83,24 +83,20 @@ std::optional<std::string> string_from_json(const char *name, const rapidjson::V
 }
 
 
-std::string json_utils::to_string(const rapidjson::Value &json) {
-    rapidjson::StringBuffer buffer;
-    buffer.Clear();
-    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-    json.Accept(writer);
-    return buffer.GetString();
-}
+namespace json_utils {
+    std::string to_string(const rapidjson::Value &json) {
+        rapidjson::StringBuffer buffer;
+        buffer.Clear();
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        json.Accept(writer);
+        return buffer.GetString();
+    }
 
-json_document_ptr json_utils::clone_value(const rapidjson::Value &val) {
-    json_document_ptr state_json = std::make_shared<rapidjson::Document>(rapidjson::Document(rapidjson::kObjectType));
-    state_json->CopyFrom(val, state_json->GetAllocator());
-    return state_json;
-}
-
-std::string json_utils::to_pretty_string(const rapidjson::Value &json) {
-    rapidjson::StringBuffer buffer;
-    buffer.Clear();
-    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
-    json.Accept(writer);
-    return buffer.GetString();
+    std::string to_pretty_string(const rapidjson::Value &json) {
+        rapidjson::StringBuffer buffer;
+        buffer.Clear();
+        rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+        json.Accept(writer);
+        return buffer.GetString();
+    }
 }

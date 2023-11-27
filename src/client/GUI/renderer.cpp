@@ -5,6 +5,7 @@
 #include <glad/glad.h>
 
 #include <glm/gtx/transform.hpp>
+#include <glm/gtx/matrix_transform_2d.hpp>
 #include <array>
 
 #include "shader.glsl"
@@ -100,14 +101,14 @@ namespace Renderer {
         s_render_cntxt.index_ptr++;
     }
 
-    void rect_impl(const glm::vec2 &_pos, const glm::vec2 &size, RGBA tint, const Texture &texture) {
-        glm::vec2 pos{};
+    void rect_impl(const glm::vec2 &_pos, const glm::vec2 &size, RGBA tint, const Texture &texture, float rotation) {
+        glm::vec3 pos{};
         switch (s_render_cntxt.rect_mode) {
             case RectMode::CORNER:
-                pos = _pos;
+                pos = glm::vec3(_pos, 0);
                 break;
             case RectMode::CENTER:
-                pos = _pos - size / 2.f;
+                pos = glm::vec3(_pos - size / 2.f, 0);
                 break;
         }
 
@@ -120,23 +121,31 @@ namespace Renderer {
 
         auto tex_id = (float) push_texture(texture);
 
+        // for now only rotate around center
+        auto t1 = glm::translate(pos + glm::vec3(0));
+        auto t2 = glm::translate(-(pos + glm::vec3(0)));
+        auto scale = glm::scale(glm::vec3(size, 0));
+        auto rotate = glm::rotate(glm::mat4(1.0f), rotation, {0.f, 0.f, 1.f});
+        glm::mat4 transform = t1 * rotate * scale * t2;
+
+
         Vertex v{};
         v.col = tint.normalized();
         v.tex_id = tex_id;
 
-        v.pos = {pos.x, pos.y, 0};
+        v.pos = transform * glm::vec4(pos, 1);
         v.uv = {0, 0};
         push_vert(v);
 
-        v.pos = {pos.x + size.x, pos.y, 0};
+        v.pos = transform * glm::vec4(pos.x + 1, pos.y, 0, 1);
         v.uv = {1, 0};
         push_vert(v);
 
-        v.pos = {pos.x + size.x, pos.y + size.y, 0};
+        v.pos = transform * glm::vec4(pos.x + 1, pos.y + 1, 0, 1);
         v.uv = {1, 1};
         push_vert(v);
 
-        v.pos = {pos.x, pos.y + size.y, 0};
+        v.pos = transform * glm::vec4(pos.x, pos.y + 1, 0, 1);
         v.uv = {0, 1};
         push_vert(v);
 
@@ -151,12 +160,16 @@ namespace Renderer {
         s_render_cntxt.index_count += indx_count;
     }
 
+    void rect(const glm::vec2 &pos, const glm::vec2 &size, RGBA tint, const Texture &texture) {
+        rect_impl(pos, size, tint, texture, 0.f);
+    }
+
     void rect(const glm::vec2 &pos, const glm::vec2 &size, RGBA color) {
-        rect_impl(pos, size, color, s_render_cntxt.white_texture);
+        rect(pos, size, color, s_render_cntxt.white_texture);
     }
 
     void rect(const glm::vec2 &pos, const glm::vec2 &size, const Texture &texture) {
-        rect_impl(pos, size, {255, 255, 255, 255}, texture);
+        rect(pos, size, {255, 255, 255, 255}, texture);
     }
 
 
@@ -240,6 +253,10 @@ namespace Renderer {
 
     void set(RectMode mode) {
         s_render_cntxt.rect_mode = mode;
+    }
+
+    void Renderer::rect(const glm::vec2 &pos, const glm::vec2 &size, RGBA color, float rotation) {
+        rect_impl(pos, size, color, s_render_cntxt.white_texture, rotation);
     }
 
 }

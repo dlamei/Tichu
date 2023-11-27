@@ -8,29 +8,29 @@
 #include <string>
 #include <vector>
 #include "card.h"
-#include "card_combination.h"
+#include "CardCombination.h"
 #include "../player/player.h"
 #include "../../serialization/serializable.h"
 #include <rapidjson/document.h>
 
 class active_pile : public serializable {
 private:
-    std::vector<card_combination> _active_pile;
+    std::vector<CardCombination> _active_pile;
 
 public:
     active_pile() = default;
 
-    explicit active_pile(std::vector<card_combination> combis);
+    explicit active_pile(std::vector<CardCombination> combis);
 
 // accessors
-    [[nodiscard]] std::optional<card_combination> get_top_combi() const;
+    [[nodiscard]] std::optional<CardCombination> get_top_combi() const;
 
-    [[nodiscard]] std::vector<card_combination> get_pile() const { return _active_pile; }
+    [[nodiscard]] std::vector<CardCombination> get_pile() const { return _active_pile; }
 
 #ifdef TICHU_SERVER
     // state update functions
-        void push_active_pile(const card_combination &combi);
-        std::vector<card_combination> wrap_up_trick();
+        void push_active_pile(const CardCombination &combi);
+        std::vector<CardCombination> wrap_up_trick();
         void clear_cards() { _active_pile.clear(); }
 #endif
 

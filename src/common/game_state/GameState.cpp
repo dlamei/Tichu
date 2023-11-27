@@ -1,4 +1,4 @@
-#include "game_state.h"
+#include "GameState.h"
 
 #include <iostream>
 #include <utility>
@@ -7,26 +7,26 @@
 
 #include "../exceptions/TichuException.h"
 
-game_state::game_state() :
+GameState::GameState() :
         _id(UUID::create()) {}
 
-game_state::game_state(UUID id) :
+GameState::GameState(UUID id) :
         _id(std::move(id)) {}
 
-game_state::game_state(UUID id,
-                       std::vector<player_ptr> &players,
-                       std::vector<player> &round_finish_order,
-                       draw_pile draw_pile,
-                       active_pile active_pile,
-                       int score_team_A,
-                       int score_team_B,
-                       int next_player_idx,
-                       int starting_player_idx,
-                       bool is_started,
-                       bool is_game_finished,
-                       bool is_round_finished,
-                       bool is_trick_finished,
-                       int last_player_idx
+GameState::GameState(UUID id,
+                     std::vector<player_ptr> &players,
+                     std::vector<player> &round_finish_order,
+                     draw_pile draw_pile,
+                     active_pile active_pile,
+                     int score_team_A,
+                     int score_team_B,
+                     int next_player_idx,
+                     int starting_player_idx,
+                     bool is_started,
+                     bool is_game_finished,
+                     bool is_round_finished,
+                     bool is_trick_finished,
+                     int last_player_idx
 ) :
         _id(std::move(id)),
 
@@ -50,28 +50,28 @@ game_state::game_state(UUID id,
         _last_player_idx(last_player_idx) {}
 
 // accessors
-std::optional<player> game_state::get_current_player() const {
+std::optional<player> GameState::get_current_player() const {
     if (_players.empty()) {
         return {};
     }
     return *(_players[_next_player_idx]);
 }
 
-int game_state::get_player_index(const player &player) const {
+int GameState::get_player_index(const player &player) const {
     for (int i = 0; i < _players.size(); ++i) {
         if (*(_players.at(i)) == player) { return i; }
     }
     return -1;
 }
 
-bool game_state::is_player_in_game(const player &player) const {
+bool GameState::is_player_in_game(const player &player) const {
     for (int i = 0; i < _players.size(); ++i) {
         if (*(_players.at(i)) == player) { return true; }
     }
     return false;
 }
 
-bool game_state::is_allowed_to_play_now(const player &player) const {
+bool GameState::is_allowed_to_play_now(const player &player) const {
     auto current = get_current_player();
     if (!current) { // no current player
         return false;
@@ -84,7 +84,7 @@ bool game_state::is_allowed_to_play_now(const player &player) const {
 // 
 //   [ FUNCTIONS] 
 // 
-bool game_state::start_game(std::string &err) {
+bool GameState::start_game(std::string &err) {
     if (_players.size() < _min_nof_players) {
         err = "You need at least " + std::to_string(_min_nof_players) + " players to start the game.";
         return false;
@@ -100,20 +100,20 @@ bool game_state::start_game(std::string &err) {
     }
 }
 
-bool game_state::check_is_game_over(std::string& err) { 
+bool GameState::check_is_game_over(std::string& err) {
     if(_score_team_A >= 1000){ return true; }
     if(_score_team_B >= 1000){ return true; }
     return false;
 }
 
-void game_state::wrap_up_game(std::string& err) {
+void GameState::wrap_up_game(std::string& err) {
     _is_game_finished = true;
 }
 
 // 
 //   [ROUND FUNCTIONS] 
 // 
-void game_state::setup_round(std::string &err) {
+void GameState::setup_round(std::string &err) {
 
 
     // setup draw_pile
@@ -135,7 +135,7 @@ void game_state::setup_round(std::string &err) {
     
 }
 
-bool game_state::check_is_round_finished(player &player, std::string& err) {
+bool GameState::check_is_round_finished(player &player, std::string& err) {
     // 3 players finished
     if(_round_finish_order.size() >= 3) {
         return true;
@@ -152,7 +152,7 @@ bool game_state::check_is_round_finished(player &player, std::string& err) {
     return false;
 }
 
-void game_state::wrap_up_round(player &current_player, std::string& err) {
+void GameState::wrap_up_round(player &current_player, std::string& err) {
     _is_round_finished = true;
 
     int first_player_idx = get_player_index(_round_finish_order.at(0));
@@ -214,11 +214,11 @@ void game_state::wrap_up_round(player &current_player, std::string& err) {
 // 
 //   [TRICK FUNCTIONS] 
 // 
-void game_state::setup_trick(player &player, std::string &err) { 
+void GameState::setup_trick(player &player, std::string &err) {
 
 }
 
-bool game_state::check_is_trick_finished(player &player, std::string& err) {
+bool GameState::check_is_trick_finished(player &player, std::string& err) {
     // everyone skipped
     if(_last_player_idx == _next_player_idx) {
         return true;
@@ -234,7 +234,7 @@ bool game_state::check_is_trick_finished(player &player, std::string& err) {
     return false;
 }
 
-void game_state::wrap_up_trick(player &player, std::string &err) {
+void GameState::wrap_up_trick(player &player, std::string &err) {
     _is_trick_finished = true;
     // move cards to won_cards_pile to right player
     _players.at(_last_player_idx)->add_cards_to_won_pile(_active_pile.get_pile(), err);
@@ -245,7 +245,7 @@ void game_state::wrap_up_trick(player &player, std::string &err) {
 // 
 //   [PLAYER FUNCTIONS] 
 // 
-bool game_state::add_player(const player_ptr player_ptr, std::string& err) {
+bool GameState::add_player(const player_ptr player_ptr, std::string& err) {
     if (_is_started) {
         err = "Could not join game, because the requested game is already started.";
         return false;
@@ -269,7 +269,7 @@ bool game_state::add_player(const player_ptr player_ptr, std::string& err) {
     return true;
 }
 
-void game_state::update_current_player(player &player, bool is_dog, std::string& err) {
+void GameState::update_current_player(player &player, bool is_dog, std::string& err) {
     if(is_dog) {
         _next_player_idx = (_next_player_idx + 1) % 4;
     }
@@ -278,7 +278,7 @@ void game_state::update_current_player(player &player, bool is_dog, std::string&
     } while (_players.at(_next_player_idx)->get_is_finished());
 }
 
-bool game_state::remove_player(player_ptr player_ptr, std::string &err) {
+bool GameState::remove_player(player_ptr player_ptr, std::string &err) {
     int idx = get_player_index(*player_ptr);
     if (idx != -1) {
         if (idx < _next_player_idx) {
@@ -296,15 +296,15 @@ bool game_state::remove_player(player_ptr player_ptr, std::string &err) {
 // 
 //   [TURN FUNCTIONS] 
 // 
-void game_state::setup_player(player &player, std::string &err) {
+void GameState::setup_player(player &player, std::string &err) {
 
 }
 
-bool game_state::check_is_player_finished(player &player, std::string &err) {
+bool GameState::check_is_player_finished(player &player, std::string &err) {
     return player.get_nof_cards() == 0;
 }
 
-void game_state::wrap_up_player(player &player, std::string &err) {
+void GameState::wrap_up_player(player &player, std::string &err) {
 
     _round_finish_order.push_back(player);
     player.finish();
@@ -312,7 +312,7 @@ void game_state::wrap_up_player(player &player, std::string &err) {
 }
 
 //   [GamePanel Logic]
-bool game_state::play_combi(player &player, card_combination& combi, std::string &err) {
+bool GameState::play_combi(player &player, CardCombination& combi, std::string &err) {
     _is_round_finished = false;
     _is_trick_finished = false;
     int player_idx = get_player_index(player);
@@ -380,8 +380,8 @@ bool game_state::play_combi(player &player, card_combination& combi, std::string
 
 
 // Serializable interface
-void game_state::write_into_json(rapidjson::Value &json,
-                                 rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &alloc) const {
+void GameState::write_into_json(rapidjson::Value &json,
+                                rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &alloc) const {
 
     string_into_json("id", _id.string(), json, alloc);
 
@@ -409,7 +409,7 @@ void game_state::write_into_json(rapidjson::Value &json,
 
 }
 
-game_state game_state::from_json(const rapidjson::Value &json) {
+GameState GameState::from_json(const rapidjson::Value &json) {
     //TODO: remove check
 
     auto id = string_from_json("id", json);
@@ -445,7 +445,7 @@ game_state game_state::from_json(const rapidjson::Value &json) {
         && next_player_idx && starting_player_idx
         && is_started && is_game_finished && is_round_finished
         && is_trick_finished && last_player_idx) {
-        return game_state{
+        return GameState{
                 UUID(id.value()),
                 player_ptrs,
                 round_finish_order.value(),
@@ -463,7 +463,7 @@ game_state game_state::from_json(const rapidjson::Value &json) {
         };
 
     } else {
-        throw TichuException("Failed to deserialize game_state. Required entries were missing.");
+        throw TichuException("Failed to deserialize GameState. Required entries were missing.");
     }
 }
 

@@ -8,10 +8,10 @@
 #include "game_instance_manager.h"
 #include "game_instance.h"
 
-#include "../common/network/client_msg.h"
+#include "../common/network/ClientMsg.h"
 
 
-server_msg request_handler::handle_request(const client_msg &req) {
+ServerMsg request_handler::handle_request(const ClientMsg &req) {
 
     // Prepare variables that are used by every request type
     //player* player;
@@ -39,34 +39,33 @@ server_msg request_handler::handle_request(const client_msg &req) {
                 auto game_instance_ptr = game_instance_manager::try_add_player_to_any_game(player, err);
                 if (game_instance_ptr) {
                     // game_instance_ptr got updated to the joined game
-                    // return response with full game_state attached
-                    auto resp = request_response{true, game_instance_ptr.value()->get_game_state().to_json(), err};
-                    return server_msg(game_instance_ptr.value()->get_id(), resp);
+                    // return response with full GameState attached
+                    auto resp = request_response{true, game_instance_ptr.value()->get_game_state(), err};
+                    return ServerMsg(game_instance_ptr.value()->get_id(), resp);
                     //return request_response(game_instance_ptr.value()->get_id(), req_id, true, game_instance_ptr.value()->get_game_state().to_json(), err);
                 } else {
                     // failed to find game to join
                     auto resp = request_response{false, {}, err};
-                    return server_msg(game_instance_ptr.value()->get_id(), resp);
+                    return ServerMsg(game_instance_ptr.value()->get_id(), resp);
                 }
             } else {
                 // join a specific game denoted by req->get_game_id()
                 auto game_instance = game_instance_manager::try_get_game_instance(game_id);
                 if (game_instance) {
                     if (game_instance_manager::try_add_player(player, *game_instance.value(), err)) {
-                        // return response with full game_state attached
-                        auto resp = request_response{true,
-                                                     game_instance.value()->get_game_state().to_json(), err};
-                        return server_msg(game_id, resp);
+                        // return response with full GameState attached
+                        auto resp = request_response{true, game_instance.value()->get_game_state(), err};
+                        return ServerMsg(game_id, resp);
 
                     } else {
                         // failed to join requested game
                         auto resp = request_response{false, {}, err};
-                        return server_msg(UUID(), resp);
+                        return ServerMsg(UUID(), resp);
                     }
                 } else {
                     // failed to find requested game
                     auto resp = request_response{false, {}, "Requested game could not be found."};
-                    return server_msg(UUID(), resp);
+                    return ServerMsg(UUID(), resp);
                 }
             }
         }
@@ -78,12 +77,12 @@ server_msg request_handler::handle_request(const client_msg &req) {
             if (game_and_player) {
                 auto [player, game_instance] = game_and_player.value();
                 if (game_instance->start_game(player, err)) {
-                    auto resp = request_response{true, game_instance->get_game_state().to_json(), err};
-                    return server_msg(game_instance->get_id(), resp);
+                    auto resp = request_response{true, game_instance->get_game_state(), err};
+                    return ServerMsg(game_instance->get_id(), resp);
                 }
             }
             auto resp = request_response{false, {}, err};
-            return server_msg(UUID(), resp);
+            return ServerMsg(UUID(), resp);
         }
 
 
@@ -95,13 +94,13 @@ server_msg request_handler::handle_request(const client_msg &req) {
                 auto combi = req.get_msg_data<play_combi_req>().played_combi;
 
                 if (game_instance->play_combi(player, combi, err)) {
-                    auto resp = request_response{true, game_instance->get_game_state().to_json(), err};
-                    return server_msg(game_instance->get_id(), resp);
+                    auto resp = request_response{true, game_instance->get_game_state(), err};
+                    return ServerMsg(game_instance->get_id(), resp);
                 }
             }
             auto [player, game_instance] = game_and_player.value();
-            auto resp = request_response{false, game_instance->get_game_state().to_json(), err};
-            return server_msg(game_instance->get_id(), resp);
+            auto resp = request_response{false, game_instance->get_game_state(), err};
+            return ServerMsg(game_instance->get_id(), resp);
         }
 
             // ##################### FOLD ##################### //
@@ -111,19 +110,19 @@ server_msg request_handler::handle_request(const client_msg &req) {
                 if (game_and_player) {
                     auto [player, game_instance] = game_and_player.value();
                     if (game_instance->fold(*player, err)) {
-                        auto resp = request_response{true, game_instance->get_game_state().to_json(), err};
-                        return server_msg(game_instance->get_id(), resp);
+                        auto resp = request_response{true, game_instance->get_game_state(), err};
+                        return ServerMsg(game_instance->get_id(), resp);
                     }
                 }
                 auto resp = request_response{false, {}, err};
-                return server_msg(UUID(), resp);
+                return ServerMsg(UUID(), resp);
             }
             */
 
             // ##################### UNKNOWN REQUEST ##################### //
         default: {
             auto resp = request_response{false, {}, "Unknown ClientMsgType " + std::to_string(type)};
-            return server_msg(UUID(), resp);
+            return ServerMsg(UUID(), resp);
         }
     }
 }

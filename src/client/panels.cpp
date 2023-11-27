@@ -5,69 +5,66 @@
 #include "misc/cpp/imgui_stdlib.h"
 #include "GUI/renderer.h"
 
-/// shows the framebuffer in the viewport window
-void show_main_framebuffer() {
-    ImGui::Begin("viewport");
-    auto size = Application::get_viewport_size();
-    ImGui::Image(Renderer::get_frame_buffer().get_attachment(0), {(float) size.x, (float) size.y});
-    ImGui::End();
-}
+namespace ImGuiUtils {
 
 // centering function for the next window. will only center once
-void center_next_window_once() {
-    auto size = Application::get_window_size();
-    ImGui::SetNextWindowPos({(float) size.x / 2.f, (float) size.y / 2.f}, ImGuiCond_Once, {0.5f, 0.5f});
-}
-
-// fix the next window to a relative position to the viewport
-void rel_fix_next_window(float x, float y, glm::vec2 pivot = {0.5, 0.5}) {
-    glm::vec2 size = Application::get_viewport_size();
-    glm::vec2 pos = Application::get_viewport_pos();
-    ImGui::SetNextWindowPos({size.x * x + pos.x, size.y * y + pos.y}, ImGuiCond_Always, {pivot.x, pivot.y});
-}
-
-// centering function for an item with a label, e.g Button
-void center_next_label(const char *label, float alignment = 0.5f) {
-    ImGuiStyle &style = ImGui::GetStyle();
-
-    float size = ImGui::CalcTextSize(label).x + style.FramePadding.x * 2.0f;
-    float avail = ImGui::GetContentRegionAvail().x;
-
-    float off = (avail - size) * alignment;
-    if (off > 0.0f)
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + off);
-}
-
-// center a wrapped text widget
-void text_wrapped_centered(const std::string &text) {
-    float win_width = ImGui::GetWindowSize().x;
-    float text_width = ImGui::CalcTextSize(text.c_str()).x;
-
-    float text_indentation = (win_width - text_width) * 0.5f;
-
-    float min_indentation = 20.0f;
-    if (text_indentation <= min_indentation) {
-        text_indentation = min_indentation;
+    void center_next_window_once() {
+        auto size = Application::get_window_size();
+        ImGui::SetNextWindowPos({(float) size.x / 2.f, (float) size.y / 2.f}, ImGuiCond_Once, {0.5f, 0.5f});
     }
 
-    ImGui::SameLine(text_indentation);
-    ImGui::PushTextWrapPos(win_width - text_indentation);
-    ImGui::TextWrapped("%s", text.c_str());
-    ImGui::PopTextWrapPos();
-}
+// centering function for an item with a label, e.g Button
+    void center_next_label(const char *label, float alignment) {
+        ImGuiStyle &style = ImGui::GetStyle();
 
+        float size = ImGui::CalcTextSize(label).x + style.FramePadding.x * 2.0f;
+        float avail = ImGui::GetContentRegionAvail().x;
 
-// show to label for an input field
-void show_input_label(const char *label) {
-    ImGui::TableNextRow();
-    ImGui::TableNextColumn();
-    ImGui::Text("%s", label);
-    ImGui::TableNextColumn();
+        float off = (avail - size) * alignment;
+        if (off > 0.0f)
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + off);
+    }
+
+// center a wrapped text widget
+    void text_wrapped_centered(const std::string &text) {
+        float win_width = ImGui::GetWindowSize().x;
+        float text_width = ImGui::CalcTextSize(text.c_str()).x;
+
+        float text_indentation = (win_width - text_width) * 0.5f;
+
+        float min_indentation = 20.0f;
+        if (text_indentation <= min_indentation) {
+            text_indentation = min_indentation;
+        }
+
+        ImGui::SameLine(text_indentation);
+        ImGui::PushTextWrapPos(win_width - text_indentation);
+        ImGui::TextWrapped("%s", text.c_str());
+        ImGui::PopTextWrapPos();
+    }
+
+    void AlignForWidth(float width, float alignment) {
+        ImGuiStyle& style = ImGui::GetStyle();
+        float avail = ImGui::GetContentRegionAvail().x;
+        float off = (avail - width) * alignment;
+        if (off > 0.0f)
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + off);
+    }
+
 }
 
 namespace ConnectionPanel {
 
-    bool ConnectionData::validate() const {
+// show to label for an input field
+    void show_input_label(const char *label) {
+        ImGui::TableNextRow();
+        ImGui::TableNextColumn();
+        ImGui::Text("%s", label);
+        ImGui::TableNextColumn();
+    }
+
+
+    bool Data::validate() const {
         if (name.size() > 64 || name.empty()) return false;
         if (host.empty()) return false;
         return true;
@@ -82,7 +79,7 @@ namespace ConnectionPanel {
     }
 
 /// displays the connection panel, data is read and written into the input argument
-    void show(ConnectionData *input) {
+    void show(Data *input) {
 
         auto height = ImGui::GetFontSize();
 
@@ -93,7 +90,7 @@ namespace ConnectionPanel {
         style.push_style(ImGuiStyleVar_WindowPadding, {height, height});
         style.push_style(ImGuiStyleVar_SelectableTextAlign, {0.5, 0.5});
 
-        center_next_window_once();
+        ImGuiUtils::center_next_window_once();
         ImGui::Begin("Connection", nullptr,
                      ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking |
                      ImGuiWindowFlags_NoScrollbar);
@@ -117,8 +114,8 @@ namespace ConnectionPanel {
         ImGui::EndTable();
 
         ImGui::BeginTable("buttons", 3);
-        team_selectable("TEAM 1", &input->team, TeamSelection::TEAM_1, height * 2);
-        team_selectable("TEAM 2", &input->team, TeamSelection::TEAM_2, height * 2);
+        team_selectable("TEAM A", &input->team, TeamSelection::TEAM_A, height * 2);
+        team_selectable("TEAM B", &input->team, TeamSelection::TEAM_B, height * 2);
         team_selectable("RANDOM", &input->team, TeamSelection::RANDOM, height * 2);
 
         ImGui::TableNextRow();
@@ -132,7 +129,7 @@ namespace ConnectionPanel {
         ImGui::EndTable();
 
 
-        center_next_label(input->status.c_str());
+        ImGuiUtils::center_next_label(input->status.c_str());
         ImGui::TextColored(ImGui::LIGHT_GREY, "%s", input->status.c_str());
 
         ImGui::End();
@@ -169,13 +166,13 @@ void Message::on_imgui() {
     style.push_style(ImGuiStyleVar_WindowPadding, {20, 20});
     style.push_style(ImGuiStyleVar_WindowTitleAlign, {0.5f, 0.5f});
 
-    center_next_window_once();
+    ImGuiUtils::center_next_window_once();
     ImGui::Begin(title.c_str(), nullptr,
                  ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse);
 
     ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());
 
-    text_wrapped_centered(message);
+    ImGuiUtils::text_wrapped_centered(message);
 
     ImGui::NewLine();
 
@@ -194,105 +191,4 @@ void Message::show_windows(std::vector<Message> *messages) {
     auto end = messages->end();
     auto begin = messages->begin();
     messages->erase(std::remove_if(begin, end, [](const Message &msg) { return msg.should_close; }), end);
-}
-
-
-void hovering_text(const std::string &id, const std::string &text, float x, float y) {
-    auto style = ImGui::ScopedStyle();
-    rel_fix_next_window(x, y);
-    ImGui::Begin(id.c_str(), nullptr,
-                 ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize |
-                 ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoTitleBar |
-                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoNav);
-    ImGui::Text("%s", text.c_str());
-    ImGui::End();
-}
-
-namespace GamePanel {
-
-    static game_state s_state{};
-    static Texture card_frame{};
-
-    void init() {
-        card_frame = Texture::load("assets/frame.png");
-    }
-
-    void debug_game_state() {
-        ImGui::Begin("Debug");
-        auto data = json_utils::to_pretty_string(*s_state.to_json());
-        ImGui::TextWrapped("%s", data.c_str());
-        ImGui::End();
-    }
-
-    void show() {
-        show_main_framebuffer();
-        //debug_game_state();
-        std::string wait_text = std::format("waiting ({} / 4)...", s_state.get_players().size());
-        hovering_text("wait_text", wait_text, .5f, .5f);
-        std::string scores = std::format("{} : {}", s_state.get_score_team_A(), s_state.get_score_team_B());
-        hovering_text("scores", scores, .5f, .1f);
-
-        Renderer::clear(RGBA::from(ImGui::DARK_GREY));
-        Renderer::set(Renderer::RectMode::CENTER);
-
-        float width = 1;
-        float ar = Application::get_aspect_ratio();
-        float cw = 0.2;
-        float ch = ar * cw * 1.5f;
-
-        if (ch > 0.4f) {
-            ch = .4f;
-            cw = ch / ar / 1.5f;
-        }
-
-        Renderer::set_camera(0, width, 0, 1);
-
-        // get mouse pos relative to the viewport
-        auto mouse_pos = Application::get_mouse_pos() - (glm::vec2)Application::get_viewport_pos();
-        mouse_pos /= Application::get_viewport_size();
-        float mouseX = mouse_pos.x;
-        float mouseY = 1 - mouse_pos.y; // fix orientation
-
-        static int num_cards = 10;
-        float pad = cw * 2;
-        float cards_y = 0.1;
-        float hover_offset = 0.1;
-        ImGui::Begin("Test");
-        ImGui::InputInt("n_cards", &num_cards);
-        ImGui::End();
-
-        for (int i = 0; i < num_cards; i++) {
-            float cards_width = (width - pad);
-            float dw = cards_width / (float)(num_cards - 1);
-
-            float px1 = ((float)i * dw) + pad / 2;
-            float py = cards_y;
-            if (num_cards == 1) {
-                px1 = width / 2.f;
-            }
-
-            float px2 = ((float)(i + 1) * dw) + pad / 2;
-            bool hover = false;
-
-            float card_begin = px1 - cw / 2;
-            float card_end = px2 - cw / 2;
-            if (i == num_cards - 1) card_end = px1 + cw / 2;
-
-            if (mouseX >= card_begin && mouseX <= card_end) {
-                hover = true;
-                py += hover_offset;
-            }
-
-            if (hover && (mouseY > py + ch / 2 || mouseY < py - ch / 2)) {
-                hover = false;
-                py -= cards_y;
-            }
-
-            Renderer::rect({px1, py}, {cw, ch}, card_frame);
-        }
-    }
-
-    void update(const game_state &state) {
-        s_state = state;
-    }
 }

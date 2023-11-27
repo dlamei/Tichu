@@ -102,6 +102,11 @@ bool Window::is_mouse_pressed(KeyCode mouse_button) const {
     return state == GLFW_PRESS;
 }
 
+bool Window::is_mouse_released(KeyCode mouse_button) const {
+    const auto state = glfwGetMouseButton(_window, (int) mouse_button);
+    return state == GLFW_RELEASE;
+}
+
 double Window::get_time() {
     return glfwGetTime();
 }

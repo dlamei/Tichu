@@ -98,7 +98,7 @@ void server_network_manager::read_message(sockpp::tcp_socket socket, const std::
             if (msg_bytes_read == msg_length) {
                 // sanity check that really all bytes got read (possibility that count was <= 0, indicating a read error)
                 std::string msg = ss_msg.str();
-                message_handler(msg, socket.peer_address());    // attempt to parse client_msg from 'msg'
+                message_handler(msg, socket.peer_address());    // attempt to parse ClientMsg from 'msg'
             } else {
                 std::cerr << "Could not read entire message. TCP stream ended before. Difference is "
                           << msg_length - msg_bytes_read << std::endl;
@@ -124,8 +124,8 @@ void server_network_manager::handle_incoming_message(const std::string &msg,
         // try to parse a json from the 'msg'
         rapidjson::Document req_json;
         req_json.Parse(msg.c_str());
-        // try to parse a client_msg from the json
-        client_msg req = client_msg::from_json(req_json);
+        // try to parse a ClientMsg from the json
+        ClientMsg req = ClientMsg::from_json(req_json);
 
         // check if this is a connection to a new player
         auto player_id = req.get_player_id();
@@ -144,7 +144,7 @@ void server_network_manager::handle_incoming_message(const std::string &msg,
         std::cout << "Received valid request : " << msg << std::endl;
 #endif
         // execute client request
-        server_msg res = request_handler::handle_request(req);
+        ServerMsg res = request_handler::handle_request(req);
         //delete req;
 
         // transform response into a json
@@ -178,27 +178,22 @@ void server_network_manager::on_player_left(const UUID &player_id) {
 ssize_t server_network_manager::send_message(const std::string &msg, const std::string &address) {
 
     std::stringstream ss_msg;
-    //std::cerr << "MESSAGE SIZE:    " << msg.size() << "     ";
-    //std::cerr << "MESSAGE:    " << msg << "    ";
-    //ss_msg << std::to_string(msg.size()) << ':' << msg; // prepend message length
     ASSERT(msg.size() <= MAX_MESSAGE_SIZE, "message size is too large");
     ss_msg << std::setfill('0') << std::setw(MESSAGE_SIZE_LENGTH) << (int) msg.size();
     ss_msg << ':' << msg; // prepend message length
     return _address_to_socket.at(address).write(ss_msg.str());
 }
 
-void server_network_manager::broadcast_message(server_msg &msg, std::vector<player_ptr> players, player_ptr exclude) {
+void server_network_manager::broadcast_message(ServerMsg &msg, std::vector<player_ptr> players, player_ptr exclude) {
     auto msg_json = msg.to_json();  // write to JSON format
     std::string msg_string = json_utils::to_string(*msg_json);   // convert to string
 
-#ifdef PRINT_NETWORK_MESSAGES
-    std::cout << "Broadcasting message : " << msg_string << std::endl;
-#endif
+    DEBUG("broadcast_message: {}", msg_string);
 
     _rw_lock.lock_shared();
     // send object_diff to all requested players
     try {
-        for (auto player: players) {
+        for (const auto& player: players) {
             if (player->get_id() != exclude->get_id()) {
                 int nof_bytes_written = send_message(msg_string, _player_id_to_address.at(player->get_id()));
             }

@@ -15,24 +15,16 @@
 #define MESSAGE_SIZE_LENGTH 4
 #define MAX_MESSAGE_SIZE 9999
 
-using json_value_ptr = std::shared_ptr<rapidjson::Value>;
-using json_document_ptr = std::shared_ptr<rapidjson::Document>;
-
 struct JsonWriter {
     rapidjson::Value json;
     rapidjson::Document::AllocatorType alloc;
 };
 
 
-class json_utils {
-public:
-    static std::string to_string(const rapidjson::Value &json);
-    static std::string to_pretty_string(const rapidjson::Value &json);
-
-    // In case you need to create a rapidjson::Document on the heap (pointer) based on a value extracted from a json.
-    static json_document_ptr clone_value(const rapidjson::Value &val);
-
-};
+namespace json_utils {
+    std::string to_string(const rapidjson::Value &json);
+    std::string to_pretty_string(const rapidjson::Value &json);
+}
 
 template<class T, class B>
 struct derived_from {

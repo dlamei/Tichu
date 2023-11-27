@@ -4,7 +4,7 @@
 #include <vector>
 #include <rapidjson/document.h>
 #include "../cards/card.h"
-#include "../cards/card_combination.h"
+#include "../cards/CardCombination.h"
 
 class won_cards_pile : public serializable {
 
@@ -23,8 +23,8 @@ public:
     // state update functions
         void wrap_up_round();
         void add_card(const Card &card);
-        void add_cards(const card_combination &combi);
-        void add_cards(const std::vector<card_combination> &combis);
+        void add_cards(const CardCombination &combi);
+        void add_cards(const std::vector<CardCombination> &combis);
 #endif
 
 // serializable interface

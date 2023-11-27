@@ -1,6 +1,6 @@
 
-#ifndef TICHU_CARD_COMBINATION_H
-#define TICHU_CARD_COMBINATION_H
+#ifndef TICHU_CARDCOMBINATION_H
+#define TICHU_CARDCOMBINATION_H
 
 #include <algorithm>
 #include <vector>
@@ -12,7 +12,7 @@ enum COMBI {
     NONE, SINGLE, DOUBLE, TRIPLE, BOMB, FULLHOUSE, STRASS, TREPPE, PASS, SWITCH
 };
 
-class card_combination : public serializable {
+class CardCombination : public serializable {
 
 private:
     std::vector<Card> _cards;
@@ -21,9 +21,9 @@ private:
 
 
 public:
-    card_combination(std::vector<Card> cards);
+    CardCombination(std::vector<Card> cards);
 
-    card_combination(Card card);
+    CardCombination(Card card);
 
 // accessors
     [[nodiscard]] int get_combination_type() const noexcept { return _combination_type; }
@@ -39,14 +39,14 @@ public:
 
     void update_combination_type_and_rank();
 
-    bool can_be_played_on(const std::optional<card_combination> &other, std::string &err);
+    bool can_be_played_on(const std::optional<CardCombination> &other, std::string &err);
 
 // serializable interface
     void write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator) const override;
 
-    static card_combination from_json(const rapidjson::Value &json);
+    static CardCombination from_json(const rapidjson::Value &json);
 
 };
 
 
-#endif //TICHU_CARD_COMBINATION_H
+#endif //TICHU_CARDCOMBINATION_H

@@ -16,10 +16,10 @@
 #include "sockpp/tcp_connector.h"
 #include "sockpp/tcp_acceptor.h"
 
-#include "../common/network/client_msg.h"
-#include "../common/network/server_msg.h"
+#include "../common/network/ClientMsg.h"
+#include "../common/network/ServerMsg.h"
 #include "../common/game_state/player/player.h"
-#include "../common/game_state/game_state.h"
+#include "../common/game_state/GameState.h"
 
 class server_network_manager {
 private:
@@ -48,8 +48,8 @@ public:
 
     ~server_network_manager();
 
-    // Used to broadcast a server_msg (e.g. a full_state_response) to all 'players' except 'exclude'
-    static void broadcast_message(server_msg &msg, std::vector<player_ptr> players, player_ptr exclude);
+    // Used to broadcast a ServerMsg (e.g. a full_state_response) to all 'players' except 'exclude'
+    static void broadcast_message(ServerMsg &msg, std::vector<player_ptr> players, player_ptr exclude);
 
     static void on_player_left(const UUID &player_id);
 };

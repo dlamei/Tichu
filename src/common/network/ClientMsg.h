@@ -1,5 +1,5 @@
-#ifndef TICHU_CLIENT_MSG_H
-#define TICHU_CLIENT_MSG_H
+#ifndef TICHU_CLIENTMSG_H
+#define TICHU_CLIENTMSG_H
 
 #include <string>
 #include <unordered_map>
@@ -8,7 +8,7 @@
 #include "../serialization/serializable.h"
 #include "../exceptions/TichuException.h"
 #include "../game_state/cards/card.h"
-#include "../game_state/cards/card_combination.h"
+#include "../game_state/cards/CardCombination.h"
 
 // helper type for the visitor
 // visit [https://en.cppreference.com/w/cpp/utility/variant/visit] for more info
@@ -21,7 +21,7 @@ template<class... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 
 // Identifier for the different request types.
-// The ClientMsgType is sent with every client_msg to identify the type of client_msg
+// The ClientMsgType is sent with every ClientMsg to identify the type of ClientMsg
 // during deserialization on the server side.
 enum ClientMsgType: int {
     join_game = 0,
@@ -41,7 +41,7 @@ struct join_game_req {
 };
 
 struct play_combi_req {
-    card_combination played_combi;
+    CardCombination played_combi;
 };
 
 
@@ -63,8 +63,8 @@ static ClientMsgType request_to_request_type(const client_msg_variant &var) {
             }, var);
 }
 
-// a client_msg has 3 fields, the game_id, player_id and the data specific for that type of message
-class client_msg : public serializable {
+// a ClientMsg has 3 fields, the game_id, player_id and the data specific for that type of message
+class ClientMsg : public serializable {
 protected:
 
     client_msg_variant _request;
@@ -73,7 +73,7 @@ protected:
 
 public:
 
-    explicit client_msg(UUID player_id, UUID game_id, client_msg_variant); // base constructor
+    explicit ClientMsg(UUID player_id, UUID game_id, client_msg_variant); // base constructor
 
     // gets the type of the current message. the function request_to_request_type is used
     [[nodiscard]] ClientMsgType get_type() const;
@@ -87,13 +87,13 @@ public:
         return std::get<T>(_request);
     }
 
-    // Tries to create the specific client_msg from the provided json.
+    // Tries to create the specific ClientMsg from the provided json.
     // Throws exception if parsing fails -> Use only in "try{ }catch()" block
-    static client_msg from_json(const rapidjson::Value &json);
+    static ClientMsg from_json(const rapidjson::Value &json);
 
-    // Serializes the client_msg into a json object that can be sent over the network
+    // Serializes the ClientMsg into a json object that can be sent over the network
     void write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType &alloc) const override;
 };
 
 
-#endif //TICHU_CLIENT_MSG_H
+#endif //TICHU_CLIENTMSG_H

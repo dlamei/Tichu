@@ -46,11 +46,11 @@ bool player::add_card_to_hand(const Card &card, std::string &err) {
     return _hand.add_card(card, err);
 }
 
-void player::remove_cards_from_hand(const card_combination &combi, std::string& err) { 
+void player::remove_cards_from_hand(const CardCombination &combi, std::string& err) {
     _hand.remove_cards(combi.get_cards(), err);
 }
 
-bool player::add_cards_to_won_pile(const std::vector<card_combination> &combis, std::string& err) {
+bool player::add_cards_to_won_pile(const std::vector<CardCombination> &combis, std::string& err) {
     _won_cards.add_cards(combis);
     return true;
 }

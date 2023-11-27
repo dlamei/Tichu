@@ -64,9 +64,9 @@ The code for the game can be found in **/src**, where it is separated into follo
 - **/client** contains only code that is used on the client side (e.g. UI, sending messages)
 - **/common** contains code that is shared between server and client.
     - **/exceptions** contains the exception class used on server and client side. You don't need to change anything in here (unless you want to rename the TichuException class ;))
-    - **/game_state** contains the `game_state` that is synchronized between client and server. We use the [conditional pre-compile directive](https://www.cplusplus.com/doc/tutorial/preprocessor/) TICHU_SERVER to enable certain parts of the code only on the server side. Namely, these are the state update functions, as they should only happen on the server. The client simply reflects the current game state as sent by the server without modifying it directly. 
+    - **/GameState** contains the `GameState` that is synchronized between client and server. We use the [conditional pre-compile directive](https://www.cplusplus.com/doc/tutorial/preprocessor/) TICHU_SERVER to enable certain parts of the code only on the server side. Namely, these are the state update functions, as they should only happen on the server. The client simply reflects the current game state as sent by the server without modifying it directly. 
     - **/network** contains all the messages that are being passed between client and server. We use the TICHU_CLIENT pre-compile directive to make `server_repsonses` only executable on the client side (through the function `Process()`) .
-    - **/serialization** contains base classes for serializing `game_state`, `client_msg` and `server_response` objects. **Serialization** is the process of transforming an object instance into a string that can be sent over a network, where the receiver deserializes it, i.e. recreates the object from the string. If you are interested, [read me on Wikipedia](https://en.wikipedia.org/wiki/Serialization).
+    - **/serialization** contains base classes for serializing `GameState`, `ClientMsg` and `server_response` objects. **Serialization** is the process of transforming an object instance into a string that can be sent over a network, where the receiver deserializes it, i.e. recreates the object from the string. If you are interested, [read me on Wikipedia](https://en.wikipedia.org/wiki/Serialization).
 - **/server** contains only code that is relevant for the server (e.g. player management, game instance management, receiving messages)
 
 The **/asset** folder stores all the images that are being used to render the GUI.
@@ -82,12 +82,12 @@ The client renders the GUI that is presented to the player, whereas the server i
 - If the **move was invalid**, the game state will not be updated and only the requesting player will get a response containing the error message. 
 
 ### 4.2 Network Interface
-Everything that is passed between client and server are objects of type `client_msg` and `server_response`. Since the underlying network protocol works with TCP, these `client_msg` and `server_response` objects are transformed into a **[JSON](https://wiki.selfhtml.org/wiki/JSON) string**, which can then be sent over the network. The receiving end reads the JSON string and constructs an object of type `client_msg` resp. `server_response` that reflects the exact parameters that are specified in the JSON string. This process is known as **serialization** (object to string) and **deserialization** (string to object). If you want to read more about serialization, [read me on Wikipedia](https://en.wikipedia.org/wiki/Serialization).
+Everything that is passed between client and server are objects of type `ClientMsg` and `server_response`. Since the underlying network protocol works with TCP, these `ClientMsg` and `server_response` objects are transformed into a **[JSON](https://wiki.selfhtml.org/wiki/JSON) string**, which can then be sent over the network. The receiving end reads the JSON string and constructs an object of type `ClientMsg` resp. `server_response` that reflects the exact parameters that are specified in the JSON string. This process is known as **serialization** (object to string) and **deserialization** (string to object). If you want to read more about serialization, [read me on Wikipedia](https://en.wikipedia.org/wiki/Serialization).
 
 ![client-server-diagram](./docs/img/client-server-diagram.png?raw=true)
 
 #### 4.2.1 Serialization & Deserialization of messages
-Both, the `client_msg` and `server_response` base classes, implement the abstract class `serializable` with its `write_into_json(...)` function. It allows to serialize the object instance into a JSON string. Additionally, they have a static function `from_json(...)`, which allows creating an object instance from a JSON string.
+Both, the `ClientMsg` and `server_response` base classes, implement the abstract class `serializable` with its `write_into_json(...)` function. It allows to serialize the object instance into a JSON string. Additionally, they have a static function `from_json(...)`, which allows creating an object instance from a JSON string.
 
 ```cpp
 // All request types of your imlementation
@@ -100,7 +100,7 @@ enum ClientMsgType {
     fold,
 };
 
-class client_msg : public serializable {
+class ClientMsg : public serializable {
 protected:
     ClientMsgType type;   // stores the type of request, such that the receiving end knows how to deserialize it
     std::string req_id; // unique id of this request
@@ -118,24 +118,24 @@ private:
     static const std::unordered_map<ClientMsgType, std::string> _request_type_to_string;
 
 public:
-    // DESERIALIZATION: Attempts to create the specific client_msg from the provided json.
-    static client_msg* from_json(const rapidjson::Value& json);
+    // DESERIALIZATION: Attempts to create the specific ClientMsg from the provided json.
+    static ClientMsg* from_json(const rapidjson::Value& json);
 
-    // SERIALIZATION: Serializes the client_msg into a json object that can be sent over the network
+    // SERIALIZATION: Serializes the ClientMsg into a json object that can be sent over the network
     virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
 };
 ```
 
 ##### Serialization
 
-When you implement your own specializations of `client_msg` (and `server_response`, if necessary) you will have to implement the `write_into_json(...)` functions yourself. Your subclass always has to call the `write_into_json(...)` function of its base-class, such that the parameters of the base-class are written into the JSON document: 
+When you implement your own specializations of `ClientMsg` (and `server_response`, if necessary) you will have to implement the `write_into_json(...)` functions yourself. Your subclass always has to call the `write_into_json(...)` function of its base-class, such that the parameters of the base-class are written into the JSON document: 
 
 Here is the **base-class** implementation:
 ```cpp
-// Implementation in the base-class client_msg
-void client_msg::write_into_json(rapidjson::Value &json,
+// Implementation in the base-class ClientMsg
+void ClientMsg::write_into_json(rapidjson::Value &json,
                                      rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
-    // Look up string value of this client_msg's ClientMsgType and store it in the json document
+    // Look up string value of this ClientMsg's ClientMsgType and store it in the json document
     rapidjson::Value type_val(_request_type_to_string.at(this->type).c_str(), allocator);
     json.AddMember("type", type_val, allocator);
 
@@ -155,7 +155,7 @@ And here is the **subclass** implementation (for the `play_card_req` class), whe
 void play_card_req::write_into_json(rapidjson::Value &json,
                                         rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
     // IMPORTANT: call base-class, such that the parameters of the base-class are written into the 'json' variable
-    client_msg::write_into_json(json, allocator);
+    ClientMsg::write_into_json(json, allocator);
 
     // Add parameters to the JSON that are unique to the play_card_req
     rapidjson::Value card_id_val(_card_id.c_str(), allocator);
@@ -165,14 +165,14 @@ void play_card_req::write_into_json(rapidjson::Value &json,
 
 ##### Deserialization
 
-The deserialization of `client_msg` JSONs always goes through the `from_json(...)` function of the `client_msg` class. In this function, the "type" field, stored in the JSON, is inspected to determine, which subclass should be called to perform the deserialization: 
+The deserialization of `ClientMsg` JSONs always goes through the `from_json(...)` function of the `ClientMsg` class. In this function, the "type" field, stored in the JSON, is inspected to determine, which subclass should be called to perform the deserialization: 
 
 ```cpp
 if (json.HasMember("type") && json["type"].IsString()) {
         // Get the ClientMsgType stored as a string in the JSON
         const std::string type = json["type"].GetString();
         // Lookup the actual ClientMsgType per string from a pre-defined unordered_map
-        const ClientMsgType request_type = client_msg::_string_to_request_type.at(type);
+        const ClientMsgType request_type = ClientMsg::_string_to_request_type.at(type);
 
         // Call the correct from_json() specialization
         if (request_type == ClientMsgType::play_card) {
@@ -190,14 +190,14 @@ if (json.HasMember("type") && json["type"].IsString()) {
     throw TichuException("Could not determine type of ClientRequest. JSON was:\n" + json_utils::to_string(&json));
 ```
 
-Therefore, when you implement your own `client_msg` subclasses, remember to add a new element into the `ClientMsgType` enum to define your new request type. You will also have to add an entry for this new ClientMsgType in the two unordered_maps `_string_to_request_type`, resp. `_request_type_to_string` in the `client_msg` base-class. Once this is done, you can add a check for your new `ClientMsgType` element in the `from_json(...)` function of the `client_msg` base-class and call the specialized `from_json(...)` function of your subclass from there. 
+Therefore, when you implement your own `ClientMsg` subclasses, remember to add a new element into the `ClientMsgType` enum to define your new request type. You will also have to add an entry for this new ClientMsgType in the two unordered_maps `_string_to_request_type`, resp. `_request_type_to_string` in the `ClientMsg` base-class. Once this is done, you can add a check for your new `ClientMsgType` element in the `from_json(...)` function of the `ClientMsg` base-class and call the specialized `from_json(...)` function of your subclass from there. 
 
-Also, don't forget to set the correct `ClientMsgType` in the public constructor of your new `client_msg` subclass, here examplified at the `play_card_req` class:
+Also, don't forget to set the correct `ClientMsgType` in the public constructor of your new `ClientMsg` subclass, here examplified at the `play_card_req` class:
 
 ```cpp
 // Public constructor
 play_card_req::play_card_req(std::string _game_id, std::string _player_id, std::string card_id)
-        : client_msg(client_msg::create_base_class_properties(  // call base-class constructor
+        : ClientMsg(ClientMsg::create_base_class_properties(  // call base-class constructor
                                                     ClientMsgType::play_card, // IMPORTANT: set the ClientMsgType of your subclass
                                                     uuid_generator::generate_uuid_v4(), 
                                                     _player_id, 
@@ -210,15 +210,15 @@ The deserialization in your subclass will look something like this:
 
 ```cpp
 // private constructor for deserialization
-play_card_req::play_card_req(client_msg::base_properties props, std::string card_id) :
-        client_msg(props),  // call base-class constructor
+play_card_req::play_card_req(ClientMsg::base_properties props, std::string card_id) :
+        ClientMsg(props),  // call base-class constructor
         _card_id(card_id)   // set subclass specific parameters
 { }
 
 // Deserialization
 play_card_req* play_card_req::from_json(const rapidjson::Value& json) {
     // extract base-class properties from the json
-    base_properties props = client_msg::extract_base_class_properties(json);
+    base_properties props = ClientMsg::extract_base_class_properties(json);
 
     // get subclass specific properties
     if (json.HasMember("card_id")) {
@@ -234,25 +234,25 @@ There are plenty of examples of subclasses in the network/requests folder, where
 
 #### 4.2.2 Sending messages
 #### Client -> Server:
-All you have to do is use the static class `ClientNetworkManager` on the client side and then invoke its `sendRequest(const client_msg& request)` function with the `client_msg` that you want to send. The server's response will arrive as an object of type `request_response` and the `ClientNetworkManager` will invoke the `Process()` function of that `request_response` object automatically.
+All you have to do is use the static class `ClientNetworkManager` on the client side and then invoke its `sendRequest(const ClientMsg& request)` function with the `ClientMsg` that you want to send. The server's response will arrive as an object of type `request_response` and the `ClientNetworkManager` will invoke the `Process()` function of that `request_response` object automatically.
 
 #### Server -> Client:
-All messages arriving at the server are being deserialized and then passed on to the `handle_request(client_msg* req)` function of the `request_handler` singleton class. This function returns a pointer to an object of type `request_response` (a subclass of `server_response`), which is then automatically sent back to the requesting client. In your game implementation you should extend the `handle_request(client_msg* req)` function of the `request_handler`, such that it can handle the `client_msg` that you add to your game and return an object of type `request_response` with all parameters you want to send. 
+All messages arriving at the server are being deserialized and then passed on to the `handle_request(ClientMsg* req)` function of the `request_handler` singleton class. This function returns a pointer to an object of type `request_response` (a subclass of `server_response`), which is then automatically sent back to the requesting client. In your game implementation you should extend the `handle_request(ClientMsg* req)` function of the `request_handler`, such that it can handle the `ClientMsg` that you add to your game and return an object of type `request_response` with all parameters you want to send. 
 
-If the `client_msg` causes an update of the game_state you should also update all other players of that game about the game_state change. This happens in the `game_instance` class, here examplified at the case where a `start_game_req` calls the `start_game(...)` function on the respective `game_instance` on the server side:
+If the `ClientMsg` causes an update of the GameState you should also update all other players of that game about the GameState change. This happens in the `game_instance` class, here examplified at the case where a `start_game_req` calls the `start_game(...)` function on the respective `game_instance` on the server side:
 
 ```cpp
 bool game_instance::start_game(player* player, std::string &err) {
-    modification_lock.lock();   // make sure only one request can modify the game_state at a time
+    modification_lock.lock();   // make sure only one request can modify the GameState at a time
 
     // Try to start the game
     if (_game_state->start_game(err)) { 
-        // create a full_state_response (subclass of server_response) with the full game_state inside
+        // create a full_state_response (subclass of server_response) with the full GameState inside
         full_state_response state_update_msg = full_state_response(this->get_id(), *_game_state);
-        // BROADCAST new game_state to all other players
+        // BROADCAST new GameState to all other players
         server_network_manager::broadcast_message(state_update_msg, _game_state->get_players(), player);
 
-        modification_lock.unlock(); // allow other threads to modify the game_state
+        modification_lock.unlock(); // allow other threads to modify the GameState
         return true;
     }
     modification_lock.unlock();
@@ -290,12 +290,12 @@ std::cout << json_utils::to_string(req_json) << std::endl;
 
 ### 4.3 GamePanel State
 
-The `game_state` class stores all parameters that are required to represent the game on the client (resp. server) side. In order to synchronize this `game_state` among all players, the `game_state` can also be **serialized** and **deserialized**. If a `client_msg` was successfully executed on the server, then the `request_response` that is sent back to the client contains a serialized version of the updated `game_state`. All other players receive the updated `game_state` at the same time through a `full_state_response`.
+The `GameState` class stores all parameters that are required to represent the game on the client (resp. server) side. In order to synchronize this `GameState` among all players, the `GameState` can also be **serialized** and **deserialized**. If a `ClientMsg` was successfully executed on the server, then the `request_response` that is sent back to the client contains a serialized version of the updated `GameState`. All other players receive the updated `GameState` at the same time through a `full_state_response`.
 
-To serialize the `game_state`, the same `write_into_json(...)` function is used as for the `client_msg`. 
+To serialize the `GameState`, the same `write_into_json(...)` function is used as for the `ClientMsg`. 
 
 ```cpp
-class game_state : public unique_serializable {
+class GameState : public unique_serializable {
 private:
     // Properties
     std::vector<player*> _players;
@@ -308,7 +308,7 @@ private:
     serializable_value<int>* _starting_player_idx;
 
     // deserialization constructor
-    game_state(
+    GameState(
             std::string id,
             draw_pile* draw_pile,
             discard_pile* discard_pile,
@@ -320,32 +320,32 @@ private:
             serializable_value<int>* starting_player_idx);
 
 public:
-    game_state();
+    GameState();
 
     ...
     // SERIALIZATION
     virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
     // DESERIALIZATION
-    static game_state* from_json(const rapidjson::Value& json);
+    static GameState* from_json(const rapidjson::Value& json);
 };
 ```
 
-The `game_state` inherits from `unique_serializable`, which essentially requires the `write_into_json()` function and adds a unique `id` to the object, such that it can be uniquely identified. Similarly, each parameter nested inside the `game_state` (e.g. players, draw_pile, etc.) also inherit from `unique_serializable` and therefore have their own `id` and serialization, resp. deserialization functions.
+The `GameState` inherits from `unique_serializable`, which essentially requires the `write_into_json()` function and adds a unique `id` to the object, such that it can be uniquely identified. Similarly, each parameter nested inside the `GameState` (e.g. players, draw_pile, etc.) also inherit from `unique_serializable` and therefore have their own `id` and serialization, resp. deserialization functions.
 
-On the client side, the new `game_state` is then passed to the `updateGameState(game_state*)` function of the `GameController` class, which performs a redraw of the GUI.
+On the client side, the new `GameState` is then passed to the `updateGameState(GameState*)` function of the `GameController` class, which performs a redraw of the GUI.
 
-Since you will have to add your own properties to the `game_state` class (and probably create other classes that inherit from `unique_serializable` to add to your game_state), we want to shortly elaborate how the serialization and deserialization works for subclasses of `unique_serializable`. It's very similar to the `client_msg` class discussed earlier. Here is how the `write_into_json(...)` function is implemented in the `game_state` class of Tichu. **Don't be shocked by the lengthy code. It's only a lot of repetition for each class property** :
+Since you will have to add your own properties to the `GameState` class (and probably create other classes that inherit from `unique_serializable` to add to your GameState), we want to shortly elaborate how the serialization and deserialization works for subclasses of `unique_serializable`. It's very similar to the `ClientMsg` class discussed earlier. Here is how the `write_into_json(...)` function is implemented in the `GameState` class of Tichu. **Don't be shocked by the lengthy code. It's only a lot of repetition for each class property** :
 
 ```cpp
-void game_state::write_into_json(rapidjson::Value &json,
+void GameState::write_into_json(rapidjson::Value &json,
                                  rapidjson::MemoryPoolAllocator<rapidjson::CrtAllocator> &allocator) const {
     // call base-class to write id and object name into the json
     unique_serializable::write_into_json(json, allocator);
 
-    // write all properties of this game_state instance into the JSON
+    // write all properties of this GameState instance into the JSON
     rapidjson::Value is_finished_val(rapidjson::kObjectType);   // create an empty rapidjson::Value that can hold an ObjectType
     _is_finished->write_into_json(is_finished_val, allocator);  // write class property '_is_finished' into the created rapidjson::Value
-    json.AddMember("is_finished", is_finished_val, allocator);  // add the rapidjson::Value 'is_finished_val' to the game_state json
+    json.AddMember("is_finished", is_finished_val, allocator);  // add the rapidjson::Value 'is_finished_val' to the GameState json
 
     rapidjson::Value is_started_val(rapidjson::kObjectType);
     _is_started->write_into_json(is_started_val, allocator);
@@ -381,7 +381,7 @@ For **deserialization**, the `from_json(...)` function is used, which is impleme
 
 ```cpp
 // DESERIALIZATION CONSTRUCTOR receives pointers for all its properties and stores them
-game_state::game_state(std::string id, draw_pile *draw_pile, discard_pile *discard_pile,
+GameState::GameState(std::string id, draw_pile *draw_pile, discard_pile *discard_pile,
                        std::vector<player *> &players, serializable_value<bool> *is_started,
                        serializable_value<bool> *is_finished, serializable_value<int> *next_player_idx,
                        serializable_value<int>* round_number, serializable_value<int> *starting_player_idx)
@@ -397,8 +397,8 @@ game_state::game_state(std::string id, draw_pile *draw_pile, discard_pile *disca
 { }
 
 // DESERIALIZATION 
-// returns a pointer to the new game_state
-game_state* game_state::from_json(const rapidjson::Value &json) {
+// returns a pointer to the new GameState
+GameState* GameState::from_json(const rapidjson::Value &json) {
     // Make sure the json contains all required information
     if (json.HasMember("is_finished")
         && json.HasMember("is_started")
@@ -415,7 +415,7 @@ game_state* game_state::from_json(const rapidjson::Value &json) {
             deserialized_players.push_back(player::from_json(serialized_player.GetObject()));
         }
         // Invoke deserialization constructor
-        return new game_state(unique_serializable::extract_id(json),   // extract base_params from JSON
+        return new GameState(unique_serializable::extract_id(json),   // extract base_params from JSON
                               draw_pile::from_json(json["draw_pile"].GetObject()),  // deserialize the draw_pile
                               discard_pile::from_json(json["discard_pile"].GetObject()),
                               deserialized_players,
@@ -425,7 +425,7 @@ game_state* game_state::from_json(const rapidjson::Value &json) {
                               serializable_value<int>::from_json(json["round_number"].GetObject()),
                               serializable_value<int>::from_json(json["starting_player_idx"].GetObject()));
     } else {
-        throw TichuException("Failed to deserialize game_state. Required entries were missing.");
+        throw TichuException("Failed to deserialize GameState. Required entries were missing.");
     }
 }
 ```

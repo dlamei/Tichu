@@ -10,17 +10,17 @@ add_subdirectory(libs)
 
 set(COMMON_SOURCE_FILES
         src/common/game_state/cards/card.cpp src/common/game_state/cards/card.h
-        src/common/game_state/game_state.cpp src/common/game_state/game_state.h
+        src/common/game_state/GameState.cpp src/common/game_state/GameState.h
         src/common/game_state/player/hand.cpp src/common/game_state/player/hand.h
         src/common/game_state/player/player.cpp src/common/game_state/player/player.h
         src/common/game_state/player/won_cards_pile.cpp src/common/game_state/player/won_cards_pile.h
         src/common/game_state/cards/draw_pile.cpp src/common/game_state/cards/draw_pile.h
         src/common/game_state/cards/active_pile.cpp src/common/game_state/cards/active_pile.h
-        src/common/game_state/cards/card_combination.cpp src/common/game_state/cards/card_combination.h
+        src/common/game_state/cards/CardCombination.cpp src/common/game_state/cards/CardCombination.h
         # client requests
-        src/common/network/client_msg.cpp src/common/network/client_msg.h
+        src/common/network/ClientMsg.cpp src/common/network/ClientMsg.h
         # server responses
-        src/common/network/server_msg.cpp src/common/network/server_msg.h
+        src/common/network/ServerMsg.cpp src/common/network/ServerMsg.h
         # serialization
         src/common/serialization/serializable.h
         src/common/serialization/serializable.cpp
@@ -39,9 +39,11 @@ set(CLIENT_SOURCE_FILES
 		src/client/GUI/imgui_build.h
         src/client/Tichu.h
         src/client/Tichu.cpp
-		src/client/GUI/KeyCodes.h
 		src/client/panels.cpp
 		src/client/panels.h
+        src/client/GamePanel.cpp
+        src/client/GamePanel.h
+		src/client/GUI/KeyCodes.h
 )
 
 set(SERVER_SOURCE_FILES
