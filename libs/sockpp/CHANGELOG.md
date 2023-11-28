@@ -81,7 +81,7 @@ Released: 2022-01-24
     - Removed `sock_address_ref` class. Now a C++ reference to `sock_address` will replace it (i.e. `sock_address&`).
     - `sock_address` is now an abstract base class.
     - All the network address classes now derive from `sock_address`
-    - Consolidates a number of overloaded functions that took different forms of addresses to just take a `const sock_address&`
+    - Consolidates a number of overloaded_server_msg functions that took different forms of addresses to just take a `const sock_address&`
     - Adds a new `sock_address_any` class that can contain any address, and is used by base classes that need a generic address.
 - The `acceptor` and `connector` classes are still concrete, generic classes, but now a template derives from each of them to specialize.
 - The connector and acceptor classes for each address family (`tcp_connector`, `tcp_acceptor`, `tcp6_connector`, etc) are now typedef'ed to template specializations.

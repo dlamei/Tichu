@@ -1171,12 +1171,12 @@ static void ShowDemoWindowWidgets()
         // will be passed to the rendering backend via the ImDrawCmd structure.
         // If you use one of the default imgui_impl_XXXX.cpp rendering backend, they all have comments at the top
         // of their respective source file to specify what they expect to be stored in ImTextureID, for example:
-        // - The imgui_impl_dx11.cpp GUI expect a 'ID3D11ShaderResourceView*' pointer
-        // - The imgui_impl_opengl3.cpp GUI expect a GLuint OpenGL texture identifier, etc.
+        // - The imgui_impl_dx11.cpp Renderer expect a 'ID3D11ShaderResourceView*' pointer
+        // - The imgui_impl_opengl3.cpp Renderer expect a GLuint OpenGL texture identifier, etc.
         // More:
         // - If you decided that ImTextureID = MyEngineTexture*, then you can pass your MyEngineTexture* pointers
         //   to ImGui::Image(), and gather width/height through your own functions, etc.
-        // - You can use ShowMetricsWindow() to inspect the draw data that are being passed to your GUI,
+        // - You can use ShowMetricsWindow() to inspect the draw data that are being passed to your Renderer,
         //   it will help you debug issues if you are confused about it.
         // - Consider using the lower-level ImDrawList::AddImage() API, via ImGui::GetWindowDrawList()->AddImage().
         // - Read https://github.com/ocornut/imgui/blob/master/docs/FAQ.md
@@ -7991,8 +7991,8 @@ static void ShowExampleAppCustomRendering(bool* p_open)
     IMGUI_DEMO_MARKER("Examples/Custom Rendering");
 
     // Tip: If you do a lot of custom rendering, you probably want to use your own geometrical types and benefit of
-    // overloaded operators, etc. Define IM_VEC2_CLASS_EXTRA in imconfig.h to create implicit conversions between your
-    // types and ImVec2/ImVec4. Dear ImGui defines overloaded operators but they are internal to imgui.cpp and not
+    // overloaded_server_msg operators, etc. Define IM_VEC2_CLASS_EXTRA in imconfig.h to create implicit conversions between your
+    // types and ImVec2/ImVec4. Dear ImGui defines overloaded_server_msg operators but they are internal to imgui.cpp and not
     // exposed outside (to avoid messing with your types) In this example we are not using the maths operators!
 
     if (ImGui::BeginTabBar("##TabBar"))

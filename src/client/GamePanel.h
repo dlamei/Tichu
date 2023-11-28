@@ -4,8 +4,7 @@
 
 #include <set>
 
-#include "../common/network/ServerMsg.h"
-#include "../common/game_state/GameState.h"
+#include "../common/Messages.h"
 
 namespace GamePanel {
 

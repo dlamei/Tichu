@@ -18,7 +18,7 @@ gMock:
 -   Provides a declarative syntax for defining mocks.
 -   Can define partial (hybrid) mocks, which are a cross of real and mock
     objects.
--   Handles functions of arbitrary types and overloaded functions.
+-   Handles functions of arbitrary types and overloaded_server_msg functions.
 -   Comes with a rich set of matchers for validating function arguments.
 -   Uses an intuitive syntax for controlling the behavior of a mock.
 -   Does automatic verification of expectations (no record-and-replay needed).

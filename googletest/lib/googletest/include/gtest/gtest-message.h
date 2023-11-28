@@ -153,7 +153,7 @@ class GTEST_API_ Message {
     return *this;
   }
 
-  // Since the basic IO manipulators are overloaded for both narrow
+  // Since the basic IO manipulators are overloaded_server_msg for both narrow
   // and wide streams, we have to provide this specialized definition
   // of operator <<, even though its body is the same as the
   // templatized version above.  Without this definition, streaming

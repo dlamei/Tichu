@@ -3,7 +3,6 @@
 
 #include <utility>
 
-#include "../../exceptions/TichuException.h"
 
 CardCombination::CardCombination(std::vector<Card> cards) {
     for (Card c: cards) {
@@ -336,21 +335,3 @@ bool CardCombination::can_be_played_on(const std::optional<CardCombination> &oth
     return true;
     //TO-DO
 }
-
-void CardCombination::write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType &alloc) const {
-    vec_into_json("cards", _cards, json, alloc);
-}
-
-CardCombination CardCombination::from_json(const rapidjson::Value &json) {
-    auto cards = vec_from_json<Card>("cards", json);
-
-    if (!(cards)) {
-        throw TichuException("Could not parse json of CardCombination. Was missing 'cards'.");
-    }
-    return CardCombination{cards.value()};
-}
-
-
-
-
-

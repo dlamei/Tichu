@@ -1,9 +1,9 @@
 #include "panels.h"
 
-#include "GUI/Application.h"
-#include "GUI/imgui_build.h"
+#include "Renderer/Application.h"
+#include "Renderer/imgui_build.h"
 #include "misc/cpp/imgui_stdlib.h"
-#include "GUI/renderer.h"
+#include "Renderer/renderer.h"
 
 namespace ImGuiUtils {
 

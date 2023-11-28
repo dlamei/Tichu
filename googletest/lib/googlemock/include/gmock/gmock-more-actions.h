@@ -90,7 +90,7 @@
 //
 // where u_i is the desired type of v_i.
 //
-// ACTION_TEMPLATE and ACTION/ACTION_P* can be overloaded on the
+// ACTION_TEMPLATE and ACTION/ACTION_P* can be overloaded_server_msg on the
 // number of value parameters, but not on the number of template
 // parameters.  Without the restriction, the meaning of the following
 // is unclear:

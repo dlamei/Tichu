@@ -3,8 +3,6 @@
 #include <utility>
 #include <algorithm>
 
-#include "../../exceptions/TichuException.h"
-
 hand::hand(std::vector<Card> cards) : _cards(std::move(cards)) {}
 
 int hand::get_score() const {
@@ -85,21 +83,6 @@ bool hand::remove_cards(const std::vector<Card> &cards, std::string& err) {
 }
 
 #endif
-
-
-void hand::write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType &alloc) const {
-    vec_into_json("cards", _cards, json, alloc);
-}
-
-std::optional<hand> hand::from_json(const rapidjson::Value &json) {
-    auto cards = vec_from_json<Card>("cards", json);
-
-    if (!(cards)) {
-        throw TichuException("Could not parse hand from json. 'cards' were missing.");
-    }
-
-    return hand(cards.value());
-}
 
 
 

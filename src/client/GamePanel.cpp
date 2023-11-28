@@ -4,10 +4,10 @@
 #include <utility>
 #include <set>
 
-#include "GUI/Application.h"
-#include "GUI/imgui_build.h"
+#include "Renderer/Application.h"
+#include "Renderer/imgui_build.h"
 #include "misc/cpp/imgui_stdlib.h"
-#include "GUI/renderer.h"
+#include "Renderer/renderer.h"
 
 #include "panels.h"
 
@@ -50,8 +50,8 @@ namespace GamePanel {
 
     // the GamePanel namespace contains some global variables, which should be
     // fine as long as these globals only have effects in this file
-    // also we only call these functions from the main thread
-    static GameState state{};
+    // also we should only call these functions from the main thread
+    static GameState s_state{};
     static Texture card_frame{};
 
     void load_textures() {
@@ -61,13 +61,14 @@ namespace GamePanel {
 
     void debug_game_state() {
         ImGui::Begin("Debug");
-        auto data = json_utils::to_pretty_string(*state.to_json());
-        ImGui::TextWrapped("%s", data.c_str());
+        json data;
+        to_json(data, s_state);
+        ImGui::TextWrapped("%s", data.dump(4).c_str());
         ImGui::End();
     }
 
     void show_waiting_text() {
-        std::string wait_text = std::format("waiting ({} / 4)...", state.get_players().size());
+        std::string wait_text = std::format("waiting ({} / 4)...", s_state.get_players().size());
         hovering_text("wait_text", wait_text, .5f, .5f);
     }
 
@@ -133,10 +134,10 @@ namespace GamePanel {
         return positions;
     }
 
-    // return the index of the local player
+    // return the index of the local Player
     int get_my_index(const Data &data) {
         if (!data.player_id.has_value()) return -1;
-        auto &players = state.get_players();
+        auto &players = s_state.get_players();
         auto it = std::find_if(players.begin(), players.end(), [&data](const player_ptr& p) { return data.player_id.value() == p->get_id(); });
         if (it == players.end()) {
             return -1;
@@ -146,7 +147,7 @@ namespace GamePanel {
     }
 
     bool is_my_turn(const Data &data) {
-        auto c_player = state.get_current_player();
+        auto c_player = s_state.get_current_player();
         if (!c_player.has_value()) return false;
 
         return c_player->get_id() == data.player_id;
@@ -162,11 +163,11 @@ namespace GamePanel {
 
         int player_index = get_my_index(*data);
         if (player_index == -1) {
-            WARN("Could not find local player while trying to draw cards");
+            WARN("Could not find local Player while trying to draw cards");
             return;
         }
 
-        auto &hand = state.get_players().at(player_index)->get_hand();
+        auto &hand = s_state.get_players().at(player_index)->get_hand();
         int n_cards = hand.get_nof_cards();
 
         const float hover_height = .05f;
@@ -243,50 +244,8 @@ namespace GamePanel {
         }
     }
 
-    void draw_enemy_cards(int n_left, int n_top, int n_right) {
-        float ar = Application::get_aspect_ratio();
-        const float rel_width = .1f;
-        const float rel_height = .15f;
-        glm::vec2 card_size = {rel_width, rel_height * ar};
-        const float spread_start = padding * 2;
-        const float spread_end = 1 - padding * 2 - card_size.x;
-
-        auto left_positions = calculate_card_positions(n_left, card_size, spread_start, spread_end, -1);
-        auto right_positions = calculate_card_positions(n_right, card_size, spread_start, spread_end, -1);
-        auto top_positions = calculate_card_positions(n_top, card_size, spread_start, spread_end, -1);
-
-        // cards on the left
-        for (auto &pos : left_positions) {
-            // rotate cards and adjust for aspect ratio
-            std::swap(pos.x, pos.y);
-            glm::vec2 size = {rel_width * ar, rel_height};
-            // move up after rotation
-            pos.y += card_size.x;
-            pos.x = -card_size.x * 0.25f;
-            draw_card(pos, size, -PI / 2);
-        }
-
-        // cards on the right
-        for (auto &pos : right_positions) {
-
-            // rotate cards and adjust for aspect ratio
-            std::swap(pos.x, pos.y);
-            glm::vec2 size = {rel_width * ar, rel_height};
-            // move up after rotation
-            pos.y += card_size.x;
-            pos.x = 1 - card_size.x * 1.25f;
-            draw_card(pos, size, -PI / 2);
-        }
-
-        for (auto &pos: top_positions) {
-            // cards on the top
-            pos.y = 1 - card_size.y * 0.75f;
-            draw_card(pos, card_size);
-        }
-    }
-
     void show_enemy_cards(const Data &data) {
-        auto &players = state.get_players();
+        auto &players = s_state.get_players();
         int n_players = (int)players.size();
 
         auto local_player_index = get_my_index(data);
@@ -299,12 +258,78 @@ namespace GamePanel {
             n_enemy_cards.push_back(players.at(i)->get_nof_cards());
         }
 
-        draw_enemy_cards(n_enemy_cards.at(0), n_enemy_cards.at(1), n_enemy_cards.at(2));
+        int nLeft = n_enemy_cards.at(0);
+        int nTop = n_enemy_cards.at(1);
+        int nRight = n_enemy_cards.at(2);
+        float ar = Application::get_aspect_ratio();
+        const float relWidth = .1f;
+        const float relHeight = .15f;
+        glm::vec2 card_size = {relWidth, relHeight * ar};
+        const float spreadStart = padding * 2;
+        const float spreadEnd = 1 - padding * 2 - card_size.x;
+
+        auto leftPositions = calculate_card_positions(nLeft, card_size, spreadStart, spreadEnd, -1);
+        auto rightPositions = calculate_card_positions(nRight, card_size, spreadStart, spreadEnd, -1);
+        auto topPositions = calculate_card_positions(nTop, card_size, spreadStart, spreadEnd, -1);
+
+        // cards on the left
+        for (auto &pos: leftPositions) {
+            // rotate cards and adjust for aspect ratio
+            std::swap(pos.x, pos.y);
+            glm::vec2 size = {relWidth * ar, relHeight};
+            // move up after rotation
+            pos.y += card_size.x;
+            pos.x = -card_size.x * 0.25f;
+            draw_card(pos, size, -PI / 2);
+        }
+
+        // cards on the right
+        for (auto &pos: rightPositions) {
+
+            // rotate cards and adjust for aspect ratio
+            std::swap(pos.x, pos.y);
+            glm::vec2 size = {relWidth * ar, relHeight};
+            // move up after rotation
+            pos.y += card_size.x;
+            pos.x = 1 - card_size.x * 1.25f;
+            draw_card(pos, size, -PI / 2);
+        }
+
+        for (auto &pos: topPositions) {
+            // cards on the top
+            pos.y = 1 - card_size.y * 0.75f;
+            draw_card(pos, card_size);
+
+        }
+    }
+
+    void show_top_combi() {
+        auto combi = s_state.get_active_pile().get_top_combi();
+        if (!combi.has_value()) return;
+
+        const auto &cards = combi->get_cards();
+
+        float ar = Application::get_aspect_ratio();
+        const float relWidth = .1f;
+        const float relHeight = .15f;
+        glm::vec2 card_size = {relWidth, relHeight * ar};
+        const float spread_start = padding * 2;
+        const float spread_end = 1 - card_size.x - padding * 2;
+        auto positions = calculate_card_positions((int)cards.size(), card_size, spread_start, spread_end, -1);
+
+        // move cards to the middle of the screen
+        for (auto &pos : positions) {
+            pos.y += .5f - card_size.y / 2.f;
+        }
+
+        for (auto &pos : positions) {
+            draw_card(pos, card_size);
+        }
     }
 
     void show_game_stats(const Data &data) {
-        auto &players = state.get_players();
-        auto c_player = state.get_current_player();
+        auto &players = s_state.get_players();
+        auto c_player = s_state.get_current_player();
 
         auto style = ImGui::ScopedStyle();
 
@@ -319,15 +344,15 @@ namespace GamePanel {
                 ImGui::BeginTable("score table", 2, ImGuiTableFlags_Borders);
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn();
-                ImGui::Text("A");
+                ImGui::Text("Team A");
                 ImGui::TableNextColumn();
-                ImGui::Text("B");
+                ImGui::Text("Team B");
 
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn();
-                ImGui::Text("%s", std::to_string(state.get_score_team_A()).c_str());
+                ImGui::Text("%s", std::to_string(s_state.get_score_team_A()).c_str());
                 ImGui::TableNextColumn();
-                ImGui::Text("%s", std::to_string(state.get_score_team_B()).c_str());
+                ImGui::Text("%s", std::to_string(s_state.get_score_team_B()).c_str());
 
                 ImGui::EndTable();
                 break;
@@ -336,12 +361,26 @@ namespace GamePanel {
 
         ImGui::NewLine();
         ImGui::SeparatorText("players");
-        ImGui::BeginChild("player list", {0, 0}, ImGuiChildFlags_FrameStyle | ImGuiChildFlags_AutoResizeY);
+        ImGui::BeginChild("Player list", {0, 0}, ImGuiChildFlags_FrameStyle | ImGuiChildFlags_AutoResizeY);
         for (const auto &player : players) {
-            auto &name = player->get_player_name();
+            std::string name;
+            switch (player->get_team()) {
+                case Team::A:
+                    name = "[A] ";
+                    break;
+                case Team::B:
+                    name = "[B] ";
+                    break;
+                case Team::None:
+                    name = "[NONE] ";
+                    break;
+            }
+            name += player->get_player_name();
+            if (player->get_id() == data.player_id) name += " (you)";
+
             const char *fmt = "%s";
             if (data.state == State::GAME && c_player.has_value() && *c_player == *player) {
-                fmt = "> %s"; // indicate current player
+                fmt = "> %s"; // indicate current Player
             }
             ImGui::Text(fmt, name.c_str());
         }
@@ -352,7 +391,7 @@ namespace GamePanel {
     void show_lobby(Data *data) {
 
 
-        if (state.get_players().size() == 4) {
+        if (s_state.get_players().size() == 4) {
             rel_fix_next_window(.5f, .5f);
             begin_frameless_window("start game button");
             if (ImGui::Button("start game")) {
@@ -390,6 +429,7 @@ namespace GamePanel {
 
         show_player_cards(data);
         show_enemy_cards(*data);
+        show_top_combi();
     }
 
     void show(Data *data) {
@@ -406,6 +446,6 @@ namespace GamePanel {
     }
 
     void update(const GameState &_state) {
-        state = _state;
+        s_state = _state;
     }
 } // GamePanel

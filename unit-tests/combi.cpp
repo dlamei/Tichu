@@ -1,12 +1,6 @@
 #include "gtest/gtest.h"
-#include "../src/common/network/ClientMsg.h"
-#include "../src/common/network/ServerMsg.h"
-#include "../src/common/game_state/GameState.h"
+#include "../src/common/Messages.h"
 #include "../src/common/game_state/cards/CardCombination.h"
-
-enum COMBI{
-    NONE, SINGLE, DOUBLE, TRIPLE, BOMB, FULLHOUSE, STRASS, TREPPE, PASS, SWITCH
-};
 
 TEST(CombiTest, Singles){
     std::vector<Card> single_two;
@@ -274,8 +268,8 @@ TEST(CombiTest, CanBePlayedOn) {
     EXPECT_EQ(combi_double_ace.can_be_played_on(combi_single_two, err), false);
     
     // FULLHOUSE
-    EXPECT_EQ(combi_pure_fullhouse.can_be_played_on(phoenix_fullhouse1, err), false);
-    EXPECT_EQ(combi_pure_fullhouse.can_be_played_on(phoenix_fullhouse2, err), true);
+    EXPECT_EQ(combi_pure_fullhouse.can_be_played_on(combi_phoenix_fullhouse1, err), false);
+    EXPECT_EQ(combi_pure_fullhouse.can_be_played_on(combi_phoenix_fullhouse2, err), true);
 
     // STREET
     EXPECT_EQ(combi_phoenix_five_street.can_be_played_on(combi_pure_five_street, err), true);

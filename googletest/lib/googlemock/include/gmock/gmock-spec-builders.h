@@ -1935,7 +1935,7 @@ class MockFunction : public internal::MockFunction<internal::SignatureOfT<F>> {
 using internal::MockSpec;
 
 // Const(x) is a convenient function for obtaining a const reference
-// to x.  This is useful for setting expectations on an overloaded
+// to x.  This is useful for setting expectations on an overloaded_server_msg
 // const mock method, e.g.
 //
 //   class MockFoo : public FooInterface {
@@ -1968,7 +1968,7 @@ GTEST_DISABLE_MSC_WARNINGS_POP_()  //  4251
 // This macro supports statements both with and without parameter matchers. If
 // the parameter list is omitted, gMock will accept any parameters, which allows
 // tests to be written that don't need to encode the number of method
-// parameter. This technique may only be used for non-overloaded methods.
+// parameter. This technique may only be used for non-overloaded_server_msg methods.
 //
 //   // These are the same:
 //   ON_CALL(mock, NoArgsMethod()).WillByDefault(...);
@@ -2021,7 +2021,7 @@ GTEST_DISABLE_MSC_WARNINGS_POP_()  //  4251
 // block the caller from accidentally invoking the second overload directly. The
 // second argument is an internal type derived from the method signature. The
 // failure to disambiguate two overloads of this method in the ON_CALL statement
-// is how we block callers from setting expectations on overloaded methods.
+// is how we block callers from setting expectations on overloaded_server_msg methods.
 #define GMOCK_ON_CALL_IMPL_(mock_expr, Setter, call)                    \
   ((mock_expr).gmock_##call)(::testing::internal::GetWithoutMatchers(), \
                              nullptr)                                   \

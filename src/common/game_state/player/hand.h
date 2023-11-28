@@ -2,11 +2,10 @@
 #define TICHU_HAND_H
 
 #include <vector>
-//#include "../../../../rapidjson/include/rapidjson/document.h"
 #include "../cards/card.h"
 #include "../cards/CardCombination.h"
 
-class hand : public serializable {
+class hand {
 
 private:
     std::vector<Card> _cards;
@@ -50,11 +49,7 @@ public:
         bool remove_cards(const std::vector<Card> &cards, std::string& err);
 #endif
 
-// serializable interface
-    static std::optional<hand> from_json(const rapidjson::Value &json);
-
-    void write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator) const override;
-
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(hand, _cards)
 };
 
 

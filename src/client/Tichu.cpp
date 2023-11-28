@@ -1,14 +1,17 @@
 #include "Tichu.h"
 
-#include "GUI/renderer.h"
-#include "../common/network/ClientMsg.h"
+#include "Renderer/renderer.h"
 
 
 void TichuGame::send_message(const ClientMsg &msg) {
     if (_connection.is_connected()) {
-        auto msg_str = json_utils::to_string(*msg.to_json());
-        msg_str = std::to_string(msg_str.size()) + ":" + msg_str;
-        _connection.write(msg_str);
+        json data;
+        to_json(data, msg);
+        auto msg_str = data.dump();
+        std::stringstream ss;
+        ss << std::setfill('0') << std::setw(sizeof(int) * 2) << std::hex << (int) msg_str.size();
+        ss << ':' << msg_str;
+        _connection.write(ss.str());
     } else {
         WARN("called send without an active connection");
     }
@@ -22,8 +25,12 @@ void TichuGame::on_attach() {
 
 void TichuGame::on_detach() {
     if (_connection.is_connected()) {
-        _connection.shutdown();
-        _listener.join();
+        try {
+            _connection.shutdown();
+            _listener.join();
+        } catch (std::exception &e) {
+            WARN("while trying to close game: {}", e.what());
+        }
     }
 }
 
@@ -80,10 +87,12 @@ void TichuGame::handle_gui_output() {
 }
 
 std::optional<ServerMsg> parse_message(const std::string &msg) {
-    rapidjson::Document json = rapidjson::Document(rapidjson::kObjectType);
-    json.Parse(msg.c_str());
     try {
-        return ServerMsg::from_json(json);
+        ServerMsg server_msg;
+        json data = json::parse(msg);
+        DEBUG("received: {}", data.dump(4));
+        from_json(data, server_msg);
+        return server_msg;
     } catch (const std::exception &e) {
         ERROR("failed to parse message from server:\n{}\n{}", msg, e.what());
         return {};
@@ -92,22 +101,21 @@ std::optional<ServerMsg> parse_message(const std::string &msg) {
 
 void listen_to_messages(sockpp::tcp_connector &connection, MessageQueue<ServerMsg> *queue) {
     ssize_t count{};
-    char msg_size_str[MESSAGE_SIZE_LENGTH];
-    //TODO: better error handling
+    char msg_size_str[sizeof(int) * 2]{};
+
     while (true) {
         // read the length of the message
-        count = connection.read_n(msg_size_str, MESSAGE_SIZE_LENGTH);
-        if (count != MESSAGE_SIZE_LENGTH) break;
+        count = connection.read_n(msg_size_str, sizeof(int) * 2);
+        if (count != sizeof(int) * 2) break;
 
-        int size = 0;
+        int size;
         try {
-            size = std::stoi(msg_size_str);
+            size = (int) std::stoul(msg_size_str, nullptr, 16); // 16 for hexadecimal
         } catch (std::exception &e) {
             // maybe delimiter so we can try to recover, but since its tcp not sure if necessary
             ERROR("while trying to parse message size from string: {}", msg_size_str);
             break;
         }
-        DEBUG("message size: {}", size);
 
         // skip the ':' after the message size
         char c{};
@@ -118,7 +126,6 @@ void listen_to_messages(sockpp::tcp_connector &connection, MessageQueue<ServerMs
         buffer.resize(size);
         connection.read_n(buffer.data(), size);
         std::string message = std::string(buffer.begin(), buffer.end());
-        DEBUG("message: {}", message);
 
         //TODO:
         // what do we do if parsing / reading failed?
@@ -178,7 +185,7 @@ void TichuGame::process_messages() {
                 process(data);
                 break;
             }
-            case ServerMsgType::full_state_response: {
+            case ServerMsgType::full_state: {
                 auto data = msg.get_msg_data<full_state_response>();
                 process(data);
                 break;

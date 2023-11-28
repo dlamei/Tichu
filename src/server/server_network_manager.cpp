@@ -5,9 +5,8 @@
 #include "server_network_manager.h"
 #include "request_handler.h"
 
-// include server address configurations
-#include "../common/network/default.conf"
-#include "../common/logging.h"
+const std::string default_server_host = "127.0.0.1";
+const unsigned int default_port = 50505;
 
 
 server_network_manager::server_network_manager() {
@@ -61,54 +60,52 @@ void server_network_manager::listener_loop() {
     }
 }
 
+// TODO: write listener thread once for server and client in common
 // Runs in a thread and reads anything coming in on the 'socket'.
 // Once a message is fully received, the string is passed on to the 'handle_incoming_message()' function
 void server_network_manager::read_message(sockpp::tcp_socket socket, const std::function<void(const std::string &,
                                                                                               const sockpp::tcp_socket::addr_t &)> &message_handler) {
     sockpp::socket_initializer::initialize(); // Required to initialise sockpp
 
-    char buffer[512]; // 512 bytes
+    //char buffer[512]; // 512 bytes
+    char msg_size_str[sizeof(int) * 2];
     ssize_t count = 0;
     ssize_t msg_bytes_read = 0;
     ssize_t msg_length = 0;
 
-    while ((count = socket.read(buffer, sizeof(buffer))) > 0) {
+    //while ((count = socket.read(buffer, sizeof(buffer))) > 0) {
+    while (true) {
         try {
-            int i = 0;
-            std::stringstream ss_msg_length;
-            while (buffer[i] != ':' && i < count) {
-                ss_msg_length << buffer[i];
-                i++;
-            }
-            msg_length = std::stoi(ss_msg_length.str());
-            std::cout << "Expecting message of length " << msg_length << std::endl;
+            count = socket.read_n(msg_size_str, sizeof(int) * 2);
+            if (count != sizeof(int) * 2) break;
 
-            // put everything after the message length declaration into a stringstream
-            std::stringstream ss_msg;
-            ss_msg.write(&buffer[i + 1], count - (i + 1));
-            msg_bytes_read = count - (i + 1);
-
-            // read the remaining packages
-            while (msg_bytes_read < msg_length && count > 0) {
-                count = socket.read(buffer, sizeof(buffer));
-                msg_bytes_read += count;
-                ss_msg.write(buffer, count);
+            int size;
+            try {
+                size = (int) std::stoul(msg_size_str, nullptr, 16); // 16 for hexadecimal
+            } catch (std::exception &e) {
+                // maybe delimiter so we can try to recover, but since its tcp not sure if necessary
+                ERROR("while trying to parse message size from string: {}", msg_size_str);
+                break;
             }
 
-            if (msg_bytes_read == msg_length) {
-                // sanity check that really all bytes got read (possibility that count was <= 0, indicating a read error)
-                std::string msg = ss_msg.str();
-                message_handler(msg, socket.peer_address());    // attempt to parse ClientMsg from 'msg'
-            } else {
-                std::cerr << "Could not read entire message. TCP stream ended before. Difference is "
-                          << msg_length - msg_bytes_read << std::endl;
-            }
-        } catch (std::exception &e) { // Make sure the connection isn't torn down only because of a read error
-            std::cerr << "Error while reading message from " << socket.peer_address() << std::endl << e.what()
-                      << std::endl;
+            // skip the ':' after the message size
+            char c{};
+            socket.read_n(&c, 1);
+            ASSERT(c == ':', "invalid message format");
+
+            std::vector<char> buffer;
+            buffer.resize(size);
+            socket.read_n(buffer.data(), size);
+            std::string message = std::string(buffer.begin(), buffer.end());
+
+            // handle incoming message
+            message_handler(message, socket.peer_address());
+
+        } catch (std::exception &e) {
+            ERROR("while reading message from {}: {}", socket.peer_address().to_string(), e.what());
         }
     }
-    if (count <= 0) {
+    if (count < 0) {
         std::cout << "Read error [" << socket.last_error() << "]: "
                   << socket.last_error_str() << std::endl;
     }
@@ -122,13 +119,12 @@ void server_network_manager::handle_incoming_message(const std::string &msg,
                                                      const sockpp::tcp_socket::addr_t &peer_address) {
     try {
         // try to parse a json from the 'msg'
-        rapidjson::Document req_json;
-        req_json.Parse(msg.c_str());
         // try to parse a ClientMsg from the json
-        ClientMsg req = ClientMsg::from_json(req_json);
+        ClientMsg client_msg;
+        from_json(json::parse(msg), client_msg);
 
-        // check if this is a connection to a new player
-        auto player_id = req.get_player_id();
+        // check if this is a connection to a new Player
+        auto player_id = client_msg.get_player_id();
         _rw_lock.lock_shared();
         if (_player_id_to_address.find(player_id) == _player_id_to_address.end()) {
             // save connection to this client
@@ -140,25 +136,20 @@ void server_network_manager::handle_incoming_message(const std::string &msg,
         } else {
             _rw_lock.unlock_shared();
         }
-#ifdef PRINT_NETWORK_MESSAGES
-        std::cout << "Received valid request : " << msg << std::endl;
-#endif
+
+        DEBUG("Received valid request : {}", msg);
+
         // execute client request
-        ServerMsg res = request_handler::handle_request(req);
-        //delete req;
+        ServerMsg res = request_handler::handle_request(client_msg);
 
         // transform response into a json
-        auto res_json = res.to_json();
+        json response;
+        to_json(response, res);
 
-        // transform json to string
-        std::string res_msg = json_utils::to_string(*res_json);
-
-#ifdef PRINT_NETWORK_MESSAGES
-        std::cout << "Sending response : " << res_msg << std::endl;
-#endif
+        DEBUG("sending response: {}", response.dump(4));
 
         // send response back to client
-        send_message(res_msg, peer_address.to_string());
+        send_message(response.dump(), peer_address.to_string());
     } catch (const std::exception &e) {
         std::cerr << "Failed to execute client request. Content was :\n"
                   << msg << std::endl
@@ -178,24 +169,23 @@ void server_network_manager::on_player_left(const UUID &player_id) {
 ssize_t server_network_manager::send_message(const std::string &msg, const std::string &address) {
 
     std::stringstream ss_msg;
-    ASSERT(msg.size() <= MAX_MESSAGE_SIZE, "message size is too large");
-    ss_msg << std::setfill('0') << std::setw(MESSAGE_SIZE_LENGTH) << (int) msg.size();
+    ss_msg << std::setfill('0') << std::setw(sizeof(int) * 2) << std::hex << (int) msg.size();
     ss_msg << ':' << msg; // prepend message length
     return _address_to_socket.at(address).write(ss_msg.str());
 }
 
 void server_network_manager::broadcast_message(ServerMsg &msg, std::vector<player_ptr> players, player_ptr exclude) {
-    auto msg_json = msg.to_json();  // write to JSON format
-    std::string msg_string = json_utils::to_string(*msg_json);   // convert to string
-
-    DEBUG("broadcast_message: {}", msg_string);
+    json data;
+    to_json(data, msg);
+    //auto msg_json = msg.to_json();  // write to JSON format
+    DEBUG("broadcast_message: {}", data.dump(4));
 
     _rw_lock.lock_shared();
     // send object_diff to all requested players
     try {
         for (const auto& player: players) {
             if (player->get_id() != exclude->get_id()) {
-                int nof_bytes_written = send_message(msg_string, _player_id_to_address.at(player->get_id()));
+                send_message(data.dump(), _player_id_to_address.at(player->get_id()));
             }
         }
     } catch (std::exception &e) {

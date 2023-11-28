@@ -67,7 +67,7 @@ The code for the game can be found in **/src**, where it is separated into follo
     - **/GameState** contains the `GameState` that is synchronized between client and server. We use the [conditional pre-compile directive](https://www.cplusplus.com/doc/tutorial/preprocessor/) TICHU_SERVER to enable certain parts of the code only on the server side. Namely, these are the state update functions, as they should only happen on the server. The client simply reflects the current game state as sent by the server without modifying it directly. 
     - **/network** contains all the messages that are being passed between client and server. We use the TICHU_CLIENT pre-compile directive to make `server_repsonses` only executable on the client side (through the function `Process()`) .
     - **/serialization** contains base classes for serializing `GameState`, `ClientMsg` and `server_response` objects. **Serialization** is the process of transforming an object instance into a string that can be sent over a network, where the receiver deserializes it, i.e. recreates the object from the string. If you are interested, [read me on Wikipedia](https://en.wikipedia.org/wiki/Serialization).
-- **/server** contains only code that is relevant for the server (e.g. player management, game instance management, receiving messages)
+- **/server** contains only code that is relevant for the server (e.g. Player management, game instance management, receiving messages)
 
 The **/asset** folder stores all the images that are being used to render the GUI.
 
@@ -77,9 +77,9 @@ The **/unit-tests** folder contains all unit tests, which validate the correct b
 
 First off, this project consists of a **server** and a **client**, each with their own main.cpp file. 
 
-The client renders the GUI that is presented to the player, whereas the server is a console application without a user interface. Every action a player performs in the client application (for example playing a card) is sent as a formatted message to the server application, which processes the request.   
-- If the **player's move was valid**, the server will update the game state (e.g. move a card from the player's hand to the discard pile) and broadcast this new game state to all players of the game. Whenever the client application receives a game state update, it will re-render the GUI accordingly and allow new interactions.   
-- If the **move was invalid**, the game state will not be updated and only the requesting player will get a response containing the error message. 
+The client renders the GUI that is presented to the Player, whereas the server is a console application without a user interface. Every action a Player performs in the client application (for example playing a card) is sent as a formatted message to the server application, which processes the request.   
+- If the **Player's move was valid**, the server will update the game state (e.g. move a card from the Player's hand to the discard pile) and broadcast this new game state to all players of the game. Whenever the client application receives a game state update, it will re-render the GUI accordingly and allow new interactions.   
+- If the **move was invalid**, the game state will not be updated and only the requesting Player will get a response containing the error message. 
 
 ### 4.2 Network Interface
 Everything that is passed between client and server are objects of type `ClientMsg` and `server_response`. Since the underlying network protocol works with TCP, these `ClientMsg` and `server_response` objects are transformed into a **[JSON](https://wiki.selfhtml.org/wiki/JSON) string**, which can then be sent over the network. The receiving end reads the JSON string and constructs an object of type `ClientMsg` resp. `server_response` that reflects the exact parameters that are specified in the JSON string. This process is known as **serialization** (object to string) and **deserialization** (string to object). If you want to read more about serialization, [read me on Wikipedia](https://en.wikipedia.org/wiki/Serialization).
@@ -104,7 +104,7 @@ class ClientMsg : public serializable {
 protected:
     ClientMsgType type;   // stores the type of request, such that the receiving end knows how to deserialize it
     std::string req_id; // unique id of this request
-    std::string _player_id; // id of the player sending the request
+    std::string _player_id; // id of the Player sending the request
     std::string _game_id;   // id of the game this request is for
 
     ...
@@ -239,10 +239,10 @@ All you have to do is use the static class `ClientNetworkManager` on the client 
 #### Server -> Client:
 All messages arriving at the server are being deserialized and then passed on to the `handle_request(ClientMsg* req)` function of the `request_handler` singleton class. This function returns a pointer to an object of type `request_response` (a subclass of `server_response`), which is then automatically sent back to the requesting client. In your game implementation you should extend the `handle_request(ClientMsg* req)` function of the `request_handler`, such that it can handle the `ClientMsg` that you add to your game and return an object of type `request_response` with all parameters you want to send. 
 
-If the `ClientMsg` causes an update of the GameState you should also update all other players of that game about the GameState change. This happens in the `game_instance` class, here examplified at the case where a `start_game_req` calls the `start_game(...)` function on the respective `game_instance` on the server side:
+If the `ClientMsg` causes an update of the GameState you should also update all other players of that game about the GameState change. This happens in the `GameInstance` class, here examplified at the case where a `start_game_req` calls the `start_game(...)` function on the respective `GameInstance` on the server side:
 
 ```cpp
-bool game_instance::start_game(player* player, std::string &err) {
+bool GameInstance::start_game(Player* Player, std::string &err) {
     modification_lock.lock();   // make sure only one request can modify the GameState at a time
 
     // Try to start the game
@@ -250,7 +250,7 @@ bool game_instance::start_game(player* player, std::string &err) {
         // create a full_state_response (subclass of server_response) with the full GameState inside
         full_state_response state_update_msg = full_state_response(this->get_id(), *_game_state);
         // BROADCAST new GameState to all other players
-        server_network_manager::broadcast_message(state_update_msg, _game_state->get_players(), player);
+        server_network_manager::broadcast_message(state_update_msg, _game_state->get_players(), Player);
 
         modification_lock.unlock(); // allow other threads to modify the GameState
         return true;
@@ -278,7 +278,7 @@ If you want to manually print one of your serialized messages (or any other seri
 
 ...
 // Create a request to serialize
-join_game_req* req = new join_game_req(player->get_id(), player->get_player_name());
+join_game_req* req = new join_game_req(Player->get_id(), Player->get_player_name());
 
 // serialize the request object
 rapidjson::Document* req_json = req->to_json();
@@ -298,8 +298,8 @@ To serialize the `GameState`, the same `write_into_json(...)` function is used a
 class GameState : public unique_serializable {
 private:
     // Properties
-    std::vector<player*> _players;
-    draw_pile* _draw_pile;
+    std::vector<Player*> _players;
+    DrawPile* _draw_pile;
     discard_pile* _discard_pile;
     serializable_value<bool>* _is_started;
     serializable_value<bool>* _is_finished;
@@ -310,9 +310,9 @@ private:
     // deserialization constructor
     GameState(
             std::string id,
-            draw_pile* draw_pile,
+            DrawPile* DrawPile,
             discard_pile* discard_pile,
-            std::vector<player*>& players,
+            std::vector<Player*>& players,
             serializable_value<bool>* is_started,
             serializable_value<bool>* is_finished,
             serializable_value<int>* next_player_idx,
@@ -330,7 +330,7 @@ public:
 };
 ```
 
-The `GameState` inherits from `unique_serializable`, which essentially requires the `write_into_json()` function and adds a unique `id` to the object, such that it can be uniquely identified. Similarly, each parameter nested inside the `GameState` (e.g. players, draw_pile, etc.) also inherit from `unique_serializable` and therefore have their own `id` and serialization, resp. deserialization functions.
+The `GameState` inherits from `unique_serializable`, which essentially requires the `write_into_json()` function and adds a unique `id` to the object, such that it can be uniquely identified. Similarly, each parameter nested inside the `GameState` (e.g. players, DrawPile, etc.) also inherit from `unique_serializable` and therefore have their own `id` and serialization, resp. deserialization functions.
 
 On the client side, the new `GameState` is then passed to the `updateGameState(GameState*)` function of the `GameController` class, which performs a redraw of the GUI.
 
@@ -365,7 +365,7 @@ void GameState::write_into_json(rapidjson::Value &json,
 
     rapidjson::Value draw_pile_val(rapidjson::kObjectType);
     _draw_pile->write_into_json(draw_pile_val, allocator);
-    json.AddMember("draw_pile", draw_pile_val, allocator);
+    json.AddMember("DrawPile", draw_pile_val, allocator);
 
     rapidjson::Value discard_pile_val(rapidjson::kObjectType);
     _discard_pile->write_into_json(discard_pile_val, allocator);
@@ -381,12 +381,12 @@ For **deserialization**, the `from_json(...)` function is used, which is impleme
 
 ```cpp
 // DESERIALIZATION CONSTRUCTOR receives pointers for all its properties and stores them
-GameState::GameState(std::string id, draw_pile *draw_pile, discard_pile *discard_pile,
-                       std::vector<player *> &players, serializable_value<bool> *is_started,
+GameState::GameState(std::string id, DrawPile *DrawPile, discard_pile *discard_pile,
+                       std::vector<Player *> &players, serializable_value<bool> *is_started,
                        serializable_value<bool> *is_finished, serializable_value<int> *next_player_idx,
                        serializable_value<int>* round_number, serializable_value<int> *starting_player_idx)
         : unique_serializable(id),  // initialize the unique_serializable base-class
-          _draw_pile(draw_pile),
+          _draw_pile(DrawPile),
           _discard_pile(discard_pile),
           _players(players),
           _is_started(is_started),
@@ -406,17 +406,17 @@ GameState* GameState::from_json(const rapidjson::Value &json) {
         && json.HasMember("round_number")
         && json.HasMember("starting_player_idx")
         && json.HasMember("players")
-        && json.HasMember("draw_pile")
+        && json.HasMember("DrawPile")
         && json.HasMember("discard_pile"))
     {
         // deserialize all players
-        std::vector<player*> deserialized_players;
+        std::vector<Player*> deserialized_players;
         for (auto &serialized_player : json["players"].GetArray()) {
-            deserialized_players.push_back(player::from_json(serialized_player.GetObject()));
+            deserialized_players.push_back(Player::from_json(serialized_player.GetObject()));
         }
         // Invoke deserialization constructor
         return new GameState(unique_serializable::extract_id(json),   // extract base_params from JSON
-                              draw_pile::from_json(json["draw_pile"].GetObject()),  // deserialize the draw_pile
+                              DrawPile::from_json(json["DrawPile"].GetObject()),  // deserialize the DrawPile
                               discard_pile::from_json(json["discard_pile"].GetObject()),
                               deserialized_players,
                               serializable_value<bool>::from_json(json["is_started"].GetObject()),
@@ -431,10 +431,10 @@ GameState* GameState::from_json(const rapidjson::Value &json) {
 ```
 
 A similar scheme is applied in all other objects that inherit from `unique_serializable`. Namely, these are:
-- `player`
+- `Player`
 - `hand`
 - `card`
-- `draw_pile`
+- `DrawPile`
 - `discard_pile`
 - `serializable_value`
 

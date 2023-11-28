@@ -16,9 +16,8 @@
 #include "sockpp/tcp_connector.h"
 #include "sockpp/tcp_acceptor.h"
 
-#include "../common/network/ClientMsg.h"
-#include "../common/network/ServerMsg.h"
-#include "../common/game_state/player/player.h"
+#include "../common/Messages.h"
+#include "../common/game_state/player/Player.h"
 #include "../common/game_state/GameState.h"
 
 class server_network_manager {

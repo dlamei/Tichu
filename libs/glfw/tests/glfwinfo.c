@@ -803,7 +803,7 @@ int main(int argc, char** argv)
             }
         }
 
-        printf("%s context GUI string: \"%s\"\n",
+        printf("%s context Renderer string: \"%s\"\n",
                get_api_name(client),
                glGetString(GL_RENDERER));
         printf("%s context vendor string: \"%s\"\n",

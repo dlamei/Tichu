@@ -2,9 +2,7 @@
 #define TICHU_CARD_H
 
 #include <string>
-#include "../../../../src/common/serialization/serializable.h"
-//#include "../../../../rapidjson/include/rapidjson/document.h"
-#include <rapidjson/document.h>
+#include <nlohmann/json.hpp>
 
 //Macros for special cards
 #define DRAGON Card(SPECIAL, RED, 25)
@@ -21,15 +19,15 @@ enum Suit {
     // For Special cards: RED = Dragon, GREEN = Phoenix, BLUE = Dog, SCHWARZ = One
 };
 
-class Card : public serializable {
+class Card {
 private:
     int _rank;
     int _suit;
     int _value;
 
 public:
+    Card() = default;
     Card(int rank, int suit, int val);
-
     Card(int rank, int suit);
 
     bool operator==(const Card &other) const {
@@ -59,11 +57,10 @@ public:
 
     [[nodiscard]] int get_value() const noexcept { return _value; }
 
-// serializable interface
-    void write_into_json(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator) const override;
-
-    static Card from_json(const rapidjson::Value &json);
+public:
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Card, _rank, _suit, _value);
 };
+
 
 
 #endif //TICHU_CARD_H

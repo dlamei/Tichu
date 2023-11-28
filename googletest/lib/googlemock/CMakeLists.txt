@@ -58,7 +58,7 @@ add_subdirectory("${gtest_dir}" "${gmock_BINARY_DIR}/${gtest_dir}")
 # These commands only run if this is the main project
 if(CMAKE_PROJECT_NAME STREQUAL "gmock" OR CMAKE_PROJECT_NAME STREQUAL "googletest-distribution")
   # BUILD_SHARED_LIBS is a standard CMake variable, but we declare it here to
-  # make it prominent in the GUI.
+  # make it prominent in the Renderer.
   option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." OFF)
 else()
   mark_as_advanced(gmock_build_tests)

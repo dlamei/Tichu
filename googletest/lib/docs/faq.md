@@ -354,8 +354,8 @@ You may still want to use `SetUp()/TearDown()` in the following cases:
 ## The compiler complains "no matching function to call" when I use ASSERT_PRED*. How do I fix it?
 
 If the predicate function you use in `ASSERT_PRED*` or `EXPECT_PRED*` is
-overloaded or a template, the compiler will have trouble figuring out which
-overloaded version it should use. `ASSERT_PRED_FORMAT*` and
+overloaded_server_msg or a template, the compiler will have trouble figuring out which
+overloaded_server_msg version it should use. `ASSERT_PRED_FORMAT*` and
 `EXPECT_PRED_FORMAT*` don't have this problem.
 
 If you see this error, you might want to switch to

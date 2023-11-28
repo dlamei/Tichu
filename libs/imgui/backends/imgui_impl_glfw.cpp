@@ -1193,7 +1193,7 @@ static void ImGui_ImplGlfw_SwapBuffers(ImGuiViewport* viewport, void*)
 }
 
 //--------------------------------------------------------------------------------------------------------
-// Vulkan support (the Vulkan GUI needs to call a platform-side support function to create the surface)
+// Vulkan support (the Vulkan Renderer needs to call a platform-side support function to create the surface)
 //--------------------------------------------------------------------------------------------------------
 
 // Avoid including <vulkan.h> so we can build without it
@@ -1224,7 +1224,7 @@ static int ImGui_ImplGlfw_CreateVkSurface(ImGuiViewport* viewport, ImU64 vk_inst
 
 static void ImGui_ImplGlfw_InitPlatformInterface()
 {
-    // Register platform interface (will be coupled with a GUI interface)
+    // Register platform interface (will be coupled with a Renderer interface)
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
     platform_io.Platform_CreateWindow = ImGui_ImplGlfw_CreateWindow;

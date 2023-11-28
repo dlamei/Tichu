@@ -2,45 +2,15 @@
 #define TICHUUI_TICHU_H
 
 #include "sockpp/tcp_connector.h"
-
-#undef ERROR
-
-#include "GUI/Application.h"
+#include "Renderer/Application.h"
 #include "panels.h"
-#include "../common/serialization/serializable.h"
-#include "../common/network/ServerMsg.h"
-#include "../common/network/ClientMsg.h"
+#include "../common/utils.h"
+#include "../common/Messages.h"
 #include <unordered_set>
 #include <string>
 #include <utility>
 #include <queue>
 #include <chrono>
-
-template<typename T>
-class MessageQueue {
-public:
-
-    void push(T item) {
-        std::unique_lock<std::mutex> lock(_mutex);
-        _queue.push(item);
-    }
-
-    std::optional<T> try_pop() {
-        std::unique_lock<std::mutex> lock(_mutex);
-
-        if (_queue.empty()) {
-            return {};
-        } else {
-            T res = _queue.back();
-            _queue.pop();
-            return res;
-        }
-    }
-
-private:
-    std::queue<T> _queue;
-    std::mutex _mutex;
-};
 
 enum class PanelState {
     CONNECTION,

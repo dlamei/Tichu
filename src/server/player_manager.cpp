@@ -5,7 +5,7 @@
 #include "player_manager.h"
 
 // Initialize static map
-std::unordered_map<UUID, std::shared_ptr<player>> player_manager::_players_lut = {};
+std::unordered_map<UUID, std::shared_ptr<Player>> player_manager::_players_lut = {};
 
 std::optional<player_ptr> player_manager::try_get_player(const UUID &player_id) {
     _rw_lock.lock_shared();
@@ -25,8 +25,8 @@ player_ptr player_manager::add_or_get_player(const std::string &name, const UUID
     if (player_ptr) {
         return player_ptr.value();
     }
-    bool team = true;
-    auto player_val = std::make_shared<player>(player(player_id, name, team));
+    auto team = Team::None;
+    auto player_val = std::make_shared<Player>(Player(player_id, name, team));
     _rw_lock.lock();    // exclusive
     player_manager::_players_lut.insert({player_id, player_val});
     _rw_lock.unlock();

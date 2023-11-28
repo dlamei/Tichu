@@ -433,7 +433,7 @@ class UniversalPrinter;
 // Prints the given value using the << operator if it has one;
 // otherwise prints the bytes in it.  This is what
 // UniversalPrinter<T>::Print() does when PrintTo() is not specialized
-// or overloaded for type T.
+// or overloaded_server_msg for type T.
 //
 // A user can override this behavior for a class type Foo by defining
 // an overload of PrintTo() in the namespace where Foo is defined.  We

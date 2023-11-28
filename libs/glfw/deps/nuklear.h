@@ -515,7 +515,7 @@ enum nk_symbol_type {
 /*/// ### Context
 /// Contexts are the main entry point and the majestro of nuklear and contain all required state.
 /// They are used for window, memory, input, style, stack, commands and time management and need
-/// to be passed into all nuklear GUI specific functions.
+/// to be passed into all nuklear Renderer specific functions.
 ///
 /// #### Usage
 /// To use a context it first has to be initialized which can be achieved by calling
@@ -4064,7 +4064,7 @@ NK_API void nk_font_atlas_clear(struct nk_font_atlas*);
  * ===============================================================*/
 /*  A basic (double)-buffer with linear allocation and resetting as only
     freeing policy. The buffer's main purpose is to control all memory management
-    inside the GUI toolkit and still leave memory control as much as possible in
+    inside the Renderer toolkit and still leave memory control as much as possible in
     the hand of the user while also making sure the library is easy to use if
     not as much control is needed.
     In general all memory inside this library can be provided from the user in
@@ -4233,7 +4233,7 @@ NK_API int nk_str_len_char(struct nk_str*);
  * has both a default version if you don't care where memory comes from and an
  * allocator version if you do. While the text editor is quite powerful for its
  * complexity I would not recommend editing gigabytes of data with it.
- * It is rather designed for uses cases which make sense for a GUI library not for
+ * It is rather designed for uses cases which make sense for a Renderer library not for
  * an full blown text editor.
  */
 #ifndef NK_TEXTEDIT_UNDOSTATECOUNT
@@ -4800,7 +4800,7 @@ NK_API void nk_draw_list_push_userdata(struct nk_draw_list*, nk_handle userdata)
 
 /* ===============================================================
  *
- *                          GUI
+ *                          Renderer
  *
  * ===============================================================*/
 enum nk_style_item_type {

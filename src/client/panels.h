@@ -1,7 +1,7 @@
 #ifndef TICHU_PANELS_H
 #define TICHU_PANELS_H
 
-#include "../common/network/ServerMsg.h"
+#include "../common/Messages.h"
 #include "../common/game_state/GameState.h"
 #include <unordered_set>
 #include <string>
@@ -36,7 +36,7 @@ namespace ConnectionPanel {
         bool connect = false;
         std::string status = "not connected";
 
-        // player id
+        // Player id
         UUID id = UUID::create();
 
         bool validate() const;

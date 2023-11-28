@@ -30,11 +30,9 @@ target_include_directories(sockpp
 		sockpp/src
 )
 
-# --- rapidjson ---
+# -- json ---
 
-add_library(rapidjson INTERFACE)
-target_include_directories(rapidjson INTERFACE rapidjson/include)
-target_compile_definitions(rapidjson INTERFACE RAPIDJSON_HAS_STD_STRING=1)
+add_subdirectory(json)
 
 # --- glfw ---
 
@@ -98,17 +96,17 @@ target_link_libraries(CLIENT_LIBS INTERFACE
 		imgui
 		glm
 		stb
-		rapidjson
 		spdlog
 		sockpp
+		nlohmann_json::nlohmann_json
 )
 
 add_library(SERVER_LIBS INTERFACE)
 target_compile_definitions(SERVER_LIBS INTERFACE TICHU_SERVER=1)
 target_link_libraries(SERVER_LIBS INTERFACE
 		spdlog
-		rapidjson
 		sockpp
+		nlohmann_json::nlohmann_json
 )
 
 if (WIN32)

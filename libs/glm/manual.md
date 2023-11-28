@@ -1636,7 +1636,7 @@ Vector and matrix types with defined precisions, e.g. `i8vec4`, which is a 4D ve
 
 Facilitate interactions between pointers to basic types (e.g. `float*`) and GLM types (e.g. `mat4`).
 
-This extension defines an overloaded function, `glm::value_ptr`, which returns a pointer to the memory layout of any GLM vector or matrix (`vec3`, `mat4`, etc.). Matrix types store their values in column-major order. This is useful for uploading data to matrices or for copying data to buffer objects.
+This extension defines an overloaded_server_msg function, `glm::value_ptr`, which returns a pointer to the memory layout of any GLM vector or matrix (`vec3`, `mat4`, etc.). Matrix types store their values in column-major order. This is useful for uploading data to matrices or for copying data to buffer objects.
 
 ```cpp
 // GLM_GTC_type_ptr provides a safe solution:

@@ -181,7 +181,7 @@ protected:
 
     void flush_() override {}
 
-    // Add colored text to the text edit widget. This method is invoked in the GUI thread.
+    // Add colored text to the text edit widget. This method is invoked in the Renderer thread.
     // It is a static method to ensure that it is handled correctly even if the sink is destroyed
     // prematurely before it is invoked.
 

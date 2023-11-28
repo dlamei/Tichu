@@ -136,7 +136,7 @@ template <typename T> struct streamed_view { const T& value; };
 
 }  // namespace detail
 
-// Formats an object of type T that has an overloaded ostream operator<<.
+// Formats an object of type T that has an overloaded_server_msg ostream operator<<.
 template <typename Char>
 struct basic_ostream_formatter : formatter<basic_string_view<Char>, Char> {
   void set_debug_format() = delete;
@@ -180,7 +180,7 @@ auto streamed(const T& value) -> detail::streamed_view<T> {
 
 namespace detail {
 
-// Formats an object of type T that has an overloaded ostream operator<<.
+// Formats an object of type T that has an overloaded_server_msg ostream operator<<.
 template <typename T, typename Char>
 struct fallback_formatter<T, Char, enable_if_t<is_streamable<T, Char>::value>>
     : basic_ostream_formatter<Char> {

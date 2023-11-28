@@ -849,7 +849,7 @@ static FT_Error ImGuiLunasvgPortRender(FT_GlyphSlot slot, FT_Pointer* _state)
 {
     LunasvgPortState* state = *(LunasvgPortState**)_state;
 
-    // If there was an error while loading the svg in ImGuiLunasvgPortPresetSlot(), the GUI hook still get called, so just returns the error.
+    // If there was an error while loading the svg in ImGuiLunasvgPortPresetSlot(), the Renderer hook still get called, so just returns the error.
     if (state->err != FT_Err_Ok)
         return state->err;
 

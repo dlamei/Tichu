@@ -1,7 +1,7 @@
 // The game_instance_manager only exists on the server side. It stores all currently active games and offers
 // functionality to retrieve game instances by id and adding players to games.
-// If a new player requests to join a game but no valid game_instance is available, then this class
-// will generate a new game_instance and add it to the unordered_map of (active) game instances.
+// If a new Player requests to join a game but no valid GameInstance is available, then this class
+// will generate a new GameInstance and add it to the unordered_map of (active) game instances.
 
 #include "game_instance_manager.h"
 
@@ -9,7 +9,7 @@
 #include "server_network_manager.h"
 
 // Initialize static map
-std::unordered_map<UUID, std::shared_ptr<game_instance>> game_instance_manager::games_lut = {};
+std::unordered_map<UUID, std::shared_ptr<GameInstance>> game_instance_manager::games_lut = {};
 
 game_instance_ptr game_instance_manager::find_joinable_game_instance() {
     std::vector<UUID> to_remove;
@@ -41,8 +41,8 @@ game_instance_ptr game_instance_manager::find_joinable_game_instance() {
     return res.value();
 }
 
-std::shared_ptr<game_instance> game_instance_manager::create_new_game() {
-    std::shared_ptr<game_instance> new_game = std::make_shared<game_instance>(game_instance());
+std::shared_ptr<GameInstance> game_instance_manager::create_new_game() {
+    std::shared_ptr<GameInstance> new_game = std::make_shared<GameInstance>(GameInstance());
     games_lut_lock.lock();  // exclusive
     game_instance_manager::games_lut.insert({new_game->get_id(), new_game});
     games_lut_lock.unlock();
@@ -69,10 +69,10 @@ game_instance_manager::try_get_player_and_game_instance(const UUID &player_id, s
         if (game_instance_ptr) {
             return std::tuple{player.value(), game_instance_ptr.value()};
         } else {
-            err = "Could not find _game_id" + player.value()->get_game_id().string() + " associated with this player";
+            err = "Could not find _game_id" + player.value()->get_game_id().string() + " associated with this Player";
         }
     } else {
-        err = "Could not find requested player " + player_id.string() + " in database.";
+        err = "Could not find requested Player " + player_id.string() + " in database.";
     }
     return {};
 }
@@ -81,7 +81,7 @@ game_instance_manager::try_get_player_and_game_instance(const UUID &player_id, s
 std::optional<game_instance_ptr>
 game_instance_manager::try_add_player_to_any_game(player_ptr player, std::string &err) {
 
-    // check that player is not already subscribed to another game
+    // check that Player is not already subscribed to another game
     if (!(player->get_game_id().empty())) {
         err = "Could not join game. Player is already active in a game";
         return {};
@@ -100,7 +100,7 @@ game_instance_manager::try_add_player_to_any_game(player_ptr player, std::string
 }
 
 
-bool game_instance_manager::try_add_player(player_ptr player, game_instance &game_instance_ptr, std::string &err) {
+bool game_instance_manager::try_add_player(player_ptr player, GameInstance &game_instance_ptr, std::string &err) {
     if (!(player->get_game_id().empty())) {
         if (player->get_game_id() != game_instance_ptr.get_id()) {
             err = "Player is already active in a different src with id " + player->get_game_id().string();
@@ -111,7 +111,7 @@ bool game_instance_manager::try_add_player(player_ptr player, game_instance &gam
     }
 
     if (game_instance_ptr.try_add_player(player, err)) {
-        player->set_game_id(game_instance_ptr.get_id());   // mark that this player is playing in a src
+        player->set_game_id(game_instance_ptr.get_id());   // mark that this Player is playing in a src
         return true;
     } else {
         return false;
@@ -128,7 +128,7 @@ bool game_instance_manager::try_remove_player(player_ptr player, const UUID &gam
     }
 }
 
-bool game_instance_manager::try_remove_player(player_ptr player, game_instance &game_instance_ptr, std::string &err) {
+bool game_instance_manager::try_remove_player(player_ptr player, GameInstance &game_instance_ptr, std::string &err) {
     return game_instance_ptr.try_remove_player(player, err);
 }
 

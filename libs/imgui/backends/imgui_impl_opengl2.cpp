@@ -89,7 +89,7 @@ static void ImGui_ImplOpenGL2_ShutdownPlatformInterface();
 bool    ImGui_ImplOpenGL2_Init()
 {
     ImGuiIO& io = ImGui::GetIO();
-    IM_ASSERT(io.BackendRendererUserData == nullptr && "Already initialized a GUI backend!");
+    IM_ASSERT(io.BackendRendererUserData == nullptr && "Already initialized a Renderer backend!");
 
     // Setup backend capabilities flags
     ImGui_ImplOpenGL2_Data* bd = IM_NEW(ImGui_ImplOpenGL2_Data)();
@@ -106,7 +106,7 @@ bool    ImGui_ImplOpenGL2_Init()
 void    ImGui_ImplOpenGL2_Shutdown()
 {
     ImGui_ImplOpenGL2_Data* bd = ImGui_ImplOpenGL2_GetBackendData();
-    IM_ASSERT(bd != nullptr && "No GUI backend to shutdown, or already shutdown?");
+    IM_ASSERT(bd != nullptr && "No Renderer backend to shutdown, or already shutdown?");
     ImGuiIO& io = ImGui::GetIO();
 
     ImGui_ImplOpenGL2_ShutdownPlatformInterface();
@@ -213,7 +213,7 @@ void ImGui_ImplOpenGL2_RenderDrawData(ImDrawData* draw_data)
             if (pcmd->UserCallback)
             {
                 // User callback, registered via ImDrawList::AddCallback()
-                // (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the GUI to reset render state.)
+                // (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the Renderer to reset render state.)
                 if (pcmd->UserCallback == ImDrawCallback_ResetRenderState)
                     ImGui_ImplOpenGL2_SetupRenderState(draw_data, fb_width, fb_height);
                 else
