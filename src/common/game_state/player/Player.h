@@ -12,7 +12,6 @@
 enum class Team {
     A,
     B,
-    None,
 };
 
 class Player {

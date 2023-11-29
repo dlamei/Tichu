@@ -30,7 +30,7 @@ bool GameInstance::is_finished() {
 
 void broadcast_full_state_response(const GameState &state, player_ptr player) {
     auto update_msg = full_state_response{ state };
-    auto resp = ServerMsg(state.get_id(), update_msg);
+    auto resp = ServerMsg(update_msg);
     server_network_manager::broadcast_message(resp, state.get_players(), std::move(player));
 }
 

@@ -124,34 +124,6 @@ namespace nlohmann {
     inline void to_json(nlohmann::json &nlohmann_json_j, const TYPE &nlohmann_json_t) {} \
     inline void from_json(const nlohmann::json &nlohmann_json_j, TYPE &nlohmann_json_t) {}
 
-// thread safe queue
-template<typename T>
-class MessageQueue {
-public:
-
-    void push(T item) {
-        std::unique_lock<std::mutex> lock(_mutex);
-        _queue.push(item);
-    }
-
-    std::optional<T> try_pop() {
-        std::unique_lock<std::mutex> lock(_mutex);
-
-        if (_queue.empty()) {
-            return {};
-        } else {
-            T res = _queue.back();
-            _queue.pop();
-            return res;
-        }
-    }
-
-private:
-    std::queue<T> _queue;
-    std::mutex _mutex;
-};
-
-
 inline void init_logger() {
     spdlog::set_level(spdlog::level::trace);
 }
@@ -217,5 +189,34 @@ public:
     }
 };
 
+// thread safe queue
+template<typename T>
+class MessageQueue {
+public:
+
+    void push(T item) {
+        std::unique_lock<std::mutex> lock(_mutex);
+        _queue.push(item);
+    }
+
+    std::optional<T> try_pop() {
+        std::unique_lock<std::mutex> lock(_mutex);
+
+        if (_queue.empty()) {
+            return {};
+        } else {
+            T res = _queue.back();
+            _queue.pop();
+            return res;
+        }
+    }
+
+private:
+    std::queue<T> _queue;
+    std::mutex _mutex;
+};
+
+
+// function for creating a tcp listener thread that pushes read messages in a queue
 
 #endif //TICHU_UTILS_H

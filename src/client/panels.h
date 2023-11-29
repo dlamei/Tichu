@@ -46,12 +46,6 @@ namespace ConnectionPanel {
 }
 
 
-enum class MessageType {
-    ERROR,
-    WARN,
-    INFO,
-};
-
 // a popup message box, e.g ERROR, WARN, etc...
 class Message {
 public:

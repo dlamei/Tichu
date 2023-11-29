@@ -29,13 +29,13 @@ public:
     void show_msg(MessageType typ, const std::string &msg) {
         // also log message
         switch (typ) {
-            case MessageType::ERROR:
+            case MessageType::Error:
                 ERROR("{}", msg);
                 break;
-            case MessageType::WARN:
+            case MessageType::Warn:
                 WARN("{}", msg);
                 break;
-            case MessageType::INFO:
+            case MessageType::Info:
                 INFO("{}", msg);
                 break;
         }
@@ -51,7 +51,7 @@ private:
     void connect_to_server();
 
     void process_messages();
-    void process(const request_response &data);
+    void process(const server_message &data);
     void process(const full_state_response &data);
 
     // show the active panel

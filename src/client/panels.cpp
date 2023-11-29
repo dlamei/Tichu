@@ -139,12 +139,12 @@ namespace ConnectionPanel {
 
 std::pair<std::string, ImVec4> msg_type_to_string_and_color(MessageType typ) {
     switch (typ) {
-        case MessageType::ERROR:
-            return {"Error", ImGui::RED};
-        case MessageType::WARN:
-            return {"Warning", ImGui::ORANGE};
-        case MessageType::INFO:
-            return {"Info", ImGui::BLACK};
+        case MessageType::Error:
+            return {"error", ImGui::RED};
+        case MessageType::Warn:
+            return {"warning", ImGui::ORANGE};
+        case MessageType::Info:
+            return {"info", ImGui::WHITE};
     }
     return {"unknown", ImGui::BLACK};
 }
@@ -156,15 +156,17 @@ void Message::on_imgui() {
     // add imgui unique id to the title (view docs for more info)
     title += "###" + std::to_string(id);
 
-    auto width = 700.f;
+    auto width = 500.f;
     auto style = ImGui::ScopedStyle{};
     style.push_style(ImGuiStyleVar_WindowMinSize, {width, 0});
     style.push_color(ImGuiCol_TitleBg, title_color);
     style.push_color(ImGuiCol_TitleBgActive, title_color);
-    style.push_color(ImGuiCol_Button, ImGui::DARK_GREY);
+    //style.push_color(ImGuiCol_Button, ImGui::DARK_GREY);
     style.push_style(ImGuiStyleVar_WindowRounding, 20);
     style.push_style(ImGuiStyleVar_WindowPadding, {20, 20});
     style.push_style(ImGuiStyleVar_WindowTitleAlign, {0.5f, 0.5f});
+    style.push_style(ImGuiStyleVar_WindowBorderSize, 2);
+    style.push_color(ImGuiCol_Border, title_color);
 
     ImGuiUtils::center_next_window_once();
     ImGui::Begin(title.c_str(), nullptr,

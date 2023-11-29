@@ -234,10 +234,10 @@ There are plenty of examples of subclasses in the network/requests folder, where
 
 #### 4.2.2 Sending messages
 #### Client -> Server:
-All you have to do is use the static class `ClientNetworkManager` on the client side and then invoke its `sendRequest(const ClientMsg& request)` function with the `ClientMsg` that you want to send. The server's response will arrive as an object of type `request_response` and the `ClientNetworkManager` will invoke the `Process()` function of that `request_response` object automatically.
+All you have to do is use the static class `ClientNetworkManager` on the client side and then invoke its `sendRequest(const ClientMsg& request)` function with the `ClientMsg` that you want to send. The server's response will arrive as an object of type `server_message` and the `ClientNetworkManager` will invoke the `Process()` function of that `server_message` object automatically.
 
 #### Server -> Client:
-All messages arriving at the server are being deserialized and then passed on to the `handle_request(ClientMsg* req)` function of the `request_handler` singleton class. This function returns a pointer to an object of type `request_response` (a subclass of `server_response`), which is then automatically sent back to the requesting client. In your game implementation you should extend the `handle_request(ClientMsg* req)` function of the `request_handler`, such that it can handle the `ClientMsg` that you add to your game and return an object of type `request_response` with all parameters you want to send. 
+All messages arriving at the server are being deserialized and then passed on to the `handle_request(ClientMsg* req)` function of the `request_handler` singleton class. This function returns a pointer to an object of type `server_message` (a subclass of `server_response`), which is then automatically sent back to the requesting client. In your game implementation you should extend the `handle_request(ClientMsg* req)` function of the `request_handler`, such that it can handle the `ClientMsg` that you add to your game and return an object of type `server_message` with all parameters you want to send. 
 
 If the `ClientMsg` causes an update of the GameState you should also update all other players of that game about the GameState change. This happens in the `GameInstance` class, here examplified at the case where a `start_game_req` calls the `start_game(...)` function on the respective `GameInstance` on the server side:
 
@@ -290,7 +290,7 @@ std::cout << json_utils::to_string(req_json) << std::endl;
 
 ### 4.3 GamePanel State
 
-The `GameState` class stores all parameters that are required to represent the game on the client (resp. server) side. In order to synchronize this `GameState` among all players, the `GameState` can also be **serialized** and **deserialized**. If a `ClientMsg` was successfully executed on the server, then the `request_response` that is sent back to the client contains a serialized version of the updated `GameState`. All other players receive the updated `GameState` at the same time through a `full_state_response`.
+The `GameState` class stores all parameters that are required to represent the game on the client (resp. server) side. In order to synchronize this `GameState` among all players, the `GameState` can also be **serialized** and **deserialized**. If a `ClientMsg` was successfully executed on the server, then the `server_message` that is sent back to the client contains a serialized version of the updated `GameState`. All other players receive the updated `GameState` at the same time through a `full_state_response`.
 
 To serialize the `GameState`, the same `write_into_json(...)` function is used as for the `ClientMsg`. 
 

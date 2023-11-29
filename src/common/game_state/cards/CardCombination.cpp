@@ -290,7 +290,7 @@ bool CardCombination::can_be_played_on(const std::optional<CardCombination> &oth
     }
 
     if (!other_opt) { return true; }
-    CardCombination other = other_opt.value();
+    const CardCombination& other = other_opt.value();
     if (other.get_combination_type() == SWITCH) { return true; }
 
     //bombs

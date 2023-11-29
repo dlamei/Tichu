@@ -2,7 +2,6 @@
 
 #include "Renderer/renderer.h"
 
-
 void TichuGame::send_message(const ClientMsg &msg) {
     if (_connection.is_connected()) {
         json data;
@@ -63,25 +62,25 @@ void TichuGame::handle_gui_output() {
             _game_panel_data.player_id = _connection_data.id;
             connect_to_server();
         } else {
-            show_msg(MessageType::WARN, "invalid input");
+            show_msg(MessageType::Info, "invalid input");
         }
     }
 
     if (_game_panel_data.pressed_start_game) {
         _game_panel_data.pressed_start_game = false;
-        send_message(ClientMsg(_connection_data.id, UUID(), start_game_req{}));
-        _game_panel_data.state = GamePanel::GAME;
+        send_message(ClientMsg(_connection_data.id, start_game_req{}));
+        _game_panel_data.panel_state = GamePanel::GAME;
     }
 
     if (_game_panel_data.pressed_fold) {
         _game_panel_data.pressed_fold = false;
-        send_message(ClientMsg(_connection_data.id, UUID(), fold_req{}));
+        send_message(ClientMsg(_connection_data.id, fold_req{}));
     }
     if (_game_panel_data.pressed_play) {
         _game_panel_data.pressed_play = false;
         auto &selected_cards = _game_panel_data.selected_cards;
         auto msg = play_combi_req{ CardCombination({selected_cards.begin(), selected_cards.end()}) };
-        send_message(ClientMsg(_connection_data.id, UUID(), msg));
+        send_message(ClientMsg(_connection_data.id, msg));
     }
 
 }
@@ -151,12 +150,12 @@ void TichuGame::connect_to_server() {
     try {
         address = sockpp::inet_address(_connection_data.host, _connection_data.port);
     } catch (const std::exception &e) {
-        show_msg(MessageType::ERROR, std::format("Failed to resolve address: {}", e.what()));
+        show_msg(MessageType::Warn, std::format("Failed to resolve address: {}", e.what()));
         return;
     }
 
     if (!_connection.connect(address)) {
-        show_msg(MessageType::ERROR, "Failed to connect to server " + address.to_string());
+        show_msg(MessageType::Warn, "Failed to connect to server:\n " + address.to_string());
         return;
     }
 
@@ -170,7 +169,7 @@ void TichuGame::connect_to_server() {
     }
 
     // send join request after listener is created
-    auto client_req = ClientMsg(_connection_data.id, UUID(), join_game_req{.player_name = _connection_data.name});
+    auto client_req = ClientMsg(_connection_data.id, join_game_req{.player_name = _connection_data.name});
     send_message(client_req);
 }
 
@@ -181,7 +180,7 @@ void TichuGame::process_messages() {
 
         switch (msg.get_type()) {
             case ServerMsgType::req_response: {
-                auto data = msg.get_msg_data<request_response>();
+                auto data = msg.get_msg_data<server_message>();
                 process(data);
                 break;
             }
@@ -191,47 +190,25 @@ void TichuGame::process_messages() {
                 break;
             }
             default:
-                show_msg(MessageType::ERROR, std::format("unknown ServerMsgType: {} was not handled!", (int)msg.get_type()));
+                show_msg(MessageType::Error, std::format("unknown ServerMsgType: {} was not handled!", (int)msg.get_type()));
                 break;
         }
     }
 }
 
-void TichuGame::process(const request_response &data) {
-    if (!data.success) {
-        show_msg(MessageType::ERROR, data.err);
-        return;
-    }
-
-    _state = PanelState::GAME;
-
-    if (!data.state) {
-        show_msg(MessageType::ERROR, "network: request_response did not contain state_json");
-        return;
-    }
-
-    try {
-        _state = PanelState::GAME;
-        GamePanel::update(data.state.value());
-    } catch (std::exception &e) {
-        show_msg(MessageType::ERROR, "network: could not parse GameState from req_response");
-    }
-
+void TichuGame::process(const server_message &data) {
+    show_msg(data.type, data.msg);
 }
 
 void TichuGame::process(const full_state_response &data) {
-
-    try {
-        _state = PanelState::GAME;
-        if (data.state.is_started()) {
-            _game_panel_data.state = GamePanel::GAME;
-        } else {
-            _game_panel_data.state = GamePanel::LOBBY;
-        }
-
-        GamePanel::update(data.state);
-    } catch (std::exception &e) {
-        show_msg(MessageType::ERROR, "network: could not parse GameState from req_response");
+    _state = PanelState::GAME;
+    // change the state of the game panel whether the game has started or not
+    if (data.state.is_started()) {
+        _game_panel_data.panel_state = GamePanel::GAME;
+    } else {
+        _game_panel_data.panel_state = GamePanel::LOBBY;
     }
+
+    _game_panel_data.game_state = data.state;
 }
 

@@ -3,6 +3,7 @@
 #include <glm/gtx/transform.hpp>
 #include <utility>
 #include <set>
+#include <ctime>
 
 #include "Renderer/Application.h"
 #include "Renderer/imgui_build.h"
@@ -45,30 +46,38 @@ void hovering_text(const std::string &id, const std::string &text, float x, floa
 }
 
 namespace GamePanel {
-    // padding used for drawing the card spread
+    // some constants for general styling
     const float padding = 0.2f;
+    const glm::vec2 rel_card_size = {0.1f, 0.15f};
 
-    // the GamePanel namespace contains some global variables, which should be
-    // fine as long as these globals only have effects in this file
-    // also we should only call these functions from the main thread
-    static GameState s_state{};
     static Texture card_frame{};
+
+    // used for ease in / out animation
+    // t: time since action began
+    // duration: time it takes to go from 0 to 1
+    float animate(float t, float duration)
+    {
+        t /= duration;
+        if(t <= 0.5f) return 2.0f * t * t;
+        t -= 0.5f;
+        if (t <= 0.5f) return 2.0f * t * (1.0f - t) + 0.5f;
+        return 1;
+    }
 
     void load_textures() {
         card_frame = Texture::load("assets/frame.png");
-        //player_id = std::move(_player_id);
     }
 
-    void debug_game_state() {
+    void debug_game_state(const Data &data) {
         ImGui::Begin("Debug");
-        json data;
-        to_json(data, s_state);
-        ImGui::TextWrapped("%s", data.dump(4).c_str());
+        json json_data;
+        to_json(json_data, data.game_state);
+        ImGui::TextWrapped("%s", json_data.dump(4).c_str());
         ImGui::End();
     }
 
-    void show_waiting_text() {
-        std::string wait_text = std::format("waiting ({} / 4)...", s_state.get_players().size());
+    void show_waiting_text(const Data &data) {
+        std::string wait_text = std::format("waiting ({} / 4)...", data.game_state.get_players().size());
         hovering_text("wait_text", wait_text, .5f, .5f);
     }
 
@@ -90,19 +99,19 @@ namespace GamePanel {
     }
 
     // returns the calculated card positions, also takes hovered_card_index into account
-    std::vector<glm::vec2> calculate_card_positions(int n_cards, glm::vec2 card_size, float spread_start, float spread_end, int hover_index) {
-        std::vector<glm::vec2> positions;
+    std::vector<float> calculate_card_positions(int n_cards, glm::vec2 card_size, float spread_start, float spread_end, int hover_index) {
+        std::vector<float> positions;
         positions.resize(n_cards);
 
         if (n_cards == 1) {
             float mid = (spread_end - spread_start) / 2;
-            positions.at(0) = {spread_start + mid, 0};
+            positions.at(0) = spread_start + mid;
             return positions;
         }
 
         float dw = (spread_end - spread_start) / ((float)n_cards - 1);
         for (int i = 0; i < n_cards; i++) {
-            positions.at(i) = {spread_start + dw * (float) i, 0};
+            positions.at(i) = spread_start + dw * (float) i;
         }
 
         if (hover_index == -1) return positions;
@@ -111,7 +120,7 @@ namespace GamePanel {
         if (dw >= card_size.x) return positions;
 
         // the position of the hovered card (should be fixed)
-        float hovered_pos = positions.at(hover_index).x;
+        float hovered_pos = positions.at(hover_index);
 
         // spacing before hovered card
         int pre_n_cards = hover_index + 1;
@@ -123,11 +132,11 @@ namespace GamePanel {
 
         for (int i = 0; i < n_cards; i++) {
             if (i < hover_index) {
-                positions.at(i).x = spread_start + pre_dw * (float)i;
+                positions.at(i) = spread_start + pre_dw * (float)i;
             } else if (i > hover_index) {
-                positions.at(i).x = hovered_pos + card_size.x + post_dw * (float)(i - hover_index - 1);
+                positions.at(i) = hovered_pos + card_size.x + post_dw * (float)(i - hover_index - 1);
             } else {
-                positions.at(i).x = hovered_pos;
+                positions.at(i) = hovered_pos;
             }
         }
 
@@ -137,7 +146,7 @@ namespace GamePanel {
     // return the index of the local Player
     int get_my_index(const Data &data) {
         if (!data.player_id.has_value()) return -1;
-        auto &players = s_state.get_players();
+        auto &players = data.game_state.get_players();
         auto it = std::find_if(players.begin(), players.end(), [&data](const player_ptr& p) { return data.player_id.value() == p->get_id(); });
         if (it == players.end()) {
             return -1;
@@ -147,7 +156,7 @@ namespace GamePanel {
     }
 
     bool is_my_turn(const Data &data) {
-        auto c_player = s_state.get_current_player();
+        auto c_player = data.game_state.get_current_player();
         if (!c_player.has_value()) return false;
 
         return c_player->get_id() == data.player_id;
@@ -155,11 +164,9 @@ namespace GamePanel {
 
     void show_player_cards(Data *data) {
         const float ar = Application::get_aspect_ratio();
-        const float rel_card_width = 0.1;
-        const float rel_card_height = 0.15;
-        const float card_y_offset = -rel_card_width * rel_card_height;
+        const float card_y_offset = -rel_card_size.x * rel_card_size.y;
 
-        glm::vec2 card_size = {rel_card_width, rel_card_height * ar};
+        glm::vec2 card_size = {rel_card_size.x, rel_card_size.y * ar};
 
         int player_index = get_my_index(*data);
         if (player_index == -1) {
@@ -167,7 +174,7 @@ namespace GamePanel {
             return;
         }
 
-        auto &hand = s_state.get_players().at(player_index)->get_hand();
+        auto &hand = data->game_state.get_players().at(player_index)->get_hand();
         int n_cards = hand.get_nof_cards();
 
         const float hover_height = .05f;
@@ -181,11 +188,14 @@ namespace GamePanel {
         glm::vec2 mouse = {mouse_position.x, 1 - mouse_position.y}; // fix opengl orientation
 
         int current_hover = data->hovered_card_index;
-        auto positions = calculate_card_positions(n_cards, card_size, spread_start, spread_end, current_hover);
+        auto x_pos = calculate_card_positions(n_cards, card_size, spread_start, spread_end, current_hover);
+        std::vector<glm::vec2> positions;
+        for (auto &p : x_pos) positions.emplace_back(p, 0);
 
         // change height of hovered card
         if (current_hover >= 0) {
-            positions.at(current_hover).y = hover_height;
+            float elapsed = (float)(clock() - data->begin_hover_time) / CLOCKS_PER_SEC;
+            positions.at(current_hover).y = hover_height * animate(elapsed, .1f);
         }
 
         // check if any card is hovered
@@ -199,8 +209,9 @@ namespace GamePanel {
             if (i != n_cards - 1) card_end = positions.at(i + 1).x;
             float card_top = positions.at(i).y + card_size.y;
 
-            if (mouse.x > card_begin && mouse.x < card_end && mouse.y < card_top) {
+            if (mouse.x > card_begin && mouse.x < card_end && mouse.y < card_top && mouse.y >= 0) {
                 hovered_any = true;
+                if (i != data->hovered_card_index) data->begin_hover_time = clock();
                 data->hovered_card_index = i;
 
                 if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
@@ -215,7 +226,10 @@ namespace GamePanel {
             }
         }
 
-        if (mouse.y < 0 || !hovered_any) data->hovered_card_index = -1;
+        if (!hovered_any) {
+            data->begin_hover_time = -1;
+            data->hovered_card_index = -1;
+        }
 
         if (!hovered_any && ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
             // if play was pressed we should clear this set when sending the message
@@ -231,21 +245,24 @@ namespace GamePanel {
 
         // draw all cards except hovered card
         for (int i = 0; i < n_cards; i++) {
+            if (i == current_hover) continue;
             auto pos = positions.at(i);
             auto &card = hand.get_cards().at(i);
             draw_card(pos, card_size, 0, data->selected_cards.contains(card));
         }
 
         // draw hovered card last
+        const float hover_angle = .1f;
+        const float d_angle = hover_angle * 2.f/ (float)n_cards;
         if (current_hover != -1) {
             auto &card = hand.get_cards().at(current_hover);
             auto pos = positions.at(current_hover);
-            draw_card(pos, card_size, 0, data->selected_cards.contains(card));
+            draw_card(pos, card_size, hover_angle - d_angle * (float)current_hover, data->selected_cards.contains(card));
         }
     }
 
     void show_enemy_cards(const Data &data) {
-        auto &players = s_state.get_players();
+        auto &players = data.game_state.get_players();
         int n_players = (int)players.size();
 
         auto local_player_index = get_my_index(data);
@@ -262,81 +279,80 @@ namespace GamePanel {
         int nTop = n_enemy_cards.at(1);
         int nRight = n_enemy_cards.at(2);
         float ar = Application::get_aspect_ratio();
-        const float relWidth = .1f;
-        const float relHeight = .15f;
-        glm::vec2 card_size = {relWidth, relHeight * ar};
-        const float spreadStart = padding * 2;
-        const float spreadEnd = 1 - padding * 2 - card_size.x;
+        glm::vec2 card_size = {rel_card_size.x, rel_card_size.y * ar};
+        const float spread_start = padding * 2;
+        const float spread_end = 1 - padding * 2 - card_size.x;
 
-        auto leftPositions = calculate_card_positions(nLeft, card_size, spreadStart, spreadEnd, -1);
-        auto rightPositions = calculate_card_positions(nRight, card_size, spreadStart, spreadEnd, -1);
-        auto topPositions = calculate_card_positions(nTop, card_size, spreadStart, spreadEnd, -1);
+        auto left_pos = calculate_card_positions(nLeft, card_size, spread_start, spread_end, -1);
+        auto right_pos = calculate_card_positions(nRight, card_size, spread_start, spread_end, -1);
+        auto top_pos = calculate_card_positions(nTop, card_size, spread_start, spread_end, -1);
+
+        float start_angle = -0.1f;
+        float end_angle = 0.1f;
+        float d_angle;
 
         // cards on the left
-        for (auto &pos: leftPositions) {
-            // rotate cards and adjust for aspect ratio
-            std::swap(pos.x, pos.y);
-            glm::vec2 size = {relWidth * ar, relHeight};
-            // move up after rotation
-            pos.y += card_size.x;
-            pos.x = -card_size.x * 0.25f;
-            draw_card(pos, size, -PI / 2);
+        d_angle = (end_angle - start_angle) / (float)left_pos.size();
+        for (int i = 0; i < left_pos.size(); i++) {
+            auto &pos_y = left_pos.at(i);
+            const glm::vec2 size = {rel_card_size.x * ar, rel_card_size.y};
+            // move card up because we rotate at the corner
+            pos_y += card_size.x;
+            float pos_x = -card_size.x * 0.25f;
+            draw_card({pos_x, pos_y}, size, -PI / 2 + start_angle + d_angle * (float)i);
         }
 
         // cards on the right
-        for (auto &pos: rightPositions) {
-
-            // rotate cards and adjust for aspect ratio
-            std::swap(pos.x, pos.y);
-            glm::vec2 size = {relWidth * ar, relHeight};
-            // move up after rotation
-            pos.y += card_size.x;
-            pos.x = 1 - card_size.x * 1.25f;
-            draw_card(pos, size, -PI / 2);
+        d_angle = (start_angle - end_angle) / (float)right_pos.size();
+        for (int i = 0; i < right_pos.size(); i++) {
+            auto &pos_y = right_pos.at(i);
+            const glm::vec2 size = {rel_card_size.x * ar, rel_card_size.y};
+            float pos_x = 1 + card_size.x * 0.25f;
+            draw_card({pos_x, pos_y}, size, PI / 2 + end_angle + d_angle * (float)i);
         }
 
-        for (auto &pos: topPositions) {
-            // cards on the top
-            pos.y = 1 - card_size.y * 0.75f;
-            draw_card(pos, card_size);
+        // cards on the top
+        d_angle = (end_angle - start_angle) / (float)top_pos.size();
+        for (int i = 0; i < top_pos.size(); i++) {
+            auto &pos_x = top_pos.at(i);
+            float pos_y = 1 + card_size.y * 0.25f;
+            pos_x += card_size.x;
+            draw_card({pos_x, pos_y}, card_size, PI + start_angle + d_angle * (float)i);
 
         }
     }
 
-    void show_top_combi() {
-        auto combi = s_state.get_active_pile().get_top_combi();
+    void show_top_combi(const Data &data) {
+        auto combi = data.game_state.get_active_pile().get_top_combi();
         if (!combi.has_value()) return;
 
         const auto &cards = combi->get_cards();
+        int n_cards = (int)cards.size();
 
         float ar = Application::get_aspect_ratio();
-        const float relWidth = .1f;
-        const float relHeight = .15f;
-        glm::vec2 card_size = {relWidth, relHeight * ar};
+        glm::vec2 card_size = {rel_card_size.x, rel_card_size.y * ar};
         const float spread_start = padding * 2;
         const float spread_end = 1 - card_size.x - padding * 2;
-        auto positions = calculate_card_positions((int)cards.size(), card_size, spread_start, spread_end, -1);
+        auto x_pos = calculate_card_positions(n_cards, card_size, spread_start, spread_end, -1);
 
-        // move cards to the middle of the screen
-        for (auto &pos : positions) {
-            pos.y += .5f - card_size.y / 2.f;
-        }
-
-        for (auto &pos : positions) {
-            draw_card(pos, card_size);
+        float angle = 0;
+        for (auto &pos_x : x_pos) {
+            float pos_y = .5f - card_size.y / 2.f;
+            draw_card({pos_x, pos_y}, card_size, angle);
+            angle -= .1;
         }
     }
 
     void show_game_stats(const Data &data) {
-        auto &players = s_state.get_players();
-        auto c_player = s_state.get_current_player();
+        auto &players = data.game_state.get_players();
+        auto c_player = data.game_state.get_current_player();
 
         auto style = ImGui::ScopedStyle();
 
-        std::string title = data.state == State::LOBBY ? "Lobby" : "Tichu";
+        std::string title = data.panel_state == State::LOBBY ? "Lobby" : "Tichu";
         title += "###GameStats";
         ImGui::Begin(title.c_str(), nullptr, ImGuiWindowFlags_NoCollapse);
-        switch (data.state) {
+        switch (data.panel_state) {
             case LOBBY:
                 break;
             case GAME: {
@@ -350,9 +366,9 @@ namespace GamePanel {
 
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn();
-                ImGui::Text("%s", std::to_string(s_state.get_score_team_A()).c_str());
+                ImGui::Text("%s", std::to_string(data.game_state.get_score_team_A()).c_str());
                 ImGui::TableNextColumn();
-                ImGui::Text("%s", std::to_string(s_state.get_score_team_B()).c_str());
+                ImGui::Text("%s", std::to_string(data.game_state.get_score_team_B()).c_str());
 
                 ImGui::EndTable();
                 break;
@@ -371,15 +387,12 @@ namespace GamePanel {
                 case Team::B:
                     name = "[B] ";
                     break;
-                case Team::None:
-                    name = "[NONE] ";
-                    break;
             }
             name += player->get_player_name();
             if (player->get_id() == data.player_id) name += " (you)";
 
             const char *fmt = "%s";
-            if (data.state == State::GAME && c_player.has_value() && *c_player == *player) {
+            if (data.panel_state == State::GAME && c_player.has_value() && *c_player == *player) {
                 fmt = "> %s"; // indicate current Player
             }
             ImGui::Text(fmt, name.c_str());
@@ -391,7 +404,7 @@ namespace GamePanel {
     void show_lobby(Data *data) {
 
 
-        if (s_state.get_players().size() == 4) {
+        if (data->game_state.get_players().size() == 4) {
             rel_fix_next_window(.5f, .5f);
             begin_frameless_window("start game button");
             if (ImGui::Button("start game")) {
@@ -399,7 +412,7 @@ namespace GamePanel {
             }
             ImGui::End();
         } else {
-            show_waiting_text();
+            show_waiting_text(*data);
         }
     }
 
@@ -427,15 +440,15 @@ namespace GamePanel {
         Renderer::clear(RGBA::from(ImGui::DARK_GREY));
         Renderer::set_camera(0, 1, 0, 1);
 
-        show_player_cards(data);
         show_enemy_cards(*data);
-        show_top_combi();
+        show_top_combi(*data);
+        show_player_cards(data);
     }
 
     void show(Data *data) {
         show_game_stats(*data);
 
-        switch (data->state) {
+        switch (data->panel_state) {
             case LOBBY:
                 show_lobby(data);
                 break;
@@ -445,7 +458,4 @@ namespace GamePanel {
         }
     }
 
-    void update(const GameState &_state) {
-        s_state = _state;
-    }
 } // GamePanel

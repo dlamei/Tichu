@@ -18,7 +18,7 @@ set(COMMON_SOURCE_FILES
         src/common/game_state/cards/ActivePile.cpp src/common/game_state/cards/ActivePile.h
         src/common/game_state/cards/CardCombination.cpp src/common/game_state/cards/CardCombination.h
 		src/common/utils.cpp
-        src/common/Messages.h
+		src/common/Messages.h
 )
 
 set(CLIENT_SOURCE_FILES

@@ -8,73 +8,51 @@
 TEST(SerializationTest, JoinGameRequest) {
     auto join_game = join_game_req {"name"};
     auto player_id = UUID::create();
-    auto game_id = UUID::create();
 
-    auto send = ClientMsg(player_id, game_id, join_game);
+    auto send = ClientMsg(player_id, join_game);
     json data;
     to_json(data, send);
     ClientMsg receive;
     from_json(data, receive);
 
     EXPECT_EQ(receive.get_type(), ClientMsgType::join_game);
-    EXPECT_EQ(receive.get_game_id(), send.get_game_id());
     EXPECT_EQ(receive.get_player_id(), send.get_player_id());
     EXPECT_EQ(receive.get_msg_data<join_game_req>().player_name, join_game.player_name);
 }
 
 TEST(SerializationTest, StartGameRequest) {
     auto player_id = UUID::create();
-    auto game_id = UUID::create();;
 
-    auto send = ClientMsg(player_id, game_id, start_game_req {});
+    auto send = ClientMsg(player_id, start_game_req {});
     json data;
     to_json(data, send);
     ClientMsg receive;
     from_json(data, receive);
 
     EXPECT_EQ(receive.get_type(), ClientMsgType::start_game);
-    EXPECT_EQ(receive.get_game_id(), send.get_game_id());
     EXPECT_EQ(receive.get_player_id(), send.get_player_id());
     ASSERT_NO_THROW(receive.get_msg_data<start_game_req>());
 }
 
 TEST(SerializationTest, FoldRequest) {
     auto player_id = UUID::create();
-    auto game_id = UUID::create();;
 
-    auto send = ClientMsg(player_id, game_id, fold_req {});
+    auto send = ClientMsg(player_id, fold_req {});
     json data;
     to_json(data, send);
     ClientMsg receive;
     from_json(data, receive);
 
     EXPECT_EQ(receive.get_type(), ClientMsgType::fold);
-    EXPECT_EQ(receive.get_game_id(), send.get_game_id());
     EXPECT_EQ(receive.get_player_id(), send.get_player_id());
     ASSERT_NO_THROW(receive.get_msg_data<fold_req>());
 }
-
-/*
-TEST(SerializationTest, DrawCardRequest) {
-    auto draw_card = draw_card_req { 314 };
-    auto player_id = UUID::create();
-    auto game_id = UUID::create();;
-
-    auto send = ClientMsg(player_id, game_id, draw_card);
-    auto receive = ClientMsg::from_json(*send.to_json());
-
-    EXPECT_EQ(receive.get_type(), ClientMsgType::draw_card);
-    EXPECT_EQ(receive.get_game_id(), send.get_game_id());
-    EXPECT_EQ(receive.get_player_id(), send.get_player_id());
-    EXPECT_EQ(receive.get_msg_data<draw_card_req>().nof_cards, draw_card.nof_cards);
-}
-*/
 
 TEST(SerializationTest, Card) {
     auto send = Card(1, 2, 3);
     json data;
     to_json(data, send);
-    Card receive;
+    Card receive{};
     from_json(data, receive);
 
     EXPECT_EQ(send.get_rank(), receive.get_rank());
