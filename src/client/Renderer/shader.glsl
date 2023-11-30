@@ -41,42 +41,106 @@ void main() {
     frag_col = vec4(1.f, 0.f, 1.f, 1.f);
 
     switch (vert_tex_id) {
-        // needed because some opengl versions don't support dynamic indexing of sampler arrays
-        CASE_ID(0);
-        CASE_ID(1);
-        CASE_ID(2);
-        CASE_ID(3);
-        CASE_ID(4);
-        CASE_ID(5);
-        CASE_ID(6);
-        CASE_ID(7);
-        CASE_ID(8);
-        CASE_ID(9);
-        CASE_ID(10);
-        CASE_ID(11);
-        CASE_ID(12);
-        CASE_ID(13);
-        CASE_ID(14);
-        CASE_ID(15);
-        CASE_ID(16);
-        CASE_ID(17);
-        CASE_ID(18);
-        CASE_ID(19);
-        CASE_ID(20);
-        CASE_ID(21);
-        CASE_ID(22);
-        CASE_ID(23);
-        CASE_ID(24);
-        CASE_ID(25);
-        CASE_ID(26);
-        CASE_ID(27);
-        CASE_ID(28);
-        CASE_ID(29);
-        CASE_ID(30);
-        CASE_ID(31);
-
-        default:
-            break;
+        // needed because some opengl compilers don't support dynamic indexing of sampler arrays
+        // also macros don't work on macos?
+    case 0:
+        frag_col = texture(u_texture_slots[0], vert_uv);
+        break;
+    case 1:
+        frag_col = texture(u_texture_slots[1], vert_uv);
+        break;
+    case 2:
+        frag_col = texture(u_texture_slots[2], vert_uv);
+        break;
+    case 3:
+        frag_col = texture(u_texture_slots[3], vert_uv);
+        break;
+    case 4:
+        frag_col = texture(u_texture_slots[4], vert_uv);
+        break;
+    case 5:
+        frag_col = texture(u_texture_slots[5], vert_uv);
+        break;
+    case 6:
+        frag_col = texture(u_texture_slots[6], vert_uv);
+        break;
+    case 7:
+        frag_col = texture(u_texture_slots[7], vert_uv);
+        break;
+    case 8:
+        frag_col = texture(u_texture_slots[8], vert_uv);
+        break;
+    case 9:
+        frag_col = texture(u_texture_slots[9], vert_uv);
+        break;
+    case 10:
+        frag_col = texture(u_texture_slots[10], vert_uv);
+        break;
+    case 11:
+        frag_col = texture(u_texture_slots[11], vert_uv);
+        break;
+    case 12:
+        frag_col = texture(u_texture_slots[12], vert_uv);
+        break;
+    case 13:
+        frag_col = texture(u_texture_slots[13], vert_uv);
+        break;
+    case 14:
+        frag_col = texture(u_texture_slots[14], vert_uv);
+        break;
+    case 15:
+        frag_col = texture(u_texture_slots[15], vert_uv);
+        break;
+    case 16:
+        frag_col = texture(u_texture_slots[16], vert_uv);
+        break;
+    case 17:
+        frag_col = texture(u_texture_slots[17], vert_uv);
+        break;
+    case 18:
+        frag_col = texture(u_texture_slots[18], vert_uv);
+        break;
+    case 19:
+        frag_col = texture(u_texture_slots[19], vert_uv);
+        break;
+    case 20:
+        frag_col = texture(u_texture_slots[20], vert_uv);
+        break;
+    case 21:
+        frag_col = texture(u_texture_slots[21], vert_uv);
+        break;
+    case 22:
+        frag_col = texture(u_texture_slots[22], vert_uv);
+        break;
+    case 23:
+        frag_col = texture(u_texture_slots[23], vert_uv);
+        break;
+    case 24:
+        frag_col = texture(u_texture_slots[24], vert_uv);
+        break;
+    case 25:
+        frag_col = texture(u_texture_slots[25], vert_uv);
+        break;
+    case 26:
+        frag_col = texture(u_texture_slots[26], vert_uv);
+        break;
+    case 27:
+        frag_col = texture(u_texture_slots[27], vert_uv);
+        break;
+    case 28:
+        frag_col = texture(u_texture_slots[28], vert_uv);
+        break;
+    case 29:
+        frag_col = texture(u_texture_slots[29], vert_uv);
+        break;
+    case 30:
+        frag_col = texture(u_texture_slots[30], vert_uv);
+        break;
+    case 31:
+        frag_col = texture(u_texture_slots[31], vert_uv);
+        break;
+    default:
+        break;
     }
 
     frag_col *= vert_col;
