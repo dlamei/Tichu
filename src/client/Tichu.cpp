@@ -1,6 +1,7 @@
 #include "Tichu.h"
 
 #include "Renderer/renderer.h"
+#include "../common/listener.h"
 
 void TichuGame::send_message(const ClientMsg &msg) {
     if (_connection.is_connected()) {
@@ -74,7 +75,7 @@ void TichuGame::handle_gui_output() {
 
     if (_game_panel_data.pressed_fold) {
         _game_panel_data.pressed_fold = false;
-        send_message(ClientMsg(_connection_data.id, fold_req{}));
+        send_message(ClientMsg(_connection_data.id, play_combi_req{}));
     }
     if (_game_panel_data.pressed_play) {
         _game_panel_data.pressed_play = false;
@@ -85,57 +86,12 @@ void TichuGame::handle_gui_output() {
 
 }
 
-std::optional<ServerMsg> parse_message(const std::string &msg) {
-    try {
-        ServerMsg server_msg;
-        json data = json::parse(msg);
-        DEBUG("received: {}", data.dump(4));
-        from_json(data, server_msg);
-        return server_msg;
-    } catch (const std::exception &e) {
-        ERROR("failed to parse message from server:\n{}\n{}", msg, e.what());
-        return {};
-    }
-}
-
-void listen_to_messages(sockpp::tcp_connector &connection, MessageQueue<ServerMsg> *queue) {
-    ssize_t count{};
-    char msg_size_str[sizeof(int) * 2]{};
-
-    while (true) {
-        // read the length of the message
-        count = connection.read_n(msg_size_str, sizeof(int) * 2);
-        if (count != sizeof(int) * 2) break;
-
-        int size;
-        try {
-            size = (int) std::stoul(msg_size_str, nullptr, 16); // 16 for hexadecimal
-        } catch (std::exception &e) {
-            // maybe delimiter so we can try to recover, but since its tcp not sure if necessary
-            ERROR("while trying to parse message size from string: {}", msg_size_str);
-            break;
-        }
-
-        // skip the ':' after the message size
-        char c{};
-        connection.read_n(&c, 1);
-        ASSERT(c == ':', "invalid message format");
-
-        std::vector<char> buffer;
-        buffer.resize(size);
-        connection.read_n(buffer.data(), size);
-        std::string message = std::string(buffer.begin(), buffer.end());
-
-        //TODO:
-        // what do we do if parsing / reading failed?
-        // does that not automatically mean that there is a bug in the encode / decoding
-        // so not fixable at runtime ?
-        auto msg = parse_message(message);
-        if (msg) {
-            queue->push(msg.value());
-        }
-    }
-
+ServerMsg parse_message(const std::string &msg) {
+    ServerMsg server_msg;
+    json data = json::parse(msg);
+    DEBUG("received: {}", data.dump(4));
+    from_json(data, server_msg);
+    return server_msg;
 }
 
 void TichuGame::connect_to_server() {
@@ -147,12 +103,7 @@ void TichuGame::connect_to_server() {
         _listener.join();
     }
 
-    try {
-        address = sockpp::inet_address(_connection_data.host, _connection_data.port);
-    } catch (const std::exception &e) {
-        show_msg(MessageType::Warn, std::format("Failed to resolve address: {}", e.what()));
-        return;
-    }
+    address = sockpp::inet_address(_connection_data.host, _connection_data.port);
 
     if (!_connection.connect(address)) {
         show_msg(MessageType::Warn, "Failed to connect to server:\n " + address.to_string());
@@ -160,13 +111,7 @@ void TichuGame::connect_to_server() {
     }
 
     _connection_data.status = "Connected to " + address.to_string();
-
-    try {
-        _listener = std::thread(listen_to_messages, std::ref(_connection), &_server_msgs);
-    } catch (std::exception &e) {
-        ERROR("while creating listener thread: {}", e.what());
-        return;
-    }
+    _listener = std::thread(tcp_listener<ServerMsg>, _connection.clone(), parse_message, &_server_msgs);
 
     // send join request after listener is created
     auto client_req = ClientMsg(_connection_data.id, join_game_req{.player_name = _connection_data.name});
@@ -190,7 +135,8 @@ void TichuGame::process_messages() {
                 break;
             }
             default:
-                show_msg(MessageType::Error, std::format("unknown ServerMsgType: {} was not handled!", (int)msg.get_type()));
+                std::string msg_str = "unknown ServerMsgType: " + std::to_string((int) msg.get_type());
+                show_msg(MessageType::Error, msg_str);
                 break;
         }
     }

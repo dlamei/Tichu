@@ -77,7 +77,7 @@ namespace GamePanel {
     }
 
     void show_waiting_text(const Data &data) {
-        std::string wait_text = std::format("waiting ({} / 4)...", data.game_state.get_players().size());
+        std::string wait_text = "waiting (" + std::to_string(data.game_state.get_players().size()) + "/ 4)...";
         hovering_text("wait_text", wait_text, .5f, .5f);
     }
 
@@ -327,7 +327,7 @@ namespace GamePanel {
         if (!combi.has_value()) return;
 
         const auto &cards = combi->get_cards();
-        int n_cards = (int)cards.size();
+        int n_cards = 4;
 
         float ar = Application::get_aspect_ratio();
         glm::vec2 card_size = {rel_card_size.x, rel_card_size.y * ar};

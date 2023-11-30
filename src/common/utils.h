@@ -217,6 +217,5 @@ private:
 };
 
 
-// function for creating a tcp listener thread that pushes read messages in a queue
 
 #endif //TICHU_UTILS_H

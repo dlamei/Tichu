@@ -69,10 +69,8 @@ void server_network_manager::read_message(sockpp::tcp_socket socket, const std::
 
     //char buffer[512]; // 512 bytes
     char msg_size_str[sizeof(int) * 2];
-    ssize_t count = 0;
-    ssize_t msg_bytes_read = 0;
-    ssize_t msg_length = 0;
 
+    int count;
     //while ((count = socket.read(buffer, sizeof(buffer))) > 0) {
     while (true) {
         try {
