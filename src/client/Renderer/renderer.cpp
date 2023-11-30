@@ -255,7 +255,7 @@ namespace Renderer {
         s_render_cntxt.rect_mode = mode;
     }
 
-    void Renderer::rect(const glm::vec2 &pos, const glm::vec2 &size, RGBA color, float rotation) {
+    void rect(const glm::vec2 &pos, const glm::vec2 &size, RGBA color, float rotation) {
         rect_impl(pos, size, color, s_render_cntxt.white_texture, rotation);
     }
 

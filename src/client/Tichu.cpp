@@ -3,6 +3,8 @@
 #include "Renderer/renderer.h"
 #include "../common/listener.h"
 
+#include <imgui.h>
+
 void TichuGame::send_message(const ClientMsg &msg) {
     if (_connection.is_connected()) {
         json data;
@@ -35,6 +37,7 @@ void TichuGame::on_detach() {
 }
 
 void TichuGame::on_update(TimeStep ts) {
+    ImGui::ShowDemoWindow();
     process_messages();
     show();
     handle_gui_output();
