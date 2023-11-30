@@ -91,54 +91,6 @@ void main() {
     case 15:
         frag_col = texture(u_texture_slots[15], vert_uv);
         break;
-    case 16:
-        frag_col = texture(u_texture_slots[16], vert_uv);
-        break;
-    case 17:
-        frag_col = texture(u_texture_slots[17], vert_uv);
-        break;
-    case 18:
-        frag_col = texture(u_texture_slots[18], vert_uv);
-        break;
-    case 19:
-        frag_col = texture(u_texture_slots[19], vert_uv);
-        break;
-    case 20:
-        frag_col = texture(u_texture_slots[20], vert_uv);
-        break;
-    case 21:
-        frag_col = texture(u_texture_slots[21], vert_uv);
-        break;
-    case 22:
-        frag_col = texture(u_texture_slots[22], vert_uv);
-        break;
-    case 23:
-        frag_col = texture(u_texture_slots[23], vert_uv);
-        break;
-    case 24:
-        frag_col = texture(u_texture_slots[24], vert_uv);
-        break;
-    case 25:
-        frag_col = texture(u_texture_slots[25], vert_uv);
-        break;
-    case 26:
-        frag_col = texture(u_texture_slots[26], vert_uv);
-        break;
-    case 27:
-        frag_col = texture(u_texture_slots[27], vert_uv);
-        break;
-    case 28:
-        frag_col = texture(u_texture_slots[28], vert_uv);
-        break;
-    case 29:
-        frag_col = texture(u_texture_slots[29], vert_uv);
-        break;
-    case 30:
-        frag_col = texture(u_texture_slots[30], vert_uv);
-        break;
-    case 31:
-        frag_col = texture(u_texture_slots[31], vert_uv);
-        break;
     default:
         break;
     }

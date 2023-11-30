@@ -1,6 +1,7 @@
 #include "Server.h"
 #include "../common/listener.h"
 #include "request_handler.h"
+#include <sstream>
 
 void await_connections(const uint16_t port, MessageQueue<ConnectionData> *queue) {
     auto _acceptor = sockpp::tcp_acceptor(port);

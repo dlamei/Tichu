@@ -478,6 +478,7 @@ namespace GamePanel {
             if (data.panel_state == State::GAME && c_player.has_value() && *c_player == *player) {
                 fmt = "> %s"; // indicate current Player
             }
+            ImVec4 text_col = ImGui::WHITE;
             ImGui::Text(fmt, name.c_str());
         }
         ImGui::EndChild();
@@ -526,6 +527,16 @@ namespace GamePanel {
         show_enemy_cards(*data);
         show_top_combi(*data);
         show_player_cards(data);
+    }
+
+    void show_swap_window(Data *data) {
+        auto indx = get_my_index(*data);
+        if (indx == -1) {
+            ERROR("could not find local player for swap_window");
+            return;
+        }
+        ImGui::Begin("Swap");
+        ImGui::End();
     }
 
     void show(Data *data) {

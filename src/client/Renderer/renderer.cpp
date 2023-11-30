@@ -16,7 +16,7 @@ struct RenderContext {
 
     static constexpr uint32_t MAX_VERTICES = 4 * 1000;
     static constexpr uint32_t MAX_INDICES = 6 * 1000;
-    static constexpr uint32_t MAX_TEXTURE_SLOT = 32;
+    static constexpr uint32_t MAX_TEXTURE_SLOT = 16;
 
     FrameBuffer frame_buffer{};
     Shader shader{};
