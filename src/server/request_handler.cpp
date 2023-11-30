@@ -62,7 +62,7 @@ namespace request_handler {
                     if (game_instance->play_combi(player, combi, err)) {
                         return ServerMsg(full_state_response {game_instance->get_game_state()});
                     } else {
-                        return ServerMsg(server_message(MessageType::Info, err));
+                        return ServerMsg(server_message{MessageType::Info, err});
                     }
                 }
                 auto resp = server_message{MessageType::Error, err };

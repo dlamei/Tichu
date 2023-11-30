@@ -310,7 +310,7 @@ Texture::~Texture() {
 }
 
 Texture Texture::load(const std::filesystem::path &path) {
-    uint32_t width, height, n_chanels, id;
+    uint32_t width{}, height{}, n_chanels{}, id{};
     gl_utils::load_texture2d(path.string(), &width, &height, &n_chanels, &id);
     return Texture{width, height, n_chanels, id};
 }

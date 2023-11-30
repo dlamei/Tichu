@@ -67,7 +67,7 @@ void Window::init(const WindowCreateInfo &info) {
         glfwGetFramebufferSize(_window, &w, &h);
     }
 
-    glfwSetInputMode(_window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+    glfwSetInputMode(_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     glfwSetWindowUserPointer(_window, this);
     set_vsync(info.vsync);
 

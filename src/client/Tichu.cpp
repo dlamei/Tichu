@@ -37,7 +37,6 @@ void TichuGame::on_detach() {
 }
 
 void TichuGame::on_update(TimeStep ts) {
-    ImGui::ShowDemoWindow();
     process_messages();
     show();
     handle_gui_output();

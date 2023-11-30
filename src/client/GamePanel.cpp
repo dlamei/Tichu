@@ -1,7 +1,6 @@
 #include "GamePanel.h"
 
 #include <glm/gtx/transform.hpp>
-#include <utility>
 #include <set>
 #include <ctime>
 
@@ -9,6 +8,7 @@
 #include "Renderer/imgui_build.h"
 #include "misc/cpp/imgui_stdlib.h"
 #include "Renderer/renderer.h"
+#include <map>
 
 #include "panels.h"
 
@@ -51,6 +51,69 @@ namespace GamePanel {
     const glm::vec2 rel_card_size = {0.1f, 0.15f};
 
     static Texture card_frame{};
+    const std::map<Card, const char *> card_to_asset = {
+            { Card(TWO,     SCHWARZ),     "row-1-column-1" },
+            { Card(THREE,   SCHWARZ),     "row-1-column-2" },
+            { Card(FOUR,    SCHWARZ),     "row-1-column-3" },
+            { Card(FIVE,    SCHWARZ),     "row-1-column-4" },
+            { Card(SIX,     SCHWARZ),     "row-1-column-5" },
+            { Card(SEVEN,   SCHWARZ),     "row-1-column-6" },
+            { Card(EIGHT,   SCHWARZ),     "row-1-column-7" },
+            { Card(NINE,    SCHWARZ),     "row-1-column-8" },
+            { Card(TEN,     SCHWARZ),     "row-1-column-9" },
+            { Card(JACK,    SCHWARZ),     "row-1-column-10" },
+            { Card(QUEEN,    SCHWARZ),    "row-1-column-11" },
+            { Card(KING,    SCHWARZ),     "row-1-column-12" },
+            { Card(ACE,     SCHWARZ),     "row-1-column-13" },
+
+            { Card(TWO,     RED),     "row-2-column-1" },
+            { Card(THREE,   RED),     "row-2-column-2" },
+            { Card(FOUR,    RED),     "row-2-column-3" },
+            { Card(FIVE,    RED),     "row-2-column-4" },
+            { Card(SIX,     RED),     "row-2-column-5" },
+            { Card(SEVEN,   RED),     "row-2-column-6" },
+            { Card(EIGHT,   RED),     "row-2-column-7" },
+            { Card(NINE,    RED),     "row-2-column-8" },
+            { Card(TEN,     RED),     "row-2-column-9" },
+            { Card(JACK,    RED),     "row-2-column-10" },
+            { Card(QUEEN,   RED),    "row-2-column-11" },
+            { Card(KING,    RED),     "row-2-column-12" },
+            { Card(ACE,     RED),     "row-2-column-13" },
+
+            { Card(TWO,     BLUE),     "row-3-column-1" },
+            { Card(THREE,   BLUE),     "row-3-column-2" },
+            { Card(FOUR,    BLUE),     "row-3-column-3" },
+            { Card(FIVE,    BLUE),     "row-3-column-4" },
+            { Card(SIX,     BLUE),     "row-3-column-5" },
+            { Card(SEVEN,   BLUE),     "row-3-column-6" },
+            { Card(EIGHT,   BLUE),     "row-3-column-7" },
+            { Card(NINE,    BLUE),     "row-3-column-8" },
+            { Card(TEN,     BLUE),     "row-3-column-9" },
+            { Card(JACK,    BLUE),     "row-3-column-10" },
+            { Card(QUEEN,   BLUE),     "row-4-column-11" },
+            { Card(KING,    BLUE),     "row-3-column-12" },
+            { Card(ACE,     BLUE),     "row-3-column-13" },
+
+            { Card(TWO,     GREEN),     "row-4-column-1" },
+            { Card(THREE,   GREEN),     "row-4-column-2" },
+            { Card(FOUR,    GREEN),     "row-4-column-3" },
+            { Card(FIVE,    GREEN),     "row-4-column-4" },
+            { Card(SIX,     GREEN),     "row-4-column-5" },
+            { Card(SEVEN,   GREEN),     "row-4-column-6" },
+            { Card(EIGHT,   GREEN),     "row-4-column-7" },
+            { Card(NINE,    GREEN),     "row-4-column-8" },
+            { Card(TEN,     GREEN),     "row-4-column-9" },
+            { Card(JACK,    GREEN),     "row-4-column-10" },
+            { Card(QUEEN,   GREEN),     "row-4-column-11" },
+            { Card(KING,    GREEN),     "row-4-column-12" },
+            { Card(ACE,     GREEN),     "row-4-column-13" },
+
+            { Card(SPECIAL, GREEN), "row-1-column-0"}, // phoenix
+            { Card(SPECIAL, RED), "row-2-column-0"}, // dragon
+            { Card(SPECIAL, BLUE), "row-3-column-0"}, // dog
+            { Card(SPECIAL, SCHWARZ), "row-4-column-0"}, // one
+    };
+    static std::map<Card, Texture> card_to_texture;
 
     // used for ease in / out animation
     // t: time since action began
@@ -66,6 +129,13 @@ namespace GamePanel {
 
     void load_textures() {
         card_frame = Texture::load("assets/frame.png");
+
+        for (auto[card, asset] : card_to_asset) {
+            std::string path = "assets/";
+            path += asset + std::string(".png");
+            auto texture = Texture::load(path);
+            card_to_texture.insert({card, texture});
+        }
     }
 
     void debug_game_state(const Data &data) {
@@ -81,14 +151,25 @@ namespace GamePanel {
         hovering_text("wait_text", wait_text, .5f, .5f);
     }
 
-    void draw_card(const glm::vec2 &pos, const glm::vec2 &size, float angle = 0, bool selected = false) {
-
+    void draw_card(const glm::vec2 &pos, const glm::vec2 &size, const std::optional<Card> &card, float angle = 0, bool selected = false) {
         if (selected) {
             glm::vec2 outline_size = size * 1.05f;
             glm::vec2 offset = (outline_size - size) / 2.f;
             Renderer::rect(pos - offset, outline_size, RGBA(255), angle);
         }
-        Renderer::rect_impl(pos, size, RGBA(255), card_frame, angle);
+        Texture card_texture;
+        if (card.has_value() && card_to_texture.contains(*card)) {
+            card_texture = card_to_texture.at(*card);
+        }
+        else if (card.has_value()) {
+            WARN("unknown card found");
+            card_texture = card_frame;
+        }
+        else {
+            card_texture = card_frame;
+        }
+
+        Renderer::rect_impl(pos, size, RGBA(255), card_texture, angle);
     }
 
     bool is_selected(const Card &card, const Data &data) {
@@ -248,7 +329,7 @@ namespace GamePanel {
             if (i == current_hover) continue;
             auto pos = positions.at(i);
             auto &card = hand.get_cards().at(i);
-            draw_card(pos, card_size, 0, data->selected_cards.contains(card));
+            draw_card(pos, card_size, card, 0, data->selected_cards.contains(card));
         }
 
         // draw hovered card last
@@ -257,7 +338,7 @@ namespace GamePanel {
         if (current_hover != -1) {
             auto &card = hand.get_cards().at(current_hover);
             auto pos = positions.at(current_hover);
-            draw_card(pos, card_size, hover_angle - d_angle * (float)current_hover, data->selected_cards.contains(card));
+            draw_card(pos, card_size, card, hover_angle - d_angle * (float)current_hover, data->selected_cards.contains(card));
         }
     }
 
@@ -299,7 +380,7 @@ namespace GamePanel {
             // move card up because we rotate at the corner
             pos_y += card_size.x;
             float pos_x = -card_size.x * 0.25f;
-            draw_card({pos_x, pos_y}, size, -PI / 2 + start_angle + d_angle * (float)i);
+            draw_card({pos_x, pos_y}, size, {}, -PI / 2 + start_angle + d_angle * (float)i);
         }
 
         // cards on the right
@@ -308,7 +389,7 @@ namespace GamePanel {
             auto &pos_y = right_pos.at(i);
             const glm::vec2 size = {rel_card_size.x * ar, rel_card_size.y};
             float pos_x = 1 + card_size.x * 0.25f;
-            draw_card({pos_x, pos_y}, size, PI / 2 + end_angle + d_angle * (float)i);
+            draw_card({pos_x, pos_y}, size, {}, PI / 2 + end_angle + d_angle * (float)i);
         }
 
         // cards on the top
@@ -317,7 +398,7 @@ namespace GamePanel {
             auto &pos_x = top_pos.at(i);
             float pos_y = 1 + card_size.y * 0.25f;
             pos_x += card_size.x;
-            draw_card({pos_x, pos_y}, card_size, PI + start_angle + d_angle * (float)i);
+            draw_card({pos_x, pos_y}, card_size, {}, PI + start_angle + d_angle * (float)i);
 
         }
     }
@@ -327,7 +408,7 @@ namespace GamePanel {
         if (!combi.has_value()) return;
 
         const auto &cards = combi->get_cards();
-        int n_cards = 4;
+        int n_cards = cards.size();
 
         float ar = Application::get_aspect_ratio();
         glm::vec2 card_size = {rel_card_size.x, rel_card_size.y * ar};
@@ -336,9 +417,11 @@ namespace GamePanel {
         auto x_pos = calculate_card_positions(n_cards, card_size, spread_start, spread_end, -1);
 
         float angle = 0;
-        for (auto &pos_x : x_pos) {
+        for (int i = 0; i < n_cards; i++) {
+            auto &pos_x = x_pos.at(i);
+            auto &card = cards.at(i);
             float pos_y = .5f - card_size.y / 2.f;
-            draw_card({pos_x, pos_y}, card_size, angle);
+            draw_card({pos_x, pos_y}, card_size, card, angle);
             angle -= .1;
         }
     }

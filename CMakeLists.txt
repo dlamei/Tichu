@@ -19,6 +19,7 @@ set(COMMON_SOURCE_FILES
         src/common/game_state/cards/CardCombination.cpp src/common/game_state/cards/CardCombination.h
 		src/common/utils.cpp
 		src/common/Messages.h
+		src/common/listener.h
 )
 
 set(CLIENT_SOURCE_FILES
@@ -47,6 +48,8 @@ set(SERVER_SOURCE_FILES
 		src/server/player_manager.cpp src/server/player_manager.h
 		src/server/server_network_manager.cpp src/server/server_network_manager.h
 		src/server/request_handler.h src/server/request_handler.cpp
+        src/server/Server.cpp
+        src/server/Server.h
 )
 
 # --- copy assets into build directory ---
