@@ -67,7 +67,7 @@ endif()
 if(CMAKE_PROJECT_NAME STREQUAL "gtest" OR CMAKE_PROJECT_NAME STREQUAL "googletest-distribution")
 
   # BUILD_SHARED_LIBS is a standard CMake variable, but we declare it here to
-  # make it prominent in the GUI.
+  # make it prominent in the Renderer.
   option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." OFF)
 
 else()

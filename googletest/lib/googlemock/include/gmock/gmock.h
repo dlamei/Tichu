@@ -85,11 +85,11 @@ GMOCK_DECLARE_int32_(default_mock_behavior);
 // been done.
 GTEST_API_ void InitGoogleMock(int* argc, char** argv);
 
-// This overloaded version can be used in Windows programs compiled in
+// This overloaded_server_msg version can be used in Windows programs compiled in
 // UNICODE mode.
 GTEST_API_ void InitGoogleMock(int* argc, wchar_t** argv);
 
-// This overloaded version can be used on Arduino/embedded platforms where
+// This overloaded_server_msg version can be used on Arduino/embedded platforms where
 // there is no argc/argv.
 GTEST_API_ void InitGoogleMock();
 

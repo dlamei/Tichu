@@ -124,9 +124,9 @@ Now you can build and run your test:
 
 <pre>
 <strong>my_workspace$ bazel test --test_output=all //:hello_test</strong>
-INFO: Analyzed target //:hello_test (26 packages loaded, 362 targets configured).
-INFO: Found 1 test target...
-INFO: From Testing //:hello_test:
+Info: Analyzed target //:hello_test (26 packages loaded, 362 targets configured).
+Info: Found 1 test target...
+Info: From Testing //:hello_test:
 ==================== Test output for //:hello_test:
 Running main() from gmock_main.cc
 [==========] Running 1 test from 1 test suite.
@@ -142,12 +142,12 @@ Running main() from gmock_main.cc
 ================================================================================
 Target //:hello_test up-to-date:
   bazel-bin/hello_test
-INFO: Elapsed time: 4.190s, Critical Path: 3.05s
-INFO: 27 processes: 8 internal, 19 linux-sandbox.
-INFO: Build completed successfully, 27 total actions
+Info: Elapsed time: 4.190s, Critical Path: 3.05s
+Info: 27 processes: 8 internal, 19 linux-sandbox.
+Info: Build completed successfully, 27 total actions
 //:hello_test                                                     PASSED in 0.1s
 
-INFO: Build completed successfully, 27 total actions
+Info: Build completed successfully, 27 total actions
 </pre>
 
 Congratulations! You've successfully built and run a test binary using

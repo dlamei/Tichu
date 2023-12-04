@@ -1,5 +1,16 @@
-#include <wx/wx.h>
-#include "app/Tichu.h"
+#include "Tichu.h"
 
-// Macro which will generate a main function which serves as entry point into the program
-wxIMPLEMENT_APP(Tichu);
+int main() {
+
+    ApplicationCreateInfo info{
+            .title = "Tichu",
+            .width = 1500,
+            .height = 1000,
+    };
+
+    Application app(info);
+    app.push_layer(std::make_shared<TichuGame>());
+    app.run();
+
+    return 0;
+}

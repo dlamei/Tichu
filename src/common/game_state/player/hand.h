@@ -1,48 +1,55 @@
-//
-// Created by Manuel on 27.01.2021.
-//
-
 #ifndef TICHU_HAND_H
 #define TICHU_HAND_H
 
 #include <vector>
-#include "../../../../rapidjson/include/rapidjson/document.h"
 #include "../cards/card.h"
+#include "../cards/CardCombination.h"
 
-class hand : public unique_serializable {
+class hand {
 
 private:
-    std::vector<card*> _cards;
+    std::vector<Card> _cards;
 
-    hand(std::string id);
-    hand(std::string id, std::vector<card*> cards);
-    card* remove_card(std::vector<card*>::iterator pos);
-    card* remove_card(int idx);
-    card* remove_card(card* card);
+    //removing card from fector bloat
+    std::optional<Card> remove_card(std::vector<Card>::iterator pos);
+
+    std::optional<Card> remove_card(int idx);
+
+    std::optional<Card> remove_card(const Card &card);
+
 
 public:
-    hand();
-    ~hand();
+    hand() = default;
 
+    explicit hand(std::vector<Card> cards);
 
-// serializable interface
-    static hand* from_json(const rapidjson::Value& json);
-    virtual void write_into_json(rapidjson::Value& json, rapidjson::Document::AllocatorType& allocator) const override;
+    bool operator==(const hand &other) const {
+        for (int i = 0; i < _cards.size(); i++) {
+            if (_cards[i] != other._cards[i]) return false;
+        }
+        return true;
+    }
+
 
 // accessors
-    int get_nof_cards() const;
-    int get_score() const;
-    const std::vector<card*> get_cards() const;
-    bool try_get_card(const std::string& card_id, card*& hand_card) const;
+    [[nodiscard]] int get_nof_cards() const { return _cards.size(); }
+
+    [[nodiscard]] int get_score() const;
+
+    [[nodiscard]] const std::vector<Card> &get_cards() const { return _cards; }
+
+    [[nodiscard]] std::optional<Card> try_get_card(const Card &card_id) const;
 
 #ifdef TICHU_SERVER
-// state update functions
-    void setup_round(std::string& err);
-    bool add_card(card* card, std::string& err);
-    bool remove_card(std::string card_id, card*& played_card, std::string& err);
+    // state update functions
+        int wrap_up_round();
+        bool add_card(const Card &card, std::string &err);
+        void add_cards(const std::vector<Card> &cards, std::string &err);
+        std::optional<Card> remove_card(const Card &card, std::string& err);
+        bool remove_cards(const std::vector<Card> &cards, std::string& err);
 #endif
 
-    std::vector<card*>::iterator get_card_iterator();
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(hand, _cards)
 };
 
 

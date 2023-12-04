@@ -299,10 +299,10 @@ EXPECT_CALL(mock_object, method(matchers))
 The macro has two arguments: first the mock object, and then the method and its
 arguments. Note that the two are separated by a comma (`,`), not a period (`.`).
 (Why using a comma? The answer is that it was necessary for technical reasons.)
-If the method is not overloaded, the macro can also be called without matchers:
+If the method is not overloaded_server_msg, the macro can also be called without matchers:
 
 ```cpp
-EXPECT_CALL(mock_object, non-overloaded-method)
+EXPECT_CALL(mock_object, non-overloaded_server_msg-method)
     .Times(cardinality)
     .WillOnce(action)
     .WillRepeatedly(action);
@@ -311,7 +311,7 @@ EXPECT_CALL(mock_object, non-overloaded-method)
 This syntax allows the test writer to specify "called with any arguments"
 without explicitly specifying the number or types of arguments. To avoid
 unintended ambiguity, this syntax may only be used for methods that are not
-overloaded.
+overloaded_server_msg.
 
 Either form of the macro can be followed by some optional *clauses* that provide
 more information about the expectation. We'll discuss how each clause works in
@@ -391,7 +391,7 @@ EXPECT_CALL(turtle, Forward);
 EXPECT_CALL(turtle, GoTo);
 ```
 
-This works for all non-overloaded methods; if a method is overloaded, you need
+This works for all non-overloaded_server_msg methods; if a method is overloaded_server_msg, you need
 to help gMock resolve which overload is expected by specifying the number of
 arguments and possibly also the
 [types of the arguments](gmock_cook_book.md#SelectOverload).
@@ -556,7 +556,7 @@ would be shadowed by the more general one that comes after it.
 {: .callout .tip}
 **Tip:** It is very common to start with a catch-all expectation for a method
 and `Times(AnyNumber())` (omitting arguments, or with `_` for all arguments, if
-overloaded). This makes any calls to the method expected. This is not necessary
+overloaded_server_msg). This makes any calls to the method expected. This is not necessary
 for methods that are not mentioned at all (these are "uninteresting"), but is
 useful for methods that have some expectations, but for which other calls are
 ok. See

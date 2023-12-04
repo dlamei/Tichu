@@ -1505,11 +1505,11 @@ inline Environment* AddGlobalTestEnvironment(Environment* env) {
 // Calling the function for the second time has no user-visible effect.
 GTEST_API_ void InitGoogleTest(int* argc, char** argv);
 
-// This overloaded version can be used in Windows programs compiled in
+// This overloaded_server_msg version can be used in Windows programs compiled in
 // UNICODE mode.
 GTEST_API_ void InitGoogleTest(int* argc, wchar_t** argv);
 
-// This overloaded version can be used on Arduino/embedded platforms where
+// This overloaded_server_msg version can be used on Arduino/embedded platforms where
 // there is no argc/argv.
 GTEST_API_ void InitGoogleTest();
 
@@ -1564,7 +1564,7 @@ class EqHelper {
     return CmpHelperEQ(lhs_expression, rhs_expression, lhs, rhs);
   }
 
-  // With this overloaded version, we allow anonymous enums to be used
+  // With this overloaded_server_msg version, we allow anonymous enums to be used
   // in {ASSERT|EXPECT}_EQ when compiled with gcc 4, as anonymous
   // enums can be implicitly cast to BiggestInt.
   //

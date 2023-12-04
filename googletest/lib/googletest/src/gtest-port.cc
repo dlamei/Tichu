@@ -1051,7 +1051,7 @@ GTEST_API_ ::std::string FormatCompilerIndependentFileLocation(
 GTestLog::GTestLog(GTestLogSeverity severity, const char* file, int line)
     : severity_(severity) {
   const char* const marker =
-      severity == GTEST_INFO ?    "[  INFO ]" :
+      severity == GTEST_INFO ?    "[  Info ]" :
       severity == GTEST_WARNING ? "[WARNING]" :
       severity == GTEST_ERROR ?   "[ ERROR ]" : "[ FATAL ]";
   GetStream() << ::std::endl << marker << " "

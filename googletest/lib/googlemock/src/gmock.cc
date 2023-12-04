@@ -192,13 +192,13 @@ GTEST_API_ void InitGoogleMock(int* argc, char** argv) {
   internal::InitGoogleMockImpl(argc, argv);
 }
 
-// This overloaded version can be used in Windows programs compiled in
+// This overloaded_server_msg version can be used in Windows programs compiled in
 // UNICODE mode.
 GTEST_API_ void InitGoogleMock(int* argc, wchar_t** argv) {
   internal::InitGoogleMockImpl(argc, argv);
 }
 
-// This overloaded version can be used on Arduino/embedded platforms where
+// This overloaded_server_msg version can be used on Arduino/embedded platforms where
 // there is no argc/argv.
 GTEST_API_ void InitGoogleMock() {
   // Since Arduino doesn't have a command line, fake out the argc/argv arguments

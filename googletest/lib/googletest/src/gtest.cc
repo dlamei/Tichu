@@ -534,7 +534,7 @@ void TypeParameterizedTestSuiteRegistry::RegisterInstantiation(
     it->second.instantiated = true;
   } else {
     GTEST_LOG_(ERROR) << "Unknown type parameterized test suit '"
-                      << test_suite_name << "'";
+                          << test_suite_name << "'";
   }
 }
 
@@ -1723,7 +1723,7 @@ namespace {
 
 // Helper functions for implementing IsSubString() and IsNotSubstring().
 
-// This group of overloaded functions return true if and only if needle
+// This group of overloaded_server_msg functions return true if and only if needle
 // is a substring of haystack.  NULL is considered a substring of
 // itself only.
 
@@ -2779,8 +2779,8 @@ void ReportInvalidTestSuiteType(const char* test_suite_name,
       << "test suites.";
 
   GTEST_LOG_(ERROR) << FormatFileLocation(code_location.file.c_str(),
-                                          code_location.line)
-                    << " " << errors.GetString();
+                                              code_location.line)
+                        << " " << errors.GetString();
 }
 }  // namespace internal
 
@@ -5020,8 +5020,8 @@ class ScopedPrematureExitFile {
       int retval = remove(premature_exit_filepath_.c_str());
       if (retval) {
         GTEST_LOG_(ERROR) << "Failed to remove premature exit filepath \""
-                          << premature_exit_filepath_ << "\" with error "
-                          << retval;
+                              << premature_exit_filepath_ << "\" with error "
+                              << retval;
       }
     }
 #endif
@@ -6661,7 +6661,7 @@ void InitGoogleTest(int* argc, char** argv) {
 #endif  // defined(GTEST_CUSTOM_INIT_GOOGLE_TEST_FUNCTION_)
 }
 
-// This overloaded version can be used in Windows programs compiled in
+// This overloaded_server_msg version can be used in Windows programs compiled in
 // UNICODE mode.
 void InitGoogleTest(int* argc, wchar_t** argv) {
 #if defined(GTEST_CUSTOM_INIT_GOOGLE_TEST_FUNCTION_)
@@ -6671,7 +6671,7 @@ void InitGoogleTest(int* argc, wchar_t** argv) {
 #endif  // defined(GTEST_CUSTOM_INIT_GOOGLE_TEST_FUNCTION_)
 }
 
-// This overloaded version can be used on Arduino/embedded platforms where
+// This overloaded_server_msg version can be used on Arduino/embedded platforms where
 // there is no argc/argv.
 void InitGoogleTest() {
   // Since Arduino doesn't have a command line, fake out the argc/argv arguments

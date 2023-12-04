@@ -1,22 +1,20 @@
-//
-// Created by Manuel on 12.02.2021.
-//
 // The server_network_manager handles all incoming messages and offers functionality to broadcast messages
 // to all connected players of a game.
 
+#include <sstream>
 #include "server_network_manager.h"
 #include "request_handler.h"
 
-// include server address configurations
-#include "../common/network/default.conf"
-#include "../common/network/responses/request_response.h"
+const std::string default_server_host = "127.0.0.1";
+const unsigned int default_port = 50505;
 
 
 server_network_manager::server_network_manager() {
     if (_instance == nullptr) {
         _instance = this;
     }
-    sockpp::socket_initializer socket_initializer; // Required to initialise sockpp
+    init_logger();
+    sockpp::socket_initializer::initialize(); // Required to initialise sockpp
     this->connect(default_server_host, default_port);   // variables from "default.conf"
 }
 
@@ -62,52 +60,50 @@ void server_network_manager::listener_loop() {
     }
 }
 
+// TODO: write listener thread once for server and client in common
 // Runs in a thread and reads anything coming in on the 'socket'.
 // Once a message is fully received, the string is passed on to the 'handle_incoming_message()' function
-void server_network_manager::read_message(sockpp::tcp_socket socket, const std::function<void(const std::string&,
+void server_network_manager::read_message(sockpp::tcp_socket socket, const std::function<void(const std::string &,
                                                                                               const sockpp::tcp_socket::addr_t &)> &message_handler) {
-    sockpp::socket_initializer sockInit;    // initializes socket framework underneath
+    sockpp::socket_initializer::initialize(); // Required to initialise sockpp
 
-    char buffer[512]; // 512 bytes
-    ssize_t count = 0;
-    ssize_t msg_bytes_read = 0;
-    ssize_t msg_length = 0;
+    //char buffer[512]; // 512 bytes
+    char msg_size_str[sizeof(int) * 2];
 
-    while ((count = socket.read(buffer, sizeof(buffer))) > 0) {
+    int count;
+    //while ((count = socket.read(buffer, sizeof(buffer))) > 0) {
+    while (true) {
         try {
-            int i = 0;
-            std::stringstream ss_msg_length;
-            while (buffer[i] != ':' && i < count) {
-                ss_msg_length << buffer[i];
-                i++;
-            }
-            msg_length = std::stoi(ss_msg_length.str());
-            std::cout << "Expecting message of length " << msg_length << std::endl;
+            count = socket.read_n(msg_size_str, sizeof(int) * 2);
+            if (count != sizeof(int) * 2) break;
 
-            // put everything after the message length declaration into a stringstream
-            std::stringstream ss_msg;
-            ss_msg.write(&buffer[i+1], count - (i + 1));
-            msg_bytes_read = count - (i + 1);
-
-            // read the remaining packages
-            while (msg_bytes_read < msg_length && count > 0) {
-                count = socket.read(buffer, sizeof(buffer));
-                msg_bytes_read += count;
-                ss_msg.write(buffer, count);
+            int size;
+            try {
+                size = (int) std::stoul(msg_size_str, nullptr, 16); // 16 for hexadecimal
+            } catch (std::exception &e) {
+                // maybe delimiter so we can try to recover, but since its tcp not sure if necessary
+                ERROR("while trying to parse message size from string: {}", msg_size_str);
+                break;
             }
 
-            if (msg_bytes_read == msg_length) {
-                // sanity check that really all bytes got read (possibility that count was <= 0, indicating a read error)
-                std::string msg = ss_msg.str();
-                message_handler(msg, socket.peer_address());    // attempt to parse client_request from 'msg'
-            } else {
-                std::cerr << "Could not read entire message. TCP stream ended before. Difference is " << msg_length - msg_bytes_read << std::endl;
-            }
-        } catch (std::exception& e) { // Make sure the connection isn't torn down only because of a read error
-            std::cerr << "Error while reading message from " << socket.peer_address() << std::endl << e.what() << std::endl;
+            // skip the ':' after the message size
+            char c{};
+            socket.read_n(&c, 1);
+            ASSERT(c == ':', "invalid message format");
+
+            std::vector<char> buffer;
+            buffer.resize(size);
+            socket.read_n(buffer.data(), size);
+            std::string message = std::string(buffer.begin(), buffer.end());
+
+            // handle incoming message
+            message_handler(message, socket.peer_address());
+
+        } catch (std::exception &e) {
+            ERROR("while reading message from {}: {}", socket.peer_address().to_string(), e.what());
         }
     }
-    if (count <= 0) {
+    if (count < 0) {
         std::cout << "Read error [" << socket.last_error() << "]: "
                   << socket.last_error_str() << std::endl;
     }
@@ -117,49 +113,42 @@ void server_network_manager::read_message(sockpp::tcp_socket socket, const std::
 }
 
 
-void server_network_manager::handle_incoming_message(const std::string& msg, const sockpp::tcp_socket::addr_t& peer_address) {
+void server_network_manager::handle_incoming_message(const std::string &msg,
+                                                     const sockpp::tcp_socket::addr_t &peer_address) {
     try {
         // try to parse a json from the 'msg'
-        rapidjson::Document req_json;
-        req_json.Parse(msg.c_str());
-        // try to parse a client_request from the json
-        client_request* req = client_request::from_json(req_json);
+        // try to parse a ClientMsg from the json
+        ClientMsg client_msg;
+        from_json(json::parse(msg), client_msg);
 
-        // check if this is a connection to a new player
-        std::string player_id = req->get_player_id();
+        // check if this is a connection to a new Player
+        auto player_id = client_msg.get_player_id();
         _rw_lock.lock_shared();
         if (_player_id_to_address.find(player_id) == _player_id_to_address.end()) {
             // save connection to this client
             _rw_lock.unlock_shared();
-            std::cout << "New client with id " << player_id << std::endl;
+            std::cout << "New client with id " << player_id.string() << std::endl;
             _rw_lock.lock();
             _player_id_to_address.emplace(player_id, peer_address.to_string());
             _rw_lock.unlock();
         } else {
             _rw_lock.unlock_shared();
         }
-#ifdef PRINT_NETWORK_MESSAGES
-        std::cout << "Received valid request : " << msg << std::endl;
-#endif
+
+        DEBUG("Received valid request : {}", msg);
+
         // execute client request
-        server_response* res = request_handler::handle_request(req);
-        delete req;
+        ServerMsg res = request_handler::handle_request(client_msg);
 
         // transform response into a json
-        rapidjson::Document* res_json = res->to_json();
-        delete res;
+        json response;
+        to_json(response, res);
 
-        // transform json to string
-        std::string res_msg = json_utils::to_string(res_json);
-
-#ifdef PRINT_NETWORK_MESSAGES
-        std::cout << "Sending response : " << res_msg << std::endl;
-#endif
+        DEBUG("sending response: {}", response.dump(4));
 
         // send response back to client
-        send_message(res_msg, peer_address.to_string());
-        delete res_json;
-    } catch (const std::exception& e) {
+        send_message(response.dump(), peer_address.to_string());
+    } catch (const std::exception &e) {
         std::cerr << "Failed to execute client request. Content was :\n"
                   << msg << std::endl
                   << "Error was " << e.what() << std::endl;
@@ -167,7 +156,7 @@ void server_network_manager::handle_incoming_message(const std::string& msg, con
 }
 
 
-void server_network_manager::on_player_left(std::string player_id) {
+void server_network_manager::on_player_left(const UUID &player_id) {
     _rw_lock.lock();
     std::string address = _player_id_to_address[player_id];
     _player_id_to_address.erase(player_id);
@@ -175,35 +164,32 @@ void server_network_manager::on_player_left(std::string player_id) {
     _rw_lock.unlock();
 }
 
-ssize_t server_network_manager::send_message(const std::string &msg, const std::string& address) {
+ssize_t server_network_manager::send_message(const std::string &msg, const std::string &address) {
 
     std::stringstream ss_msg;
-    ss_msg << std::to_string(msg.size()) << ':' << msg; // prepend message length
+    ss_msg << std::setfill('0') << std::setw(sizeof(int) * 2) << std::hex << (int) msg.size();
+    ss_msg << ':' << msg; // prepend message length
     return _address_to_socket.at(address).write(ss_msg.str());
 }
 
-void server_network_manager::broadcast_message(server_response &msg, const std::vector<player *> &players,
-                                               const player *exclude) {
-    rapidjson::Document* msg_json = msg.to_json();  // write to JSON format
-    std::string msg_string = json_utils::to_string(msg_json);   // convert to string
-
-#ifdef PRINT_NETWORK_MESSAGES
-    std::cout << "Broadcasting message : " << msg_string << std::endl;
-#endif
+void server_network_manager::broadcast_message(ServerMsg &msg, std::vector<player_ptr> players, player_ptr exclude) {
+    json data;
+    to_json(data, msg);
+    //auto msg_json = msg.to_json();  // write to JSON format
+    DEBUG("broadcast_message: {}", data.dump(4));
 
     _rw_lock.lock_shared();
     // send object_diff to all requested players
     try {
-        for(auto& player : players) {
-            if (player != exclude) {
-                int nof_bytes_written = send_message(msg_string, _player_id_to_address.at(player->get_id()));
+        for (const auto& player: players) {
+            if (player->get_id() != exclude->get_id()) {
+                send_message(data.dump(), _player_id_to_address.at(player->get_id()));
             }
         }
-    } catch (std::exception& e) {
+    } catch (std::exception &e) {
         std::cerr << "Encountered error when sending state update: " << e.what() << std::endl;
     }
     _rw_lock.unlock_shared();
-    delete msg_json;
 }
 
 

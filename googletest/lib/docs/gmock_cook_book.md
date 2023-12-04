@@ -116,7 +116,7 @@ class MockFoo : public Foo {
 
 ### Mocking Overloaded Methods
 
-You can mock overloaded functions as usual. No special attention is required:
+You can mock overloaded_server_msg functions as usual. No special attention is required:
 
 ```cpp
 class Foo {
@@ -145,7 +145,7 @@ class MockFoo : public Foo {
 ```
 
 {: .callout .note}
-**Note:** if you don't mock all versions of the overloaded method, the compiler
+**Note:** if you don't mock all versions of the overloaded_server_msg method, the compiler
 will give you a warning about some methods in the base class being hidden. To
 fix that, use `using` to bring them in scope:
 
@@ -534,7 +534,7 @@ class ScopedMockLog : public LogSink {
 By defining a new mock method with a trimmed argument list, we make the mock
 class more user-friendly.
 
-This technique may also be applied to make overloaded methods more amenable to
+This technique may also be applied to make overloaded_server_msg methods more amenable to
 mocking. For example, when overloads have been used to implement default
 arguments:
 
@@ -707,7 +707,7 @@ TEST(AbcTest, Xyz) {
 *   In `DelegateToFake()`, you only need to delegate the methods whose fake
     implementation you intend to use.
 
-*   The general technique discussed here works for overloaded methods, but
+*   The general technique discussed here works for overloaded_server_msg methods, but
     you'll need to tell the compiler which version you mean. To disambiguate a
     mock function (the one you specify inside the parentheses of `ON_CALL()`),
     use [this technique](#SelectOverload); to disambiguate a fake function (the
@@ -968,10 +968,10 @@ to misuse/abuse it.
 
 ### Selecting Between Overloaded Functions {#SelectOverload}
 
-If you expect an overloaded function to be called, the compiler may need some
-help on which overloaded version it is.
+If you expect an overloaded_server_msg function to be called, the compiler may need some
+help on which overloaded_server_msg version it is.
 
-To disambiguate functions overloaded on the const-ness of this object, use the
+To disambiguate functions overloaded_server_msg on the const-ness of this object, use the
 `Const()` argument wrapper.
 
 ```cpp
@@ -994,7 +994,7 @@ class MockFoo : public Foo {
 
 (`Const()` is defined by gMock and returns a `const` reference to its argument.)
 
-To disambiguate overloaded functions with the same number of arguments but
+To disambiguate overloaded_server_msg functions with the same number of arguments but
 different argument types, you may need to specify the exact type of a matcher,
 either by wrapping your matcher in `Matcher<type>()`, or using a matcher whose
 type is fixed (`TypedEq<type>`, `An<type>()`, etc):
@@ -1700,7 +1700,7 @@ or order of calls), you can often simply omit the parameter list:
       .WillByDefault(&BuildFooForTest);
 ```
 
-This functionality is only available when a method is not overloaded; to prevent
+This functionality is only available when a method is not overloaded_server_msg; to prevent
 unexpected behavior it is a compilation error to try to set an expectation on a
 method where the specific overload is ambiguous. You can work around this by
 supplying a [simpler mock interface](#SimplerInterfaces) than the mocked class
@@ -4020,7 +4020,7 @@ lets you write
 You can view `ACTION` as a degenerated parameterized action where the number of
 parameters is 0.
 
-You can also easily define actions overloaded on the number of parameters:
+You can also easily define actions overloaded_server_msg on the number of parameters:
 
 ```cpp
 ACTION_P(Plus, a) { ... }
@@ -4113,7 +4113,7 @@ ActionName<t1, ..., t_m, u1, ..., u_k>(v1, ..., v_n)
 
 where `u_i` is the desired type of `v_i`.
 
-`ACTION_TEMPLATE` and `ACTION`/`ACTION_P*` can be overloaded on the number of
+`ACTION_TEMPLATE` and `ACTION`/`ACTION_P*` can be overloaded_server_msg on the number of
 value parameters, but not on the number of template parameters. Without the
 restriction, the meaning of the following is unclear:
 
@@ -4145,7 +4145,7 @@ parameter types. The rule is relatively simple:
 
 Note that we have to pick different suffixes (`Action`, `ActionP`, `ActionP2`,
 and etc) for actions with different numbers of value parameters, or the action
-definitions cannot be overloaded on the number of them.
+definitions cannot be overloaded_server_msg on the number of them.
 
 ### Writing New Monomorphic Actions {#NewMonoActions}
 

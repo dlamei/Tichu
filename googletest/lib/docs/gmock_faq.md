@@ -17,7 +17,7 @@ into his or her head.
 
 Therefore, to mock such a function, the *user* must teach the mock object how to
 figure out the number of arguments and their types. One way to do it is to
-provide overloaded versions of the function.
+provide overloaded_server_msg versions of the function.
 
 Ellipsis arguments are inherited from C and not really a C++ feature. They are
 unsafe to use and don't work with arguments that have constructors or
