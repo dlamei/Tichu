@@ -85,6 +85,8 @@ void TichuGame::handle_gui_output() {
         auto &selected_cards = _game_panel_data.selected_cards;
         auto msg = play_combi_req{ CardCombination({selected_cards.begin(), selected_cards.end()}) };
         send_message(ClientMsg(_connection_data.id, msg));
+        // clear selected cards
+        selected_cards.clear();
     }
 
 }
@@ -158,6 +160,8 @@ void TichuGame::process(const full_state_response &data) {
         _game_panel_data.panel_state = GamePanel::LOBBY;
     }
 
+    _game_panel_data.prev_game_state = _game_panel_data.game_state;
     _game_panel_data.game_state = data.state;
+    _game_panel_data.state_updated = true;
 }
 

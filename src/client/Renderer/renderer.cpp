@@ -5,7 +5,6 @@
 #include <glad/glad.h>
 
 #include <glm/gtx/transform.hpp>
-#include <glm/gtx/matrix_transform_2d.hpp>
 #include <array>
 
 #include "shader.glsl"
@@ -38,6 +37,7 @@ struct RenderContext {
     uint32_t index_count{};
 
     Renderer::RectMode rect_mode = Renderer::RectMode::CORNER;
+    Renderer::RotateMode rot_mode = Renderer::RotateMode::CORNER;
 };
 
 static RenderContext s_render_cntxt = {};
@@ -121,31 +121,32 @@ namespace Renderer {
 
         auto tex_id = (float) push_texture(texture);
 
-        // for now only rotate around center
-        auto t1 = glm::translate(pos + glm::vec3(0));
-        auto t2 = glm::translate(-(pos + glm::vec3(0)));
-        auto scale = glm::scale(glm::vec3(size, 0));
         auto rotate = glm::rotate(glm::mat4(1.0f), rotation, {0.f, 0.f, 1.f});
-        glm::mat4 transform = t1 * rotate * scale * t2;
+        if (s_render_cntxt.rot_mode == RotateMode::CENTER) {
+            glm::vec3 offset = {size.x / 2, size.y / 2, 0};
+            rotate = glm::translate(offset) * rotate * glm::translate(-offset);
+        }
+        auto scale = glm::scale(glm::vec3(size, 0));
+        glm::mat4 transform = glm::translate(pos) * rotate * scale;
 
 
         Vertex v{};
         v.col = tint.normalized();
         v.tex_id = tex_id;
 
-        v.pos = transform * glm::vec4(pos, 1);
+        v.pos = transform * glm::vec4(0, 0, 0, 1);
         v.uv = {0, 0};
         push_vert(v);
 
-        v.pos = transform * glm::vec4(pos.x + 1, pos.y, 0, 1);
+        v.pos = transform * glm::vec4(1, 0, 0, 1);
         v.uv = {1, 0};
         push_vert(v);
 
-        v.pos = transform * glm::vec4(pos.x + 1, pos.y + 1, 0, 1);
+        v.pos = transform * glm::vec4(1, 1, 0, 1);
         v.uv = {1, 1};
         push_vert(v);
 
-        v.pos = transform * glm::vec4(pos.x, pos.y + 1, 0, 1);
+        v.pos = transform * glm::vec4(0, 1, 0, 1);
         v.uv = {0, 1};
         push_vert(v);
 
@@ -257,6 +258,10 @@ namespace Renderer {
 
     void rect(const glm::vec2 &pos, const glm::vec2 &size, RGBA color, float rotation) {
         rect_impl(pos, size, color, s_render_cntxt.white_texture, rotation);
+    }
+
+    void Renderer::set(RotateMode mode) {
+        s_render_cntxt.rot_mode = mode;
     }
 
 }

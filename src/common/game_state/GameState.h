@@ -76,6 +76,7 @@ public:
     [[nodiscard]] const ActivePile &get_active_pile() const { return _active_pile; }
 
     [[nodiscard]] int get_last_player_idx() const { return _last_player_idx; }
+    [[nodiscard]] int get_next_player_idx() const { return _next_player_idx; }
 
     //TODO: shared_player
     [[nodiscard]] std::optional<Player> get_current_player() const;

@@ -14,6 +14,8 @@
 #define GL_VERTEX_BUFFER GL_ARRAY_BUFFER
 #define GL_INDEX_BUFFER GL_ELEMENT_ARRAY_BUFFER
 
+#define FILTERING GL_LINEAR
+
 GLenum glCheckError_(const char *file, int line) {
     GLenum errorCode;
     while ((errorCode = glGetError()) != GL_NO_ERROR) {
@@ -209,8 +211,8 @@ namespace gl_utils {
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, FILTERING);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, FILTERING);
         glTexImage2D(GL_TEXTURE_2D, 0, INTERNAL_FORMAT, (int) width, (int) height, 0, DATA_FORMAT, GL_UNSIGNED_BYTE,
                      nullptr);
 
@@ -225,8 +227,8 @@ namespace gl_utils {
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, FILTERING);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, FILTERING);
 
         int w, h, nrChannels;
         stbi_set_flip_vertically_on_load(true);

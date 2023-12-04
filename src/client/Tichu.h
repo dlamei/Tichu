@@ -60,7 +60,6 @@ private:
     void handle_gui_output();
     void send_message(const ClientMsg &msg);
 
-    //PanelState _state{PanelState::CONNECTION};
     PanelState _state{PanelState::CONNECTION};
 
     // output from the ConnectionPanel

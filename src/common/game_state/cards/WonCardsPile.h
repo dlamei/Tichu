@@ -17,6 +17,7 @@ public:
 
 // accessors
     [[nodiscard]] int get_score() const;
+    [[nodiscard]] int get_nof_cards() const { return (int)_cards.size(); }
 
 #ifdef TICHU_SERVER
     // state update functions

@@ -76,6 +76,8 @@ public:
 
     [[nodiscard]] int get_won_score() const noexcept { return _won_cards.get_score(); }
 
+    [[nodiscard]] int get_nof_won_cards() { return _won_cards.get_nof_cards(); };
+
 #ifdef TICHU_SERVER
     // state update functions
     bool add_card_to_hand(const Card &card, std::string& err);

@@ -18,6 +18,11 @@ namespace Renderer {
         CENTER,
     };
 
+    enum class RotateMode {
+        CORNER,
+        CENTER,
+    };
+
     void rect(const glm::vec2 &pos, const glm::vec2 &size, RGBA color);
     void rect(const glm::vec2 &pos, const glm::vec2 &size, const Texture &texture);
     void rect(const glm::vec2 &pos, const glm::vec2 &size, RGBA tint, const Texture &texture);
@@ -28,6 +33,7 @@ namespace Renderer {
     void draw_tri(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3, RGBA color);
 
     void set(RectMode mode);
+    void set(RotateMode mode);
 
     // clear the screen with the given color
     void clear(RGBA clear_color);
