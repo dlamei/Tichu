@@ -387,7 +387,6 @@ namespace GamePanel {
         const auto &player = data.game_state.get_players().at(indx);
         int n_cards = player->get_nof_cards();
         int n_collected = player->get_nof_won_cards();
-        int prev_n_collected = data.prev_game_state.get_players().at(indx)->get_nof_won_cards();
         float spread_anim = animate(seconds_since(data.spread_anim_start), spread_anim_len);
         float collect_anim = animate(seconds_since(data.begin_card_collect_anim), collect_anim_len);
 
@@ -409,6 +408,10 @@ namespace GamePanel {
         }
 
 
+        int prev_n_collected = 0;
+        if (data.prev_game_state.get_players().size() == 4) {
+            prev_n_collected = data.prev_game_state.get_players().at(indx)->get_nof_won_cards();
+        }
         auto won_pos = left_won_pile_pos();
         if (collect_anim < .7f) n_collected = prev_n_collected;
         for (int i = 0; i < n_collected; i++) {
@@ -428,7 +431,7 @@ namespace GamePanel {
         const auto &player = data.game_state.get_players().at(indx);
         int n_cards = player->get_nof_cards();
         int n_collected = player->get_nof_won_cards();
-        int prev_n_collected = data.prev_game_state.get_players().at(indx)->get_nof_won_cards();
+
         float spread_anim = animate(seconds_since(data.spread_anim_start), spread_anim_len);
         float collect_anim = animate(seconds_since(data.begin_card_collect_anim), collect_anim_len);
 
@@ -447,6 +450,10 @@ namespace GamePanel {
             draw_card(card_pos, _card_size, {}, PI / 2 + end_angle + d_angle * (float)i);
         }
 
+        int prev_n_collected = 0;
+        if (data.prev_game_state.get_players().size() == 4) {
+            prev_n_collected = data.prev_game_state.get_players().at(indx)->get_nof_won_cards();
+        }
         auto won_pos = right_won_pile_pos();
         if (collect_anim < .7f) n_collected = prev_n_collected;
         for (int i = 0; i < n_collected; i++) {
@@ -466,7 +473,6 @@ namespace GamePanel {
         const auto &player = data.game_state.get_players().at(indx);
         int n_cards = player->get_nof_cards();
         int n_collected = player->get_nof_won_cards();
-        int prev_n_collected = data.prev_game_state.get_players().at(indx)->get_nof_won_cards();
         float spread_anim = animate(seconds_since(data.spread_anim_start), spread_anim_len);
         float collect_anim = animate(seconds_since(data.begin_card_collect_anim), collect_anim_len);
 
@@ -486,6 +492,10 @@ namespace GamePanel {
 
         }
 
+        int prev_n_collected = 0;
+        if (data.prev_game_state.get_players().size() == 4) {
+            prev_n_collected = data.prev_game_state.get_players().at(indx)->get_nof_won_cards();
+        }
         auto won_pos = top_won_pile_pos();
         if (collect_anim < .7f) n_collected = prev_n_collected;
         for (int i = 0; i < n_collected; i++) {
@@ -519,9 +529,9 @@ namespace GamePanel {
 
     void show_other_players(const Data &data) {
         auto &players = data.game_state.get_players();
+        if (players.size() != 4) return;
 
         auto my_indx = get_my_index(data);
-
         show_right_player(glob_from_rel_indx(1, my_indx), data);
         show_top_player(glob_from_rel_indx(2, my_indx), data);
         show_left_player(glob_from_rel_indx(3, my_indx), data);
