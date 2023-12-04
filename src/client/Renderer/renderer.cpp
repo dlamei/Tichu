@@ -260,7 +260,7 @@ namespace Renderer {
         rect_impl(pos, size, color, s_render_cntxt.white_texture, rotation);
     }
 
-    void Renderer::set(RotateMode mode) {
+    void set(RotateMode mode) {
         s_render_cntxt.rot_mode = mode;
     }
 
