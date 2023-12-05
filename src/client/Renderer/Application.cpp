@@ -7,7 +7,9 @@
 
 Application *Application::s_instance = nullptr;
 
-Application::Application(const ApplicationCreateInfo &info) {
+Application::Application(const ApplicationCreateInfo &info)
+    : _info(info)
+{
     init_logger();
     ASSERT(!s_instance, "Application already created!");
 
@@ -15,8 +17,8 @@ Application::Application(const ApplicationCreateInfo &info) {
 
     WindowCreateInfo win_info{
             .title = info.title,
-            .width = info.width,
-            .height = info.height,
+            .size = info.size,
+            .position = info.position,
             .vsync = true,
     };
 

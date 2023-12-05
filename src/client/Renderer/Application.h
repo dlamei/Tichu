@@ -50,7 +50,11 @@ public:
 // helper struct for creating an app
 struct ApplicationCreateInfo {
     std::string title = "Application";
-    uint32_t width{100}, height{100};
+    glm::uvec2 size {100, 100};
+    std::optional<glm::ivec2> position {};
+    std::string player_name{};
+    bool auto_connect{false};
+    //uint32_t width{100}, height{100};
 };
 
 // only single instance allowed
@@ -87,7 +91,7 @@ public:
     // returns the application instance
     [[nodiscard]] static const Application *get_instance();
 
-
+    [[nodiscard]] static const ApplicationCreateInfo &get_info() { return get_instance()->_info; };
 
 private:
 
@@ -95,8 +99,9 @@ private:
 
     void update();
 
+    ApplicationCreateInfo _info{};
     std::unique_ptr<Window> _window;
-    glm::uvec2 _window_size{}, _viewport_size{}, _viewport_pos;
+    glm::uvec2 _window_size{}, _viewport_size{}, _viewport_pos{};
     uint64_t _frame_count{0};
     float _last_frame_time{0};
 

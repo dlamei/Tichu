@@ -66,6 +66,7 @@ private:
     ConnectionPanel::Data _connection_data{};
     GamePanel::Data _game_panel_data;
 
+    bool _auto_connect{false};
     sockpp::tcp_connector _connection{};
     std::thread _listener{};
     MessageQueue<ServerMsg> _server_msgs{};
