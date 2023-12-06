@@ -44,7 +44,7 @@ void Window::init(const WindowCreateInfo &info) {
 #endif
 
 
-    _window = glfwCreateWindow((int) info.width, (int) info.height, info.title.c_str(),
+    _window = glfwCreateWindow((int) info.size.x, (int) info.size.y, info.title.c_str(),
                                nullptr, nullptr);
 
     ASSERT(_window, "Could not create window");
@@ -60,6 +60,11 @@ void Window::init(const WindowCreateInfo &info) {
         images.height = images.width;
         images.pixels = (uint8_t *) info.icon.value().data();
         glfwSetWindowIcon(_window, 1, &images);
+    }
+
+    if (info.position.has_value()) {
+        auto pos = info.position.value();
+        glfwSetWindowPos(_window, pos.x, pos.y);
     }
 
     {

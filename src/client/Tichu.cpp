@@ -24,6 +24,8 @@ void TichuGame::send_message(const ClientMsg &msg) {
 void TichuGame::on_attach() {
     sockpp::socket_initializer::initialize();
     GamePanel::load_textures();
+    _connection_data.name = Application::get_info().player_name;
+    _auto_connect = Application::get_info().auto_connect;
 }
 
 void TichuGame::on_detach() {
@@ -58,7 +60,9 @@ void TichuGame::show() {
 }
 
 void TichuGame::handle_gui_output() {
-    if (_connection_data.connect) {
+    if (_auto_connect) _connection_data.connect = true;
+
+    if (_state == PanelState::CONNECTION && _connection_data.connect) {
         // reset button press
         _connection_data.connect = false;
 
@@ -111,9 +115,13 @@ void TichuGame::connect_to_server() {
     address = sockpp::inet_address(_connection_data.host, _connection_data.port);
 
     if (!_connection.connect(address)) {
-        show_msg(MessageType::Warn, "Failed to connect to server:\n " + address.to_string());
+        if (!_auto_connect) {
+            show_msg(MessageType::Warn, "Failed to connect to server:\n " + address.to_string());
+        }
         return;
     }
+
+    _auto_connect = false;
 
     _connection_data.status = "Connected to " + address.to_string();
     _listener = std::thread(tcp_listener<ServerMsg>, _connection.clone(), parse_message, &_server_msgs);
