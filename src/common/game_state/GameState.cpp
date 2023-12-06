@@ -56,14 +56,6 @@ bool GameState::start_game(std::string &err) {
     if (!_is_started) {
         // make teams
         make_teams();
-
-        // figure out who goes first
-        for(int i = 0; i < 4; ++i) {
-            auto cards = _players.at(i)->get_hand().get_cards();
-            if(count(cards.begin(), cards.end(), ONE)) {
-                _starting_player_idx = i;
-            }
-        }
         
         this->setup_round(err);
         this->_is_started = true;
@@ -134,6 +126,14 @@ void GameState::setup_round(std::string &err) {
         }
     }
 
+    // figure out who goes first
+        for(int i = 0; i < 4; ++i) {
+            auto cards = _players.at(i)->get_hand().get_cards();
+            if(count(cards.begin(), cards.end(), ONE)) {
+                _next_player_idx = i;
+                break;
+            }
+        }
     
 }
 
@@ -160,11 +160,13 @@ void GameState::wrap_up_round(Player &current_player, std::string& err) {
     int first_player_idx = get_player_index(_round_finish_order.at(0));
     int last_player_idx = _next_player_idx;
     // team A doppelsieg
-    if(_players.at(0)->get_is_finished() && _players.at(2)->get_is_finished()) {
+    if(_players.at(0)->get_is_finished() && _players.at(2)->get_is_finished() 
+       && !(_players.at(1)->get_is_finished()) && !(_players.at(3)->get_is_finished())) {
         _score_team_A += 200;
     }
     // team B doppelsieg
-    else if(_players.at(0)->get_is_finished() && _players.at(2)->get_is_finished()) {
+    else if(_players.at(1)->get_is_finished() && _players.at(3)->get_is_finished()
+            && !(_players.at(0)->get_is_finished()) && !(_players.at(2)->get_is_finished())) {
         _score_team_B += 200;
     } else {
         
@@ -180,6 +182,7 @@ void GameState::wrap_up_round(Player &current_player, std::string& err) {
         _score_team_A += (won_cards_scores.at(0) + won_cards_scores.at(2));
         _score_team_B += (won_cards_scores.at(1) + won_cards_scores.at(3));
     }
+    
     //check for failed or successful tichu
     if(_players.at(0)->get_tichu()) { 
         if(first_player_idx == 0) {
