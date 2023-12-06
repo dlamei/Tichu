@@ -603,6 +603,8 @@ namespace GamePanel {
 
             std::string name;
             switch (player->get_team()) {
+                case Team::RANDOM: 
+                    name = "[_]";
                 case Team::A:
                     name = "[A] ";
                     break;

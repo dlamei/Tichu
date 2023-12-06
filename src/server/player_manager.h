@@ -24,7 +24,7 @@ public:
     //static bool try_get_player(const std::string& _player_id, const Player &player_ptr);
     static std::optional<player_ptr> try_get_player(const UUID &player_id);
 
-    static player_ptr add_or_get_player(const std::string &name, const UUID &player_id);
+    static player_ptr add_or_get_player(const std::string &name, const UUID &player_id, const Team &team);
 
     static std::optional<player_ptr> remove_player(const UUID &player_id);  // not implemented
 };

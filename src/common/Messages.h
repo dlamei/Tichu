@@ -35,9 +35,12 @@ struct fold_req {};
 VARIANT_ENUM(fold_req, ClientMsgType, fold)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_EMPTY(fold_req)
 
-struct join_game_req { std::string player_name; };
+struct join_game_req { 
+    std::string player_name; 
+    int team;
+    };
 VARIANT_ENUM(join_game_req, ClientMsgType, join_game)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(join_game_req, player_name)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(join_game_req, player_name, team)
 
 struct play_combi_req { CardCombination played_combi; };
 VARIANT_ENUM(play_combi_req, ClientMsgType, play_combi)

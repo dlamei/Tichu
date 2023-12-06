@@ -29,13 +29,13 @@ private:
 
     int _next_player_idx{0};
     int _starting_player_idx{0};
+    int _last_player_idx{0};
 
     bool _is_started{false};
     bool _is_game_finished{false};
     bool _is_round_finished{false};
     bool _is_trick_finished{false};
 
-    int _last_player_idx{0};
 
     // from_diff constructor
     explicit GameState(UUID id);
@@ -86,6 +86,7 @@ public:
         bool start_game(std::string& err);
         bool check_is_game_over(std::string& err);
         void wrap_up_game(std::string& err);
+        void make_teams();
 
         void setup_round(std::string& err);   // server side initialization
         bool check_is_round_finished(Player &Player, std::string& err);

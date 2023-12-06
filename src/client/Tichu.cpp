@@ -118,8 +118,17 @@ void TichuGame::connect_to_server() {
     _connection_data.status = "Connected to " + address.to_string();
     _listener = std::thread(tcp_listener<ServerMsg>, _connection.clone(), parse_message, &_server_msgs);
 
+    // team stuff
+    int team = 0;
+    if(_connection_data.team == ConnectionPanel::TeamSelection::TEAM_A) {
+        team = 1;
+    } else if(_connection_data.team == ConnectionPanel::TeamSelection::TEAM_B) {
+        team = 2;
+    } 
+
+
     // send join request after listener is created
-    auto client_req = ClientMsg(_connection_data.id, join_game_req{.player_name = _connection_data.name});
+    auto client_req = ClientMsg(_connection_data.id, join_game_req{_connection_data.name, team});
     send_message(client_req);
 }
 

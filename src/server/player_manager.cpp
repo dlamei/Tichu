@@ -19,13 +19,12 @@ std::optional<player_ptr> player_manager::try_get_player(const UUID &player_id) 
     return player;
 }
 
-player_ptr player_manager::add_or_get_player(const std::string &name, const UUID &player_id) {
+player_ptr player_manager::add_or_get_player(const std::string &name, const UUID &player_id, const Team &team) {
     auto player_ptr = try_get_player(player_id);
 
     if (player_ptr) {
         return player_ptr.value();
     }
-    auto team = Team::A;
     auto player_val = std::make_shared<Player>(Player(player_id, name, team));
     _rw_lock.lock();    // exclusive
     player_manager::_players_lut.insert({player_id, player_val});

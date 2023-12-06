@@ -53,6 +53,7 @@ bool GameState::start_game(std::string &err) {
     }
 
     if (!_is_started) {
+        make_teams();
         this->setup_round(err);
         this->_is_started = true;
         return true;
@@ -71,6 +72,8 @@ bool GameState::check_is_game_over(std::string& err) {
 void GameState::wrap_up_game(std::string& err) {
     _is_game_finished = true;
 }
+
+void GameState::make_teams(){}
 
 // 
 //   [ROUND FUNCTIONS] 
