@@ -14,12 +14,14 @@ cd ../build
 
 # Start one instance of Tichu-server
 ./Tichu-server &
+sleep 1 
+
 
 # Start four instances of Tichu-client
-for i in {1..4}
-do
-   ./Tichu-client &
-done
+./Tichu-client --size 960 500 --name Alice --auto 1 &
+./Tichu-client --size 960 500 --name Bob --auto 1 &
+./Tichu-client --size 960 500 --name Carl --auto 1 &
+./Tichu-client --size 960 500 --name Dan --auto 1 &
 
 ps
 

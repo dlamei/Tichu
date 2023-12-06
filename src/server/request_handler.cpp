@@ -21,11 +21,12 @@ namespace request_handler {
             // ##################### JOIN GAME #####################  //
             case ClientMsgType::join_game: {
                 std::string player_name = req.get_msg_data<join_game_req>().player_name;
+                Team team = (Team)(req.get_msg_data<join_game_req>().team);
 
                 // Create new Player or get existing one with that name
-                auto player = player_manager::add_or_get_player(player_name, player_id);
+                auto player = player_manager::add_or_get_player(player_name, player_id, team);
 
-                // join any game
+                // join any game    
                 auto game_instance_ptr = game_instance_manager::try_add_player_to_any_game(player, err);
                 if (game_instance_ptr) {
                     // game_instance_ptr got updated to the joined game

@@ -10,6 +10,7 @@
 
 
 enum class Team {
+    RANDOM,
     A,
     B,
 };
@@ -20,6 +21,7 @@ private:
     std::string _player_name;
     Team _team{};
     bool _is_finished{};
+    bool _has_skipped{};
     hand _hand;
     WonCardsPile _won_cards;
     bool _tichu{};
@@ -53,12 +55,16 @@ public:
 
     const UUID &get_game_id() { return _game_id; };
     void set_game_id(UUID game_id) { _game_id = std::move(game_id); };
+    void set_team(Team team) {_team = team; }
+    void set_skipped(bool skipped) { _has_skipped = skipped; }
 #endif
 
     // accessors
     [[nodiscard]] Team get_team() const noexcept { return _team; }
 
     [[nodiscard]] bool get_is_finished() const noexcept { return _is_finished; }
+
+    [[nodiscard]] bool get_has_skipped() const noexcept { return _has_skipped; }
 
     [[nodiscard]] bool get_tichu() const noexcept { return _tichu; }
 

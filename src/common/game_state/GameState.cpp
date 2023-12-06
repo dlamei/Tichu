@@ -4,6 +4,7 @@
 #include <utility>
 #include <memory>
 #include <shared_mutex>
+#include <random>
 
 GameState::GameState() :
         _id(UUID::create()) {}
@@ -53,6 +54,9 @@ bool GameState::start_game(std::string &err) {
     }
 
     if (!_is_started) {
+        // make teams
+        make_teams();
+        
         this->setup_round(err);
         this->_is_started = true;
         return true;
@@ -70,6 +74,34 @@ bool GameState::check_is_game_over(std::string& err) {
 
 void GameState::wrap_up_game(std::string& err) {
     _is_game_finished = true;
+}
+
+void GameState::make_teams(){
+    int number_of_A = 0;
+    int number_of_B = 0;
+    for(auto player : _players){
+        if((*player).get_team() == Team::A) { ++number_of_A; }
+        if((*player).get_team() == Team::A) { ++number_of_B; }
+    }
+
+    int swap_location = 0;
+    if(number_of_A == 2 && number_of_B == 2){
+        for(auto player : _players){
+            if((*player).get_team() == Team::A){
+                std::swap(player, _players.at(swap_location));
+                swap_location = 2;
+            }
+        }
+    }
+    else {
+        std::shuffle(_players.begin(), _players.end(), std::mt19937(std::random_device()()));
+    }
+
+    // change team variable of all players 
+    (*_players.at(0)).set_team(Team::A);
+    (*_players.at(1)).set_team(Team::B);
+    (*_players.at(2)).set_team(Team::A);
+    (*_players.at(3)).set_team(Team::B);
 }
 
 // 
@@ -94,6 +126,14 @@ void GameState::setup_round(std::string &err) {
         }
     }
 
+    // figure out who goes first
+        for(int i = 0; i < 4; ++i) {
+            auto cards = _players.at(i)->get_hand().get_cards();
+            if(count(cards.begin(), cards.end(), ONE)) {
+                _next_player_idx = i;
+                break;
+            }
+        }
     
 }
 
@@ -107,7 +147,7 @@ bool GameState::check_is_round_finished(Player &Player, std::string& err) {
         return true;
     }
     // team B doppelsieg
-    if(_players.at(0)->get_is_finished() && _players.at(2)->get_is_finished()) {
+    if(_players.at(1)->get_is_finished() && _players.at(3)->get_is_finished()) {
         return true;
     }
     // round not over
@@ -120,11 +160,13 @@ void GameState::wrap_up_round(Player &current_player, std::string& err) {
     int first_player_idx = get_player_index(_round_finish_order.at(0));
     int last_player_idx = _next_player_idx;
     // team A doppelsieg
-    if(_players.at(0)->get_is_finished() && _players.at(2)->get_is_finished()) {
+    if(_players.at(0)->get_is_finished() && _players.at(2)->get_is_finished() 
+       && !(_players.at(1)->get_is_finished()) && !(_players.at(3)->get_is_finished())) {
         _score_team_A += 200;
     }
     // team B doppelsieg
-    else if(_players.at(0)->get_is_finished() && _players.at(2)->get_is_finished()) {
+    else if(_players.at(1)->get_is_finished() && _players.at(3)->get_is_finished()
+            && !(_players.at(0)->get_is_finished()) && !(_players.at(2)->get_is_finished())) {
         _score_team_B += 200;
     } else {
         
@@ -140,6 +182,7 @@ void GameState::wrap_up_round(Player &current_player, std::string& err) {
         _score_team_A += (won_cards_scores.at(0) + won_cards_scores.at(2));
         _score_team_B += (won_cards_scores.at(1) + won_cards_scores.at(3));
     }
+    
     //check for failed or successful tichu
     if(_players.at(0)->get_tichu()) { 
         if(first_player_idx == 0) {
@@ -181,16 +224,24 @@ void GameState::setup_trick(Player &Player, std::string &err) {
 }
 
 bool GameState::check_is_trick_finished(Player &Player, std::string& err) {
-    // everyone skipped
-    if(_last_player_idx == _next_player_idx) {
-        return true;
+    // everyone skipped or is finished or is the last to have played a card
+    bool everyone_skipped = true;
+    for(int i = 0; i < 4; ++i) {
+        if(i == _last_player_idx || (*_players.at(i)).get_has_skipped() || (*_players.at(i)).get_is_finished()){
+            continue;
+        } else {
+            everyone_skipped = false;
+            break;
+        }
     }
+    if(everyone_skipped) { return true; }
+
     // team A doppelsieg
     if(_players.at(0)->get_is_finished() && _players.at(2)->get_is_finished()) {
         return true;
     }
     // team B doppelsieg
-    if(_players.at(0)->get_is_finished() && _players.at(2)->get_is_finished()) {
+    if(_players.at(1)->get_is_finished() && _players.at(3)->get_is_finished()) {
         return true;
     }
     return false;
@@ -303,6 +354,11 @@ bool GameState::play_combi(Player &Player, CardCombination& combi, std::string &
         if(combi.get_combination_type() != PASS){
             _active_pile.push_active_pile(combi);
             Player.remove_cards_from_hand(combi, err);
+            for(auto player : _players) {
+                (*player).set_skipped(false);
+            }
+        } else {
+            Player.set_skipped(true);
         }
 
         //update Player

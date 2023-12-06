@@ -613,6 +613,8 @@ namespace GamePanel {
 
             std::string name;
             switch (player->get_team()) {
+                case Team::RANDOM: 
+                    name = "[_]";
                 case Team::A:
                     name = "[A] ";
                     break;
@@ -724,11 +726,11 @@ namespace GamePanel {
         Renderer::set_camera(window_left, window_right, window_bottom, window_top);
 
         rel_fix_next_window(.5f, 1.f - .3f * ar);
-        begin_frameless_window("play/fold button");
+        begin_frameless_window("play/pass button");
 
         if (is_my_turn(*data)) {
             if (data->selected_cards.empty()) {
-                if (ImGui::Button("FOLD")) {
+                if (ImGui::Button("PASS")) {
                     data->pressed_fold = true;
                 }
             } else {
