@@ -7,8 +7,10 @@
 
 #include <string>
 #include <optional>
+#include <glm/glm.hpp>
 #include <vector>
 #include <cstdint>
+#include <utility>
 #include "KeyCodes.h"
 
 struct GLFWwindow;
@@ -16,7 +18,8 @@ struct GLFWwindow;
 // helper struct for creating a window
 struct WindowCreateInfo {
     std::string title{"Window Title"};
-    uint32_t width{100}, height{100};
+    glm::uvec2 size{};
+    std::optional<glm::ivec2> position{};
     bool vsync = true;
     std::optional<std::vector<uint32_t>> icon{};
 };
