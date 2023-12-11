@@ -6,6 +6,7 @@
 #include <utility>
 #include <variant>
 #include "utils.h"
+#include "Event.h"
 #include "game_state/GameState.h"
 #include "game_state/cards/card.h"
 #include "game_state/cards/CardCombination.h"
@@ -21,6 +22,7 @@
 enum class ClientMsgType: int {
     join_game = 0,
     start_game,
+    call_grand_tichu,
     play_combi,
     fold,
     ping,
@@ -42,6 +44,10 @@ struct join_game_req {
 VARIANT_ENUM(join_game_req, ClientMsgType, join_game)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(join_game_req, player_name, team)
 
+struct grand_tichu_req { Tichu grand_tichu_call; };
+VARIANT_ENUM(grand_tichu_req, ClientMsgType, call_grand_tichu)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(grand_tichu_req, grand_tichu_call)
+
 struct play_combi_req { CardCombination played_combi; };
 VARIANT_ENUM(play_combi_req, ClientMsgType, play_combi)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(play_combi_req, played_combi)
@@ -51,7 +57,7 @@ VARIANT_ENUM(ping, ClientMsgType, ping)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_EMPTY(ping)
 
 // this type can hold only one of these structs at any given time
-using client_msg_variant = std::variant<join_game_req, start_game_req, play_combi_req, fold_req, ping>;
+using client_msg_variant = std::variant<join_game_req, start_game_req, grand_tichu_req, play_combi_req, fold_req, ping>;
 
 // a ClientMsg has 3 fields, the game_id, player_id and the data specific for that type of message
 class ClientMsg {
@@ -93,6 +99,7 @@ public:
 // during deserialization on the client side.
 enum class ServerMsgType: int {
     req_response = 0,
+    event,
     full_state,
     pong,
 };
@@ -114,11 +121,15 @@ struct full_state_response { GameState state; };
 VARIANT_ENUM(full_state_response, ServerMsgType, full_state)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(full_state_response, state)
 
+struct event_message { Event event; };
+VARIANT_ENUM(event_message, ServerMsgType, event)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(event_message, event)
+
 struct pong {};
 VARIANT_ENUM(pong, ServerMsgType, pong)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_EMPTY(pong)
 
-using server_msg_variant = std::variant<server_message, full_state_response, pong>;
+using server_msg_variant = std::variant<server_message, event_message, full_state_response, pong>;
 
 class ServerMsg {
 private:

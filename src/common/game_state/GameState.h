@@ -7,7 +7,16 @@
 #include "player/Player.h"
 #include "cards/DrawPile.h"
 #include "cards/ActivePile.h"
+#include "../Event.h"
 #include "../utils.h"
+
+enum class GamePhase {
+    PREGAME,
+    PREROUND,
+    SWAPPING,
+    INROUND,
+    POSTGAME,
+};
 
 class GameState {
 private:
@@ -23,6 +32,7 @@ private:
 
     DrawPile _draw_pile{};
     ActivePile _active_pile{};
+    std::vector<Event> _event_history{};
 
     int _score_team_A{0};
     int _score_team_B{0};
@@ -31,8 +41,7 @@ private:
     int _starting_player_idx{0};
     int _last_player_idx{0};
 
-    bool _is_started{false};
-    bool _is_game_finished{false};
+    GamePhase _game_phase{GamePhase::PREGAME};
     bool _is_round_finished{false};
     bool _is_trick_finished{false};
 
@@ -53,11 +62,9 @@ public:
 
     [[nodiscard]] const UUID &get_id() const { return _id; }
 
-    [[nodiscard]] bool is_started() const { return _is_started; }
+    [[nodiscard]] GamePhase get_game_phase() const { return _game_phase; }
 
     [[nodiscard]] bool is_full() const { return _players.size() == _max_nof_players; }
-
-    [[nodiscard]] bool is_game_finished() const { return _is_game_finished; }
 
     [[nodiscard]] bool is_round_finished() const { return _is_round_finished; }
 
@@ -88,6 +95,8 @@ public:
         void wrap_up_game(std::string& err);
         void make_teams();
 
+        bool call_grand_tichu(const Player &player, Tichu tichu, std::string &err);
+
         void setup_round(std::string& err);   // server side initialization
         bool check_is_round_finished(Player &Player, std::string& err);
         void wrap_up_round(Player &Player, std::string& err);
@@ -108,7 +117,7 @@ public:
         bool play_combi(Player &Player, CardCombination& combi, std::string& err);
 #endif
 
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(GameState, _id, _players, _round_finish_order, _draw_pile, _active_pile, _score_team_A, _score_team_B, _next_player_idx, _starting_player_idx, _is_started, _is_game_finished, _is_round_finished, _is_trick_finished, _last_player_idx)
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(GameState, _id, _players, _round_finish_order, _draw_pile, _active_pile, _score_team_A, _score_team_B, _next_player_idx, _starting_player_idx, _game_phase, _is_round_finished, _is_trick_finished, _last_player_idx)
 };
 
 

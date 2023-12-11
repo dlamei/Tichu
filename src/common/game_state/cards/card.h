@@ -5,10 +5,10 @@
 #include <nlohmann/json.hpp>
 
 //Macros for special cards
-#define DRAGON Card(SPECIAL, RED, 25)
 #define PHONIX Card(SPECIAL, GREEN, -25)
-#define ONE Card(SPECIAL, SCHWARZ, 0)
+#define DRAGON Card(SPECIAL, RED, 25)
 #define HUND Card(SPECIAL, BLUE, 0)
+#define ONE Card(SPECIAL, SCHWARZ, 0)
 
 enum Rank {
     SPECIAL = 1, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE
@@ -56,6 +56,8 @@ public:
     [[nodiscard]] int get_suit() const noexcept { return _suit; }
 
     [[nodiscard]] int get_value() const noexcept { return _value; }
+
+    std::string to_string() const;
 
 public:
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Card, _rank, _suit, _value);

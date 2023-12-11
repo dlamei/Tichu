@@ -52,6 +52,24 @@ namespace request_handler {
                 return ServerMsg(resp);
             }
 
+                // ##################### GRAND TICHU ##################### //
+            case ClientMsgType::call_grand_tichu: {
+                auto game_and_player = game_instance_manager::try_get_player_and_game_instance(player_id, err);
+                if (game_and_player) {
+                    auto [player, game_instance] = game_and_player.value();
+                    auto grand_tichu_call = req.get_msg_data<grand_tichu_req>().grand_tichu_call;
+
+                    if (game_instance->call_grand_tichu(player, grand_tichu_call, err)) {
+                        return ServerMsg(full_state_response {game_instance->get_game_state()});
+                    } else {
+                        return ServerMsg(server_message{MessageType::Info, err});
+                    }
+                }
+                auto resp = server_message{MessageType::Error, err };
+                return ServerMsg(resp);
+            }
+
+
 
                 // ##################### PLAY CARD ##################### //
             case ClientMsgType::play_combi: {

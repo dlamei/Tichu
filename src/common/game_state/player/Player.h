@@ -15,6 +15,12 @@ enum class Team {
     B,
 };
 
+enum class Tichu {
+    NONE,
+    TICHU,
+    GRAND_TICHU,
+};
+
 class Player {
 private:
     UUID _id;
@@ -24,8 +30,7 @@ private:
     bool _has_skipped{};
     hand _hand;
     WonCardsPile _won_cards;
-    bool _tichu{};
-    bool _grand_tichu{};
+    Tichu _tichu{};
 
 #ifdef TICHU_SERVER
     UUID _game_id;
@@ -55,7 +60,8 @@ public:
 
     const UUID &get_game_id() { return _game_id; };
     void set_game_id(UUID game_id) { _game_id = std::move(game_id); };
-    void set_team(Team team) {_team = team; }
+    void set_team(Team team) { _team = team; }
+    void set_tichu(Tichu tichu) { _tichu = tichu; }
     void set_skipped(bool skipped) { _has_skipped = skipped; }
 #endif
 
@@ -66,9 +72,7 @@ public:
 
     [[nodiscard]] bool get_has_skipped() const noexcept { return _has_skipped; }
 
-    [[nodiscard]] bool get_tichu() const noexcept { return _tichu; }
-
-    [[nodiscard]] int get_grand_tichu() const noexcept { return _grand_tichu; }
+    [[nodiscard]] Tichu get_tichu() const noexcept { return _tichu; }
 
     [[nodiscard]] const UUID &get_id() const noexcept { return _id; }
 
@@ -97,7 +101,7 @@ public:
     void setup_round(std::string& err) { }
 #endif
 
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Player, _id, _player_name, _team, _is_finished, _hand, _won_cards, _tichu, _grand_tichu)
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Player, _id, _player_name, _team, _is_finished, _hand, _won_cards, _tichu)
 };
 
 using player_ptr = std::shared_ptr<Player>;

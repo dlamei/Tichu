@@ -42,7 +42,6 @@ bool GameState::is_allowed_to_play_now(const Player &player) const {
     return player == current.value();
 }
 
-
 #ifdef TICHU_SERVER
 // 
 //   [ FUNCTIONS] 
@@ -53,12 +52,12 @@ bool GameState::start_game(std::string &err) {
         return false;
     }
 
-    if (!_is_started) {
+    if (_game_phase == GamePhase::PREGAME) {
         // make teams
         make_teams();
         
         this->setup_round(err);
-        this->_is_started = true;
+        this->_game_phase = GamePhase::PREROUND;
         return true;
     } else {
         err = "Could not start game, as the game was already started";
@@ -73,7 +72,7 @@ bool GameState::check_is_game_over(std::string& err) {
 }
 
 void GameState::wrap_up_game(std::string& err) {
-    _is_game_finished = true;
+    _game_phase = GamePhase::POSTGAME;
 }
 
 void GameState::make_teams(){
@@ -104,11 +103,32 @@ void GameState::make_teams(){
     (*_players.at(3)).set_team(Team::B);
 }
 
+bool GameState::call_grand_tichu(const Player &player, Tichu tichu, std::string &err) {
+    if(_game_phase != GamePhase::PREROUND) {
+        err = "You can't call a Grand Tichu Anymore";
+        return false;
+    }
+
+    static int call_count = 0;
+    ++call_count;
+
+    int player_idx = get_player_index(player);
+    _players.at(player_idx)->set_tichu(tichu);
+
+    if(call_count < 4){
+        return true;
+    } else {
+        call_count = 0;
+        _game_phase = GamePhase::SWAPPING;
+        return true;
+    }
+}
+
 // 
 //   [ROUND FUNCTIONS] 
 // 
 void GameState::setup_round(std::string &err) {
-
+    _game_phase = GamePhase::PREROUND;
 
     // setup DrawPile
     _draw_pile.setup_game(err);
@@ -184,27 +204,43 @@ void GameState::wrap_up_round(Player &current_player, std::string& err) {
     }
     
     //check for failed or successful tichu
-    if(_players.at(0)->get_tichu()) { 
+    if(_players.at(0)->get_tichu() == Tichu::GRAND_TICHU) { 
+        if(first_player_idx == 0) {
+            _score_team_A += 200;
+        } else { _score_team_A -= 200; }
+    } else if (_players.at(0)->get_tichu() == Tichu::TICHU) {
         if(first_player_idx == 0) {
             _score_team_A += 100;
         } else { _score_team_A -= 100; }
     }
-    if(_players.at(1)->get_tichu()) { 
-        if(first_player_idx == 1) {
+    if(_players.at(1)->get_tichu() == Tichu::GRAND_TICHU) { 
+        if(first_player_idx == 0) {
+            _score_team_B += 200;
+        } else { _score_team_B -= 200; }
+    } else if (_players.at(1)->get_tichu() == Tichu::TICHU) {
+        if(first_player_idx == 0) {
+            _score_team_B += 100;
+        } else { _score_team_B -= 100; }
+    }
+    if(_players.at(2)->get_tichu() == Tichu::GRAND_TICHU) { 
+        if(first_player_idx == 0) {
+            _score_team_A += 200;
+        } else { _score_team_A -= 200; }
+    } else if (_players.at(2)->get_tichu() == Tichu::TICHU) {
+        if(first_player_idx == 0) {
             _score_team_A += 100;
         } else { _score_team_A -= 100; }
     }
-    if(_players.at(2)->get_tichu()) { 
-        if(first_player_idx == 2) {
-            _score_team_A += 100;
-        } else { _score_team_A -= 100; }
+    if(_players.at(3)->get_tichu() == Tichu::GRAND_TICHU) { 
+        if(first_player_idx == 0) {
+            _score_team_B += 200;
+        } else { _score_team_B -= 200; }
+    } else if (_players.at(3)->get_tichu() == Tichu::TICHU) {
+        if(first_player_idx == 0) {
+            _score_team_B += 100;
+        } else { _score_team_B -= 100; }
     }
-    if(_players.at(3)->get_tichu()) { 
-        if(first_player_idx == 3) {
-            _score_team_A += 100;
-        } else { _score_team_A -= 100; }
-    }
-
+    
     // clear and wrapup stuff
     _starting_player_idx = first_player_idx;
     _next_player_idx = first_player_idx;
@@ -259,11 +295,11 @@ void GameState::wrap_up_trick(Player &Player, std::string &err) {
 //   [PLAYER FUNCTIONS] 
 // 
 bool GameState::add_player(const player_ptr player_ptr, std::string& err) {
-    if (_is_started) {
+    if (_game_phase == GamePhase::PREROUND || _game_phase == GamePhase::INROUND) {
         err = "Could not join game, because the requested game is already started.";
         return false;
     }
-    if (_is_game_finished) {
+    if (_game_phase == GamePhase::POSTGAME) {
         err = "Could not join game, because the requested game is already finished.";
         return false;
     }
@@ -326,8 +362,6 @@ void GameState::wrap_up_player(Player &Player, std::string &err) {
 
 //   [GamePanel Logic]
 bool GameState::play_combi(Player &Player, CardCombination& combi, std::string &err) {
-    _is_round_finished = false;
-    _is_trick_finished = false;
     int player_idx = get_player_index(Player);
     if(player_idx < 0 || player_idx > 3){
         err = "couldn't find Player index";
@@ -341,10 +375,22 @@ bool GameState::play_combi(Player &Player, CardCombination& combi, std::string &
         err = "It's not this players turn yet.";
         return false;
     }
-    if (_is_game_finished) {
-        err = "Could not play card, because the requested game is already finished.";
-        return false;
+    switch(_game_phase){
+        case GamePhase::PREROUND:
+            err = "Could not play combi, people are still choosing to call a Grand Tichu.";
+            return false;
+        case GamePhase::SWAPPING: 
+            err = "Could not play combi, because the game is still in the swapping phase.";
+            return false;
+        case GamePhase::POSTGAME: 
+            err = "Could not play combi, because the requested game is already finished.";
+            return false;
+        default:
+            break;
     }
+
+    _is_round_finished = false;
+    _is_trick_finished = false;
 
     auto last_combi = _active_pile.get_top_combi();
     // check if it's legal to play this combination

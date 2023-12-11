@@ -9,6 +9,7 @@ endif()
 add_subdirectory(libs)
 
 set(COMMON_SOURCE_FILES
+		src/common/Event.cpp src/common/Event.h
         src/common/game_state/cards/card.cpp src/common/game_state/cards/card.h
         src/common/game_state/GameState.cpp src/common/game_state/GameState.h
         src/common/game_state/player/hand.cpp src/common/game_state/player/hand.h
