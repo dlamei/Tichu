@@ -96,6 +96,7 @@ public:
         void make_teams();
 
         bool call_grand_tichu(const Player &player, Tichu tichu, std::string &err);
+        bool call_small_tichu(const Player &player, Tichu tichu, std::string &err);
 
         void setup_round(std::string& err);   // server side initialization
         bool check_is_round_finished(Player &Player, std::string& err);

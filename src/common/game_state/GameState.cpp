@@ -124,6 +124,16 @@ bool GameState::call_grand_tichu(const Player &player, Tichu tichu, std::string 
     }
 }
 
+bool GameState::call_small_tichu(const Player &player, Tichu tichu, std::string &err) {
+    if(player.get_hand().get_nof_cards() != 14) {
+        err = "You can't call a Grand Tichu Anymore";
+        return false;
+    }
+    int player_idx = get_player_index(player);
+    _players.at(player_idx)->set_tichu(Tichu::TICHU);
+    return true;
+}
+
 // 
 //   [ROUND FUNCTIONS] 
 // 
@@ -375,6 +385,7 @@ bool GameState::play_combi(Player &Player, CardCombination& combi, std::string &
         err = "It's not this players turn yet.";
         return false;
     }
+
     switch(_game_phase){
         case GamePhase::PREROUND:
             err = "Could not play combi, people are still choosing to call a Grand Tichu.";

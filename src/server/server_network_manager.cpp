@@ -195,6 +195,21 @@ void server_network_manager::broadcast_message(ServerMsg &msg, std::vector<playe
     _rw_lock.unlock_shared();
 }
 
+void server_network_manager::broadcast_single_message(ServerMsg &msg, std::vector<player_ptr> players, const Player &recipient) {
+    json data;
+    to_json(data, msg);
+    DEBUG("broadcast_single_message: {}", data.dump(1));
+
+    _rw_lock.lock_shared();
+    // send object_diff to all requested players
+    try {
+        send_message(data.dump(), _player_id_to_address.at(recipient.get_id()));
+    } catch (std::exception &e) {
+        std::cerr << "Encountered error when sending state update: " << e.what() << std::endl;
+    }
+    _rw_lock.unlock_shared();
+
+}
 
 
 

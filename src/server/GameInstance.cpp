@@ -37,13 +37,20 @@ void broadcast_full_state_response(const GameState &state, std::vector<Event> ev
     server_network_manager::broadcast_message(resp, state.get_players(), std::move(player));
 }
 
+void send_full_state_response(const Player &recipient, const GameState &state, const std::vector<Event> events) {
+    auto update_msg = full_state_response{ state, events };
+    auto resp = ServerMsg(update_msg);
+    server_network_manager::broadcast_single_message(resp, state.get_players(), recipient)
+}
+
 
 bool GameInstance::play_combi(const player_ptr& player, CardCombination &combi, std::string &err) {
     modification_lock.lock();
     if (_game_state.play_combi(*player, combi, err)) {
-        Event event{EventType::PLAY_COMBI, player->get_player_name(), {}, {}, {}};
-        broadcast_full_state_response(_game_state, {event});
-
+        for(auto p : _game_state.get_players()){
+            Event event{EventType::PLAY_COMBI, player->get_player_name(), {}, {}, {}};
+            broadcast_full_state_response(_game_state, {event});
+        }
         modification_lock.unlock();
         return true;
     }
