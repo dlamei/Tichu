@@ -44,6 +44,8 @@ public:
 
     bool call_grand_tichu(const player_ptr& player, Tichu tichu, std::string &err);
 
+    bool call_small_tichu(const player_ptr& player, Tichu tichu, std::string &err);
+
 };
 
 

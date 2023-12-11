@@ -57,7 +57,7 @@ bool GameState::start_game(std::string &err) {
         make_teams();
         
         this->setup_round(err);
-        this->_game_phase = GamePhase::PREROUND;
+        this->_game_phase = GamePhase::INROUND; //SHOULD BE INROUND 
         return true;
     } else {
         err = "Could not start game, as the game was already started";

@@ -23,6 +23,9 @@ enum class ClientMsgType: int {
     join_game = 0,
     start_game,
     call_grand_tichu,
+    call_small_tichu,
+    dragon,
+    swap,
     play_combi,
     fold,
     ping,
@@ -48,6 +51,18 @@ struct grand_tichu_req { Tichu grand_tichu_call; };
 VARIANT_ENUM(grand_tichu_req, ClientMsgType, call_grand_tichu)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(grand_tichu_req, grand_tichu_call)
 
+struct small_tichu_req { Tichu small_tichu_call; };
+VARIANT_ENUM(small_tichu_req, ClientMsgType, call_small_tichu)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(small_tichu_req, small_tichu_call)
+
+struct dragon_req { UUID selected_player; };
+VARIANT_ENUM(dragon_req, ClientMsgType, dragon)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(dragon_req, selected_player)
+
+struct swap_req { std::vector<Card> cards; };
+VARIANT_ENUM(swap_req, ClientMsgType, swap)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(swap_req, cards)
+
 struct play_combi_req { CardCombination played_combi; };
 VARIANT_ENUM(play_combi_req, ClientMsgType, play_combi)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(play_combi_req, played_combi)
@@ -57,7 +72,8 @@ VARIANT_ENUM(ping, ClientMsgType, ping)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_EMPTY(ping)
 
 // this type can hold only one of these structs at any given time
-using client_msg_variant = std::variant<join_game_req, start_game_req, grand_tichu_req, play_combi_req, fold_req, ping>;
+using client_msg_variant = std::variant<join_game_req, start_game_req, grand_tichu_req, small_tichu_req, 
+                                        dragon_req, swap_req, play_combi_req, fold_req, ping>;
 
 // a ClientMsg has 3 fields, the game_id, player_id and the data specific for that type of message
 class ClientMsg {
@@ -99,8 +115,8 @@ public:
 // during deserialization on the client side.
 enum class ServerMsgType: int {
     req_response = 0,
-    event,
     full_state,
+    dragon,
     pong,
 };
 
@@ -117,19 +133,22 @@ struct server_message {
 VARIANT_ENUM(server_message, ServerMsgType, req_response)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(server_message, msg, type)
 
-struct full_state_response { GameState state; };
+struct full_state_response { 
+    GameState state;
+    std::vector<Event> events; 
+};
 VARIANT_ENUM(full_state_response, ServerMsgType, full_state)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(full_state_response, state)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(full_state_response, state, events)
 
-struct event_message { Event event; };
-VARIANT_ENUM(event_message, ServerMsgType, event)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(event_message, event)
+struct dragon {};
+VARIANT_ENUM(dragon, ServerMsgType, dragon)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_EMPTY(dragon)
 
 struct pong {};
 VARIANT_ENUM(pong, ServerMsgType, pong)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_EMPTY(pong)
 
-using server_msg_variant = std::variant<server_message, event_message, full_state_response, pong>;
+using server_msg_variant = std::variant<server_message, full_state_response, dragon, pong>;
 
 class ServerMsg {
 private:

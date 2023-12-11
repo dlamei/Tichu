@@ -151,13 +151,13 @@ void TichuGame::process_messages() {
                 process(data);
                 break;
             }
-            case ServerMsgType::event: {
+            case ServerMsgType::full_state: {
                 auto data = msg.get_msg_data<full_state_response>();
                 process(data);
                 break;
-            }   
-            case ServerMsgType::full_state: {
-                auto data = msg.get_msg_data<full_state_response>();
+            }
+            case ServerMsgType::dragon: {
+                auto data = msg.get_msg_data<dragon>();
                 process(data);
                 break;
             }
@@ -173,10 +173,8 @@ void TichuGame::process(const server_message &data) {
     show_msg(data.type, data.msg);
 }
 
-void TichuGame::process(const event_message &data) {
-    MessageType type = MessageType::Info;
-    std::string msg = data.event.to_string();
-    show_msg(type, msg);
+void TichuGame::process(const dragon &data) {
+    // Selecting who gets the Dragon Stich
 }
 
 void TichuGame::process(const full_state_response &data) {
@@ -186,6 +184,10 @@ void TichuGame::process(const full_state_response &data) {
         _game_panel_data.panel_state = GamePanel::LOBBY;
     } else {
         _game_panel_data.panel_state = GamePanel::GAME;
+    }
+
+    if( !(data.events.empty()) ) {
+        // draw events that came with the last full_state_response
     }
 
     _game_panel_data.prev_game_state = _game_panel_data.game_state;

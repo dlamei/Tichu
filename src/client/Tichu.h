@@ -53,7 +53,7 @@ private:
 
     void process_messages();
     void process(const server_message &data);
-    void process(const event_message &data);
+    void process(const dragon &data);
     void process(const full_state_response &data);
 
     // show the active panel
