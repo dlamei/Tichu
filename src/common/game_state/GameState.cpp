@@ -57,7 +57,7 @@ bool GameState::start_game(std::string &err) {
         make_teams();
         
         this->setup_round(err);
-        this->_game_phase = GamePhase::INROUND; //SHOULD BE INROUND 
+        this->_game_phase = GamePhase::INROUND; //SHOULD BE PREROUND
         return true;
     } else {
         err = "Could not start game, as the game was already started";
@@ -126,7 +126,7 @@ bool GameState::call_grand_tichu(const Player &player, Tichu tichu, std::string 
 
 bool GameState::call_small_tichu(const Player &player, Tichu tichu, std::string &err) {
     if(player.get_hand().get_nof_cards() != 14) {
-        err = "You can't call a Grand Tichu Anymore";
+        err = "You can't call a Tichu Anymore";
         return false;
     }
     int player_idx = get_player_index(player);

@@ -9,6 +9,8 @@
 
 enum class EventType {
     GAME_START,
+    PLAYER_JOINED,
+    PLAYER_LEFT,
     GRAND_TICHU,
     SMALL_TICHU,
     SWAP,
