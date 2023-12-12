@@ -38,16 +38,31 @@ void send_full_state_response(const Player &recipient, const GameState &state, c
 }
 
 
-bool GameInstance::play_combi(const player_ptr& player, CardCombination &combi, std::string &err) {
+bool GameInstance::play_combi(const player_ptr& player, CardCombination &combi, std::string &err, std::optional<Card> wish) {
     modification_lock.lock();
     if (_game_state.play_combi(*player, combi, err)) {
+        Event event;
+        if( combi.get_combination_type() == PASS ) {
+            event = Event{EventType::PASS, player->get_player_name(), {}, {}, {}};
+        } 
+        else if( combi.get_combination_type() == BOMB ) {
+            event = Event{EventType::BOMB, player->get_player_name(), {}, {}, {}};
+        }
+        else if( combi.get_combination_type() == MAJONG ) {
+            if(wish){
+                event = Event{EventType::WISH, player->get_player_name(), wish.value(), {}, {}};
+            } else {
+                event = Event{EventType::WISH, player->get_player_name(), {}, {}, {}};
+            }
+        } else {
+            event = Event{EventType::PASS, player->get_player_name(), {}, {}, {}};  
+        }
         for(auto recipient : _game_state.get_players()){
             if(*recipient != *player){
-            Event event{EventType::PLAY_COMBI, player->get_player_name(), {}, {}, {}};
             send_full_state_response(*recipient, _game_state, {event});
             }
         }
-        Event event{EventType::PLAY_COMBI, {}, {}, {}, {}};
+        event.player_name = {};
         send_full_state_response(*player, _game_state, {event});
 
         modification_lock.unlock();

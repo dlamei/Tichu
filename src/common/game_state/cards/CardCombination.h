@@ -9,7 +9,7 @@
 #include <nlohmann/json.hpp>
 
 enum COMBI {
-    NONE, SINGLE, DOUBLE, TRIPLE, BOMB, FULLHOUSE, STRASS, TREPPE, PASS, SWITCH
+    NONE, SINGLE, DOUBLE, TRIPLE, BOMB, FULLHOUSE, STRASS, TREPPE, PASS, SWITCH, MAJONG
 };
 
 class CardCombination {
