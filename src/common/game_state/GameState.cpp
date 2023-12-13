@@ -27,6 +27,12 @@ int GameState::get_player_index(const Player &player) const {
     return -1;
 }
 
+int GameState::get_player_index(UUID player_id) const {
+    for (int i = 0; i < _players.size(); ++i) {
+        if(_players.at(i)->get_id() == player_id) { return i;}
+    }
+}
+
 bool GameState::is_player_in_game(const Player &player) const {
     for (int i = 0; i < _players.size(); ++i) {
         if (*(_players.at(i)) == player) { return true; }
@@ -131,6 +137,13 @@ bool GameState::call_small_tichu(const Player &player, Tichu tichu, std::string 
     }
     int player_idx = get_player_index(player);
     _players.at(player_idx)->set_tichu(Tichu::TICHU);
+    return true;
+}
+
+bool GameState::dragon_selection(const Player &player, UUID selected_player, std::string &err) {
+    _players.at(get_player_index(selected_player))->add_cards_to_won_pile(_active_pile.get_pile(), err);
+    _active_pile.clear_cards();
+    _game_phase = GamePhase::INROUND;
     return true;
 }
 
@@ -279,6 +292,7 @@ bool GameState::check_is_round_finished(Player &Player, std::string& err) {
 
 void GameState::wrap_up_round(Player &current_player, std::string& err) {
     _is_round_finished = true;
+    _wish = {};
 
     int first_player_idx = get_player_index(_round_finish_order.at(0));
     int last_player_idx = _next_player_idx;
@@ -389,6 +403,23 @@ bool GameState::check_is_trick_finished(Player &Player, std::string& err) {
 void GameState::wrap_up_trick(Player &Player, std::string &err) {
     _is_trick_finished = true;
     // move cards to WonCardsPile to right Player
+
+    // Handle Dragon Stich
+    std::optional<CardCombination> top_combi = _active_pile.get_top_combi();
+    if(top_combi && !(top_combi.value().get_cards().empty()) && top_combi.value().get_cards().at(0) == DRAGON) {
+        if(_players.at((_last_player_idx + 1) % 4)->get_is_finished()) {
+            _players.at((_last_player_idx + 3) % 4)->add_cards_to_won_pile(_active_pile.get_pile(), err);
+            _active_pile.clear_cards();
+        }
+        else if(_players.at((_last_player_idx + 3) % 4)->get_is_finished()) {
+            _players.at((_last_player_idx + 1) % 4)->add_cards_to_won_pile(_active_pile.get_pile(), err);
+            _active_pile.clear_cards();
+        } else {
+            _game_phase = GamePhase::SELECTION;
+            return;
+        }
+    }
+
     _players.at(_last_player_idx)->add_cards_to_won_pile(_active_pile.get_pile(), err);
     _active_pile.clear_cards();
 }
@@ -488,6 +519,12 @@ bool GameState::play_combi(Player &Player, CardCombination& combi, std::string &
             return false;
         case GamePhase::POSTGAME: 
             err = "Could not play combi, because the requested game is already finished.";
+            return false;
+        case GamePhase::PREGAME: 
+            err = "Could not play combi, because the game hasn't started yet.";
+            return false;
+        case GamePhase::SELECTION: 
+            err = "Could not play combi, because someone is currently choosing who to give the Tichu stich to.";
             return false;
         default:
             break;

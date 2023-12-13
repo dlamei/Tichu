@@ -103,6 +103,23 @@ namespace request_handler {
                 return ServerMsg(resp);
             }
 
+                // ##################### DRAGON SELECTION ##################### //
+            case ClientMsgType::dragon: {
+                auto game_and_player = game_instance_manager::try_get_player_and_game_instance(player_id, err);
+                if (game_and_player) {
+                    auto [player, game_instance] = game_and_player.value();
+                    auto selected_player = req.get_msg_data<dragon_req>().selected_player;
+                
+                    if (game_instance->dragon_selection(player, selected_player, err)) {
+                        return {};
+                    } else {
+                        return ServerMsg(server_message{MessageType::Info, err});
+                    }
+                }
+                auto resp = server_message{MessageType::Error, err };
+                return ServerMsg(resp);
+            }
+
                 // ##################### PLAY CARD ##################### //
             case ClientMsgType::play_combi: {
                 auto game_and_player = game_instance_manager::try_get_player_and_game_instance(player_id, err);

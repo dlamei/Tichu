@@ -46,6 +46,16 @@ std::string Event::to_string() const {
             event_string += " passed";
             break;
 
+        case EventType::SELECTION_START:
+            event_string += player_name.value_or("You");
+            event_string += " is selecting who to give the Dragon to";
+            break;
+
+        case EventType::SELECTION_END:
+            event_string += "The Dragon was given to ";
+            event_string += player_name.value_or("You");
+            break;
+
         case EventType::BOMB:
             event_string += player_name.value_or("You");
             event_string += " played a Bomb!!";

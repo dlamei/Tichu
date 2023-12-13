@@ -15,6 +15,7 @@ enum class GamePhase {
     PREROUND,
     SWAPPING,
     INROUND,
+    SELECTION,
     POSTGAME,
 };
 
@@ -55,10 +56,10 @@ public:
 
     // returns the index of 'Player' in the '_players' vector
     [[nodiscard]] int get_score_team_A() const { return _score_team_A; }
-
     [[nodiscard]] int get_score_team_B() const { return _score_team_B; }
 
     [[nodiscard]] int get_player_index(const Player &player) const;
+    [[nodiscard]] int get_player_index(UUID player_id) const;
 
     [[nodiscard]] const UUID &get_id() const { return _id; }
 
@@ -97,6 +98,8 @@ public:
 
         bool call_grand_tichu(const Player &player, Tichu tichu, std::string &err);
         bool call_small_tichu(const Player &player, Tichu tichu, std::string &err);
+
+        bool dragon_selection(const Player &player, UUID selected_player, std::string &err);
         
         bool swap_cards(const Player &player, const std::vector<Card> &cards, std::vector<std::vector<Card>> swapped_cards, std::string &err);
         bool check_wish(const CardCombination &combi, const Player &player, const std::optional<Card> &wish, std::string & err);

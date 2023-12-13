@@ -16,6 +16,8 @@ enum class EventType {
     SWAP_OUT,
     SWAP_IN,
     WISH,
+    SELECTION_START,
+    SELECTION_END,
     PLAY_COMBI,
     PASS,
     BOMB,

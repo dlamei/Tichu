@@ -48,6 +48,8 @@ public:
 
     bool swap_cards(const player_ptr& player, const std::vector<Card> cards, std::string &err);
 
+    bool dragon_selection(const player_ptr& player, UUID selected_player, std::string &err);
+
 };
 
 

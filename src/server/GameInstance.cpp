@@ -41,29 +41,35 @@ void send_full_state_response(const Player &recipient, const GameState &state, c
 bool GameInstance::play_combi(const player_ptr& player, CardCombination &combi, std::string &err, std::optional<Card> wish) {
     modification_lock.lock();
     if (_game_state.play_combi(*player, combi, err, wish)) {
-        Event event;
+        std::vector<Event> events;
         if( combi.get_combination_type() == PASS ) {
-            event = Event{EventType::PASS, player->get_player_name(), {}, {}, {}};
+            events.push_back({EventType::PASS, player->get_player_name(), {}, {}, {}});
+            if(_game_state.get_game_phase() == GamePhase::SELECTION) {
+                std::string name = _game_state.get_players().at(_game_state.get_last_player_idx())->get_player_name();
+                events.push_back({EventType::SELECTION_START, name, {}, {}, {}});
+            }
         } 
         else if( combi.get_combination_type() == BOMB ) {
-            event = Event{EventType::BOMB, player->get_player_name(), {}, {}, {}};
+            events.push_back({EventType::BOMB, player->get_player_name(), {}, {}, {}});
         }
         else if( combi.get_combination_type() == MAJONG ) {
             if(wish){
-                event = Event{EventType::WISH, player->get_player_name(), wish.value(), {}, {}};
+                events.push_back({EventType::WISH, player->get_player_name(), wish.value(), {}, {}});
             } else {
-                event = Event{EventType::WISH, player->get_player_name(), {}, {}, {}};
+                events.push_back({EventType::WISH, player->get_player_name(), {}, {}, {}});
             }
         } else {
-            event = Event{EventType::PASS, player->get_player_name(), {}, {}, {}};  
+            events.push_back({EventType::PASS, player->get_player_name(), {}, {}, {}});  
         }
         for(auto recipient : _game_state.get_players()){
             if(*recipient != *player){
-            send_full_state_response(*recipient, _game_state, {event});
+            send_full_state_response(*recipient, _game_state, {events});
             }
         }
-        event.player_name = {};
-        send_full_state_response(*player, _game_state, {event});
+        for(auto event : events){
+            event.player_name = {};
+        }
+        send_full_state_response(*player, _game_state, {events});
 
         modification_lock.unlock();
         return true;
@@ -150,6 +156,23 @@ bool GameInstance::swap_cards(const player_ptr &player, const std::vector<Card> 
         send_full_state_response(*player, _game_state, {events});
         
         
+        modification_lock.unlock();
+        return true;
+    }
+    modification_lock.unlock();
+    return false;
+}
+
+bool GameInstance::dragon_selection(const player_ptr &player, UUID selected_player, std::string &err) {
+    modification_lock.lock();
+    if (_game_state.dragon_selection(*player, selected_player, err)) {
+        // send state update to all players
+        for(auto recipient : _game_state.get_players()){
+            std::string name = _game_state.get_players().at(_game_state.get_player_index(selected_player))->get_player_name();
+            Event event{EventType::SELECTION_END, name, {}, {}, {}};
+            send_full_state_response(*recipient, _game_state, {event});
+        }
+
         modification_lock.unlock();
         return true;
     }
