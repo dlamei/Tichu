@@ -106,11 +106,12 @@ void Application::build_dock_frame() {
                                                                  ImGuiDockNodeFlags_NoDockingOverMe);
         ImGuiID stats_dock;
         ImGui::DockBuilderSplitNode(viewport_dock, ImGuiDir_Right, 0.25f, &stats_dock, &viewport_dock);
-        ImGui::DockBuilderGetNode(viewport_dock)->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoDockingOverCentralNode;
+        ImGui::DockBuilderGetNode(viewport_dock)->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
+        ImGui::DockBuilderGetNode(viewport_dock)->LocalFlags |= ImGuiDockNodeFlags_NoDockingOverCentralNode;
         ImGui::DockBuilderGetNode(stats_dock)->LocalFlags |= ImGuiDockNodeFlags_NoWindowMenuButton;
 
         ImGui::DockBuilderDockWindow("viewport", viewport_dock);
-        ImGui::DockBuilderDockWindow("###GameStats", stats_dock);
+        ImGui::DockBuilderDockWindow("###GameInfo", stats_dock);
 
         ImGui::DockBuilderFinish(dockspace_id);
     }

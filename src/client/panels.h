@@ -32,7 +32,7 @@ namespace ConnectionPanel {
         std::string host = "127.0.0.1";
         uint32_t port = 50505;
         std::string name = "name";
-        ConnectionPanel::TeamSelection team = ConnectionPanel::TeamSelection::RANDOM;
+        ConnectionPanel::TeamSelection team = ConnectionPanel::TeamSelection::TEAM_B;
         bool connect = false;
         std::string status = "not connected";
 

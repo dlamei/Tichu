@@ -5,13 +5,15 @@
 #include <set>
 
 #include "../common/Messages.h"
+#include <sstream>
 
 namespace GamePanel {
 
-    enum State {
-        LOBBY,
-        GAME,
-    };
+    // TODO: remove?
+    //enum State {
+    //    LOBBY,
+    //    GAME,
+    //};
 
     // input / output for the GamePanel
     // is also used to store e.g animation states
@@ -22,16 +24,22 @@ namespace GamePanel {
         long spread_anim_start = -1.f;
         long begin_card_collect_anim = -1.f;
         std::set<Card> selected_cards{};
+
+        //states of all the buttons
         bool pressed_fold {false};
         bool pressed_play {false};
         bool pressed_start_game{false};
+        bool grand_tichu_pressed {false};
+        bool pass_grand_tichu_pressed{false};
 
         // read only
         std::optional<UUID> player_id{};
         GameState game_state{};
         GameState prev_game_state{};
         bool state_updated = false;
-        State panel_state {State::LOBBY};
+        //std::string log_buffer{};
+        std::vector<std::pair<Event, std::string>> events_log{};
+        //State panel_state {State::LOBBY};
     };
 
     void load_textures();

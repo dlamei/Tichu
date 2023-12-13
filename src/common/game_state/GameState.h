@@ -11,7 +11,7 @@
 #include "../utils.h"
 
 enum class GamePhase {
-    PREGAME,
+    PREGAME = 0,
     PREROUND,
     SWAPPING,
     INROUND,

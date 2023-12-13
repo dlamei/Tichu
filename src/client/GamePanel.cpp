@@ -24,6 +24,30 @@ uint32_t hash(uint32_t x)
     return x;
 }
 
+ImVec4 event_to_color(const EventType &e) {
+    const auto HIGH = ImGui::RED;
+    switch (e) {
+        case EventType::GAME_START:
+        case EventType::PLAY_COMBI:
+        case EventType::ROUND_END:
+        case EventType::PASS:
+        case EventType::PLAYER_FINISHED:
+        case EventType::STICH_END:
+            return ImVec4 { 0.3, 0.3, 0.3, 1.0 };
+
+        case EventType::SWAP:
+        case EventType::WISH:
+        case EventType::BOMB:
+            return ImGui::WHITE;
+
+        case EventType::GRAND_TICHU:
+        case EventType::SMALL_TICHU:
+            return ImGui::YELLOW;
+
+        default: return ImGui::WHITE;
+    }
+}
+
 /// shows the framebuffer in the viewport window
 void show_main_framebuffer() {
     ImGui::Begin("viewport");
@@ -59,7 +83,7 @@ namespace GamePanel {
     // some constants for general styling
     float window_left = .5f, window_right = .5f, window_bottom = 0, window_top = 1;
     glm::vec2 window_size{1, 1};
-    const float padding = 0.2f;
+    const float side_padding = 0.2f;
     const glm::vec2 _card_size = {0.1f, 0.15f};
 
     const float spread_anim_len = 0.5f;
@@ -294,8 +318,8 @@ namespace GamePanel {
         const float hover_height = .05f;
 
         // region where the cards are positioned
-        float spread_start = window_left + padding * window_size.x;
-        float spread_end = window_right - card_size.x - window_size.x * padding;
+        float spread_start = window_left + side_padding * window_size.x;
+        float spread_end = window_right - card_size.x - window_size.x * side_padding;
         spread_start *= animate(seconds_since(data->spread_anim_start), spread_anim_len);
         spread_end *= animate(seconds_since(data->spread_anim_start), spread_anim_len);
 
@@ -379,7 +403,7 @@ namespace GamePanel {
     }
 
     glm::vec2 left_won_pile_pos() {
-        float y_pad = padding * 2 * window_size.y;
+        float y_pad = side_padding * 2 * window_size.y;
         return {window_left, window_bottom + y_pad * .6};
     }
 
@@ -390,7 +414,7 @@ namespace GamePanel {
         float spread_anim = animate(seconds_since(data.spread_anim_start), spread_anim_len);
         float collect_anim = animate(seconds_since(data.begin_card_collect_anim), collect_anim_len);
 
-        float y_pad = padding * 2 * window_size.y;
+        float y_pad = side_padding * 2 * window_size.y;
         float mid = (window_top - window_bottom) / 2;
         float spread_start = spread_anim * (window_bottom + y_pad) + (1 - spread_anim) * mid;
         float spread_end = spread_anim * (window_top - y_pad - _card_size.x) + (1 - spread_anim) * mid;
@@ -423,7 +447,7 @@ namespace GamePanel {
     }
 
     glm::vec2 right_won_pile_pos() {
-        float y_pad = padding * 2 * window_size.y;
+        float y_pad = side_padding * 2 * window_size.y;
         return {window_right - _card_size.x, window_top - y_pad * .6 - _card_size.y};
     }
 
@@ -435,7 +459,7 @@ namespace GamePanel {
         float spread_anim = animate(seconds_since(data.spread_anim_start), spread_anim_len);
         float collect_anim = animate(seconds_since(data.begin_card_collect_anim), collect_anim_len);
 
-        float y_pad = padding * 2 * window_size.y;
+        float y_pad = side_padding * 2 * window_size.y;
         float mid = (window_top - window_bottom) / 2;
         float spread_start = spread_anim * (window_bottom + y_pad) + (1 - spread_anim) * mid;
         float spread_end = spread_anim * (window_top - y_pad - _card_size.x) + (1 - spread_anim) * mid;
@@ -465,7 +489,7 @@ namespace GamePanel {
     }
 
     glm::vec2 top_won_pile_pos() {
-        float x_pad = padding * 2 * window_size.x;
+        float x_pad = side_padding * 2 * window_size.x;
         return {window_left + x_pad * .6, window_top - _card_size.y * 0.75};
     }
 
@@ -476,7 +500,7 @@ namespace GamePanel {
         float spread_anim = animate(seconds_since(data.spread_anim_start), spread_anim_len);
         float collect_anim = animate(seconds_since(data.begin_card_collect_anim), collect_anim_len);
 
-        float x_pad = padding * 2 * window_size.x;
+        float x_pad = side_padding * 2 * window_size.x;
         float spread_start = spread_anim * (window_left + x_pad);
         float spread_end = spread_anim * (window_right - x_pad - _card_size.x);
         auto top_pos = calculate_card_positions(n_cards, _card_size, spread_start, spread_end, -1);
@@ -540,8 +564,8 @@ namespace GamePanel {
     std::vector<std::pair<glm::vec2, float>> get_top_combi_transform(const CardCombination& data) {
         std::vector<std::pair<glm::vec2, float>> res = {};
         int n_cards = (int)data.get_cards().size();
-        const float spread_start = window_left + window_size.x * padding * 2;
-        const float spread_end = window_right - _card_size.x - window_size.x * padding * 2;
+        const float spread_start = window_left + window_size.x * side_padding * 2;
+        const float spread_end = window_right - _card_size.x - window_size.x * side_padding * 2;
         auto x_pos = calculate_card_positions(n_cards, _card_size, spread_start, spread_end, -1);
 
         float angle = 0;
@@ -572,36 +596,29 @@ namespace GamePanel {
         return false;
     }
 
-    void show_game_stats(const Data &data) {
+    void show_game_info(const Data &data) {
         auto &players = data.game_state.get_players();
         auto c_player = data.game_state.get_current_player();
 
-        auto style = ImGui::ScopedStyle();
-
-        std::string title = data.panel_state == State::LOBBY ? "Lobby" : "Tichu";
-        title += "###GameStats";
+        std::string title = data.game_state.get_game_phase() == GamePhase::PREGAME ? "Lobby" : "Tichu";
+        title += "###GameInfo";
         ImGui::Begin(title.c_str(), nullptr, ImGuiWindowFlags_NoCollapse);
-        switch (data.panel_state) {
-            case LOBBY:
-                break;
-            case GAME: {
-                ImGui::SeparatorText("scores");
-                ImGui::BeginTable("score table", 2, ImGuiTableFlags_Borders);
-                ImGui::TableNextRow();
-                ImGui::TableNextColumn();
-                ImGui::Text("Team A");
-                ImGui::TableNextColumn();
-                ImGui::Text("Team B");
+        if (data.game_state.get_game_phase() != GamePhase::PREGAME) {
+            ImGui::SeparatorText("scores");
+            ImGui::BeginTable("score table", 2, ImGuiTableFlags_Borders);
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+            ImGui::Text("Team A");
+            ImGui::TableNextColumn();
+            ImGui::Text("Team B");
 
-                ImGui::TableNextRow();
-                ImGui::TableNextColumn();
-                ImGui::Text("%s", std::to_string(data.game_state.get_score_team_A()).c_str());
-                ImGui::TableNextColumn();
-                ImGui::Text("%s", std::to_string(data.game_state.get_score_team_B()).c_str());
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+            ImGui::Text("%s", std::to_string(data.game_state.get_score_team_A()).c_str());
+            ImGui::TableNextColumn();
+            ImGui::Text("%s", std::to_string(data.game_state.get_score_team_B()).c_str());
 
-                ImGui::EndTable();
-                break;
-            }
+            ImGui::EndTable();
         }
 
         ImGui::NewLine();
@@ -613,7 +630,7 @@ namespace GamePanel {
 
             std::string name;
             switch (player->get_team()) {
-                case Team::RANDOM: 
+                case Team::RANDOM:
                     name = "[_]";
                 case Team::A:
                     name = "[A] ";
@@ -626,7 +643,7 @@ namespace GamePanel {
             if (player->get_id() == data.player_id) name += " (you)";
 
             const char *fmt = "%s";
-            if (data.panel_state == State::GAME && c_player.has_value() && *c_player == *player) {
+            if (data.game_state.get_game_phase() != GamePhase::PREGAME && c_player.has_value() && *c_player == *player) {
                 fmt = "> %s"; // indicate current Player
             }
             auto text_col = ImVec4(1, 1, 1, 1);
@@ -636,6 +653,23 @@ namespace GamePanel {
             ImGui::TextColored(text_col, fmt, name.c_str());
         }
         ImGui::EndChild();
+
+        ImGui::NewLine();
+        ImGui::SeparatorText("log");
+
+        auto avail = ImGui::GetContentRegionAvail();
+        ImGui::SetNextWindowSizeConstraints({0, 0}, avail);
+        ImGui::BeginChild("log", {0, 0}, ImGuiChildFlags_FrameStyle | ImGuiChildFlags_AutoResizeY);
+        for (auto &[e, msg] : data.events_log) {
+            auto col = event_to_color(e.event_type);
+            ImGui::PushStyleColor(ImGuiCol_Text, col);
+            ImGui::TextUnformatted(msg.c_str(), msg.c_str() + msg.size());
+            ImGui::PopStyleColor();
+        }
+        ImGui::EndChild();
+
+
+
         ImGui::End();
     }
 
@@ -725,7 +759,7 @@ namespace GamePanel {
         Renderer::clear(RGBA::from(ImGui::DARK_GREY));
         Renderer::set_camera(window_left, window_right, window_bottom, window_top);
 
-        rel_fix_next_window(.5f, 1.f - .3f * ar);
+        rel_fix_next_window(.5f, 1.f - .3f);
         begin_frameless_window("play/pass button");
 
         if (is_my_turn(*data)) {
@@ -744,6 +778,12 @@ namespace GamePanel {
         show_other_players(*data);
         show_top_combi(*data);
         show_player_cards(data);
+    }
+
+    ImVec2 imgui_card_size() {
+        auto app_size = Application::get_window_size();
+        auto glm_card_size = _card_size * std::max((float)app_size.x, 300.f);
+        return ImVec2{glm_card_size.x, glm_card_size.y};
     }
 
     void show_swap_window(Data *data) {
@@ -828,20 +868,90 @@ namespace GamePanel {
         ImGui::PopStyleVar();
     }
 
+    void show_cards_list(const char *label, const Card *cards, uint32_t n_cards) {
+        auto card_size = imgui_card_size();
+        auto win_region = ImGui::GetContentRegionAvail();
+        int cards_per_row = std::max((int)(win_region.x / card_size.x), 1);
+
+        if (ImGui::BeginTable(label, cards_per_row)) {
+            for (int i = 0; i < n_cards; i++) {
+                if (i % cards_per_row == 0) {
+                    ImGui::TableNextRow();
+                }
+                ImGui::TableNextColumn();
+                float padding = 0;
+                auto region_x = ImGui::GetContentRegionAvail().x;
+                if (region_x > card_size.x) {
+                    padding = (region_x - card_size.x) / 2;
+                }
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + padding);
+                ImGui::Image(get_card_texture(cards[i]), card_size);
+            }
+            ImGui::EndTable();
+        }
+    }
+
+    void show_pre_round(Data *data) {
+
+        auto card_size = imgui_card_size();
+        auto indx = get_my_index(*data);
+        if (indx == -1) {
+            WARN("show_pre_round: could not find player");
+            return;
+        }
+
+        auto style = ImGui::ScopedStyle{};
+        float win_padding = 30.f;
+        style.push_style(ImGuiStyleVar_WindowPadding, {win_padding, win_padding});
+        ImGuiUtils::center_next_window_once();
+        ImGui::SetNextWindowSize({card_size.x * 4 + win_padding * 2 + 1, 0}, ImGuiCond_Once);
+        ImGui::Begin("Grand Tichu", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDecoration);
+
+        auto &cards = data->game_state.get_players().at(indx)->get_hand().get_cards();
+        if (cards.size() < 8) {
+            WARN("could not find 8 cards in players hand");
+        }
+
+        show_cards_list("CardsList", cards.data(), 8);
+
+        ImGui::NewLine();
+        if (ImGui::BeginTable("GrandTichuButtons", 2)) {
+            auto style = ImGui::ScopedStyle{};
+            style.push_color(ImGuiCol_Button, ImGui::GREY);
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+            auto height = ImGui::GetFontSize() * 2;
+            data->grand_tichu_pressed = ImGui::Button("GrandTichu", {ImGui::GetContentRegionAvail().x, height});
+            ImGui::TableNextColumn();
+            data->pass_grand_tichu_pressed = ImGui::Button("Pass", {ImGui::GetContentRegionAvail().x, height});
+
+            ImGui::EndTable();
+        }
+
+
+        ImGui::End();
+    }
+
     void show(Data *data) {
         float ar = Application::get_aspect_ratio();
         window_size.x = window_size.y * ar;
         window_left = -window_size.x / 2.f;
         window_right = window_size.x / 2.f;
 
-        show_game_stats(*data);
+        show_game_info(*data);
+
         //show_swap_window(data);
 
-        switch (data->panel_state) {
-            case LOBBY:
+        switch (data->game_state.get_game_phase()) {
+            case GamePhase::PREGAME:
                 show_lobby(data);
                 break;
-            case GAME:
+            case GamePhase::PREROUND:
+                show_pre_round(data);
+                break;
+            case GamePhase::SWAPPING:
+            case GamePhase::INROUND:
+            case GamePhase::POSTGAME:
                 show_game(data);
                 break;
         }

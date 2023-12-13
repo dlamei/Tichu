@@ -40,7 +40,7 @@ void broadcast_full_state_response(const GameState &state, std::vector<Event> ev
 void send_full_state_response(const Player &recipient, const GameState &state, const std::vector<Event> events) {
     auto update_msg = full_state_response{ state, events };
     auto resp = ServerMsg(update_msg);
-    server_network_manager::broadcast_single_message(resp, state.get_players(), recipient)
+    server_network_manager::broadcast_single_message(resp, state.get_players(), recipient);
 }
 
 

@@ -77,7 +77,6 @@ void TichuGame::handle_gui_output() {
     if (_game_panel_data.pressed_start_game) {
         _game_panel_data.pressed_start_game = false;
         send_message(ClientMsg(_connection_data.id, start_game_req{}));
-        _game_panel_data.panel_state = GamePanel::GAME;
     }
 
     if (_game_panel_data.pressed_fold) {
@@ -179,15 +178,10 @@ void TichuGame::process(const dragon &data) {
 
 void TichuGame::process(const full_state_response &data) {
     _state = PanelState::GAME;
-    // change the state of the game panel whether the game has started or not
-    if (data.state.get_game_phase() == GamePhase::PREGAME) {
-        _game_panel_data.panel_state = GamePanel::LOBBY;
-    } else {
-        _game_panel_data.panel_state = GamePanel::GAME;
-    }
 
-    if( !(data.events.empty()) ) {
-        // draw events that came with the last full_state_response
+    auto &events = data.events;
+    for (auto &e : events) {
+        _game_panel_data.events_log.emplace_back(e, e.to_string());
     }
 
     _game_panel_data.prev_game_state = _game_panel_data.game_state;
