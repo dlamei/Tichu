@@ -46,6 +46,10 @@ public:
 
     bool call_small_tichu(const player_ptr& player, Tichu tichu, std::string &err);
 
+    bool swap_cards(const player_ptr& player, const std::vector<Card> cards, std::string &err);
+
+    bool dragon_selection(const player_ptr& player, UUID selected_player, std::string &err);
+
 };
 
 

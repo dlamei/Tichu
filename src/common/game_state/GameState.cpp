@@ -27,6 +27,13 @@ int GameState::get_player_index(const Player &player) const {
     return -1;
 }
 
+int GameState::get_player_index(UUID player_id) const {
+    for (int i = 0; i < _players.size(); ++i) {
+        if(_players.at(i)->get_id() == player_id) { return i;}
+    }
+    return -1;
+}
+
 bool GameState::is_player_in_game(const Player &player) const {
     for (int i = 0; i < _players.size(); ++i) {
         if (*(_players.at(i)) == player) { return true; }
@@ -134,6 +141,106 @@ bool GameState::call_small_tichu(const Player &player, Tichu tichu, std::string 
     return true;
 }
 
+bool GameState::dragon_selection(const Player &player, UUID selected_player, std::string &err) {
+    _players.at(get_player_index(selected_player))->add_cards_to_won_pile(_active_pile.get_pile(), err);
+    _active_pile.clear_cards();
+    _game_phase = GamePhase::INROUND;
+    return true;
+}
+
+bool GameState::swap_cards(const Player &player, const std::vector<Card> &cards, 
+                           std::vector<std::vector<Card>> swapped_cards, std::string &err) {
+    if( _game_phase != GamePhase::SWAPPING ) {
+        err = "You can't swap cards anymore";
+        return false;
+    }
+    if( cards.size() != 3 ) {
+        err = "Card swap Vector has the wrong size";
+        return false;
+    }
+    if( (cards.at(0) == cards.at(1)) || (cards.at(0) == cards.at(2)) || (cards.at(1) == cards.at(2)) ) {
+        err = "You can't swap the same card to two different players";
+        return false;
+    }
+    
+    
+    static std::vector<std::vector<Card>> swap_tracker = {  {{},{},{},{}},
+                                                            {{},{},{},{}},
+                                                            {{},{},{},{}},
+                                                            {{},{},{},{}}  };
+    static int call_count = 0;
+    ++call_count;
+
+    // add cards into swap_tracker
+    int player_idx = get_player_index(player);
+    for(int i = 0; i < 3; ++i) {
+        swap_tracker.at(player_idx).at(i + (i >= player_idx)) = cards.at(i);
+    }
+
+
+    if(call_count < 4){
+        return true;
+    } else {
+        call_count = 0;
+        _game_phase = GamePhase::INROUND;
+
+        // moving all the cards
+        for(int i = 0; i < 4; ++i) {
+            for(int j = 0; j < 4; ++j) {
+                if(i == j) { continue; }
+                _players.at(i)->remove_cards_from_hand(CardCombination{swap_tracker.at(i).at(j)}, err);
+                _players.at(j)->add_card_to_hand(swap_tracker.at(i).at(j), err);
+            }
+        }
+
+        // copying cards into return matrix
+        swapped_cards = swap_tracker;
+
+        // resetting the swap_tracker
+        swap_tracker = {  {{},{},{},{}},
+                          {{},{},{},{}},
+                          {{},{},{},{}},
+                          {{},{},{},{}}  };
+
+        return true;
+    }
+}
+
+bool GameState::check_wish(const CardCombination &combi, const Player &player, const std::optional<Card> &wish, std::string &err)
+{   
+    // the played combi itsself is a wish
+    if(wish) {
+        if(wish.value().get_rank() == SPECIAL) {
+            err = "You can't wish for a special card";
+            return false;
+        }
+        _wish = wish;
+        return true;
+    }
+    // there currently is no wish
+    if( !_wish ) {
+        return true;
+    } 
+    // there is a current active wish
+
+    else {
+        if(player.get_hand().count_occurances(_wish.value())) {
+            if(combi.count_occurances(_wish.value())) {
+                // the player has the wished for card and is playing it
+                _wish = {};
+                return true;
+            } else {
+                err = "You must play the wished for card: " + combi.get_cards().at(0).to_string();
+                return false;
+            }
+        } 
+        // The player doesn't have the wished for car in his hand
+        else {
+            return true;
+        }
+    }
+}
+
 // 
 //   [ROUND FUNCTIONS] 
 // 
@@ -186,6 +293,7 @@ bool GameState::check_is_round_finished(Player &Player, std::string& err) {
 
 void GameState::wrap_up_round(Player &current_player, std::string& err) {
     _is_round_finished = true;
+    _wish = {};
 
     int first_player_idx = get_player_index(_round_finish_order.at(0));
     int last_player_idx = _next_player_idx;
@@ -296,6 +404,23 @@ bool GameState::check_is_trick_finished(Player &Player, std::string& err) {
 void GameState::wrap_up_trick(Player &Player, std::string &err) {
     _is_trick_finished = true;
     // move cards to WonCardsPile to right Player
+
+    // Handle Dragon Stich
+    std::optional<CardCombination> top_combi = _active_pile.get_top_combi();
+    if(top_combi && !(top_combi.value().get_cards().empty()) && top_combi.value().get_cards().at(0) == DRAGON) {
+        if(_players.at((_last_player_idx + 1) % 4)->get_is_finished()) {
+            _players.at((_last_player_idx + 3) % 4)->add_cards_to_won_pile(_active_pile.get_pile(), err);
+            _active_pile.clear_cards();
+        }
+        else if(_players.at((_last_player_idx + 3) % 4)->get_is_finished()) {
+            _players.at((_last_player_idx + 1) % 4)->add_cards_to_won_pile(_active_pile.get_pile(), err);
+            _active_pile.clear_cards();
+        } else {
+            _game_phase = GamePhase::SELECTING;
+            return;
+        }
+    }
+
     _players.at(_last_player_idx)->add_cards_to_won_pile(_active_pile.get_pile(), err);
     _active_pile.clear_cards();
 }
@@ -370,8 +495,8 @@ void GameState::wrap_up_player(Player &Player, std::string &err) {
 
 }
 
-//   [GamePanel Logic]
-bool GameState::play_combi(Player &Player, CardCombination& combi, std::string &err) {
+//   [Game Logic]
+bool GameState::play_combi(Player &Player, CardCombination& combi, std::string &err, std::optional<Card> wish) {
     int player_idx = get_player_index(Player);
     if(player_idx < 0 || player_idx > 3){
         err = "couldn't find Player index";
@@ -381,7 +506,7 @@ bool GameState::play_combi(Player &Player, CardCombination& combi, std::string &
         err = "Server refused to perform draw_card. Player is not part of the game.";
         return false;
     }
-    if (!is_allowed_to_play_now(Player)) {
+    if (!is_allowed_to_play_now(Player) && combi.get_combination_type() != BOMB) {
         err = "It's not this players turn yet.";
         return false;
     }
@@ -396,6 +521,12 @@ bool GameState::play_combi(Player &Player, CardCombination& combi, std::string &
         case GamePhase::POSTGAME: 
             err = "Could not play combi, because the requested game is already finished.";
             return false;
+        case GamePhase::PREGAME: 
+            err = "Could not play combi, because the game hasn't started yet.";
+            return false;
+        case GamePhase::SELECTING: 
+            err = "Could not play combi, because someone is currently choosing who to give the Tichu stich to.";
+            return false;
         default:
             break;
     }
@@ -404,8 +535,9 @@ bool GameState::play_combi(Player &Player, CardCombination& combi, std::string &
     _is_trick_finished = false;
 
     auto last_combi = _active_pile.get_top_combi();
+
     // check if it's legal to play this combination
-    if(combi.can_be_played_on(last_combi, err)){
+    if(combi.can_be_played_on(last_combi, err) && check_wish(combi, Player, wish, err)){
 
         // move cards
         if(combi.get_combination_type() != PASS){
@@ -417,6 +549,7 @@ bool GameState::play_combi(Player &Player, CardCombination& combi, std::string &
         } else {
             Player.set_skipped(true);
         }
+
 
         //update Player
         bool is_dog = combi.get_combination_type() == SWITCH;

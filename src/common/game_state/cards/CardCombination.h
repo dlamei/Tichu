@@ -33,7 +33,7 @@ public:
     [[nodiscard]] const std::vector<Card> &get_cards() const noexcept { return _cards; }
 
 // card combination functions
-    int count_occurances(Card card);
+    int count_occurances(Card card) const;
 
     bool are_all_same_rank();
 
