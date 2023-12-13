@@ -15,6 +15,12 @@ namespace GamePanel {
     //    GAME,
     //};
 
+    // input /output for panels that allow for swapping cards
+    struct SwapData {
+        int n_selections{0};
+        std::deque<Card> selected{};
+    };
+
     // input / output for the GamePanel
     // is also used to store e.g animation states
     struct Data {
@@ -24,22 +30,25 @@ namespace GamePanel {
         long spread_anim_start = -1.f;
         long begin_card_collect_anim = -1.f;
         std::set<Card> selected_cards{};
+        int my_index = -1;
+        // Swap Data for each player (minus local player)
+        // uses relative indexing
+        std::array<SwapData, 3> swap_data{};
 
         //states of all the buttons
         bool pressed_fold {false};
         bool pressed_play {false};
         bool pressed_start_game{false};
-        bool grand_tichu_pressed {false};
-        bool pass_grand_tichu_pressed{false};
+        bool pressed_grand_tichu {false};
+        bool pressed_pass_grand_tichu{false};
 
         // read only
         std::optional<UUID> player_id{};
         GameState game_state{};
         GameState prev_game_state{};
         bool state_updated = false;
-        //std::string log_buffer{};
+        bool wait_for_others_grand_tichu = false;
         std::vector<std::pair<Event, std::string>> events_log{};
-        //State panel_state {State::LOBBY};
     };
 
     void load_textures();

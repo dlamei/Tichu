@@ -74,15 +74,33 @@ void TichuGame::handle_gui_output() {
         }
     }
 
+    // press start game in lobby
     if (_game_panel_data.pressed_start_game) {
         _game_panel_data.pressed_start_game = false;
         send_message(ClientMsg(_connection_data.id, start_game_req{}));
     }
 
+    // announce grand tichu
+    if (_game_panel_data.pressed_grand_tichu) {
+        _game_panel_data.pressed_grand_tichu = false;
+        _game_panel_data.wait_for_others_grand_tichu = true;
+        send_message(ClientMsg(_connection_data.id, grand_tichu_req{ Tichu::GRAND_TICHU }));
+    }
+    // dont announce grand tichu
+    if (_game_panel_data.pressed_pass_grand_tichu) {
+        _game_panel_data.pressed_pass_grand_tichu = false;
+        _game_panel_data.wait_for_others_grand_tichu = true;
+        send_message(ClientMsg(_connection_data.id, grand_tichu_req{ Tichu::NONE }));
+    }
+
+    // skip round
     if (_game_panel_data.pressed_fold) {
         _game_panel_data.pressed_fold = false;
+        _game_panel_data.wait_for_others_grand_tichu = true;
         send_message(ClientMsg(_connection_data.id, play_combi_req{}));
     }
+
+    // play selected cards
     if (_game_panel_data.pressed_play) {
         _game_panel_data.pressed_play = false;
         auto &selected_cards = _game_panel_data.selected_cards;

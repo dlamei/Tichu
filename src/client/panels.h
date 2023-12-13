@@ -8,6 +8,7 @@
 #include <utility>
 #include <queue>
 #include <chrono>
+#include <functional>
 
 #include "GamePanel.h"
 
@@ -16,6 +17,7 @@ namespace ImGuiUtils {
     void center_next_label(const char *label, float alignment = 0.5f);
     void text_wrapped_centered(const std::string &text);
     void AlignForWidth(float width, float alignment = 0.5f);
+    void item_grid(const char *label, int n_items, float item_width, const std::function<void (int)>& draw_item);
 }
 
 namespace ConnectionPanel {

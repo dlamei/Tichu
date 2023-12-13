@@ -51,6 +51,28 @@ namespace ImGuiUtils {
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + off);
     }
 
+    void item_grid(const char *label, int n_items, float item_width, const std::function<void (int)>& draw_items) {
+        auto win_reg = ImGui::GetContentRegionAvail();
+        int items_per_row = std::max((int)(win_reg.x / item_width), 1);
+
+        if (ImGui::BeginTable(label, items_per_row)) {
+            for (int i = 0; i < n_items; i++) {
+                if (i % items_per_row == 0)  {
+                    ImGui::TableNextRow();
+                }
+                ImGui::TableNextColumn();
+                float padding = 0;
+                auto cell_reg = ImGui::GetContentRegionAvail();
+                if (cell_reg.x > item_width) {
+                    padding = (cell_reg.x - item_width) / 2;
+                }
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + padding);
+                draw_items(i);
+            }
+            ImGui::EndTable();
+        }
+    }
+
 }
 
 namespace ConnectionPanel {
