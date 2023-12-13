@@ -17,7 +17,7 @@ CardCombination::CardCombination(Card c) {
 }
 
 
-int CardCombination::count_occurances(Card card) {
+int CardCombination::count_occurances(Card card) const {
     int count = 0;
     if (card.get_rank() == SPECIAL) {
         for (Card c: _cards) {

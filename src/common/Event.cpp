@@ -28,7 +28,14 @@ std::string Event::to_string() const {
             event_string += " called a Tichu!";
             break;
 
-        case EventType::SWAP:
+        case EventType::SWAP_OUT:  
+            event_string += "You gave a ";
+            event_string += card.value().to_string();
+            event_string += " to ";
+            event_string += player_name.value_or("You");
+            break;
+
+        case EventType::SWAP_IN:  
             event_string += player_name.value_or("You");
             event_string += " gave you a ";
             event_string += card.value().to_string();

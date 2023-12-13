@@ -32,7 +32,7 @@ private:
 
     DrawPile _draw_pile{};
     ActivePile _active_pile{};
-    std::vector<Event> _event_history{};
+    std::optional<Card> _wish;
 
     int _score_team_A{0};
     int _score_team_B{0};
@@ -97,6 +97,9 @@ public:
 
         bool call_grand_tichu(const Player &player, Tichu tichu, std::string &err);
         bool call_small_tichu(const Player &player, Tichu tichu, std::string &err);
+        
+        bool swap_cards(const Player &player, const std::vector<Card> &cards, std::vector<std::vector<Card>> swapped_cards, std::string &err);
+        bool check_wish(const CardCombination &combi, const Player &player, const std::optional<Card> &wish, std::string & err);
 
         void setup_round(std::string& err);   // server side initialization
         bool check_is_round_finished(Player &Player, std::string& err);
@@ -115,10 +118,12 @@ public:
         void wrap_up_player(Player &Player, std::string &err);
 
 
-        bool play_combi(Player &Player, CardCombination& combi, std::string& err);
+        bool play_combi(Player &Player, CardCombination& combi, std::string& err, std::optional<Card> wish = {});
 #endif
 
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(GameState, _id, _players, _round_finish_order, _draw_pile, _active_pile, _score_team_A, _score_team_B, _next_player_idx, _starting_player_idx, _game_phase, _is_round_finished, _is_trick_finished, _last_player_idx)
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(GameState, _id, _players, _round_finish_order, _draw_pile, _active_pile,
+                                    _wish, _score_team_A, _score_team_B, _next_player_idx, _starting_player_idx,
+                                    _game_phase, _is_round_finished, _is_trick_finished, _last_player_idx)
 };
 
 
