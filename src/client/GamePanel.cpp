@@ -35,7 +35,6 @@ ImVec4 event_to_color(const EventType &e) {
         case EventType::STICH_END:
             return ImVec4 { 0.3, 0.3, 0.3, 1.0 };
 
-        case EventType::SWAP:
         case EventType::WISH:
         case EventType::BOMB:
             return ImGui::WHITE;
