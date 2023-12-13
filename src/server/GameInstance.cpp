@@ -44,7 +44,7 @@ bool GameInstance::play_combi(const player_ptr& player, CardCombination &combi, 
         std::vector<Event> events;
         if( combi.get_combination_type() == PASS ) {
             events.push_back({EventType::PASS, player->get_player_name(), {}, {}, {}});
-            if(_game_state.get_game_phase() == GamePhase::SELECTION) {
+            if(_game_state.get_game_phase() == GamePhase::SELECTING) {
                 std::string name = _game_state.get_players().at(_game_state.get_last_player_idx())->get_player_name();
                 events.push_back({EventType::SELECTION_START, name, {}, {}, {}});
             }

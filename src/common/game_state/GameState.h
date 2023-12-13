@@ -15,7 +15,7 @@ enum class GamePhase {
     PREROUND,
     SWAPPING,
     INROUND,
-    SELECTION,
+    SELECTING,
     POSTGAME,
 };
 

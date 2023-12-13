@@ -415,7 +415,7 @@ void GameState::wrap_up_trick(Player &Player, std::string &err) {
             _players.at((_last_player_idx + 1) % 4)->add_cards_to_won_pile(_active_pile.get_pile(), err);
             _active_pile.clear_cards();
         } else {
-            _game_phase = GamePhase::SELECTION;
+            _game_phase = GamePhase::SELECTING;
             return;
         }
     }
@@ -523,7 +523,7 @@ bool GameState::play_combi(Player &Player, CardCombination& combi, std::string &
         case GamePhase::PREGAME: 
             err = "Could not play combi, because the game hasn't started yet.";
             return false;
-        case GamePhase::SELECTION: 
+        case GamePhase::SELECTING: 
             err = "Could not play combi, because someone is currently choosing who to give the Tichu stich to.";
             return false;
         default:
