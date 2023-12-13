@@ -40,7 +40,7 @@ public:
 
     bool try_remove_player(player_ptr player, std::string &err);
 
-    bool play_combi(const player_ptr& player, CardCombination &combi, std::string &err);
+    bool play_combi(const player_ptr& player, CardCombination &combi, std::string &err, std::optional<Card> wish = {});
 
     bool call_grand_tichu(const player_ptr& player, Tichu tichu, std::string &err);
 

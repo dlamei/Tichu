@@ -126,7 +126,7 @@ bool GameState::call_grand_tichu(const Player &player, Tichu tichu, std::string 
 
 bool GameState::call_small_tichu(const Player &player, Tichu tichu, std::string &err) {
     if(player.get_hand().get_nof_cards() != 14) {
-        err = "You can't call a Grand Tichu Anymore";
+        err = "You can't call a Tichu Anymore";
         return false;
     }
     int player_idx = get_player_index(player);

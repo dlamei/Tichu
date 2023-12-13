@@ -31,7 +31,7 @@ namespace request_handler {
                 if (game_instance_ptr) {
                     // game_instance_ptr got updated to the joined game
                     // return full GameState attached
-                    return ServerMsg(full_state_response{game_instance_ptr.value()->get_game_state()});
+                    return {};
                 } else {
                     // failed to find game to join
                     auto resp = server_message{MessageType::Error, err };
@@ -94,7 +94,7 @@ namespace request_handler {
                     auto combi = req.get_msg_data<play_combi_req>().played_combi;
 
                     if (game_instance->play_combi(player, combi, err)) {
-                        return ServerMsg(full_state_response {game_instance->get_game_state()});
+                        return {};
                     } else {
                         return ServerMsg(server_message{MessageType::Info, err});
                     }

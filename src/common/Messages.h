@@ -63,9 +63,12 @@ struct swap_req { std::vector<Card> cards; };
 VARIANT_ENUM(swap_req, ClientMsgType, swap)
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(swap_req, cards)
 
-struct play_combi_req { CardCombination played_combi; };
+struct play_combi_req { 
+    CardCombination played_combi; 
+    std::optional<Card> wish;
+};
 VARIANT_ENUM(play_combi_req, ClientMsgType, play_combi)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(play_combi_req, played_combi)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(play_combi_req, played_combi, wish)
 
 struct ping {};
 VARIANT_ENUM(ping, ClientMsgType, ping)

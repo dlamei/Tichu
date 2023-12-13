@@ -8,6 +8,16 @@ std::string Event::to_string() const {
             event_string = "The game has started!";
             break;
 
+        case EventType::PLAYER_JOINED:
+            event_string += player_name.value_or("You");
+            event_string += " joined the game";
+            break;
+
+        case EventType::PLAYER_LEFT:
+            event_string += player_name.value_or("You");
+            event_string += " left the game";
+            break;
+
         case EventType::GRAND_TICHU:
             event_string += player_name.value_or("You");
             event_string += " called a Grand Tichu!";

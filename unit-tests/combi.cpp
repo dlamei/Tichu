@@ -148,6 +148,15 @@ TEST(CombiTest, Switching){
     EXPECT_EQ(combi_dog.get_combination_rank(), 0);
 }
 
+TEST(CombiTest, MAJONG){
+    std::vector<Card> one;
+    one.push_back(ONE);
+    CardCombination combi_one(one);
+
+    EXPECT_EQ(combi_one.get_combination_type(), MAJONG);
+    EXPECT_EQ(combi_one.get_combination_rank(), 1);
+}
+
 TEST(CombiTest, CanBePlayedOn) {
 
     std::vector<Card> single_two;
@@ -246,6 +255,10 @@ TEST(CombiTest, CanBePlayedOn) {
     std::vector<Card> dog;
     dog.push_back(HUND);
     CardCombination combi_dog(dog);
+
+    std::vector<Card> one;
+    one.push_back(ONE);
+    CardCombination combi_one(one);
     
     std::string err;
     // SINGLE
@@ -298,10 +311,19 @@ TEST(CombiTest, CanBePlayedOn) {
     EXPECT_EQ(combi_pass.can_be_played_on(combi_bomb, err), true);
 
     // DOG
+    EXPECT_EQ(combi_dog.can_be_played_on(combi_one, err), false);
     EXPECT_EQ(combi_dog.can_be_played_on(combi_single_king, err), false);
     EXPECT_EQ(combi_dog.can_be_played_on({}, err), true);
     EXPECT_EQ(combi_single_king.can_be_played_on(combi_dog, err), true);
     EXPECT_EQ(combi_pure_five_street.can_be_played_on(combi_dog, err), true);
     EXPECT_EQ(combi_double_three.can_be_played_on(combi_dog, err), true);
+
+    // MAJONG
+    EXPECT_EQ(combi_one.can_be_played_on(combi_dog, err), true);
+    EXPECT_EQ(combi_one.can_be_played_on(combi_single_king, err), false);
+    EXPECT_EQ(combi_one.can_be_played_on({}, err), true);
+    EXPECT_EQ(combi_single_king.can_be_played_on(combi_one, err), true);
+    EXPECT_EQ(combi_pure_five_street.can_be_played_on(combi_one, err), false);
+    EXPECT_EQ(combi_double_three.can_be_played_on(combi_one, err), false);
 
 } 

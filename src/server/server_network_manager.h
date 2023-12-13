@@ -47,9 +47,6 @@ public:
 
     ~server_network_manager();
 
-    // Used to broadcast a ServerMsg (e.g. a full_state_response) to all 'players' except 'exclude'
-    static void broadcast_message(ServerMsg &msg, std::vector<player_ptr> players, player_ptr exclude);
-
     static void broadcast_single_message(ServerMsg &msg, std::vector<player_ptr> players, const Player &recipient);
 
     static void on_player_left(const UUID &player_id);
