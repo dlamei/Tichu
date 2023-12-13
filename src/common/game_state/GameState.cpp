@@ -31,6 +31,7 @@ int GameState::get_player_index(UUID player_id) const {
     for (int i = 0; i < _players.size(); ++i) {
         if(_players.at(i)->get_id() == player_id) { return i;}
     }
+    return -1;
 }
 
 bool GameState::is_player_in_game(const Player &player) const {
