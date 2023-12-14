@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 #include "game_state/cards/card.h"
+#include "game_state/player/Player.h"
 
 enum class EventType {
     GAME_START,
@@ -28,14 +29,14 @@ enum class EventType {
 
 struct Event {
     EventType event_type;
-    std::optional<std::string> player_name;   
+    std::optional<UUID> player_id;   
     std::optional<Card> card;
     std::optional<int> score_A;
     std::optional<int> score_B;
 
-    std::string to_string() const;
+    std::string to_string(const std::vector<player_ptr> &players, const UUID &me_id) const;
 
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Event, event_type, player_name, card, score_A, score_B)
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Event, event_type, player_id, card, score_A, score_B)
 };
 
 

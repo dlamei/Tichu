@@ -126,7 +126,7 @@ bool GameState::call_grand_tichu(const Player &player, Tichu tichu, std::string 
         return true;
     } else {
         call_count = 0;
-        _game_phase = GamePhase::INROUND;
+        _game_phase = GamePhase::SWAPPING;
         // Draw the rest of the cards
         for (int i = 0; i < _players.size(); i++) {
             for (int j = 0; j < 6; j++) {
@@ -158,7 +158,7 @@ bool GameState::dragon_selection(const Player &player, UUID selected_player, std
 }
 
 bool GameState::swap_cards(const Player &player, const std::vector<Card> &cards, 
-                           std::vector<std::vector<Card>> swapped_cards, std::string &err) {
+                           std::vector<std::vector<Event>> &events_vec, std::string &err) {
     if( _game_phase != GamePhase::SWAPPING ) {
         err = "You can't swap cards anymore";
         return false;
@@ -186,6 +186,12 @@ bool GameState::swap_cards(const Player &player, const std::vector<Card> &cards,
         swap_tracker.at(player_idx).at(i + (i >= player_idx)) = cards.at(i);
     }
 
+    //add SWAP_OUT events
+    for(int i = 0; i < 4; ++i) {
+        if(i == player_idx) { continue; }
+        events_vec.at(player_idx).push_back({EventType::SWAP_OUT, _players.at(i)->get_id(), swap_tracker.at(player_idx).at(i), {}, {}});
+    }
+
 
     if(call_count < 4){
         return true;
@@ -193,17 +199,15 @@ bool GameState::swap_cards(const Player &player, const std::vector<Card> &cards,
         call_count = 0;
         _game_phase = GamePhase::INROUND;
 
-        // moving all the cards
+        // moving all the cards and adding SWAP_IN EVENTS
         for(int i = 0; i < 4; ++i) {
             for(int j = 0; j < 4; ++j) {
                 if(i == j) { continue; }
                 _players.at(i)->remove_cards_from_hand(CardCombination{swap_tracker.at(i).at(j)}, err);
                 _players.at(j)->add_card_to_hand(swap_tracker.at(i).at(j), err);
+                events_vec.at(j).push_back({EventType::SWAP_IN, _players.at(i)->get_id(), swap_tracker.at(i).at(j), {}, {}});
             }
         }
-
-        // copying cards into return matrix
-        swapped_cards = swap_tracker;
 
         // resetting the swap_tracker
         swap_tracker = {  {{},{},{},{}},
@@ -300,21 +304,24 @@ bool GameState::check_is_round_finished(Player &Player, std::string& err) {
     return false;
 }
 
-void GameState::wrap_up_round(Player &current_player, std::string& err) {
+void GameState::wrap_up_round(Player &current_player, std::vector<Event> &events, std::string& err) {
     _is_round_finished = true;
     _wish = {};
+
+    int added_score_A = 0;
+    int added_score_B = 0;
 
     int first_player_idx = get_player_index(_round_finish_order.at(0));
     int last_player_idx = _next_player_idx;
     // team A doppelsieg
     if(_players.at(0)->get_is_finished() && _players.at(2)->get_is_finished() 
        && !(_players.at(1)->get_is_finished()) && !(_players.at(3)->get_is_finished())) {
-        _score_team_A += 200;
+        added_score_A += 200;
     }
     // team B doppelsieg
     else if(_players.at(1)->get_is_finished() && _players.at(3)->get_is_finished()
             && !(_players.at(0)->get_is_finished()) && !(_players.at(2)->get_is_finished())) {
-        _score_team_B += 200;
+        added_score_B += 200;
     } else {
         
         // Update Score
@@ -326,48 +333,54 @@ void GameState::wrap_up_round(Player &current_player, std::string& err) {
         won_cards_scores.at(last_player_idx) = 0;
         won_cards_scores.at((last_player_idx + 1) % 4) += _players.at(last_player_idx)->get_hand_score();
 
-        _score_team_A += (won_cards_scores.at(0) + won_cards_scores.at(2));
-        _score_team_B += (won_cards_scores.at(1) + won_cards_scores.at(3));
+        added_score_A += (won_cards_scores.at(0) + won_cards_scores.at(2));
+        added_score_B += (won_cards_scores.at(1) + won_cards_scores.at(3));
     }
     
     //check for failed or successful tichu
     if(_players.at(0)->get_tichu() == Tichu::GRAND_TICHU) { 
         if(first_player_idx == 0) {
-            _score_team_A += 200;
-        } else { _score_team_A -= 200; }
+            added_score_A += 200;
+        } else { added_score_A -= 200; }
     } else if (_players.at(0)->get_tichu() == Tichu::TICHU) {
         if(first_player_idx == 0) {
-            _score_team_A += 100;
-        } else { _score_team_A -= 100; }
+            added_score_A += 100;
+        } else { added_score_A -= 100; }
     }
     if(_players.at(1)->get_tichu() == Tichu::GRAND_TICHU) { 
         if(first_player_idx == 0) {
-            _score_team_B += 200;
-        } else { _score_team_B -= 200; }
+            added_score_B += 200;
+        } else { added_score_B -= 200; }
     } else if (_players.at(1)->get_tichu() == Tichu::TICHU) {
         if(first_player_idx == 0) {
-            _score_team_B += 100;
-        } else { _score_team_B -= 100; }
+            added_score_B += 100;
+        } else { added_score_B -= 100; }
     }
     if(_players.at(2)->get_tichu() == Tichu::GRAND_TICHU) { 
         if(first_player_idx == 0) {
-            _score_team_A += 200;
-        } else { _score_team_A -= 200; }
+            added_score_A += 200;
+        } else { added_score_A -= 200; }
     } else if (_players.at(2)->get_tichu() == Tichu::TICHU) {
         if(first_player_idx == 0) {
-            _score_team_A += 100;
-        } else { _score_team_A -= 100; }
+            added_score_A += 100;
+        } else { added_score_A -= 100; }
     }
     if(_players.at(3)->get_tichu() == Tichu::GRAND_TICHU) { 
         if(first_player_idx == 0) {
-            _score_team_B += 200;
-        } else { _score_team_B -= 200; }
+            added_score_B += 200;
+        } else { added_score_B -= 200; }
     } else if (_players.at(3)->get_tichu() == Tichu::TICHU) {
         if(first_player_idx == 0) {
-            _score_team_B += 100;
-        } else { _score_team_B -= 100; }
+            added_score_B += 100;
+        } else { added_score_B -= 100; }
     }
     
+    _score_team_A += added_score_A;
+    _score_team_B += added_score_B;
+
+    // add end of round event
+    events.push_back({EventType::ROUND_END, {}, {}, added_score_A, added_score_B});
+
     // clear and wrapup stuff
     _starting_player_idx = first_player_idx;
     _next_player_idx = first_player_idx;
@@ -410,10 +423,10 @@ bool GameState::check_is_trick_finished(Player &Player, std::string& err) {
     return false;
 }
 
-void GameState::wrap_up_trick(Player &Player, std::string &err) {
+void GameState::wrap_up_trick(Player &Player,  std::vector<Event> &events, std::string &err) {
     _is_trick_finished = true;
-    // move cards to WonCardsPile to right Player
 
+    // move cards to WonCardsPile to right Player
     // Handle Dragon Stich
     std::optional<CardCombination> top_combi = _active_pile.get_top_combi();
     if(top_combi && !(top_combi.value().get_cards().empty()) && top_combi.value().get_cards().at(0) == DRAGON) {
@@ -429,6 +442,8 @@ void GameState::wrap_up_trick(Player &Player, std::string &err) {
             return;
         }
     }
+
+    events.push_back({EventType::STICH_END, _players.at(_last_player_idx)->get_id(), {}, {}, {}});
 
     _players.at(_last_player_idx)->add_cards_to_won_pile(_active_pile.get_pile(), err);
     _active_pile.clear_cards();
@@ -497,7 +512,9 @@ bool GameState::check_is_player_finished(Player &Player, std::string &err) {
     return Player.get_nof_cards() == 0;
 }
 
-void GameState::wrap_up_player(Player &Player, std::string &err) {
+void GameState::wrap_up_player(Player &Player,  std::vector<Event> &events, std::string &err) {
+
+    events.push_back({EventType::PLAYER_FINISHED, Player.get_id(), {}, {}, {}});
 
     _round_finish_order.push_back(Player);
     Player.finish();
@@ -505,7 +522,7 @@ void GameState::wrap_up_player(Player &Player, std::string &err) {
 }
 
 //   [Game Logic]
-bool GameState::play_combi(Player &Player, CardCombination& combi, std::string &err, std::optional<Card> wish) {
+bool GameState::play_combi(Player &Player, CardCombination& combi, std::vector<Event> &events, std::string &err, std::optional<Card> wish) {
     int player_idx = get_player_index(Player);
     if(player_idx < 0 || player_idx > 3){
         err = "couldn't find Player index";
@@ -548,6 +565,32 @@ bool GameState::play_combi(Player &Player, CardCombination& combi, std::string &
     // check if it's legal to play this combination
     if(combi.can_be_played_on(last_combi, err) && check_wish(combi, Player, wish, err)){
 
+        // [UPDATE EVENTS]
+        switch (combi.get_combination_type()) {
+            case BOMB: 
+                events.push_back({EventType::BOMB, Player.get_id(), {}, {}, {}});
+                break;
+            
+            case MAJONG: 
+                if( wish ) {
+                    events.push_back({EventType::WISH, Player.get_id(), wish.value(), {}, {}});
+                } else {
+                    events.push_back({EventType::WISH, Player.get_id(), {}, {}, {}});
+                }
+                break;
+            
+            case PASS: 
+                events.push_back({EventType::PASS, Player.get_id(), {}, {}, {}});
+                if(_game_phase == GamePhase::SELECTING) {
+                    UUID id = _players.at(_last_player_idx)->get_id();
+                    events.push_back({EventType::SELECTION_START, id, {}, {}, {}});
+                }
+                break;
+            
+            default:
+                events.push_back({EventType::PLAY_COMBI, Player.get_id(), {}, {}, {}});  
+        }
+
         // move cards
         if(combi.get_combination_type() != PASS){
             _active_pile.push_active_pile(combi);
@@ -567,12 +610,12 @@ bool GameState::play_combi(Player &Player, CardCombination& combi, std::string &
 
         // checks if Player, trick, round or game is finished
         if( check_is_player_finished(Player, err) ) {
-            wrap_up_player(Player, err);
+            wrap_up_player(Player, events, err);
         } 
         if( check_is_trick_finished(Player, err) ) {
-            wrap_up_trick(Player, err);
+            wrap_up_trick(Player, events, err);
             if( check_is_round_finished(Player, err) ) {
-                wrap_up_round(Player, err);
+                wrap_up_round(Player, events, err);
                 if( check_is_game_over(err) ) { 
                     wrap_up_game(err);  
                 }

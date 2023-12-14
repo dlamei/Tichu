@@ -101,16 +101,16 @@ public:
 
         bool dragon_selection(const Player &player, UUID selected_player, std::string &err);
         
-        bool swap_cards(const Player &player, const std::vector<Card> &cards, std::vector<std::vector<Card>> swapped_cards, std::string &err);
+        bool swap_cards(const Player &player, const std::vector<Card> &cards, std::vector<std::vector<Event>> &events_vec, std::string &err);
         bool check_wish(const CardCombination &combi, const Player &player, const std::optional<Card> &wish, std::string & err);
 
         void setup_round(std::string& err);   // server side initialization
         bool check_is_round_finished(Player &Player, std::string& err);
-        void wrap_up_round(Player &Player, std::string& err);
+        void wrap_up_round(Player &Player,  std::vector<Event> &events, std::string& err);
 
         void setup_trick(Player &Player, std::string &err);
         bool check_is_trick_finished(Player &Player, std::string& err);
-        void wrap_up_trick(Player &Player, std::string &err);
+        void wrap_up_trick(Player &Player,  std::vector<Event> &events, std::string &err);
 
         bool add_player(const player_ptr Player, std::string& err);
         void update_current_player(Player &Player, bool is_pass, std::string& err);
@@ -118,10 +118,10 @@ public:
 
         void setup_player(Player &Player, std::string &err);
         bool check_is_player_finished(Player &Player, std::string &err);
-        void wrap_up_player(Player &Player, std::string &err);
+        void wrap_up_player(Player &Player, std::vector<Event> &events, std::string &err);
 
 
-        bool play_combi(Player &Player, CardCombination& combi, std::string& err, std::optional<Card> wish = {});
+        bool play_combi(Player &Player, CardCombination& combi, std::vector<Event> &events, std::string& err, std::optional<Card> wish = {});
 #endif
 
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(GameState, _id, _players, _round_finish_order, _draw_pile, _active_pile,
