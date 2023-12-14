@@ -191,11 +191,6 @@ void TichuGame::process_messages() {
                 process(data);
                 break;
             }
-            case ServerMsgType::dragon: {
-                auto data = msg.get_msg_data<dragon>();
-                process(data);
-                break;
-            }
             default:
                 std::string msg_str = "unknown ServerMsgType: " + std::to_string((int) msg.get_type());
                 show_msg(MessageType::Error, msg_str);
@@ -206,10 +201,6 @@ void TichuGame::process_messages() {
 
 void TichuGame::process(const server_message &data) {
     show_msg(data.type, data.msg);
-}
-
-void TichuGame::process(const dragon &data) {
-    // Selecting who gets the Dragon Stich
 }
 
 void TichuGame::process(const full_state_response &data) {
