@@ -1,5 +1,10 @@
-// The GameInstance class is a wrapper around the GameState of an active instance of the game.
-// This class contains functions to modify the contained GameState.
+/*! \class GameInstance
+
+ The GameInstance class is a wrapper around the GameState of an active instance of the game.
+ This class contains functions to modify the contained GameState.
+*/
+
+
 
 #ifndef TICHU_GAME_H
 #define TICHU_GAME_H
@@ -33,7 +38,8 @@ public:
 
     bool is_finished();
 
-    // game update functions
+    /** game update functions
+    */ 
     bool start_game(player_ptr player, std::string &err);
 
     bool try_add_player(player_ptr new_player, std::string &err);
