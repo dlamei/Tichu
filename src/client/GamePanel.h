@@ -17,8 +17,10 @@ namespace GamePanel {
 
     // input /output for panels that allow for swapping cards
     struct SwapData {
+        // max number of selections
         int n_selections{0};
-        std::deque<Card> selected{};
+        // indices of selected cards
+        std::deque<int> selected{};
     };
 
     // input / output for the GamePanel
@@ -32,23 +34,34 @@ namespace GamePanel {
         std::set<Card> selected_cards{};
         int my_index = -1;
         // Swap Data for each player (minus local player)
+        // used to store data when displaying the swap window
         // uses relative indexing
-        std::array<SwapData, 3> swap_data{};
+        std::array<SwapData, 3> swap_window_data{};
+
+        // store cards to be swapped at the beginning
+        std::array<Card, 3> cards_for_swapping{};
+
+        std::optional<Player> selected_player{};
 
         //states of all the buttons
         bool pressed_fold {false};
         bool pressed_play {false};
         bool pressed_start_game{false};
         bool pressed_grand_tichu {false};
+        bool pressed_small_tichu {false};
         bool pressed_pass_grand_tichu{false};
+        bool pressed_swap{false};
+        bool pressed_select{false};
+
+        bool wait_for_others_grand_tichu = false;
+        bool wait_for_others_swap = false;
 
         // read only
         std::optional<UUID> player_id{};
         GameState game_state{};
         GameState prev_game_state{};
         bool state_updated = false;
-        bool wait_for_others_grand_tichu = false;
-        std::vector<std::pair<Event, std::string>> events_log{};
+        std::deque<std::pair<Event, std::string>> events_log{};
     };
 
     void load_textures();
