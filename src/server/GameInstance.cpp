@@ -40,37 +40,8 @@ void send_full_state_response(const Player &recipient, const GameState &state, c
 
 bool GameInstance::play_combi(const player_ptr& player, CardCombination &combi, std::string &err, std::optional<Card> wish) {
     modification_lock.lock();
-
     std::vector<Event> events;
-
     if (_game_state.play_combi(*player, combi, events, err, wish)) {
-
-        // Determin what events to send depending on what was played
-        switch (combi.get_combination_type()) {
-            case BOMB: 
-                events.push_back({EventType::BOMB, player->get_id(), {}, {}, {}});
-                break;
-            
-            case MAJONG: 
-                if( wish ) {
-                    events.push_back({EventType::WISH, player->get_id(), wish.value(), {}, {}});
-                } else {
-                    events.push_back({EventType::WISH, player->get_id(), {}, {}, {}});
-                }
-                break;
-            
-            case PASS: 
-                events.push_back({EventType::PASS, player->get_id(), {}, {}, {}});
-                if(_game_state.get_game_phase() == GamePhase::SELECTING) {
-                    UUID id = _game_state.get_players().at(_game_state.get_last_player_idx())->get_id();
-                    events.push_back({EventType::SELECTION_START, id, {}, {}, {}});
-                }
-                break;
-            
-            default:
-                events.push_back({EventType::PLAY_COMBI, player->get_id(), {}, {}, {}});  
-        }
-
 
         // Send Full_state_respnse
         for(auto recipient : _game_state.get_players()){
