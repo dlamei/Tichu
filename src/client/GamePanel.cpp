@@ -980,14 +980,14 @@ namespace GamePanel {
         auto style = ImGui::ScopedStyle{};
         style.push_color(ImGuiCol_Button, ImGui::GREY);
         ImGuiUtils::center_next_in_viewport(ImGuiCond_Once);
-        ImGui::Begin("SwapWindow", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking);
+        ImGui::Begin("DragonWindow", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize);
         auto &players = data->game_state.get_players();
         auto my_indx = get_my_index(*data);
         auto enemy1 = players.at(glob_from_rel_indx(1, my_indx));
         auto enemy2 = players.at(glob_from_rel_indx(3, my_indx));
         auto name1 = enemy1->get_player_name();
         auto name2 = enemy2->get_player_name();
-        auto width = ImGui::GetContentRegionAvail().x;
+        auto width = imgui_card_size().x * 4;
         if (ImGui::Button(name1.c_str(), {width, 0})) {
             data->pressed_select = true;
             data->selected_player = *enemy1;
