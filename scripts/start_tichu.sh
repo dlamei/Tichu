@@ -18,10 +18,10 @@ sleep 1
 
 
 # Start four instances of Tichu-client
-./Tichu-client --size 960 500 --name Alice --auto 1 &
-./Tichu-client --size 960 500 --name Bob --auto 1 &
-./Tichu-client --size 960 500 --name Carl --auto 1 &
-./Tichu-client --size 960 500 --name Dan --auto 1 &
+./Tichu-client --size 1200 800 --name Alice --auto 1 &
+./Tichu-client --size 1200 800 --name Bob --auto 1 &
+./Tichu-client --size 1200 800 --name Carl --auto 1 &
+./Tichu-client --size 1200 800 --name Dan --auto 1 &
 
 ps
 

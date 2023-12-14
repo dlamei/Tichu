@@ -217,7 +217,7 @@ void TichuGame::process(const full_state_response &data) {
 
     auto &events = data.events;
     for (auto &e : events) {
-        _game_panel_data.events_log.emplace_front(e, e.to_string());
+        _game_panel_data.events_log.emplace_back(e, e.to_string(_game_panel_data.game_state.get_players(), _game_panel_data.player_id.value()));
     }
 
     _game_panel_data.prev_game_state = _game_panel_data.game_state;
