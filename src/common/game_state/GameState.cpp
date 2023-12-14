@@ -126,7 +126,7 @@ bool GameState::call_grand_tichu(const Player &player, Tichu tichu, std::string 
         return true;
     } else {
         call_count = 0;
-        _game_phase = GamePhase::SWAPPING;
+        _game_phase = GamePhase::INROUND;
         return true;
     }
 }
