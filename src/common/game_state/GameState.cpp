@@ -127,6 +127,15 @@ bool GameState::call_grand_tichu(const Player &player, Tichu tichu, std::string 
     } else {
         call_count = 0;
         _game_phase = GamePhase::INROUND;
+        // Draw the rest of the cards
+        for (int i = 0; i < _players.size(); i++) {
+            for (int j = 0; j < 6; j++) {
+                auto drawn_card = _draw_pile.draw(*(_players[i]), err);
+                if (!drawn_card) {
+                    std::cerr << err << std::endl;
+                }
+            }
+        }
         return true;
     }
 }
@@ -253,9 +262,9 @@ void GameState::setup_round(std::string &err) {
     // setup players
     for (int i = 0; i < _players.size(); i++) {
         _players[i]->setup_round(err);
-        // draw 14 cards
+        // draw 8 cards
         //card* drawn_card = nullptr;
-        for (int j = 0; j < 14; j++) {
+        for (int j = 0; j < 8; j++) {
             auto drawn_card = _draw_pile.draw(*(_players[i]), err);
             if (!drawn_card) {
                 std::cerr << err << std::endl;
