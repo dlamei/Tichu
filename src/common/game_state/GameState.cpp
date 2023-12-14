@@ -136,6 +136,7 @@ bool GameState::call_grand_tichu(const Player &player, Tichu tichu, std::string 
                 }
             }
         }
+        
         return true;
     }
 }
