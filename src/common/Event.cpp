@@ -66,6 +66,10 @@ std::string Event::to_string(const std::vector<player_ptr> &players, const UUID 
             event_string += name + " wished for " + card_string;
             break;
 
+        case EventType::SWITCH:
+            event_string += name + " played the Dog";
+            break;
+
         case EventType::PLAY_COMBI:
             event_string += name + " played";
             break;

@@ -568,6 +568,9 @@ bool GameState::play_combi(Player &Player, CardCombination& combi, std::vector<E
 
         // [UPDATE EVENTS]
         switch (combi.get_combination_type()) {
+            case SWITCH: 
+                events.push_back({EventType::SWITCH, Player.get_id(), {}, {}, {}});
+                break;
             case BOMB: 
                 events.push_back({EventType::BOMB, Player.get_id(), {}, {}, {}});
                 break;

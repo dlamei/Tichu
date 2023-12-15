@@ -22,6 +22,7 @@ enum class EventType {
     SWAP_OUT,
     SWAP_IN,
     WISH,
+    SWITCH,
     SELECTION_START,
     SELECTION_END,
     PLAY_COMBI,
