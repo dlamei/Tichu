@@ -1,8 +1,8 @@
-//
-// Created by Manuel on 12.02.2021.
-//
-// The server_network_manager handles all incoming messages and offers functionality to broadcast messages
-// to all connected players of a game.
+/*! \class server_network_manager
+
+ The server_network_manager handles all incoming messages and offers functionality to broadcast messages
+ to all connected players of a game.
+*/
 
 #ifndef TICHU_SERVER_NETWORK_MANAGER_H
 #define TICHU_SERVER_NETWORK_MANAGER_H
