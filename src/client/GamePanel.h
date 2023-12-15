@@ -52,6 +52,8 @@ namespace GamePanel {
         bool pressed_pass_grand_tichu{false};
         bool pressed_swap{false};
         bool pressed_select{false};
+        bool pressed_start_again{false};
+        bool pressed_close{false};
 
         bool wait_for_others_grand_tichu = false;
         bool wait_for_others_swap = false;
