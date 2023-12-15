@@ -1,3 +1,9 @@
+/*! \class ActivePile
+    \brief Represents the active pile and stores all cards played during a trick.
+
+ ###TODI
+*/
+
 #ifndef TICHU_DISCARD_PILE_H
 #define TICHU_DISCARD_PILE_H
 
@@ -19,6 +25,7 @@ public:
 
 // accessors
     [[nodiscard]] std::optional<CardCombination> get_top_combi() const;
+
 
     [[nodiscard]] std::vector<CardCombination> get_pile() const { return _active_pile; }
 

@@ -1,3 +1,9 @@
+/*! \class Hand
+    \brief Represents the hand of a player.
+    
+ ###TODO
+*/
+
 #ifndef TICHU_HAND_H
 #define TICHU_HAND_H
 

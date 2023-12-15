@@ -43,11 +43,12 @@ public:
     try_get_player_and_game_instance(const UUID &player_id, std::string &err);
 
     /** Try to add 'Player' to any game. Returns true if 'Player' is successfully added to a GameInstance.
-    * The joined GameInstance will be written into 'game_instance_ptr'.
+     * The joined GameInstance will be written into 'game_instance_ptr'.
     */
     static std::optional<game_instance_ptr> try_add_player_to_any_game(player_ptr player, std::string &err);
 
-    /** Try to add 'Player' to the provided 'game_instance_ptr'. Returns true if success and false otherwise.
+    /** 
+     * Try to add 'Player' to the provided 'game_instance_ptr'. Returns true if success and false otherwise.
     */
     static bool try_add_player(player_ptr player, GameInstance &game_instance_ptr, std::string &err);
 

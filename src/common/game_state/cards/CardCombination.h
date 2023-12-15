@@ -1,3 +1,11 @@
+/*! \class CardCombination
+    \brief Represents a combination of cards played by a player.
+    
+ The CardCombination Class includes the logic checking for game play validity between two of its objects
+ (can object 1 be played on object 2 by checking if combination_types is the same for both objects and 
+ checking which has the higher rank). The specific rules for the special cards (Dog, Dragon, Mah Jong, Phoenix) 
+ are also implemented in this class.
+*/
 
 #ifndef TICHU_CARDCOMBINATION_H
 #define TICHU_CARDCOMBINATION_H

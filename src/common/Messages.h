@@ -1,3 +1,15 @@
+/*! \class ClientMsg
+    \brief Base class for client message to the server.
+    
+ A ClientMsg has 3 fields, the game_id, player_id and the data specific for that type of message.
+*/
+
+/*! \class ServerMsg
+    \brief Base class for server communication to the client.
+    
+ 
+*/
+
 #ifndef TICHU_MESSAGES_H
 #define TICHU_MESSAGES_H
 

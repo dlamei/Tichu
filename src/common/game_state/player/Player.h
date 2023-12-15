@@ -1,3 +1,9 @@
+/*! \class Player
+    \brief Represents a player.
+    
+ During the game there must be exactly 4 objects of this class.
+*/
+
 #ifndef TICHU_PLAYER_H
 #define TICHU_PLAYER_H
 

@@ -1,3 +1,12 @@
+/*! \class Card
+    \brief Represents a card in the Tichu game.
+    
+ Every card object has a rank, a suit and a value and every object is unique (no two objects will have the same rank
+ and the same suit). The total number of class objects can never exceed 56. 
+ 
+ These cards are created in the setup_round function of the GameState
+*/
+
 #ifndef TICHU_CARD_H
 #define TICHU_CARD_H
 
@@ -76,14 +85,12 @@ public:
 
 // accessors
     [[nodiscard]] int get_rank() const noexcept { return _rank; }
-
     [[nodiscard]] int get_suit() const noexcept { return _suit; }
-
     [[nodiscard]] int get_value() const noexcept { return _value; }
 
     std::string to_string() const;
 
-public:
+
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Card, _rank, _suit, _value);
 };
 
