@@ -10,7 +10,7 @@
 #include "../Event.h"
 #include "../utils.h"
 
-enum class GamePhase {
+enum GamePhase {
     PREGAME = 0,
     PREROUND,
     SWAPPING,
@@ -18,6 +18,15 @@ enum class GamePhase {
     SELECTING,
     POSTGAME,
 };
+
+NLOHMANN_JSON_SERIALIZE_ENUM(GamePhase, {
+    {PREGAME, "pregame"},
+    {PREROUND, "preround"},
+    {SWAPPING, "swapping"},
+    {INROUND, "inround"},
+    {SELECTING, "selecting"},
+    {POSTGAME, "postgame"},
+})
 
 class GameState {
 private:

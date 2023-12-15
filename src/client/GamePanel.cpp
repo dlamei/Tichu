@@ -240,7 +240,7 @@ namespace GamePanel {
         if (selected) {
             glm::vec2 outline_size = size * 1.05f;
             glm::vec2 offset = (outline_size - size) / 2.f;
-            Renderer::rect(pos - offset, outline_size, RGBA(255), angle);
+            Renderer::rect(pos - offset, outline_size, RGBA(255, 0, 0), angle);
         }
         Texture card_texture = get_card_texture(card);
         Renderer::rect_impl(pos, size, RGBA(255), card_texture, angle);
@@ -340,8 +340,11 @@ namespace GamePanel {
             return;
         }
 
-        auto &hand = data->game_state.get_players().at(player_index)->get_hand();
+        auto player = data->game_state.get_players().at(player_index);
+        auto &hand = player->get_hand();
         int n_cards = hand.get_nof_cards();
+
+        hovering_text("local_player", player->get_player_name(), 0.5, 0.8);
 
         const float hover_height = .05f;
 
@@ -442,6 +445,8 @@ namespace GamePanel {
         float spread_anim = animate(seconds_since(data.spread_anim_start), spread_anim_len);
         float collect_anim = animate(seconds_since(data.begin_card_collect_anim), collect_anim_len);
 
+        hovering_text("left_player", player->get_player_name(), 0.2, 0.5);
+
         float y_pad = side_padding * 2 * window_size.y;
         float mid = (window_top - window_bottom) / 2;
         float spread_start = spread_anim * (window_bottom + y_pad) + (1 - spread_anim) * mid;
@@ -483,6 +488,8 @@ namespace GamePanel {
         const auto &player = data.game_state.get_players().at(indx);
         int n_cards = player->get_nof_cards();
         int n_collected = player->get_nof_won_cards();
+
+        hovering_text("right_player", player->get_player_name(), 0.8, 0.5);
 
         float spread_anim = animate(seconds_since(data.spread_anim_start), spread_anim_len);
         float collect_anim = animate(seconds_since(data.begin_card_collect_anim), collect_anim_len);
@@ -527,6 +534,8 @@ namespace GamePanel {
         int n_collected = player->get_nof_won_cards();
         float spread_anim = animate(seconds_since(data.spread_anim_start), spread_anim_len);
         float collect_anim = animate(seconds_since(data.begin_card_collect_anim), collect_anim_len);
+
+        hovering_text("top_player", player->get_player_name(), 0.5, 0.2);
 
         float x_pad = side_padding * 2 * window_size.x;
         float spread_start = spread_anim * (window_left + x_pad);
@@ -907,7 +916,7 @@ namespace GamePanel {
             if (already_sel != data->selected.end()) {
                 ImGui::GetWindowDrawList()->AddRectFilled(glob_pos,
                                                           glob_pos + card_size + select_pad * 2,
-                                                          ImColor(1.f, 1.f, 1.f));
+                                                          ImColor(1.f, 0.f, 0.f));
             }
 
             ImGui::SetCursorPos(c_pos + select_pad);
@@ -962,7 +971,7 @@ namespace GamePanel {
         ImGui::PushStyleColor(ImGuiCol_WindowBg, 0);
         ImGui::BeginTabBar("players");
         ImGui::PopStyleColor();
-        for (int i = 0; i < 3; i++) {
+        for (int i = 2; i >= 0; i--) {
             ImGui::PushID(i);
             auto &p = players.at(glob_from_rel_indx(i + 1, data->my_index));
             //TODO
@@ -1054,14 +1063,15 @@ namespace GamePanel {
                 break;
             case GamePhase::PREROUND:
                 show_pre_round(data);
+                show_game(data);
                 break;
             case GamePhase::SWAPPING:
                 show_swap_window(data);
                 show_game(data);
                 break;
             case GamePhase::SELECTING:
-                show_game(data);
                 show_selecting(data);
+                show_game(data);
                 break;
             case GamePhase::INROUND:
                 show_game(data);
