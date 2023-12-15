@@ -118,6 +118,15 @@ void TichuGame::handle_gui_output() {
         send_message(ClientMsg(_connection_data.id, dragon_req{_game_panel_data.selected_player->get_id()}));
     }
 
+    if (_game_panel_data.pressed_start_again) {
+        _game_panel_data.pressed_start_again = false;
+        send_message(ClientMsg(_connection_data.id, start_game_req{}));
+    }
+
+    if (_game_panel_data.pressed_close) {
+        exit(0);
+    }
+
     // play selected cards
     if (_game_panel_data.pressed_play) {
         _game_panel_data.pressed_play = false;

@@ -797,6 +797,37 @@ namespace GamePanel {
         show_player_cards(data);
     }
 
+    void show_post_game(Data *data) {
+        ImGui::Begin("Game Over");
+        ImGui::BeginTable("score table", 2, ImGuiTableFlags_Borders);
+        ImGui::TableNextRow();
+        ImGui::TableNextColumn();
+        ImGui::Text("Team A");
+        ImGui::TableNextColumn();
+        ImGui::Text("Team B");
+
+        ImGui::TableNextRow();
+        ImGui::TableNextColumn();
+        ImGui::Text("%s", std::to_string(data->game_state.get_score_team_A()).c_str());
+        ImGui::TableNextColumn();
+        ImGui::Text("%s", std::to_string(data->game_state.get_score_team_B()).c_str());
+
+        ImGui::BeginTable("buttons", 2);
+        ImGui::TableNextColumn();
+        ImGui::TableNextRow();
+        if (ImGui::Button("play again")) {
+            data->pressed_start_again = true;
+        }
+        ImGui::TableNextColumn();
+        if (ImGui::Button("close")) {
+            data->pressed_close = true;
+        }
+        ImGui::End();
+
+        ImGui::EndTable();
+        ImGui::End();
+    }
+
     ImVec2 imgui_card_size() {
         auto app_size = Application::get_window_size();
         auto glm_card_size = _card_size * 10.f * std::max((float)app_size.x / 15.f, 15.f);
@@ -977,10 +1008,16 @@ namespace GamePanel {
     }
 
     void show_selecting(Data *data) {
+        if (get_my_index(*data) != data->game_state.get_last_player_idx()) {
+            return;
+        }
         auto style = ImGui::ScopedStyle{};
         style.push_color(ImGuiCol_Button, ImGui::GREY);
         ImGuiUtils::center_next_in_viewport(ImGuiCond_Once);
         ImGui::Begin("DragonWindow", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize);
+        auto label = "who should get the dragon?";
+        ImGuiUtils::center_next_label(label);
+        ImGui::Text("%s", label);
         auto &players = data->game_state.get_players();
         auto my_indx = get_my_index(*data);
         auto enemy1 = players.at(glob_from_rel_indx(1, my_indx));
@@ -1030,6 +1067,7 @@ namespace GamePanel {
                 show_game(data);
                 break;
             case GamePhase::POSTGAME:
+                show_post_game(data);
                 break;
         }
     }
