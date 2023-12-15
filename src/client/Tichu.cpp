@@ -14,6 +14,7 @@ void TichuGame::send_message(const ClientMsg &msg) {
         std::stringstream ss;
         ss << std::setfill('0') << std::setw(sizeof(int) * 2) << std::hex << (int) msg_str.size();
         ss << ':' << msg_str;
+        DEBUG("sending: {}", ss.str());
         _connection.write(ss.str());
     } else {
         WARN("called send without an active connection");

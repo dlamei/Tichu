@@ -31,6 +31,18 @@ enum class ClientMsgType: int {
     ping,
 };
 
+NLOHMANN_JSON_SERIALIZE_ENUM(ClientMsgType, {
+    {ClientMsgType::join_game, "join_game"},
+    {ClientMsgType::start_game, "start_game"},
+    {ClientMsgType::call_grand_tichu, "call_grand_tichu"},
+    {ClientMsgType::call_small_tichu, "call_small_tichu"},
+    {ClientMsgType::dragon, "dragon"},
+    {ClientMsgType::swap, "swap"},
+    {ClientMsgType::play_combi, "play_combi"},
+    {ClientMsgType::fold, "fold"},
+    {ClientMsgType::ping, "ping"},
+});
+
 // Every client message can have a struct that holds data for this type of message
 struct start_game_req {};
 VARIANT_ENUM(start_game_req, ClientMsgType, start_game)
