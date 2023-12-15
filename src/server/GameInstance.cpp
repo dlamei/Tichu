@@ -92,7 +92,7 @@ bool GameInstance::call_small_tichu(const player_ptr &player, Tichu tichu, std::
 bool GameInstance::swap_cards(const player_ptr &player, const std::vector<Card> cards, std::string &err){
     modification_lock.lock();
     
-    std::vector<std::vector<Event>> events_vec;
+    std::vector<std::vector<Event>> events_vec = {{},{},{},{}};
 
     if (_game_state.swap_cards(*player, cards, events_vec, err)) {
         
@@ -163,13 +163,9 @@ bool GameInstance::try_add_player(player_ptr new_player, std::string &err) {
     if (_game_state.add_player(new_player, err)) {
         // send state update to all players
         for(auto recipient : _game_state.get_players()){
-            if(*recipient != *new_player) {
                 Event event{EventType::PLAYER_JOINED, new_player->get_id(), {}, {}, {}};
                 send_full_state_response(*recipient, _game_state, {event});
-            }
         }
-        Event event{EventType::PLAYER_JOINED, {}, {}, {}, {}};
-        send_full_state_response(*new_player, _game_state, {event});
 
         modification_lock.unlock();
         return true;

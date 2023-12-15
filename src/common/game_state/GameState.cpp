@@ -136,6 +136,7 @@ bool GameState::call_grand_tichu(const Player &player, Tichu tichu, std::string 
                 }
             }
         }
+
         return true;
     }
 }
@@ -208,6 +209,14 @@ bool GameState::swap_cards(const Player &player, const std::vector<Card> &cards,
                 events_vec.at(j).push_back({EventType::SWAP_IN, _players.at(i)->get_id(), swap_tracker.at(i).at(j), {}, {}});
             }
         }
+        // figure our whos going first
+        for(int i = 0; i < 4; ++i) {
+            auto cards = _players.at(i)->get_hand().get_cards();
+            if(count(cards.begin(), cards.end(), ONE)) {
+                _next_player_idx = i;
+                break;
+            }
+        }
 
         // resetting the swap_tracker
         swap_tracker = {  {{},{},{},{}},
@@ -276,14 +285,6 @@ void GameState::setup_round(std::string &err) {
         }
     }
 
-    // figure out who goes first
-        for(int i = 0; i < 4; ++i) {
-            auto cards = _players.at(i)->get_hand().get_cards();
-            if(count(cards.begin(), cards.end(), ONE)) {
-                _next_player_idx = i;
-                break;
-            }
-        }
     
 }
 
