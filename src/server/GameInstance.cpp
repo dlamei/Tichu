@@ -163,8 +163,7 @@ bool GameInstance::try_add_player(player_ptr new_player, std::string &err) {
     if (_game_state.add_player(new_player, err)) {
         // send state update to all players
         for(auto recipient : _game_state.get_players()){
-                Event event{EventType::PLAYER_JOINED, new_player->get_id(), {}, {}, {}};
-                send_full_state_response(*recipient, _game_state, {event});
+                send_full_state_response(*recipient, _game_state, {});
         }
 
         modification_lock.unlock();

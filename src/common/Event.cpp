@@ -22,10 +22,6 @@ std::string Event::to_string(const std::vector<player_ptr> &players, const UUID 
             event_string = "The game has started!";
             break;
 
-        case EventType::PLAYER_JOINED:
-            event_string += name + " joined the game";
-            break;
-
         case EventType::PLAYER_LEFT:
             event_string += name + " left the game";
             break;
