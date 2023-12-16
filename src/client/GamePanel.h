@@ -32,6 +32,8 @@ namespace GamePanel {
         long spread_anim_start = -1.f;
         long begin_card_collect_anim = -1.f;
         std::set<Card> selected_cards{};
+        bool can_play_bomb{false};
+
         int my_index = -1;
         // Swap Data for each player (minus local player)
         // used to store data when displaying the swap window
@@ -54,6 +56,7 @@ namespace GamePanel {
         bool pressed_select{false};
         bool pressed_start_again{false};
         bool pressed_close{false};
+        bool pressed_play_bomb{false};
 
         bool wait_for_others_grand_tichu = false;
         bool wait_for_others_swap = false;

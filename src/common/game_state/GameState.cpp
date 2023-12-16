@@ -183,8 +183,10 @@ bool GameState::swap_cards(const Player &player, const std::vector<Card> &cards,
 
     // add cards into swap_tracker
     int player_idx = get_player_index(player);
-    for(int i = 0; i < 3; ++i) {
-        swap_tracker.at(player_idx).at(i + (i >= player_idx)) = cards.at(i);
+    int card_idx = 0;
+    for(int i = (player_idx + 1) % 4; i != player_idx; (i = (i + 1)%4) ) {
+        swap_tracker.at(player_idx).at(i) = cards.at(card_idx);
+        ++card_idx;
     }
 
     //add SWAP_OUT events
@@ -314,6 +316,7 @@ void GameState::wrap_up_round(Player &current_player, std::vector<Event> &events
 
     int first_player_idx = get_player_index(_round_finish_order.at(0));
     int last_player_idx = _next_player_idx;
+
     // team A doppelsieg
     if(_players.at(0)->get_is_finished() && _players.at(2)->get_is_finished() 
        && !(_players.at(1)->get_is_finished()) && !(_players.at(3)->get_is_finished())) {
@@ -349,29 +352,29 @@ void GameState::wrap_up_round(Player &current_player, std::vector<Event> &events
         } else { added_score_A -= 100; }
     }
     if(_players.at(1)->get_tichu() == Tichu::GRAND_TICHU) { 
-        if(first_player_idx == 0) {
+        if(first_player_idx == 1) {
             added_score_B += 200;
         } else { added_score_B -= 200; }
     } else if (_players.at(1)->get_tichu() == Tichu::TICHU) {
-        if(first_player_idx == 0) {
+        if(first_player_idx == 1) {
             added_score_B += 100;
         } else { added_score_B -= 100; }
     }
     if(_players.at(2)->get_tichu() == Tichu::GRAND_TICHU) { 
-        if(first_player_idx == 0) {
+        if(first_player_idx == 2) {
             added_score_A += 200;
         } else { added_score_A -= 200; }
     } else if (_players.at(2)->get_tichu() == Tichu::TICHU) {
-        if(first_player_idx == 0) {
+        if(first_player_idx == 2) {
             added_score_A += 100;
         } else { added_score_A -= 100; }
     }
     if(_players.at(3)->get_tichu() == Tichu::GRAND_TICHU) { 
-        if(first_player_idx == 0) {
+        if(first_player_idx == 3) {
             added_score_B += 200;
         } else { added_score_B -= 200; }
     } else if (_players.at(3)->get_tichu() == Tichu::TICHU) {
-        if(first_player_idx == 0) {
+        if(first_player_idx == 3) {
             added_score_B += 100;
         } else { added_score_B -= 100; }
     }
@@ -478,9 +481,12 @@ bool GameState::add_player(const player_ptr player_ptr, std::string& err) {
     return true;
 }
 
-void GameState::update_current_player(Player &Player, bool is_dog, std::string& err) {
-    if(is_dog) {
+void GameState::update_current_player(Player &Player, COMBI combi_type, std::string& err) {
+    if(combi_type ==  SWITCH) {
         _next_player_idx = (_next_player_idx + 1) % 4;
+    }
+    else if(combi_type == BOMB) {
+        _next_player_idx = get_player_index(Player);
     }
     do {
         _next_player_idx = (_next_player_idx + 1) % 4;
@@ -533,6 +539,7 @@ bool GameState::play_combi(Player &Player, CardCombination& combi, std::vector<E
         err = "Server refused to perform draw_card. Player is not part of the game.";
         return false;
     }
+    combi.update_combination_type_and_rank();
     if (!is_allowed_to_play_now(Player) && combi.get_combination_type() != BOMB) {
         err = "It's not this players turn yet.";
         return false;
@@ -608,8 +615,7 @@ bool GameState::play_combi(Player &Player, CardCombination& combi, std::vector<E
 
 
         //update Player
-        bool is_dog = combi.get_combination_type() == SWITCH;
-        update_current_player(Player,is_dog, err);
+        update_current_player(Player, (COMBI)combi.get_combination_type(), err);
         
 
         // checks if Player, trick, round or game is finished
