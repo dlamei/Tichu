@@ -63,7 +63,7 @@ bool GameState::start_game(std::string &err) {
         // make teams
         make_teams();
         
-        _score_team_A = 999;
+        _score_team_A = 0;
         _score_team_B = 0;
         this->setup_round(err);
         this->_game_phase = GamePhase::PREROUND; //SHOULD BE PREROUND

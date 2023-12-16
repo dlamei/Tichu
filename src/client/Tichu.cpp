@@ -223,6 +223,28 @@ void TichuGame::process(const full_state_response &data) {
     auto &events = data.events;
     for (auto &e : events) {
         _game_panel_data.events_log.emplace_front(e, e.to_string(_game_panel_data.game_state.get_players(), _game_panel_data.player_id.value()));
+    }   
+
+    //remove low prio events
+
+    
+    if(!events.empty()) {
+        std::vector<EventType> typesToRemove = {};
+        if(events.back().event_type == EventType::ROUND_END){
+            typesToRemove = {EventType::GRAND_TICHU, EventType::SMALL_TICHU, EventType::SELECTION_END,
+                            EventType::PLAYER_FINISHED, EventType::STICH_END, EventType::PLAYER_FINISHED,
+                            EventType::SELECTION_END, EventType::PASS, EventType::PLAY_COMBI,
+                            EventType::SELECTION_START, EventType::BOMB, EventType::SWITCH, EventType::WISH,
+                            EventType::SWAP_IN, EventType::SWAP_OUT};
+        }
+        if(events.back().event_type == EventType::STICH_END){
+            typesToRemove = {EventType::SELECTION_END, EventType::PASS, EventType::PLAY_COMBI,
+                            EventType::SELECTION_START, EventType::BOMB, EventType::SWITCH,};
+        }
+        std::remove_if(_game_panel_data.events_log.begin(), _game_panel_data.events_log.end(),
+                        [&typesToRemove](const std::pair<Event, std::string>& pair) {
+                         return std::find(typesToRemove.begin(), typesToRemove.end(), pair.first.event_type) != typesToRemove.end();});
+
     }
 
     _game_panel_data.prev_game_state = _game_panel_data.game_state;

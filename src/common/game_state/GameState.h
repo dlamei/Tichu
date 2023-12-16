@@ -53,7 +53,7 @@ private:
     ActivePile _active_pile{};
     std::optional<Card> _wish;
 
-    int _score_team_A{999};
+    int _score_team_A{0};
     int _score_team_B{0};
 
     int _next_player_idx{0};
