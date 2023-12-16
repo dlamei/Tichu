@@ -63,6 +63,8 @@ bool GameState::start_game(std::string &err) {
         // make teams
         make_teams();
         
+        _score_team_A = 999;
+        _score_team_B = 0;
         this->setup_round(err);
         this->_game_phase = GamePhase::PREROUND; //SHOULD BE PREROUND
         return true;
@@ -627,14 +629,15 @@ bool GameState::play_combi(Player &Player, CardCombination& combi, std::vector<E
             if( check_is_round_finished(Player, err) ) {
                 wrap_up_round(Player, events, err);
                 if( check_is_game_over(err) ) { 
-                    wrap_up_game(err);  
+                    wrap_up_game(err); 
+                    return true;
                 }
             setup_round(err); 
             }
         setup_trick(Player, err);
         }
         if(combi.get_combination_type() != PASS){
-        _last_player_idx = get_player_index(Player);
+            _last_player_idx = get_player_index(Player);
         }
         return true;
 

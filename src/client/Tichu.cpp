@@ -107,6 +107,8 @@ void TichuGame::handle_gui_output() {
         _game_panel_data.wait_for_others_swap = true;
         auto cards = _game_panel_data.cards_for_swapping;
         send_message(ClientMsg(_connection_data.id, swap_req{ { cards.begin(), cards.end() } }));
+        _game_panel_data.cards_for_swapping = {};
+        _game_panel_data.swap_window_data = {};
     }
 
     if (_game_panel_data.pressed_small_tichu) {
@@ -117,6 +119,7 @@ void TichuGame::handle_gui_output() {
     if (_game_panel_data.pressed_select) {
         _game_panel_data.pressed_select = false;
         send_message(ClientMsg(_connection_data.id, dragon_req{_game_panel_data.selected_player->get_id()}));
+        _game_panel_data.selected_player = {};
     }
 
     if (_game_panel_data.pressed_start_again) {
@@ -219,7 +222,7 @@ void TichuGame::process(const full_state_response &data) {
 
     auto &events = data.events;
     for (auto &e : events) {
-        _game_panel_data.events_log.emplace_back(e, e.to_string(_game_panel_data.game_state.get_players(), _game_panel_data.player_id.value()));
+        _game_panel_data.events_log.emplace_front(e, e.to_string(_game_panel_data.game_state.get_players(), _game_panel_data.player_id.value()));
     }
 
     _game_panel_data.prev_game_state = _game_panel_data.game_state;

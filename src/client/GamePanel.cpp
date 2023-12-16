@@ -685,7 +685,7 @@ namespace GamePanel
         }
         else
         {
-            return 4 + indx;
+            return (4 + indx) % 4;
         }
     }
 
@@ -846,6 +846,7 @@ namespace GamePanel
             if (players.at(i)->get_nof_won_cards() > prev_players.at(i)->get_nof_won_cards())
             {
                 winner = i;
+                break;
             }
         }
 
@@ -870,7 +871,10 @@ namespace GamePanel
         glm::vec2 won_pile_pos{};
         float won_card_angle = 0;
 
-        int winner = rel_from_glob_indx(get_winner_indx(data), get_my_index(data));
+        int winner = get_winner_indx(data);
+        if (winner == -1) return;
+
+        winner = rel_from_glob_indx(winner, get_my_index(data));
         if (winner == 0)
         {
             won_pile_pos = {0, 0};
@@ -1259,6 +1263,14 @@ namespace GamePanel
 
         // show_swap_window(data);
 
+        auto phase = data->game_state.get_game_phase();
+        if (phase != GamePhase::SWAPPING) {
+            data->wait_for_others_swap = false;
+        }
+        if (phase != GamePhase::PREROUND) {
+            data->wait_for_others_grand_tichu = false;
+        }
+
         switch (data->game_state.get_game_phase())
         {
         case GamePhase::PREGAME:
@@ -1269,12 +1281,10 @@ namespace GamePanel
             show_game(data);
             break;
         case GamePhase::SWAPPING:
-            data->wait_for_others_grand_tichu = false;
             show_swap_window(data);
             show_game(data);
             break;
         case GamePhase::SELECTING:
-            data->wait_for_others_swap = false;
             show_selecting(data);
             show_game(data);
             break;
