@@ -34,13 +34,19 @@ public:
 
     virtual ~Layer() = default;
 
-    // called when pushing the layer to the app
+    /**
+     * called when pushing the layer to the app
+     */ 
     virtual void on_attach() {};
 
-    // called in the Application destructor
+    /**
+     * called in the Application destructor
+     */ 
     virtual void on_detach() {};
 
-    // can help separating gui and render code
+    /**
+     * can help separating gui and render code
+    */ 
     virtual void on_update(TimeStep ts) {};
 
     virtual void on_imgui() {};

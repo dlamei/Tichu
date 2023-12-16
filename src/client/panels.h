@@ -1,3 +1,14 @@
+/*! \class Message
+    \brief Represents a popup message box.
+
+ The Message class is responsible for representing a popup message box
+ in the Tichu game UI. It includes information such as the message type, unique ID, 
+ message content, and a flag to indicate whether the message box should close.
+
+ The class also provides functionality to draw the ImGui widget and manage 
+ the display of multiple message boxes.
+*/
+
 #ifndef TICHU_PANELS_H
 #define TICHU_PANELS_H
 
@@ -28,7 +39,9 @@ namespace ConnectionPanel {
         RANDOM,
     };
 
-// used for reading data from the connection panel
+/**
+ * \brief used for reading data from the connection panel
+*/ 
     struct Data {
         // used in panel
         std::string host = "127.0.0.1";
@@ -38,7 +51,9 @@ namespace ConnectionPanel {
         bool connect = false;
         std::string status = "not connected";
 
-        // Player id
+        /**
+         * Player id
+        */ 
         UUID id = UUID::create();
 
         bool validate() const;
