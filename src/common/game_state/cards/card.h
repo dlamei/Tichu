@@ -1,3 +1,12 @@
+/*! \class Card
+    \brief Represents a card in the Tichu game.
+    
+ Every card object has a rank, a suit and a value and every object is unique (no two objects will have the same rank
+ and the same suit). The total number of class objects can never exceed 56. 
+ 
+ These cards are created in the setup_round function of the GameState
+*/
+
 #ifndef TICHU_CARD_H
 #define TICHU_CARD_H
 
@@ -5,10 +14,10 @@
 #include <nlohmann/json.hpp>
 
 //Macros for special cards
-#define DRAGON Card(SPECIAL, RED, 25)
 #define PHONIX Card(SPECIAL, GREEN, -25)
-#define ONE Card(SPECIAL, SCHWARZ, 0)
+#define DRAGON Card(SPECIAL, RED, 25)
 #define HUND Card(SPECIAL, BLUE, 0)
+#define ONE Card(SPECIAL, SCHWARZ, 0)
 
 enum Rank {
     SPECIAL = 1, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING, ACE
@@ -18,6 +27,30 @@ enum Suit {
     GREEN = 1, RED, BLUE, SCHWARZ
     // For Special cards: RED = Dragon, GREEN = Phoenix, BLUE = Dog, SCHWARZ = One
 };
+
+NLOHMANN_JSON_SERIALIZE_ENUM( Rank, {
+    {SPECIAL, "special"},
+    {TWO, "two"},
+    {THREE, "three"},
+    {FOUR, "four"},
+    {FIVE, "five"},
+    {SIX, "six"},
+    {SEVEN, "seven"},
+    {EIGHT, "eight"},
+    {NINE, "nine"},
+    {TEN, "ten"},
+    {JACK, "jack"},
+    {QUEEN, "queen"},
+    {KING, "king"},
+    {ACE, "ace"},
+})
+
+NLOHMANN_JSON_SERIALIZE_ENUM( Suit, {
+    {GREEN, "green"},
+    {RED, "green"},
+    {BLUE, "green"},
+    {SCHWARZ, "schwarz"},
+})
 
 class Card {
 private:
@@ -52,12 +85,12 @@ public:
 
 // accessors
     [[nodiscard]] int get_rank() const noexcept { return _rank; }
-
     [[nodiscard]] int get_suit() const noexcept { return _suit; }
-
     [[nodiscard]] int get_value() const noexcept { return _value; }
 
-public:
+    std::string to_string() const;
+
+
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Card, _rank, _suit, _value);
 };
 

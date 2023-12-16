@@ -5,6 +5,7 @@
 #include "Renderer/Application.h"
 #include "panels.h"
 #include "../common/utils.h"
+#include "../common/Event.h"
 #include "../common/Messages.h"
 #include <unordered_set>
 #include <string>
@@ -52,6 +53,7 @@ private:
 
     void process_messages();
     void process(const server_message &data);
+    void process(const dragon &data);
     void process(const full_state_response &data);
 
     // show the active panel

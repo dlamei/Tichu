@@ -1,3 +1,9 @@
+/*! \class Hand
+    \brief Represents the hand of a player.
+    
+ ###TODO
+*/
+
 #ifndef TICHU_HAND_H
 #define TICHU_HAND_H
 
@@ -43,6 +49,7 @@ public:
 #ifdef TICHU_SERVER
     // state update functions
         int wrap_up_round();
+        int count_occurances(Card card) const;
         bool add_card(const Card &card, std::string &err);
         void add_cards(const std::vector<Card> &cards, std::string &err);
         std::optional<Card> remove_card(const Card &card, std::string& err);

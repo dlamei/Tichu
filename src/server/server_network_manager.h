@@ -1,8 +1,8 @@
-//
-// Created by Manuel on 12.02.2021.
-//
-// The server_network_manager handles all incoming messages and offers functionality to broadcast messages
-// to all connected players of a game.
+/*! \class server_network_manager
+
+ The server_network_manager handles all incoming messages and offers functionality to broadcast messages
+ to all connected players of a game.
+*/
 
 #ifndef TICHU_SERVER_NETWORK_MANAGER_H
 #define TICHU_SERVER_NETWORK_MANAGER_H
@@ -47,8 +47,7 @@ public:
 
     ~server_network_manager();
 
-    // Used to broadcast a ServerMsg (e.g. a full_state_response) to all 'players' except 'exclude'
-    static void broadcast_message(ServerMsg &msg, std::vector<player_ptr> players, player_ptr exclude);
+    static void broadcast_single_message(ServerMsg &msg, std::vector<player_ptr> players, const Player &recipient);
 
     static void on_player_left(const UUID &player_id);
 };

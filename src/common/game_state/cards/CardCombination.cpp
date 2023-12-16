@@ -17,7 +17,7 @@ CardCombination::CardCombination(Card c) {
 }
 
 
-int CardCombination::count_occurances(Card card) {
+int CardCombination::count_occurances(Card card) const {
     int count = 0;
     if (card.get_rank() == SPECIAL) {
         for (Card c: _cards) {
@@ -49,6 +49,7 @@ void CardCombination::update_combination_type_and_rank() {
     bool has_phoenix = count_occurances(PHONIX);
     bool has_dog = count_occurances(HUND);
     bool has_dragon = count_occurances(DRAGON);
+    bool has_one = count_occurances(ONE);
 
     // PASS
     if (size == 0) {
@@ -72,6 +73,14 @@ void CardCombination::update_combination_type_and_rank() {
             _combination_rank = 15;
             return;
         }
+
+        // MAJONG
+        if (has_one) {
+            _combination_type = MAJONG;
+            _combination_rank = 1;
+            return;
+        }
+
         // SINGLE CARD
         if (has_phoenix) {
             _combination_rank = -1;
@@ -284,13 +293,17 @@ bool CardCombination::can_be_played_on(const std::optional<CardCombination> &oth
         return false;
     }
 
+
     //pass
     if (this->_combination_type == PASS) {
         return true;
     }
 
+    
+
     if (!other_opt) { return true; }
     const CardCombination& other = other_opt.value();
+    if(other.get_combination_type() == MAJONG && this->get_combination_type() == SINGLE) { return true; }
     if (other.get_combination_type() == SWITCH) { return true; }
 
     //bombs

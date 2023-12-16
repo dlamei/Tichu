@@ -8,9 +8,17 @@
 namespace ImGuiUtils {
 
 // centering function for the next window. will only center once
-    void center_next_window_once() {
+    void center_next_in_window(ImGuiCond cond) {
         auto size = Application::get_window_size();
-        ImGui::SetNextWindowPos({(float) size.x / 2.f, (float) size.y / 2.f}, ImGuiCond_Once, {0.5f, 0.5f});
+        ImGui::SetNextWindowPos({(float) size.x / 2.f, (float) size.y / 2.f}, cond, {0.5f, 0.5f});
+    }
+
+    void center_next_in_viewport(ImGuiCond cond) {
+        auto size = Application::get_viewport_size();
+        auto rel_pos = Application::get_viewport_pos();
+        ImVec2 pos = {(float)size.x / 2.f, (float)size.y / 2.f};
+        pos += {(float)rel_pos.x, (float)rel_pos.y};
+        ImGui::SetNextWindowPos(pos, cond, {0.5f, 0.5f});
     }
 
 // centering function for an item with a label, e.g Button
@@ -43,12 +51,26 @@ namespace ImGuiUtils {
         ImGui::PopTextWrapPos();
     }
 
-    void AlignForWidth(float width, float alignment) {
-        ImGuiStyle& style = ImGui::GetStyle();
-        float avail = ImGui::GetContentRegionAvail().x;
-        float off = (avail - width) * alignment;
-        if (off > 0.0f)
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + off);
+    void item_grid(const char *label, int n_items, float item_width, const std::function<void (int)>& draw_items, ImGuiTableFlags flags) {
+        auto win_reg = ImGui::GetContentRegionAvail();
+        int items_per_row = std::max((int)(win_reg.x / item_width), 1);
+
+        if (ImGui::BeginTable(label, items_per_row, flags)) {
+            for (int i = 0; i < n_items; i++) {
+                if (i % items_per_row == 0)  {
+                    ImGui::TableNextRow();
+                }
+                ImGui::TableNextColumn();
+                float padding = 0;
+                auto cell_reg = ImGui::GetContentRegionAvail();
+                if (cell_reg.x > item_width) {
+                    padding = (cell_reg.x - item_width) / 2;
+                }
+                ImGui::SetCursorPosX(ImGui::GetCursorPosX() + padding);
+                draw_items(i);
+            }
+            ImGui::EndTable();
+        }
     }
 
 }
@@ -90,7 +112,7 @@ namespace ConnectionPanel {
         style.push_style(ImGuiStyleVar_WindowPadding, {height, height});
         style.push_style(ImGuiStyleVar_SelectableTextAlign, {0.5, 0.5});
 
-        ImGuiUtils::center_next_window_once();
+        ImGuiUtils::center_next_in_window(ImGuiCond_Once);
         ImGui::Begin("Connection", nullptr,
                      ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking |
                      ImGuiWindowFlags_NoScrollbar);
@@ -168,7 +190,7 @@ void Message::on_imgui() {
     style.push_style(ImGuiStyleVar_WindowBorderSize, 2);
     style.push_color(ImGuiCol_Border, title_color);
 
-    ImGuiUtils::center_next_window_once();
+    ImGuiUtils::center_next_in_window(ImGuiCond_Once);
     ImGui::Begin(title.c_str(), nullptr,
                  ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse);
 

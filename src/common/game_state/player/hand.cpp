@@ -50,6 +50,20 @@ int hand::wrap_up_round() {
     return score;
 }
 
+int hand::count_occurances(Card card) const {
+    int count = 0;
+    if (card.get_rank() == SPECIAL) {
+        for (Card c: _cards) {
+            if (c.get_rank() == card.get_rank() && c.get_suit() == card.get_suit()) { ++count; }
+        }
+    } else {
+        for (Card c: _cards) {
+            if (c.get_rank() == card.get_rank()) { ++count; }
+        }
+    }
+    return count;
+}
+
 bool hand::add_card(const Card &new_card, std::string &err) {
     _cards.push_back(new_card);
     std::sort(_cards.begin(),_cards.end());

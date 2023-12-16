@@ -4,7 +4,7 @@
 #include "../common/Messages.h"
 
 namespace request_handler {
-    ServerMsg handle_request(const ClientMsg &req);
+    std::optional<ServerMsg> handle_request(const ClientMsg &req);
 }
 
 #endif //TICHU_REQUEST_HANDLER_H

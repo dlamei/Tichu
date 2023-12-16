@@ -138,16 +138,19 @@ void server_network_manager::handle_incoming_message(const std::string &msg,
         DEBUG("Received valid request : {}", msg);
 
         // execute client request
-        ServerMsg res = request_handler::handle_request(client_msg);
+        std::optional<ServerMsg> res = request_handler::handle_request(client_msg);
 
+        if( res ) {
         // transform response into a json
         json response;
-        to_json(response, res);
+        to_json(response, res.value());
 
         DEBUG("sending response: {}", response.dump(4));
 
         // send response back to client
         send_message(response.dump(), peer_address.to_string());
+        } 
+
     } catch (const std::exception &e) {
         std::cerr << "Failed to execute client request. Content was :\n"
                   << msg << std::endl
@@ -172,25 +175,23 @@ ssize_t server_network_manager::send_message(const std::string &msg, const std::
     return _address_to_socket.at(address).write(ss_msg.str());
 }
 
-void server_network_manager::broadcast_message(ServerMsg &msg, std::vector<player_ptr> players, player_ptr exclude) {
+
+void server_network_manager::broadcast_single_message(ServerMsg &msg, std::vector<player_ptr> players, const Player &recipient) {
     json data;
     to_json(data, msg);
-    //auto msg_json = msg.to_json();  // write to JSON format
-    DEBUG("broadcast_message: {}", data.dump(4));
+    DEBUG("broadcast_single_message: {}", data.dump(1));
 
     _rw_lock.lock_shared();
     // send object_diff to all requested players
     try {
-        for (const auto& player: players) {
-            if (player->get_id() != exclude->get_id()) {
-                send_message(data.dump(), _player_id_to_address.at(player->get_id()));
-            }
-        }
+        send_message(data.dump(), _player_id_to_address.at(recipient.get_id()));
     } catch (std::exception &e) {
         std::cerr << "Encountered error when sending state update: " << e.what() << std::endl;
     }
     _rw_lock.unlock_shared();
+
 }
+
 
 
 

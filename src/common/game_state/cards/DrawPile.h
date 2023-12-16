@@ -1,3 +1,10 @@
+/*! \class DrawPile
+    \brief Represents a draw pile and stores cards
+    
+ The DrawPile is needed to set up a round and distribute the cards to the players randomly. As soon as
+ all 4 players have 14 cards, the pile must be empty and the object has no further function until the 
+ next round is started.
+*/
 
 #ifndef TICHU_DRAWPILE_H
 #define TICHU_DRAWPILE_H

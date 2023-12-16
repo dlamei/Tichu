@@ -10,7 +10,7 @@
 
 
 namespace request_handler {
-    ServerMsg handle_request(const ClientMsg &req) {
+    std::optional<ServerMsg> handle_request(const ClientMsg &req) {
         std::string err;
         const auto &player_id = req.get_player_id();
         ClientMsgType type = req.get_type();
@@ -31,7 +31,7 @@ namespace request_handler {
                 if (game_instance_ptr) {
                     // game_instance_ptr got updated to the joined game
                     // return full GameState attached
-                    return ServerMsg(full_state_response{game_instance_ptr.value()->get_game_state()});
+                    return {};
                 } else {
                     // failed to find game to join
                     auto resp = server_message{MessageType::Error, err };
@@ -45,13 +45,80 @@ namespace request_handler {
                 if (game_and_player) {
                     auto [player, game_instance] = game_and_player.value();
                     if (game_instance->start_game(player, err)) {
-                        return ServerMsg(full_state_response {game_instance->get_game_state()});
+                        return {};
                     }
                 }
                 auto resp = server_message{MessageType::Error, err};
                 return ServerMsg(resp);
             }
 
+                // ##################### GRAND TICHU ##################### //
+            case ClientMsgType::call_grand_tichu: {
+                auto game_and_player = game_instance_manager::try_get_player_and_game_instance(player_id, err);
+                if (game_and_player) {
+                    auto [player, game_instance] = game_and_player.value();
+                    auto grand_tichu_call = req.get_msg_data<grand_tichu_req>().grand_tichu_call;
+
+                    if (game_instance->call_grand_tichu(player, grand_tichu_call, err)) {
+                        return {};
+                    } else {
+                        return ServerMsg(server_message{MessageType::Info, err});
+                    }
+                }
+                auto resp = server_message{MessageType::Error, err };
+                return ServerMsg(resp);
+            }
+
+                // ##################### SMALL TICHU ##################### //
+            case ClientMsgType::call_small_tichu: {
+                auto game_and_player = game_instance_manager::try_get_player_and_game_instance(player_id, err);
+                if (game_and_player) {
+                    auto [player, game_instance] = game_and_player.value();
+                    auto small_tichu_call = req.get_msg_data<small_tichu_req>().small_tichu_call;
+
+                    if (game_instance->call_small_tichu(player, small_tichu_call, err)) {
+                        return {};
+                    } else {
+                        return ServerMsg(server_message{MessageType::Info, err});
+                    }
+                }
+                auto resp = server_message{MessageType::Error, err };
+                return ServerMsg(resp);
+            }
+
+                // ##################### SWAP CARDS ##################### //
+            case ClientMsgType::swap: {
+                auto game_and_player = game_instance_manager::try_get_player_and_game_instance(player_id, err);
+                if (game_and_player) {
+                    auto [player, game_instance] = game_and_player.value();
+                    auto cards = req.get_msg_data<swap_req>().cards;
+                
+                    if (game_instance->swap_cards(player, cards, err)) {
+                        return {};
+                    } else {
+                        return ServerMsg(server_message{MessageType::Info, err});
+                    }
+                }
+                auto resp = server_message{MessageType::Error, err };
+                return ServerMsg(resp);
+            }
+
+                // ##################### DRAGON SELECTION ##################### //
+            case ClientMsgType::dragon: {
+                auto game_and_player = game_instance_manager::try_get_player_and_game_instance(player_id, err);
+                if (game_and_player) {
+                    auto [player, game_instance] = game_and_player.value();
+                    auto selected_player = req.get_msg_data<dragon_req>().selected_player;
+                
+                    if (game_instance->dragon_selection(player, selected_player, err)) {
+                        return {};
+                    } else {
+                        return ServerMsg(server_message{MessageType::Info, err});
+                    }
+                }
+                auto resp = server_message{MessageType::Error, err };
+                return ServerMsg(resp);
+            }
 
                 // ##################### PLAY CARD ##################### //
             case ClientMsgType::play_combi: {
@@ -61,7 +128,7 @@ namespace request_handler {
                     auto combi = req.get_msg_data<play_combi_req>().played_combi;
 
                     if (game_instance->play_combi(player, combi, err)) {
-                        return ServerMsg(full_state_response {game_instance->get_game_state()});
+                        return {};
                     } else {
                         return ServerMsg(server_message{MessageType::Info, err});
                     }
@@ -69,24 +136,6 @@ namespace request_handler {
                 auto resp = server_message{MessageType::Error, err };
                 return ServerMsg(resp);
             }
-
-                // ##################### FOLD ##################### //
-                /*
-                case ClientMsgType::fold: {
-                    auto game_and_player = game_instance_manager::try_get_player_and_game_instance(player_id, err);
-                    if (game_and_player) {
-                        auto [Player, GameInstance] = game_and_player.value();
-                        if (GameInstance->fold(*Player, err)) {
-                            auto resp = server_message{true, GameInstance->get_game_state(), err};
-                            return ServerMsg(GameInstance->get_id(), resp);
-                        }
-                    }
-                    auto resp = server_message{false, {}, err};
-                    return ServerMsg(UUID(), resp);
-                }
-                */
-
-                // ##################### UNKNOWN REQUEST ##################### //
 
             case ClientMsgType::ping: {
                 return ServerMsg(pong {});

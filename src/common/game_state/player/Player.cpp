@@ -32,8 +32,7 @@ void Player::wrap_up_round(std::string &err) {
     _won_cards.wrap_up_round();
     _is_finished = false;
     _has_skipped = false;
-    _tichu = false;
-    _grand_tichu = false;
+    _tichu = Tichu::NONE;
 }
 
 #endif
