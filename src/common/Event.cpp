@@ -82,9 +82,11 @@ std::string Event::to_string(const std::vector<player_ptr> &players, const UUID 
             break;
 
         case EventType::ROUND_END: 
-            event_string += "| Team A +";
+            event_string += "| Team A ";
+            if(score_A.value() > 0) { event_string += "+"; }
             event_string += std::to_string(score_A.value());
-            event_string += " | Team B +";
+            event_string += " | Team B ";
+            if(score_B.value() > 0) { event_string += "+"; }
             event_string += std::to_string(score_B.value());
             event_string += " |";
             break;
