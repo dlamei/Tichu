@@ -12,30 +12,17 @@ It uses [Dear ImGui](https://github.com/ocornut/imgui) for the GUI, [sockpp](htt
 
 </div>
 
-## Quick guide of the GUI
-
-### 1. Login Screen
-
-After starting the client, the first screen is going to be the login screen. Here every player enters:
-- the **server address**
-- the **server port**
-- their **player name**
-- their **preferred team** (Team A , Team B or a random selection)
-
-When all details are entered, the player clicks on the *CONNECT*-button. If the player belongs to the first 3 players joining, they will be forwarded to the game lobby.
-
-![Login-Screen](./assets/login_screen.jpeg?raw=true)
-
-
-## 2. Compile instructions
+## 1. Compile instructions
 This project should compile on Linux, Windows and MacOS. It was mainly tested on Ubuntu  20/22 and Windows 10/11.
 
-## 2.1 Requirements:
+## 1.1 Requirements:
 - C++20
 - OpenGL 3.2+
 - CMake 3.15+
 
-## 2.2 Build
+## 1.2 Build
+
+In order to build the project, navigate into the project directory and run the following commands:
 ```
 mkdir build
 cd build
@@ -43,7 +30,27 @@ cmake ..
 make
 ```
 
-## 3. Generating Code Documentation with Doxygen
+## 2. Generating Code Documentation with Doxygen
 
-Before the code documentation can be generated, Doxygen needs to be installed. This can be done by cloning the [git repository](https://github.com/doxygen/doxygen) and following the [install instructions](https://www.doxygen.nl/manual/install.html#google_vignette).
-After Doxygen has been installed, navigate into the directory **doxygen_doc**. Post the command **doxygen** **Doxyfile**  into the terminal (Doxyfile refers to the file name within the directory). The Doxygen documentation will be generated within a folder named **html**. 
+Before the code documentation can be generated, Doxygen needs to be installed. This can be done by cloning the [git repository](https://github.com/doxygen/doxygen) and following the [install instructions](https://www.doxygen.nl/manual/install.html#google_vignette). <br>
+After Doxygen has been installed, navigate into the directory **doxygen_doc**. Post the command `doxygen Doxyfile`  into the terminal (Doxyfile refers to the file name within the directory). The Doxygen documentation will be generated within a folder named **html**. The file named **index.html** will land you on the main page.
+
+
+## 3. Quick guide of the GUI
+
+### 3.1 Login Screen
+
+After starting the client, the first screen is going to be the login screen. Here every player enters:
+- the **server address**
+- the **server port**
+- their **player name**
+- their **preferred team** (Team A , Team B or a random selection)
+
+If one player choses the team selection option *random*, all players will be distributed randomely. <br>
+When all details are entered, the player clicks on the *CONNECT*-button. If the player belongs to the first 3 players joining, they will be forwarded to the game lobby.<br>
+<br>
+In order to start 4 clients simultaneously, their is a script named **start_tichu.sh** located in the directory **scripts**.
+
+![Login-Screen](./assets/login_screen.jpeg?raw=true)
+
+### 3.2 Lobby
