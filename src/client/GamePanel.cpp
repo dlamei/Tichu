@@ -292,7 +292,7 @@ namespace GamePanel
         {
             glm::vec2 outline_size = size * 1.05f;
             glm::vec2 offset = (outline_size - size) / 2.f;
-            Renderer::rect(pos - offset, outline_size, RGBA(255, 0, 0), angle);
+            Renderer::rect(pos - offset, outline_size, RGBA(125, 244, 255), angle);
         }
         Texture card_texture = get_card_texture(card);
         Renderer::rect_impl(pos, size, RGBA(255), card_texture, angle);
@@ -968,7 +968,7 @@ namespace GamePanel
             if (already_sel != data->selected.end()) {
                 ImGui::GetWindowDrawList()->AddRectFilled(glob_pos,
                                                           glob_pos + card_size + select_pad * 2,
-                                                          ImColor(1.f, 0.f, 0.f));
+                                                          ImColor(0.5f, 1.f, 1.f));
             }
 
             ImGui::SetCursorPos(c_pos + select_pad);
@@ -1291,6 +1291,7 @@ namespace GamePanel
         auto style = ImGui::ScopedStyle{};
         style.push_color(ImGuiCol_Button, ImGui::GREY);
         ImGuiUtils::center_next_in_viewport(ImGuiCond_Once);
+        style.push_style(ImGuiStyleVar_WindowTitleAlign, {.5, .5});
         ImGui::Begin("dragon trick", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize);
         auto &players = data->game_state.get_players();
         auto my_indx = get_my_index(*data);
