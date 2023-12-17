@@ -131,14 +131,20 @@ void TichuGame::handle_gui_output() {
         exit(0);
     }
 
+    if (_game_panel_data.pressed_play && _game_panel_data.selected_majong) {
+        _game_panel_data.show_majong_selection = true;
+        _game_panel_data.pressed_play = false;
+    }
+
     // play selected cards
     if (_game_panel_data.pressed_play || _game_panel_data.pressed_play_bomb) {
         _game_panel_data.pressed_play = false;
         _game_panel_data.pressed_play_bomb = false;
         _game_panel_data.can_play_bomb = false;
         auto &selected_cards = _game_panel_data.selected_cards;
-        auto msg = play_combi_req{ CardCombination({selected_cards.begin(), selected_cards.end()}) };
+        auto msg = play_combi_req{ CardCombination({selected_cards.begin(), selected_cards.end()}), _game_panel_data.wish };
         send_message(ClientMsg(_connection_data.id, msg));
+        _game_panel_data.wish = {};
         selected_cards.clear();
     }
 

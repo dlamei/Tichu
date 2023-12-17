@@ -1,5 +1,5 @@
 /*! \class game_instance_manager
-    \brief Stores all active games and offers game instance functionalities.
+ \brief Stores all active games and offers game instance functionalities
 
  The game_instance_manager only exists on the server side. It stores all currently active games and offers
  functionality to retrieve game instances by id and adding players to games.

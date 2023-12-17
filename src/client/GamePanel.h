@@ -1,3 +1,4 @@
+
 #ifndef TICHU_GAMEPANEL_H
 #define TICHU_GAMEPANEL_H
 
@@ -8,53 +9,37 @@
 
 namespace GamePanel {
 
-    // TODO: remove?
-    //enum State {
-    //    LOBBY,
-    //    GAME,
-    //};
-
-    /**
-     * \brief output for panels that allow for swapping cards
-    */ 
-    struct SwapData {
-
-        /**
-         * max number of selections
-        */ 
+    // input /output for panels that allow for swapping cards
+    struct SelectionData {
+        // max number of selections
         int n_selections{0};
-
-        /**
-         * indices of selected cards
-         */ 
+        // indices of selected cards
         std::deque<int> selected{};
     };
 
-    /**
-     * \brief input / output for the GamePanel 
-     * 
-     * It is also used to store e.g animation states.
-    */ 
+    // input / output for the GamePanel
+    // is also used to store e.g animation states
     struct Data {
         // read / write
         int hovered_card_index = -1;
-        long begin_hover_time = -1.f;
-        long spread_anim_start = -1.f;
-        long begin_card_collect_anim = -1.f;
+        long long begin_hover_time = -1;
+        long long spread_anim_start = -1;
+        long long begin_card_collect_anim = -1;
         std::set<Card> selected_cards{};
+        std::optional<Card> wish{};
         bool can_play_bomb{false};
 
-        int my_index = -1;
-        /**
-         * Swap Data for each player (minus local player)
-         * used to store data when displaying the swap window
-         * uses relative indexing
-        */ 
-        std::array<SwapData, 3> swap_window_data{};
+        bool selected_majong{true};
+        bool show_majong_selection{false};
+        SelectionData mahjong_wish{};
 
-        /**
-         * store cards to be swapped at the beginning
-        */ 
+        int my_index = -1;
+        // Swap Data for each player (minus local player)
+        // used to store data when displaying the swap window
+        // uses relative indexing
+        std::array<SelectionData, 3> swap_window_data{};
+
+        // store cards to be swapped at the beginning
         std::array<Card, 3> cards_for_swapping{};
 
         std::optional<Player> selected_player{};

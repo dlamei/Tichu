@@ -1,9 +1,3 @@
-/*! \class Server
-    \brief ##########TODO
-
- ##########################TODO
-*/
-
 #ifndef TICHU_SERVER_H
 #define TICHU_SERVER_H
 

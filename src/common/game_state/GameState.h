@@ -1,5 +1,5 @@
 /*! \class GameState
-    \brief ###Central class that implements the actual Tichu game play and orchestrates the other classes.
+    \brief #Central class that implements the actual Tichu game play and orchestrates the other classes.
     
  Holds the state of the whole game as well as of each round, executes and checks state modifications of
  each round (e.g. setting up rounds, turn validation, checking and clearing tricks, checking if round is finished)
@@ -16,6 +16,8 @@
 #include "cards/ActivePile.h"
 #include "../Event.h"
 #include "../utils.h"
+
+
 
 enum GamePhase {
     PREGAME = 0,
@@ -102,7 +104,6 @@ public:
     [[nodiscard]] int get_last_player_idx() const { return _last_player_idx; }
     [[nodiscard]] int get_next_player_idx() const { return _next_player_idx; }
 
-    //TODO: shared_player
     [[nodiscard]] std::optional<Player> get_current_player() const;
 
 #ifdef TICHU_SERVER
@@ -129,7 +130,7 @@ public:
         void wrap_up_trick(Player &Player,  std::vector<Event> &events, std::string &err);
 
         bool add_player(const player_ptr Player, std::string& err);
-        void update_current_player(Player &Player, COMBI combi_type, std::string& err);
+        void update_current_player(Player &Player,  COMBI combi_type, std::string& err);
         bool remove_player(player_ptr Player, std::string& err);
 
         void setup_player(Player &Player, std::string &err);

@@ -34,19 +34,13 @@ public:
 
     virtual ~Layer() = default;
 
-    /**
-     * called when pushing the layer to the app
-     */ 
+    // called when pushing the layer to the app
     virtual void on_attach() {};
 
-    /**
-     * called in the Application destructor
-     */ 
+    // called in the Application destructor
     virtual void on_detach() {};
 
-    /**
-     * can help separating gui and render code
-    */ 
+    // can help separating gui and render code
     virtual void on_update(TimeStep ts) {};
 
     virtual void on_imgui() {};
@@ -56,7 +50,7 @@ public:
 // helper struct for creating an app
 struct ApplicationCreateInfo {
     std::string title = "Application";
-    glm::uvec2 size {100, 100};
+    glm::uvec2 size {1500, 1000};
     std::optional<glm::ivec2> position {};
     std::string player_name{};
     bool auto_connect{false};

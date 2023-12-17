@@ -256,7 +256,7 @@ bool GameState::check_wish(const CardCombination &combi, const Player &player, c
                 _wish = {};
                 return true;
             } else {
-                err = "You must play the wished for card: " + combi.get_cards().at(0).to_string();
+                err = "You must play the wished for card: " + _wish.value().to_string();
                 return false;
             }
         } 

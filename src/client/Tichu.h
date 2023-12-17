@@ -1,10 +1,3 @@
-/*! \class TichuGame
-    \brief Represents the Tichu game application.
-    
- The TichuGame class is responsible for managing the Tichu game application.
- It handles connections to the server, processes messages, and manages the user interface.
-*/
-
 #ifndef TICHUUI_TICHU_H
 #define TICHUUI_TICHU_H
 

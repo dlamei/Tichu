@@ -1,7 +1,7 @@
 /*! \class WonCardsPile
     \brief Represents the pile of cards a player accumulates throughout a round.
     
- ###TODO
+ 
 */
 
 #ifndef TICHU_WONCARDSPILE_H

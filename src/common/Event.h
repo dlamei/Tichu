@@ -1,6 +1,6 @@
 /*! \class Event
-    \brief Represents an event.
 
+ #TODO
 */
 
 #ifndef EVENT_H
@@ -12,14 +12,6 @@
 #include <utility>
 #include "game_state/cards/card.h"
 #include "game_state/player/Player.h"
-
-/** @enum EventType
- *  @brief Represents different types of events.
- *
- * The EventType enumeration defines various types of events that can
- * occur during a Tichu game. Each enumerator corresponds to a specific event 
- * type, providing a comprehensive set of possibilities.
-*/
 
 enum class EventType {
     GAME_START,

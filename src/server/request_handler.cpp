@@ -126,8 +126,9 @@ namespace request_handler {
                 if (game_and_player) {
                     auto [player, game_instance] = game_and_player.value();
                     auto combi = req.get_msg_data<play_combi_req>().played_combi;
+                    auto wish = req.get_msg_data<play_combi_req>().wish;
 
-                    if (game_instance->play_combi(player, combi, err)) {
+                    if (game_instance->play_combi(player, combi, err, wish)) {
                         return {};
                     } else {
                         return ServerMsg(server_message{MessageType::Info, err});

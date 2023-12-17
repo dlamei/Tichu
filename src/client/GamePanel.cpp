@@ -1,9 +1,10 @@
 #include "GamePanel.h"
 
 #include <glm/gtx/transform.hpp>
-#include <ctime>
+//#include <ctime>
 #include <map>
 #include <deque>
+#include <chrono>
 
 #include "Renderer/Application.h"
 #include "Renderer/imgui_build.h"
@@ -24,29 +25,37 @@ uint32_t hash(uint32_t x)
     return x;
 }
 
+long long time_now() {
+    using namespace std::chrono;
+    return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+}
+
+/*
+ * map EventType to colors
+ */
 ImVec4 event_to_color(const EventType &e)
 {
     const auto HIGH = ImGui::RED;
     switch (e)
     {
-    case EventType::GAME_START:
-    case EventType::PLAY_COMBI:
-    case EventType::ROUND_END:
-    case EventType::PASS:
-    case EventType::PLAYER_FINISHED:
-    case EventType::STICH_END:
-        return ImVec4{0.3, 0.3, 0.3, 1.0};
+        case EventType::GAME_START:
+        case EventType::PLAY_COMBI:
+        case EventType::ROUND_END:
+        case EventType::PASS:
+        case EventType::PLAYER_FINISHED:
+        case EventType::STICH_END:
+            return ImVec4{0.3, 0.3, 0.3, 1.0};
 
-    case EventType::WISH:
-    case EventType::BOMB:
-        return ImGui::WHITE;
+        case EventType::WISH:
+        case EventType::BOMB:
+            return ImGui::WHITE;
 
-    case EventType::GRAND_TICHU:
-    case EventType::SMALL_TICHU:
-        return ImGui::YELLOW;
+        case EventType::GRAND_TICHU:
+        case EventType::SMALL_TICHU:
+            return ImGui::YELLOW;
 
-    default:
-        return ImGui::WHITE;
+        default:
+            return ImGui::WHITE;
     }
 }
 
@@ -67,12 +76,15 @@ void rel_fix_next_window(float x, float y, glm::vec2 pivot = {0.5, 0.5})
     ImGui::SetNextWindowPos({size.x * x + pos.x, size.y * y + pos.y}, ImGuiCond_Always, {pivot.x, pivot.y});
 }
 
+/*
+ * ImGui frameless window, useful for displaying text on the viewport
+ */
 void begin_frameless_window(const std::string &id)
 {
     ImGui::Begin(id.c_str(), nullptr,
                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar |
-                     ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoNav);
+                 ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar |
+                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoNav);
 }
 
 void hovering_text(const std::string &id, const std::string &text, float x, float y)
@@ -98,72 +110,88 @@ namespace GamePanel
 
     static Texture card_frame{};
     const std::map<Card, const char *> card_to_asset = {
-        {Card(TWO, SCHWARZ), "row-1-column-1"},
-        {Card(THREE, SCHWARZ), "row-1-column-2"},
-        {Card(FOUR, SCHWARZ), "row-1-column-3"},
-        {Card(FIVE, SCHWARZ), "row-1-column-4"},
-        {Card(SIX, SCHWARZ), "row-1-column-5"},
-        {Card(SEVEN, SCHWARZ), "row-1-column-6"},
-        {Card(EIGHT, SCHWARZ), "row-1-column-7"},
-        {Card(NINE, SCHWARZ), "row-1-column-8"},
-        {Card(TEN, SCHWARZ), "row-1-column-9"},
-        {Card(JACK, SCHWARZ), "row-1-column-10"},
-        {Card(QUEEN, SCHWARZ), "row-1-column-11"},
-        {Card(KING, SCHWARZ), "row-1-column-12"},
-        {Card(ACE, SCHWARZ), "row-1-column-13"},
+            {Card(TWO, SCHWARZ), "row-1-column-1"},
+            {Card(THREE, SCHWARZ), "row-1-column-2"},
+            {Card(FOUR, SCHWARZ), "row-1-column-3"},
+            {Card(FIVE, SCHWARZ), "row-1-column-4"},
+            {Card(SIX, SCHWARZ), "row-1-column-5"},
+            {Card(SEVEN, SCHWARZ), "row-1-column-6"},
+            {Card(EIGHT, SCHWARZ), "row-1-column-7"},
+            {Card(NINE, SCHWARZ), "row-1-column-8"},
+            {Card(TEN, SCHWARZ), "row-1-column-9"},
+            {Card(JACK, SCHWARZ), "row-1-column-10"},
+            {Card(QUEEN, SCHWARZ), "row-1-column-11"},
+            {Card(KING, SCHWARZ), "row-1-column-12"},
+            {Card(ACE, SCHWARZ), "row-1-column-13"},
 
-        {Card(TWO, RED), "row-2-column-1"},
-        {Card(THREE, RED), "row-2-column-2"},
-        {Card(FOUR, RED), "row-2-column-3"},
-        {Card(FIVE, RED), "row-2-column-4"},
-        {Card(SIX, RED), "row-2-column-5"},
-        {Card(SEVEN, RED), "row-2-column-6"},
-        {Card(EIGHT, RED), "row-2-column-7"},
-        {Card(NINE, RED), "row-2-column-8"},
-        {Card(TEN, RED), "row-2-column-9"},
-        {Card(JACK, RED), "row-2-column-10"},
-        {Card(QUEEN, RED), "row-2-column-11"},
-        {Card(KING, RED), "row-2-column-12"},
-        {Card(ACE, RED), "row-2-column-13"},
+            {Card(TWO, RED), "row-2-column-1"},
+            {Card(THREE, RED), "row-2-column-2"},
+            {Card(FOUR, RED), "row-2-column-3"},
+            {Card(FIVE, RED), "row-2-column-4"},
+            {Card(SIX, RED), "row-2-column-5"},
+            {Card(SEVEN, RED), "row-2-column-6"},
+            {Card(EIGHT, RED), "row-2-column-7"},
+            {Card(NINE, RED), "row-2-column-8"},
+            {Card(TEN, RED), "row-2-column-9"},
+            {Card(JACK, RED), "row-2-column-10"},
+            {Card(QUEEN, RED), "row-2-column-11"},
+            {Card(KING, RED), "row-2-column-12"},
+            {Card(ACE, RED), "row-2-column-13"},
 
-        {Card(TWO, BLUE), "row-3-column-1"},
-        {Card(THREE, BLUE), "row-3-column-2"},
-        {Card(FOUR, BLUE), "row-3-column-3"},
-        {Card(FIVE, BLUE), "row-3-column-4"},
-        {Card(SIX, BLUE), "row-3-column-5"},
-        {Card(SEVEN, BLUE), "row-3-column-6"},
-        {Card(EIGHT, BLUE), "row-3-column-7"},
-        {Card(NINE, BLUE), "row-3-column-8"},
-        {Card(TEN, BLUE), "row-3-column-9"},
-        {Card(JACK, BLUE), "row-3-column-10"},
-        {Card(QUEEN, BLUE), "row-4-column-11"},
-        {Card(KING, BLUE), "row-3-column-12"},
-        {Card(ACE, BLUE), "row-3-column-13"},
+            {Card(TWO, BLUE), "row-3-column-1"},
+            {Card(THREE, BLUE), "row-3-column-2"},
+            {Card(FOUR, BLUE), "row-3-column-3"},
+            {Card(FIVE, BLUE), "row-3-column-4"},
+            {Card(SIX, BLUE), "row-3-column-5"},
+            {Card(SEVEN, BLUE), "row-3-column-6"},
+            {Card(EIGHT, BLUE), "row-3-column-7"},
+            {Card(NINE, BLUE), "row-3-column-8"},
+            {Card(TEN, BLUE), "row-3-column-9"},
+            {Card(JACK, BLUE), "row-3-column-10"},
+            {Card(QUEEN, BLUE), "row-4-column-11"},
+            {Card(KING, BLUE), "row-3-column-12"},
+            {Card(ACE, BLUE), "row-3-column-13"},
 
-        {Card(TWO, GREEN), "row-4-column-1"},
-        {Card(THREE, GREEN), "row-4-column-2"},
-        {Card(FOUR, GREEN), "row-4-column-3"},
-        {Card(FIVE, GREEN), "row-4-column-4"},
-        {Card(SIX, GREEN), "row-4-column-5"},
-        {Card(SEVEN, GREEN), "row-4-column-6"},
-        {Card(EIGHT, GREEN), "row-4-column-7"},
-        {Card(NINE, GREEN), "row-4-column-8"},
-        {Card(TEN, GREEN), "row-4-column-9"},
-        {Card(JACK, GREEN), "row-4-column-10"},
-        {Card(QUEEN, GREEN), "row-4-column-11"},
-        {Card(KING, GREEN), "row-4-column-12"},
-        {Card(ACE, GREEN), "row-4-column-13"},
+            {Card(TWO, GREEN), "row-4-column-1"},
+            {Card(THREE, GREEN), "row-4-column-2"},
+            {Card(FOUR, GREEN), "row-4-column-3"},
+            {Card(FIVE, GREEN), "row-4-column-4"},
+            {Card(SIX, GREEN), "row-4-column-5"},
+            {Card(SEVEN, GREEN), "row-4-column-6"},
+            {Card(EIGHT, GREEN), "row-4-column-7"},
+            {Card(NINE, GREEN), "row-4-column-8"},
+            {Card(TEN, GREEN), "row-4-column-9"},
+            {Card(JACK, GREEN), "row-4-column-10"},
+            {Card(QUEEN, GREEN), "row-4-column-11"},
+            {Card(KING, GREEN), "row-4-column-12"},
+            {Card(ACE, GREEN), "row-4-column-13"},
 
-        {Card(SPECIAL, GREEN), "row-1-column-0"},   // phoenix
-        {Card(SPECIAL, RED), "row-2-column-0"},     // dragon
-        {Card(SPECIAL, BLUE), "row-3-column-0"},    // dog
-        {Card(SPECIAL, SCHWARZ), "row-4-column-0"}, // one
+            {Card(SPECIAL, GREEN), "row-1-column-0"},   // phoenix
+            {Card(SPECIAL, RED), "row-2-column-0"},     // dragon
+            {Card(SPECIAL, BLUE), "row-3-column-0"},    // dog
+            {Card(SPECIAL, SCHWARZ), "row-4-column-0"}, // one
     };
     static std::map<Card, Texture> card_to_texture;
+    std::vector<Card> mahjong_selection = {
+            Card(TWO, SCHWARZ),
+            Card(THREE, SCHWARZ),
+            Card(FOUR, SCHWARZ),
+            Card(FIVE, SCHWARZ),
+            Card(SIX, SCHWARZ),
+            Card(SEVEN, SCHWARZ),
+            Card(EIGHT, SCHWARZ),
+            Card(NINE, SCHWARZ),
+            Card(TEN, SCHWARZ),
+            Card(JACK, SCHWARZ),
+            Card(QUEEN, SCHWARZ),
+            Card(KING, SCHWARZ),
+            Card(ACE, SCHWARZ),
+    };
 
-    // used for ease in / out animation
-    // t: time since action began
-    // duration: time it takes to go from 0 to 1
+/* used for ease in / out animation
+* t: time since action began
+* duration: time it takes to go from 0 to 1
+*/
     float animate(float t, float duration)
     {
         t /= duration;
@@ -175,9 +203,11 @@ namespace GamePanel
         return 1;
     }
 
-    float seconds_since(long time)
+    float seconds_since(long long time)
     {
-        return (float)(clock() - time) / CLOCKS_PER_SEC;
+        long long diff = time_now() - time;
+        float secs = (float)(diff) / 1000.f;
+        return secs;
     }
 
     void load_textures()
@@ -191,15 +221,6 @@ namespace GamePanel
             auto texture = Texture::load(path);
             card_to_texture.insert({card, texture});
         }
-    }
-
-    void debug_game_state(const Data &data)
-    {
-        ImGui::Begin("Debug");
-        json json_data;
-        to_json(json_data, data.game_state);
-        ImGui::TextWrapped("%s", json_data.dump(4).c_str());
-        ImGui::End();
     }
 
     void show_waiting_window(const char *text = "waiting for other players...")
@@ -241,16 +262,17 @@ namespace GamePanel
     std::string player_display_name(const Player &player, const Data &data)
     {
         std::string name;
+        if (data.game_state.get_game_phase() != GamePhase::PREGAME)
         switch (player.get_team())
         {
-        case Team::A:
-            name = "[A] ";
-            break;
-        case Team::B:
-            name = "[B] ";
-            break;
-        default:
-            break;
+            case Team::A:
+                name = "[A] ";
+                break;
+            case Team::B:
+                name = "[B] ";
+                break;
+            default:
+                break;
         }
         name += player.get_player_name();
         if (player.get_id() == data.player_id)
@@ -280,7 +302,7 @@ namespace GamePanel
         return false;
     }
 
-    // returns the calculated card positions, also takes hovered_card_index into account
+// returns the calculated card positions, also takes hovered_card_index into account
     std::vector<float> calculate_card_positions(int n_cards, glm::vec2 size, float spread_start, float spread_end, int hover_index)
     {
         std::vector<float> positions;
@@ -336,14 +358,14 @@ namespace GamePanel
         return positions;
     }
 
-    // return the index of the local Player
+// return the index of the local Player
     int get_my_index(const Data &data)
     {
         if (!data.player_id.has_value())
             return -1;
         auto &players = data.game_state.get_players();
         auto it = std::find_if(players.begin(), players.end(), [&data](const player_ptr &p)
-                               { return data.player_id.value() == p->get_id(); });
+        { return data.player_id.value() == p->get_id(); });
         if (it == players.end())
         {
             return -1;
@@ -441,7 +463,7 @@ namespace GamePanel
             {
                 hovered_any = true;
                 if (i != data->hovered_card_index)
-                    data->begin_hover_time = clock();
+                    data->begin_hover_time = time_now();
                 data->hovered_card_index = i;
 
                 if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
@@ -449,10 +471,12 @@ namespace GamePanel
                     if (data->selected_cards.contains(card))
                     {
                         data->selected_cards.erase(card);
+                        if (card == ONE) data->selected_majong = false;
                     }
                     else
                     {
                         data->selected_cards.insert(card);
+                        if (card == ONE) data->selected_majong = true;
                     }
                     auto combi = CardCombination({data->selected_cards.begin(), data->selected_cards.end()});
                     data->can_play_bomb = combi.get_combination_type() == BOMB;
@@ -475,6 +499,7 @@ namespace GamePanel
             {
                 data->selected_cards.clear();
                 data->can_play_bomb = false;
+                data->selected_majong = false;
             }
         }
 
@@ -663,14 +688,6 @@ namespace GamePanel
         }
     }
 
-    // example:
-    // we know the last player_indx was 3 and someone has just won some cards. in what direction do the cards fly?
-    // and we know that our index is 2
-    // we call int indx = rel_from_global_indx(3, 2);
-    // if indx == 0 we won the cards
-    // if indx == 1 the person left to us
-    // if indx == 2 the person at the top
-    // if indx == 3 the person rigth to us
     int glob_from_rel_indx(int rel_indx, int my_indx)
     {
         return (rel_indx + my_indx) % 4;
@@ -905,6 +922,79 @@ namespace GamePanel
         }
     }
 
+    ImVec2 imgui_card_size()
+    {
+        auto app_size = Application::get_window_size();
+        auto glm_card_size = _card_size * 10.f * std::max((float)app_size.x / 15.f, 15.f);
+        return ImVec2{glm_card_size.x, glm_card_size.y};
+    }
+
+    /*
+    * when we have a window which main part is a selectable card grid we want to resize the window on how many
+    * cards per row we want to display
+    * e.g when displaying a grid with 14 cards we want a window that is 7 cards wide and 2 cards high
+    */
+    void set_next_card_grid_window_size(float x, float y) {
+        x += 1; // no idea why
+        y += 1;
+        auto card_size = imgui_card_size();
+        auto padding = ImGui::GetStyle().WindowPadding + ImGui::GetStyle().CellPadding;
+        ImGui::SetNextWindowSize({card_size.x * x + padding.x * 2.f + 1, card_size.y * y + padding.y * 2 + 1}, ImGuiCond_Once);
+    }
+
+    void show_selectable_card_grid(const char *label, const std::vector<Card> &cards, SelectionData *data, std::vector<bool> filter)
+    {
+        auto card_size = imgui_card_size();
+        const ImVec2 select_pad = {5.f, 5.f};
+        ImGuiUtils::item_grid(label, (int)cards.size(), card_size.x + select_pad.x * 2, [&](int i)
+        {
+            auto c_pos = ImGui::GetCursorPos();
+            auto glob_pos = c_pos + ImGui::GetWindowPos() - ImVec2{ImGui::GetScrollX(), ImGui::GetScrollY()};
+
+            // check if no long selectable
+            if (filter.size() == cards.size() && filter.at(i)) {
+                ImGui::SetCursorPos(c_pos + card_size + select_pad * 2);
+                return;
+            }
+
+            // draw rectangle behind image if selected
+            auto already_sel = std::find(data->selected.begin(), data->selected.end(), i);
+            if (already_sel != data->selected.end()) {
+                ImGui::GetWindowDrawList()->AddRectFilled(glob_pos,
+                                                          glob_pos + card_size + select_pad * 2,
+                                                          ImColor(1.f, 0.f, 0.f));
+            }
+
+            ImGui::SetCursorPos(c_pos + select_pad);
+            ImGui::Image(get_card_texture(cards.at(i)), card_size);
+
+            if (ImGui::IsItemClicked()) {
+                if (already_sel != data->selected.end()) {
+                    data->selected.erase(already_sel);
+                } else {
+                    data->selected.push_back(i);
+                }
+            }
+
+            ImGui::SetCursorPos(c_pos + card_size + select_pad * 2);
+
+            while (data->n_selections < data->selected.size()) {
+                data->selected.pop_front();
+            } });
+    }
+
+
+    void show_majong_window(Data *data, bool *open) {
+        ImGuiUtils::center_next_in_viewport(ImGuiCond_Once);
+        set_next_card_grid_window_size(7, 2);
+        auto style = ImGui::ScopedStyle{};
+        style.push_style(ImGuiStyleVar_WindowTitleAlign, {.5, .5});
+        ImGui::Begin("wish for a card", open, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize);
+        data->mahjong_wish.n_selections = 1;
+        show_selectable_card_grid("mahjong", mahjong_selection, &data->mahjong_wish, {});
+        ImGui::End();
+    }
+
     void show_game(Data *data)
     {
         show_main_framebuffer();
@@ -940,7 +1030,7 @@ namespace GamePanel
         if ((prev_top_combi && !top_combi))
         {
             if (data->begin_card_collect_anim < 0)
-                data->begin_card_collect_anim = clock();
+                data->begin_card_collect_anim = time_now();
             show_collect_anim(*data);
         }
 
@@ -955,7 +1045,7 @@ namespace GamePanel
         {
             if (data->can_play_bomb)
             {
-                if (ImGui::Button("PLAY BOMBO"))
+                if (ImGui::Button("PLAY BOMB"))
                 {
                     data->pressed_play_bomb = true;
                 }
@@ -980,6 +1070,24 @@ namespace GamePanel
         }
         ImGui::End();
 
+        if (data->show_majong_selection) {
+            bool open = true;
+            show_majong_window(data, &open);
+            if (!open) {
+                data->show_majong_selection = false;
+                data->selected_majong = false;
+                data->pressed_play = true;
+                data->mahjong_wish.selected = {};
+            } else if (data->mahjong_wish.selected.size() == 1) {
+                data->show_majong_selection = false;
+                data->selected_majong = false;
+                data->pressed_play = true;
+
+                data->wish = mahjong_selection.at(data->mahjong_wish.selected.at(0));
+                data->mahjong_wish.selected = {};
+            }
+        }
+
         show_other_players(*data);
         show_top_combi(*data);
         show_player_cards(data);
@@ -987,7 +1095,11 @@ namespace GamePanel
 
     void show_post_game(Data *data)
     {
-        ImGui::Begin("Game Over");
+        auto style = ImGui::ScopedStyle{};
+        style.push_style(ImGuiStyleVar_WindowTitleAlign, {0.5, 0.5});
+        style.push_style(ImGuiStyleVar_WindowPadding, {20, 20});
+        ImGuiUtils::center_next_in_viewport(ImGuiCond_Always);
+        ImGui::Begin("Game Over", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse);
         ImGui::BeginTable("score table", 2, ImGuiTableFlags_Borders);
         ImGui::TableNextRow();
         ImGui::TableNextColumn();
@@ -1000,10 +1112,11 @@ namespace GamePanel
         ImGui::Text("%s", std::to_string(data->game_state.get_score_team_A()).c_str());
         ImGui::TableNextColumn();
         ImGui::Text("%s", std::to_string(data->game_state.get_score_team_B()).c_str());
+        ImGui::EndTable();
 
         ImGui::BeginTable("buttons", 2);
-        ImGui::TableNextColumn();
         ImGui::TableNextRow();
+        ImGui::TableNextColumn();
         if (ImGui::Button("play again"))
         {
             data->pressed_start_again = true;
@@ -1013,17 +1126,8 @@ namespace GamePanel
         {
             data->pressed_close = true;
         }
-        ImGui::End();
-
         ImGui::EndTable();
         ImGui::End();
-    }
-
-    ImVec2 imgui_card_size()
-    {
-        auto app_size = Application::get_window_size();
-        auto glm_card_size = _card_size * 10.f * std::max((float)app_size.x / 15.f, 15.f);
-        return ImVec2{glm_card_size.x, glm_card_size.y};
     }
 
     void show_pre_round(Data *data)
@@ -1049,9 +1153,10 @@ namespace GamePanel
         auto style = ImGui::ScopedStyle{};
         float win_padding = 30.f;
         style.push_style(ImGuiStyleVar_WindowPadding, {win_padding, win_padding});
+        style.push_style(ImGuiStyleVar_WindowTitleAlign, {.5, .5});
         ImGuiUtils::center_next_in_viewport(ImGuiCond_Once);
         ImGui::SetNextWindowSize({card_size.x * 4 + win_padding * 2 + 1, 0}, ImGuiCond_Once);
-        ImGui::Begin("Grand Tichu", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar);
+        ImGui::Begin("Grand Tichu", nullptr, ImGuiWindowFlags_NoCollapse);
 
         auto &cards = data->game_state.get_players().at(data->my_index)->get_hand().get_cards();
         if (cards.size() < 8)
@@ -1063,68 +1168,22 @@ namespace GamePanel
         //     ImGui::Image(get_card_texture(cards[i]), imgui_card_size());
         // });
 
-        if (!data->wait_for_others_grand_tichu && ImGui::BeginTable("GrandTichuButtons", 2))
+        if (!data->wait_for_others_grand_tichu)
         {
             auto style = ImGui::ScopedStyle{};
             style.push_color(ImGuiCol_Button, ImGui::GREY);
-            ImGui::TableNextRow();
-            ImGui::TableNextColumn();
             auto height = ImGui::GetFontSize() * 2;
-            if (ImGui::Button("GrandTichu", {ImGui::GetContentRegionAvail().x, height}))
+            if (ImGui::Button("YES", {ImGui::GetContentRegionAvail().x, height}))
             {
                 data->pressed_grand_tichu = true;
             }
-            ImGui::TableNextColumn();
-            if (ImGui::Button("Pass", {ImGui::GetContentRegionAvail().x, height}))
+            if (ImGui::Button("NO", {ImGui::GetContentRegionAvail().x, height}))
             {
                 data->pressed_pass_grand_tichu = true;
             }
-
-            ImGui::EndTable();
         }
 
         ImGui::End();
-    }
-
-    void show_swappable_cards(const char *label, const std::vector<Card> &cards, SwapData *data, std::vector<bool> filter)
-    {
-        auto card_size = imgui_card_size();
-        const ImVec2 select_pad = {5.f, 5.f};
-        ImGuiUtils::item_grid(label, (int)cards.size(), card_size.x + select_pad.x * 2, [&](int i)
-                              {
-            auto c_pos = ImGui::GetCursorPos();
-            auto glob_pos = c_pos + ImGui::GetWindowPos() - ImVec2{ImGui::GetScrollX(), ImGui::GetScrollY()};
-
-            // already selected elsewhere
-            if (filter.at(i)) {
-                ImGui::SetCursorPos(c_pos + card_size + select_pad * 2);
-                return;
-            }
-
-            // draw rectangle behind image if selected
-            auto already_sel = std::find(data->selected.begin(), data->selected.end(), i);
-            if (already_sel != data->selected.end()) {
-                ImGui::GetWindowDrawList()->AddRectFilled(glob_pos,
-                                                          glob_pos + card_size + select_pad * 2,
-                                                          ImColor(1.f, 0.f, 0.f));
-            }
-
-            ImGui::SetCursorPos(c_pos + select_pad);
-            ImGui::Image(get_card_texture(cards.at(i)), card_size);
-
-            if (ImGui::IsItemClicked()) {
-                if (already_sel != data->selected.end()) {
-                    data->selected.erase(already_sel);
-                } else {
-                    data->selected.push_back(i);
-                }
-            }
-
-            ImGui::SetCursorPos(c_pos + card_size + select_pad * 2);
-
-            while (data->n_selections < data->selected.size()) {
-                data->selected.pop_front();
-            } });
     }
 
     void show_swap_window(Data *data)
@@ -1143,13 +1202,14 @@ namespace GamePanel
             return;
         }
 
-        auto card_size = imgui_card_size();
         auto style = ImGui::ScopedStyle{};
         style.push_color(ImGuiCol_Button, ImGui::GREY);
+        style.push_style(ImGuiStyleVar_WindowTitleAlign, {.5, .5});
+        style.push_color(ImGuiCol_TitleBg, ImGui::BLACK);
+        style.push_color(ImGuiCol_TitleBgActive, ImGui::BLACK);
         ImGuiUtils::center_next_in_viewport(ImGuiCond_Once);
-        auto window_padding = ImGui::GetStyle().WindowPadding;
-        ImGui::SetNextWindowSize({card_size.x * 7 + 1 + window_padding.x * 2.f, card_size.y * 2 + window_padding.y * 2 + 1}, ImGuiCond_Once);
-        ImGui::Begin("SwapWindow", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking);
+        set_next_card_grid_window_size(7, 2.5);
+        ImGui::Begin("Select cards for swapping", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoScrollbar);
 
         int n_total_selections = 0;
         for (int i = 0; i < 3; i++)
@@ -1168,7 +1228,6 @@ namespace GamePanel
         {
             ImGui::PushID(i);
             auto &p = players.at(glob_from_rel_indx(i + 1, data->my_index));
-            // TODO
             if (p->get_is_finished())
                 continue;
 
@@ -1194,7 +1253,7 @@ namespace GamePanel
             if (ImGui::BeginTabItem(name.c_str()))
             {
                 ImGui::BeginChild("cards", reg);
-                show_swappable_cards("cards_grid", cards, swap, filter);
+                show_selectable_card_grid("cards_grid", cards, swap, filter);
                 ImGui::EndChild();
                 ImGui::EndTabItem();
             }
@@ -1226,10 +1285,7 @@ namespace GamePanel
         auto style = ImGui::ScopedStyle{};
         style.push_color(ImGuiCol_Button, ImGui::GREY);
         ImGuiUtils::center_next_in_viewport(ImGuiCond_Once);
-        ImGui::Begin("DragonWindow", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize);
-        auto label = "who should get the dragon?";
-        ImGuiUtils::center_next_label(label);
-        ImGui::Text("%s", label);
+        ImGui::Begin("dragon trick", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize);
         auto &players = data->game_state.get_players();
         auto my_indx = get_my_index(*data);
         auto enemy1 = players.at(glob_from_rel_indx(1, my_indx));
@@ -1259,10 +1315,6 @@ namespace GamePanel
 
         data->my_index = get_my_index(*data);
 
-        show_game_info(data);
-
-        // show_swap_window(data);
-
         auto phase = data->game_state.get_game_phase();
         if (phase != GamePhase::SWAPPING) {
             data->wait_for_others_swap = false;
@@ -1271,29 +1323,31 @@ namespace GamePanel
             data->wait_for_others_grand_tichu = false;
         }
 
+        show_game_info(data);
+
         switch (data->game_state.get_game_phase())
         {
-        case GamePhase::PREGAME:
-            show_lobby(data);
-            break;
-        case GamePhase::PREROUND:
-            show_pre_round(data);
-            show_game(data);
-            break;
-        case GamePhase::SWAPPING:
-            show_swap_window(data);
-            show_game(data);
-            break;
-        case GamePhase::SELECTING:
-            show_selecting(data);
-            show_game(data);
-            break;
-        case GamePhase::INROUND:
-            show_game(data);
-            break;
-        case GamePhase::POSTGAME:
-            show_post_game(data);
-            break;
+            case GamePhase::PREGAME:
+                show_lobby(data);
+                break;
+            case GamePhase::PREROUND:
+                show_pre_round(data);
+                show_game(data);
+                break;
+            case GamePhase::SWAPPING:
+                show_swap_window(data);
+                show_game(data);
+                break;
+            case GamePhase::SELECTING:
+                show_selecting(data);
+                show_game(data);
+                break;
+            case GamePhase::INROUND:
+                show_game(data);
+                break;
+            case GamePhase::POSTGAME:
+                show_post_game(data);
+                break;
         }
     }
 
