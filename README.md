@@ -21,14 +21,12 @@ This project should compile on Linux, Windows and MacOS. It was mainly tested on
 - CMake 3.15+
 
 ### 1.3 Build / Compile code
-
 In order to build the project, navigate into the project directory and run the following commands:
-```
 1. In the tichu-project file, `mkdir build` create your build folder 
 2. Go into your build folder `cd build`
 3. Use cmake to build the make file `cmake ..`
 4. Build everything you need with `make`
-```
+
 ### 2. Run the Game
 1. go into your build folder `cd build`
 2. Run server `./Tichu-server`
