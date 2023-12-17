@@ -80,5 +80,16 @@ The following pictures show a couple of exemplary situations, which one will enc
 
 ![wish_question](./assets/7_wish.png?raw=true)
 
-![wish_question](./assets/8_not_play_the_wish.png?raw=true)
+![wish_answer](./assets/8_not_play_the_wish.png?raw=true)
+
+##### Playing a combination and winning a stich
+
+![combination](./assets/11_playing_combination.png?raw=true)
+
+![winning_stich](./assets/10_win_the_stich.png?raw=true)
+
+##### Playing a bomb
+
+![bomb](./assets/9_played_a_bomb.png?raw=true)
+
 
