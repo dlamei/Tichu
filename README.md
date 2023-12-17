@@ -74,4 +74,4 @@ The following pictures show a couple of exemplary situations, which one will enc
 
 #### 3.3.2 Selecting to swap cards
 
-![swap_cards](./assets/6_swap_cards.png.png?raw=true)
+![swap_cards](./assets/6_swap_cards.png?raw=true)
