@@ -38,21 +38,27 @@ ImVec4 event_to_color(const EventType &e)
     const auto HIGH = ImGui::RED;
     switch (e)
     {
-        case EventType::GAME_START:
         case EventType::PLAY_COMBI:
-        case EventType::ROUND_END:
+            return ImVec4{0.4, 0.3, 0.3, 1.0};
         case EventType::PASS:
-        case EventType::PLAYER_FINISHED:
-        case EventType::STICH_END:
             return ImVec4{0.3, 0.3, 0.3, 1.0};
+        case EventType::GAME_START:
+        case EventType::ROUND_END:
+            return ImGui::BLUE;
 
         case EventType::WISH:
-        case EventType::BOMB:
             return ImGui::WHITE;
+        case EventType::BOMB:
+            return ImGui::RED;
 
         case EventType::GRAND_TICHU:
         case EventType::SMALL_TICHU:
             return ImGui::YELLOW;
+        case EventType::PLAYER_FINISHED:
+        case EventType::STICH_END:
+        case EventType::SWAP_IN:
+        case EventType::SWAP_OUT:
+            return ImGui::GREEN;
 
         default:
             return ImGui::WHITE;
