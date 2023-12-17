@@ -819,19 +819,20 @@ namespace GamePanel
         }
 
         ImGui::NewLine();
-        ImGui::SeparatorText("log");
+        if (data->game_state.get_game_phase() != GamePhase::PREGAME) {
+            ImGui::SeparatorText("log");
 
-        auto avail = ImGui::GetContentRegionAvail();
-        ImGui::SetNextWindowSizeConstraints({0, 0}, avail);
-        ImGui::BeginChild("log", {0, 0}, ImGuiChildFlags_FrameStyle | ImGuiChildFlags_AutoResizeY);
-        for (auto &[e, msg] : data->events_log)
-        {
-            auto col = event_to_color(e.event_type);
-            ImGui::PushStyleColor(ImGuiCol_Text, col);
-            ImGui::TextUnformatted(msg.c_str(), msg.c_str() + msg.size());
-            ImGui::PopStyleColor();
+            auto avail = ImGui::GetContentRegionAvail();
+            ImGui::SetNextWindowSizeConstraints({0, 0}, avail);
+            ImGui::BeginChild("log", {0, 0}, ImGuiChildFlags_FrameStyle | ImGuiChildFlags_AutoResizeY);
+            for (auto &[e, msg]: data->events_log) {
+                auto col = event_to_color(e.event_type);
+                ImGui::PushStyleColor(ImGuiCol_Text, col);
+                ImGui::TextUnformatted(msg.c_str(), msg.c_str() + msg.size());
+                ImGui::PopStyleColor();
+            }
+            ImGui::EndChild();
         }
-        ImGui::EndChild();
 
         ImGui::End();
     }

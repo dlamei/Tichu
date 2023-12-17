@@ -11,13 +11,13 @@ add_subdirectory(libs)
 set(COMMON_SOURCE_FILES
 		src/common/event.cpp src/common/event.h
         src/common/game_state/cards/card.cpp src/common/game_state/cards/card.h
-        src/common/game_state/GameState.cpp src/common/game_state/GameState.h
+		src/common/game_state/game_state.cpp src/common/game_state/game_state.h
         src/common/game_state/player/hand.cpp src/common/game_state/player/hand.h
-		src/common/game_state/player/Player.cpp src/common/game_state/player/Player.h
-		src/common/game_state/cards/WonCardsPile.cpp src/common/game_state/cards/WonCardsPile.h
-        src/common/game_state/cards/DrawPile.cpp src/common/game_state/cards/DrawPile.h
-        src/common/game_state/cards/ActivePile.cpp src/common/game_state/cards/ActivePile.h
-        src/common/game_state/cards/CardCombination.cpp src/common/game_state/cards/CardCombination.h
+		src/common/game_state/player/player.cpp src/common/game_state/player/player.h
+		src/common/game_state/cards/won_cards_pile.cpp src/common/game_state/cards/won_cards_pile.h
+		src/common/game_state/cards/draw_pile.cpp src/common/game_state/cards/draw_pile.h
+		src/common/game_state/cards/active_pile.cpp src/common/game_state/cards/active_pile.h
+		src/common/game_state/cards/card_combination.cpp src/common/game_state/cards/card_combination.h
 		src/common/utils.cpp
 		src/common/messages.h
 		src/common/listener.h

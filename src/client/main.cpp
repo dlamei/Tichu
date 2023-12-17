@@ -19,11 +19,6 @@ void parse_player_name(char **argv, ApplicationCreateInfo *parsed_args) {
     parsed_args->player_name = name;
 }
 
-void parse_auto_connect(char **argv, ApplicationCreateInfo *parsed_args) {
-    bool val = (int)std::stoi(argv[0]);
-    parsed_args->auto_connect = val;
-}
-
 void print_help_msg(char **argv, ApplicationCreateInfo *parsed_args);
 
 struct CmdOption {
@@ -38,7 +33,6 @@ std::vector<CmdOption> cmd_options {
         { "--pos", 2, parse_window_pos, "set the position of the application, default: empty"},
         { "--size", 2, parse_window_size, "set the size of the application, default: 1500 1000" },
         { "--name", 1, parse_player_name, "set the default name for the client, default: (empty)" },
-        { "--auto", 1, parse_auto_connect, "set if the application should try to auto connect (can be buggy), default: 0" },
 };
 
 void print_help_msg(char **argv, ApplicationCreateInfo *parsed_args) {
@@ -73,6 +67,7 @@ ApplicationCreateInfo parse_cmd_args(int argc, char **argv) {
         }
         if (!found) {
             ERROR("could not find option: {}", argv[arg_indx]);
+            return parsed_args;
         }
     }
     return parsed_args;

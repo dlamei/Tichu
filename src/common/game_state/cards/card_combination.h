@@ -7,8 +7,8 @@
  are also implemented in this class.
 */
 
-#ifndef TICHU_CARDCOMBINATION_H
-#define TICHU_CARDCOMBINATION_H
+#ifndef TICHU_CARD_COMBINATION_H
+#define TICHU_CARD_COMBINATION_H
 
 #include <algorithm>
 #include <vector>
@@ -32,8 +32,8 @@ class CardCombination {
 
 private:
     std::vector<Card> _cards;
-    int _combination_type;
-    int _combination_rank;
+    int _combination_type{};
+    int _combination_rank{};
 
 
 public:
@@ -49,7 +49,7 @@ public:
     [[nodiscard]] const std::vector<Card> &get_cards() const noexcept { return _cards; }
 
 // card combination functions
-    int count_occurances(Card card) const;
+    [[nodiscard]] int count_occurances(Card card) const;
 
     bool are_all_same_rank();
 
@@ -62,4 +62,4 @@ public:
 };
 
 
-#endif //TICHU_CARDCOMBINATION_H
+#endif //TICHU_CARD_COMBINATION_H

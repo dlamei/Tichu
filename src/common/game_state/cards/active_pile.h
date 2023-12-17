@@ -8,8 +8,8 @@
 #include <string>
 #include <vector>
 #include "card.h"
-#include "CardCombination.h"
-#include "../player/Player.h"
+#include "card_combination.h"
+#include "../player/player.h"
 #include <nlohmann/json.hpp>
 
 class ActivePile {

@@ -10,7 +10,7 @@
 
 #include <vector>
 #include "../cards/card.h"
-#include "../cards/CardCombination.h"
+#include "../cards/card_combination.h"
 
 class hand {
 

@@ -3,12 +3,12 @@
     
 */
 
-#ifndef TICHU_WONCARDSPILE_H
-#define TICHU_WONCARDSPILE_H
+#ifndef TICHU_WON_CARDS_PILE_H
+#define TICHU_WON_CARDS_PILE_H
 
 #include <vector>
 #include "card.h"
-#include "CardCombination.h"
+#include "card_combination.h"
 
 class WonCardsPile {
 
@@ -36,4 +36,4 @@ public:
 };
 
 
-#endif //TICHU_WONCARDSPILE_H
+#endif //TICHU_WON_CARDS_PILE_H

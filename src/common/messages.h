@@ -17,9 +17,9 @@
 #include <variant>
 #include "utils.h"
 #include "event.h"
-#include "game_state/GameState.h"
+#include "game_state/game_state.h"
 #include "game_state/cards/card.h"
-#include "game_state/cards/CardCombination.h"
+#include "game_state/cards/card_combination.h"
 
 
 #define VARIANT_ENUM(self_t, enum_t, value) inline enum_t get_variant_enum(const self_t &) { return enum_t::value; }

@@ -3,6 +3,7 @@
 #include "Renderer/renderer.h"
 #include "../common/listener.h"
 #include <sstream>
+#include <vector>
 
 #include <imgui.h>
 
@@ -247,9 +248,11 @@ void TichuGame::process(const full_state_response &data) {
             typesToRemove = {EventType::SELECTION_END, EventType::PASS, EventType::PLAY_COMBI,
                             EventType::SELECTION_START, EventType::BOMB, EventType::SWITCH,};
         }
-        std::remove_if(_game_panel_data.events_log.begin(), _game_panel_data.events_log.end(),
+        auto it = std::remove_if(_game_panel_data.events_log.begin(), _game_panel_data.events_log.end(),
                         [&typesToRemove](const std::pair<Event, std::string>& pair) {
                          return std::find(typesToRemove.begin(), typesToRemove.end(), pair.first.event_type) != typesToRemove.end();});
+        _game_panel_data.events_log.erase(it, _game_panel_data.events_log.end());
+        //std::erase(_game_panel_data.events_log.begin(), _game_panel_data.events_log.end(), res);
 
     }
 

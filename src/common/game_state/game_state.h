@@ -6,14 +6,14 @@
  and the game (e.g. calculating and updating points, checking if game is finished).
 */
 
-#ifndef TICHU_GAMESTATE_H
-#define TICHU_GAMESTATE_H
+#ifndef TICHU_GAME_STATE_H
+#define TICHU_GAME_STATE_H
 
 #include <vector>
 #include <string>
-#include "player/Player.h"
-#include "cards/DrawPile.h"
-#include "cards/ActivePile.h"
+#include "player/player.h"
+#include "cards/draw_pile.h"
+#include "cards/active_pile.h"
 #include "../event.h"
 #include "../utils.h"
 
@@ -152,4 +152,4 @@ NLOHMANN_JSON_SERIALIZE_ENUM(GamePhase, {
     {POSTGAME, "postgame"},
 })
 
-#endif //TICHU_GAMESTATE_H
+#endif //TICHU_GAME_STATE_H

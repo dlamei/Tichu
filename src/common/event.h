@@ -10,7 +10,7 @@
 #include <string>
 #include <utility>
 #include "game_state/cards/card.h"
-#include "game_state/player/Player.h"
+#include "game_state/player/player.h"
 
 
 

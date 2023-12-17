@@ -6,14 +6,14 @@
  next round is started.
 */
 
-#ifndef TICHU_DRAWPILE_H
-#define TICHU_DRAWPILE_H
+#ifndef TICHU_DRAW_PILE_H
+#define TICHU_DRAW_PILE_H
 
 #include "card.h"
 #include <vector>
 #include <string>
 #include <algorithm>
-#include "../../game_state/player/Player.h"
+#include "../../game_state/player/player.h"
 #include <nlohmann/json.hpp>
 
 
@@ -49,4 +49,4 @@ public:
 };
 
 
-#endif //TICHU_DRAWPILE_H
+#endif //TICHU_DRAW_PILE_H

@@ -11,7 +11,7 @@
 #include <string>
 #include <utility>
 #include "hand.h"
-#include "../cards/WonCardsPile.h"
+#include "../cards/won_cards_pile.h"
 #include <nlohmann/json.hpp>
 
 /**

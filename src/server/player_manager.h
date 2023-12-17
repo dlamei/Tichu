@@ -14,7 +14,7 @@
 #include <unordered_map>
 #include <memory>
 
-#include "../common/game_state/player/Player.h"
+#include "../common/game_state/player/player.h"
 
 
 class player_manager {

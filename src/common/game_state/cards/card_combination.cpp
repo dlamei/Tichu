@@ -1,7 +1,5 @@
 
-#include "CardCombination.h"
-
-#include <utility>
+#include "card_combination.h"
 
 
 CardCombination::CardCombination(std::vector<Card> cards) {
@@ -281,7 +279,6 @@ void CardCombination::update_combination_type_and_rank() {
 
     _combination_type = NONE;
     _combination_rank = 0;
-    return;
 }
 
 bool CardCombination::can_be_played_on(const std::optional<CardCombination> &other_opt, std::string &err) {

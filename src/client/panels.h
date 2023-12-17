@@ -14,7 +14,7 @@
 */
 
 #include "../common/messages.h"
-#include "../common/game_state/GameState.h"
+#include "../common/game_state/game_state.h"
 #include <unordered_set>
 #include <string>
 #include <utility>

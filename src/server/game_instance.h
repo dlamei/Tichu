@@ -13,8 +13,8 @@
 #include <string>
 #include <mutex>
 
-#include "../common/game_state/player/Player.h"
-#include "../common/game_state/GameState.h"
+#include "../common/game_state/player/player.h"
+#include "../common/game_state/game_state.h"
 
 class GameInstance {
 
