@@ -65,7 +65,9 @@ target_link_libraries(Tichu-server SERVER_LIBS)
 
 
 # --- tests ---
-set(CMAKE_CXX_FLAGS "--coverage")
+if (NOT MSVC)
+	set(CMAKE_CXX_FLAGS "--coverage")
+endif()
 add_library(Tichu-lib ${SERVER_SOURCE_FILES} ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES})
 target_link_libraries(Tichu-lib CLIENT_LIBS SERVER_LIBS)
 
