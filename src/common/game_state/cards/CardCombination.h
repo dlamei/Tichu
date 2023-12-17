@@ -16,6 +16,14 @@
 #include "card.h"
 #include <nlohmann/json.hpp>
 
+/**
+ * \enum COMBI
+ * \brief Represents different card combinations.
+ *
+ * The COMBI enum defines various types of card combinations that can occur in a Tichu game.
+ * Each enumerator represents a specific combination, such as a single card, double, triple, bomb, etc.
+ * The NONE enumerator is used to indicate the absence of a specific combination.
+ */
 enum COMBI {
     NONE, SINGLE, DOUBLE, TRIPLE, BOMB, FULLHOUSE, STRASS, TREPPE, PASS, SWITCH, MAJONG
 };

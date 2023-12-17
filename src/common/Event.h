@@ -1,7 +1,5 @@
 /*! \class Event
     \brief Represents an event.
-
- #TODO
 */
 
 #ifndef EVENT_H

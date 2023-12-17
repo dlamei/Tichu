@@ -1,27 +1,59 @@
+/*! \class UUID
+    \brief Represents a universally unique identifier (UUID).
+ 
+ The UUID class is used to generate and manipulate universally unique identifiers.
+ It provides methods for comparison, retrieval of string representation, and checking for emptiness.
+*/
+
+/*! \class TichuException
+    \brief Represents an exception.
+
+    The TichuException class is derived from std::exception and provides a way to throw exceptions
+    with Tichu-specific error messages.
+*/
+
+/*! \class MessageQueue
+    \brief Thread-safe queue for message handling.
+
+ The MessageQueue class provides a thread-safe queue implementation for handling messages.
+ It supports pushing and popping items from the queue in a thread-safe manner.
+*/
+
 #ifndef TICHU_UTILS_H
 #define TICHU_UTILS_H
 
 #include <variant>
 #include <utility>
 #include <queue>
+#include <functional>
 
 #include <spdlog/spdlog.h>
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 
-// helper type for std::visit
-// goto [https://en.cppreference.com/w/cpp/utility/variant/visit] for more info
+/*! \struct overloaded
+    \brief Helper type for std::visit.
+
+ The overloaded struct is a helper type for using std::visit with multiple lambdas or function objects.
+ Visit [https://en.cppreference.com/w/cpp/utility/variant/visit] for more information.
+
+ The explicit deduction guide is not needed as of C++20.
+*/
 template<class... Ts>
 struct overloaded : Ts ... {
     using Ts::operator()...;
 };
+
 // explicit deduction guide (not needed as of C++20)
 template<class... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 
 namespace nlohmann {
-    // define serialization for optional types
+    /**
+     * \struct adl_serializer<std::optional<T>>
+     * \brief Serialization definition for optional types.
+    */
     template<typename T>
     struct adl_serializer<std::optional<T>> {
         static void from_json(const json &j, std::optional<T> &opt) {
@@ -41,7 +73,10 @@ namespace nlohmann {
         }
     };
 
-    // define serialization for shared pointers
+    /**
+     *  \struct adl_serializer<std::shared_ptr<T>>
+     *  \brief Serialization definition for shared pointers.
+    */
     template <typename T>
     struct adl_serializer<std::shared_ptr<T>>
     {
@@ -70,7 +105,14 @@ namespace nlohmann {
         }
     };
 
-    // helper struct for variant serialization... see [https://github.com/nlohmann/json/issues/1261] for more info
+    /**
+     *  \struct variant_switch
+     *  \brief Helper struct for variant serialization.
+     * 
+     * This struct is templated with a size parameter `N` and is used for variant serialization. 
+     * It provides an overloaded function operator that recursively searches for the correct index within the variant and 
+     * performs the conversion. For more information, refer to [https://github.com/nlohmann/json/issues/1261].
+    */ 
     template <std::size_t N>
     struct variant_switch
     {
@@ -84,7 +126,14 @@ namespace nlohmann {
         }
     };
 
-    // helper struct for variant serialization... see [https://github.com/nlohmann/json/issues/1261] for more info
+    /** 
+     * \struct variant_switch<0>
+     * \brief Specialization of the variant_switch struct for index 0.
+     * 
+     * This struct is specialized for index 0 and is used for variant serialization. 
+     * It provides an overloaded function operator that converts a JSON value to a variant when the index is 0. 
+     * For more information, refer to [https://github.com/nlohmann/json/issues/1261].
+    */
     template <>
     struct variant_switch<0>
     {
@@ -101,7 +150,10 @@ namespace nlohmann {
         }
     };
 
-    // define serialization for variants
+    /**
+     * \struct adl_serializer<std::variant<Args...>>
+     * \brief Serialization definition for variants.
+    */ 
     template <typename ...Args>
     struct adl_serializer<std::variant<Args...>> {
         static void to_json(json &j, const std::variant<Args...> &opt) {
@@ -171,6 +223,14 @@ public:
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(UUID, _id)
 };
 
+/**
+ *  \struct std::hash<UUID>
+ * \brief Specialization of the std::hash template for UUID.
+ * 
+ * This specialization provides a hash function for the UUID class, allowing it to be used in unordered containers.
+ * 
+ *  The hash is generated based on the string representation of the UUID.
+*/
 template<>
 struct std::hash<UUID> {
     std::size_t operator()(const UUID &id) const {

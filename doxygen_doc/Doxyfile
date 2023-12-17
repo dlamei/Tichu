@@ -950,7 +950,7 @@ EXCLUDE_SYMBOLS        = start_game_req fold_req join_game_req grand_tichu_req s
 # that contain example code fragments that are included (see the \include
 # command).
 
-EXAMPLE_PATH           =
+EXAMPLE_PATH           = 
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp and

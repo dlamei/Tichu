@@ -6,8 +6,6 @@
 
 /*! \class ServerMsg
     \brief Base class for server communication to the client.
-    
- 
 */
 
 #ifndef TICHU_MESSAGES_H
@@ -28,9 +26,13 @@
 
 //     CLIENT -> SERVER
 
-// Identifier for the different request types.
-// The ClientMsgType is sent with every ClientMsg to identify the type of ClientMsg
-// during deserialization on the server side.
+/**
+ * \enum ClientMsgType
+ * \brief Identifier for the different request types.
+ * 
+ * The ClientMsgType is sent with every ClientMsg to identify the type of ClientMsg
+ * during deserialization on the server side.
+*/
 enum class ClientMsgType: int {
     join_game = 0,
     start_game,
@@ -111,18 +113,35 @@ private:
     UUID _player_id;
 
 public:
-
+    /**
+     * \brief Constructor for ClientMsg.
+     * \param player_id UUID of the player associated with the message.
+     * \param var Variant holding different types of client message data.
+    */
     explicit ClientMsg(UUID player_id, client_msg_variant var)
     : _data(std::move(var)), _player_id(std::move(player_id)) {}
     ClientMsg() = default;
 
-    // gets the type of the current message. the function request_to_request_type is used
+    /**
+     * \brief Gets the type of the current message.
+     * \return ClientMsgType representing the type of the message.
+     * 
+     * The function request_to_request_type is used
+    */
     [[nodiscard]] ClientMsgType get_type() const { return std::visit([&](auto&& var) { return get_variant_enum(var); }, _data); }
 
     //[[nodiscard]] const UUID &get_game_id() const { return this->_game_id; }
 
+    /**
+     * \brief Gets the UUID of the player associated with the message.
+     * \return UUID representing the player ID.
+    */
     [[nodiscard]] const UUID &get_player_id() const { return this->_player_id; }
 
+    /**
+     * \brief Gets the data specific to the given message type.
+     * \return The data specific to the message type.
+    */
     template<typename T>
     T get_msg_data() const {
         const int i1 = (int)get_variant_enum(T{});
@@ -137,9 +156,13 @@ public:
 
 // SERVER -> CLIENT
 
-// Identifier for the different response types.
-// The ServerMsgType is sent with every ServerMsg to identify the type of ServerMsg
-// during deserialization on the client side.
+/**
+ * \enum ServerMsgType
+ * \brief Identifier for the different response types.
+ * 
+ * The ServerMsgType is sent with every ServerMsg to identify the type of ServerMsg
+ * during deserialization on the client side.
+*/
 enum class ServerMsgType: int {
     req_response = 0,
     full_state,
@@ -184,12 +207,25 @@ private:
     server_msg_variant _data;
 
 public:
+    /**
+     * \brief Constructor for ServerMsg.
+     * \param var Variant holding different types of server message data.
+    */
     explicit ServerMsg(server_msg_variant var)
     : _data(std::move(var)) {}
     ServerMsg() = default;
 
+    /**
+     * \brief Gets the type of the current response.
+     * \return ServerMsgType representing the type of the response.
+    */
     [[nodiscard]] ServerMsgType get_type() const { return std::visit(overloaded{[](const auto &r) { return get_variant_enum(r); }}, _data); }
 
+    /**
+     * \brief Gets the data specific to the given response type.
+     * \tparam T Type of the response data.
+     * \return The data specific to the response type.
+    */
     template<typename T>
     T get_msg_data() const {
         const int i1 = (int)get_variant_enum(T{});

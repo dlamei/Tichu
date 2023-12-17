@@ -38,7 +38,8 @@ public:
 
     bool is_finished();
 
-    /** game update functions
+    /** 
+     * game update functions
     */ 
     bool start_game(player_ptr player, std::string &err);
 

@@ -1,5 +1,5 @@
 /*! \class GameState
-    \brief ###Central class that implements the actual Tichu game play and orchestrates the other classes.
+    \brief Central class that implements the actual Tichu game play and orchestrates the other classes.
     
  Holds the state of the whole game as well as of each round, executes and checks state modifications of
  each round (e.g. setting up rounds, turn validation, checking and clearing tricks, checking if round is finished)
@@ -17,8 +17,13 @@
 #include "../Event.h"
 #include "../utils.h"
 
-
-
+/**
+ * \enum GamePhase
+ * \brief Represents different phases of the Tichu game.
+ *
+ * The GamePhase enumeration defines various phases of a Tichu game.
+ * Each enumerator corresponds to a specific phase, providing a comprehensive set of possibilities.
+ */
 enum GamePhase {
     PREGAME = 0,
     PREROUND,
@@ -27,15 +32,6 @@ enum GamePhase {
     SELECTING,
     POSTGAME,
 };
-
-NLOHMANN_JSON_SERIALIZE_ENUM(GamePhase, {
-    {PREGAME, "pregame"},
-    {PREROUND, "preround"},
-    {SWAPPING, "swapping"},
-    {INROUND, "inround"},
-    {SELECTING, "selecting"},
-    {POSTGAME, "postgame"},
-})
 
 class GameState {
 private:
@@ -146,5 +142,13 @@ public:
                                     _game_phase, _is_round_finished, _is_trick_finished, _last_player_idx)
 };
 
+NLOHMANN_JSON_SERIALIZE_ENUM(GamePhase, {
+    {PREGAME, "pregame"},
+    {PREROUND, "preround"},
+    {SWAPPING, "swapping"},
+    {INROUND, "inround"},
+    {SELECTING, "selecting"},
+    {POSTGAME, "postgame"},
+})
 
 #endif //TICHU_GAMESTATE_H
