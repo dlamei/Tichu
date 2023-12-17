@@ -21,8 +21,18 @@ It uses [Dear ImGui](https://github.com/ocornut/imgui) for the GUI, [sockpp](htt
 
 ![Tichu-logo](./assets/tichu_logo.jpeg?raw=true)
 
-## Explaining 
+## Quick guide of the GUI
 
+### 1. Login Screen
+
+After starting the client, the first screen is going to be the login screen. Here every player enters:
+
+    - the server address
+    - the server port
+    - their player name
+    - their prefered team (Team A , Team B or a random selection)
+
+When all details are entered, the player clicks on the ´CONNECT´-button. If the player belongs to the first 3 players joining, they will be forwarded to the game lobby.
 ![Login-Screen](./assets/login_screen.jpeg?raw=true)
 
 
