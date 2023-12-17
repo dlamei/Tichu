@@ -16,7 +16,7 @@ std::string Event::to_string(const std::vector<player_ptr> &players, const UUID 
     std::string card_string_wish;
     if(card) { card_string = "a " + card.value().to_string(true); }
     else { card_string = "nothing"; }
-    if(card) { card_string = "a " + card.value().to_string(false); }
+    if(card) { card_string_wish = "a " + card.value().to_string(false); }
     else { card_string = "nothing"; }
 
 
