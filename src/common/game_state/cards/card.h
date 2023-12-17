@@ -47,8 +47,8 @@ NLOHMANN_JSON_SERIALIZE_ENUM( Rank, {
 
 NLOHMANN_JSON_SERIALIZE_ENUM( Suit, {
     {GREEN, "green"},
-    {RED, "green"},
-    {BLUE, "green"},
+    {RED, "red"},
+    {BLUE, "blue"},
     {SCHWARZ, "schwarz"},
 })
 

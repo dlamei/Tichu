@@ -129,7 +129,7 @@ public:
         void wrap_up_trick(Player &Player,  std::vector<Event> &events, std::string &err);
 
         bool add_player(const player_ptr Player, std::string& err);
-        void update_current_player(Player &Player, bool is_pass, std::string& err);
+        void update_current_player(Player &Player, COMBI combi_type, std::string& err);
         bool remove_player(player_ptr Player, std::string& err);
 
         void setup_player(Player &Player, std::string &err);
