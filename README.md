@@ -21,6 +21,8 @@ This project should compile on Linux, Windows and MacOS. It was mainly tested on
 - CMake 3.15+
 
 ## 1.2 Build
+
+In order to build the project, navigate into the project directory and run the following commands:
 ```
 mkdir build
 cd build
