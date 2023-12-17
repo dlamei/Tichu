@@ -1120,19 +1120,11 @@ namespace GamePanel
         ImGui::Text("%s", std::to_string(data->game_state.get_score_team_B()).c_str());
         ImGui::EndTable();
 
-        ImGui::BeginTable("buttons", 2);
-        ImGui::TableNextRow();
-        ImGui::TableNextColumn();
-        if (ImGui::Button("play again"))
-        {
-            data->pressed_start_again = true;
-        }
-        ImGui::TableNextColumn();
         if (ImGui::Button("close"))
         {
             data->pressed_close = true;
         }
-        ImGui::EndTable();
+
         ImGui::End();
     }
 
