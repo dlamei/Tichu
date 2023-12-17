@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "../src/common/Messages.h"
+#include "../src/common/messages.h"
 #include "../src/common/game_state/cards/CardCombination.h"
 
 TEST(CombiTest, Singles){

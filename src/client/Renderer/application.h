@@ -10,7 +10,7 @@
 #define TICHU_APPLICATION_H
 
 #include "renderer.h"
-#include "KeyCodes.h"
+#include "key_codes.h"
 #include <string>
 #include <memory>
 #include <vector>

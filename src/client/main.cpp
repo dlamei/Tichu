@@ -1,4 +1,4 @@
-#include "Tichu.h"
+#include "tichu.h"
 #include <string>
 #include <vector>
 
@@ -38,7 +38,7 @@ std::vector<CmdOption> cmd_options {
         { "--pos", 2, parse_window_pos, "set the position of the application, default: empty"},
         { "--size", 2, parse_window_size, "set the size of the application, default: 1500 1000" },
         { "--name", 1, parse_player_name, "set the default name for the client, default: (empty)" },
-        { "--auto", 1, parse_auto_connect, "set if the application should try to auto connect, default: 0" },
+        { "--auto", 1, parse_auto_connect, "set if the application should try to auto connect (can be buggy), default: 0" },
 };
 
 void print_help_msg(char **argv, ApplicationCreateInfo *parsed_args) {

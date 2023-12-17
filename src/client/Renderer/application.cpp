@@ -1,4 +1,4 @@
-#include "Application.h"
+#include "application.h"
 #include "window.h"
 #include "renderer.h"
 #include "imgui_build.h"

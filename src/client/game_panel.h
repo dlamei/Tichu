@@ -1,16 +1,16 @@
 
-#ifndef TICHU_GAMEPANEL_H
-#define TICHU_GAMEPANEL_H
+#ifndef TICHU_GAME_PANEL_H
+#define TICHU_GAME_PANEL_H
 
 #include <set>
 
-#include "../common/Messages.h"
+#include "../common/messages.h"
 #include <sstream>
 
 namespace GamePanel {
 
     /**
-     * \brief output for panels that allow for swapping cards
+     * \brief output for panels that allow for selecting cards
     */ 
     struct SelectionData {
         /** max number of selections */
@@ -83,4 +83,4 @@ namespace GamePanel {
 
 } // GamePanel
 
-#endif //TICHU_GAMEPANEL_H
+#endif //TICHU_GAME_PANEL_H

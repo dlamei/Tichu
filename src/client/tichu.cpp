@@ -1,4 +1,4 @@
-#include "Tichu.h"
+#include "tichu.h"
 
 #include "Renderer/renderer.h"
 #include "../common/listener.h"

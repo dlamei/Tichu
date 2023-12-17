@@ -1,7 +1,7 @@
 #include "renderer.h"
 #include "gl_utils.h"
 #include "imgui_build.h"
-#include "Application.h"
+#include "application.h"
 #include <glad/glad.h>
 
 #include <glm/gtx/transform.hpp>

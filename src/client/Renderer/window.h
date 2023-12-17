@@ -13,7 +13,7 @@
 #include <vector>
 #include <cstdint>
 #include <utility>
-#include "KeyCodes.h"
+#include "key_codes.h"
 
 struct GLFWwindow;
 

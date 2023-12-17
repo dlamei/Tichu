@@ -13,7 +13,7 @@
  the display of multiple message boxes.
 */
 
-#include "../common/Messages.h"
+#include "../common/messages.h"
 #include "../common/game_state/GameState.h"
 #include <unordered_set>
 #include <string>
@@ -22,7 +22,7 @@
 #include <chrono>
 #include <functional>
 
-#include "GamePanel.h"
+#include "game_panel.h"
 
 namespace ImGuiUtils {
     void center_next_in_window(int cond);

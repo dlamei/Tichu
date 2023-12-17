@@ -1,12 +1,11 @@
-#include "GamePanel.h"
+#include "game_panel.h"
 
 #include <glm/gtx/transform.hpp>
-//#include <ctime>
 #include <map>
 #include <deque>
 #include <chrono>
 
-#include "Renderer/Application.h"
+#include "Renderer/application.h"
 #include "Renderer/imgui_build.h"
 #include "misc/cpp/imgui_stdlib.h"
 #include "Renderer/renderer.h"

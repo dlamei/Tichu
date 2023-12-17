@@ -14,8 +14,8 @@
 #include <vector>
 
 #include "../common/utils.h"
-#include "../common/Messages.h"
-#include "GameInstance.h"
+#include "../common/messages.h"
+#include "game_instance.h"
 
 /*! \struct ConnectionData
     \brief Represents data associated with a client connection.

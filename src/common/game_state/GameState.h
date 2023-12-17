@@ -14,7 +14,7 @@
 #include "player/Player.h"
 #include "cards/DrawPile.h"
 #include "cards/ActivePile.h"
-#include "../Event.h"
+#include "../event.h"
 #include "../utils.h"
 
 /**

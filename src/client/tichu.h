@@ -2,11 +2,11 @@
 #define TICHUUI_TICHU_H
 
 #include "sockpp/tcp_connector.h"
-#include "Renderer/Application.h"
+#include "Renderer/application.h"
 #include "panels.h"
 #include "../common/utils.h"
-#include "../common/Event.h"
-#include "../common/Messages.h"
+#include "../common/event.h"
+#include "../common/messages.h"
 #include <unordered_set>
 #include <string>
 #include <utility>

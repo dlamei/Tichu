@@ -15,7 +15,7 @@
 #include <unordered_map>
 #include <memory>
 
-#include "GameInstance.h"
+#include "game_instance.h"
 
 using game_instance_ptr = std::shared_ptr<GameInstance>;
 

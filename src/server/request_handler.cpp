@@ -6,7 +6,7 @@
 
 #include "player_manager.h"
 #include "game_instance_manager.h"
-#include "GameInstance.h"
+#include "game_instance.h"
 
 
 namespace request_handler {

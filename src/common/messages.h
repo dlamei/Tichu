@@ -16,7 +16,7 @@
 #include <utility>
 #include <variant>
 #include "utils.h"
-#include "Event.h"
+#include "event.h"
 #include "game_state/GameState.h"
 #include "game_state/cards/card.h"
 #include "game_state/cards/CardCombination.h"

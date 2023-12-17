@@ -18,7 +18,7 @@
 #include "sockpp/tcp_connector.h"
 #include "sockpp/tcp_acceptor.h"
 
-#include "../common/Messages.h"
+#include "../common/messages.h"
 #include "../common/game_state/player/Player.h"
 #include "../common/game_state/GameState.h"
 

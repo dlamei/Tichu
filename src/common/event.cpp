@@ -1,4 +1,4 @@
-#include "Event.h"
+#include "event.h"
 
 std::string Event::to_string(const std::vector<player_ptr> &players, const UUID &me_id) const {
     std::string event_string = "";

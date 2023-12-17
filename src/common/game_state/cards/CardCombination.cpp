@@ -263,7 +263,6 @@ void CardCombination::update_combination_type_and_rank() {
                     first_loop = false;
                     continue;
                 }
-                // TODO: is this right?
                 if (card.get_rank() - previous.get_rank() != expect_gap) {
                     is_Treppe = false;
                     break;
