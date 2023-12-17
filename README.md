@@ -68,6 +68,10 @@ As soon as all players have joined, they will be asked to start the game.
 
 The following pictures show a couple of exemplary situations, which one will encouter while playing a game:
 
-### 3.3.1 Calling a Grand Tichu
+#### 3.3.1 Calling a Grand Tichu
 
 ![grand_tichu](./assets/4_call_grand_tichu.png?raw=true)
+
+#### 3.3.2 Selecting to swap cards
+
+![grand_tichu](./assets/6_swap_cards.png.png?raw=true)
