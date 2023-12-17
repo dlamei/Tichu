@@ -87,31 +87,5 @@ Execute the following commands in a console:
 You can run individual tests or test suites by opening the corresponding file in the **/unit-tests** folder and clicking ![run](https://resources.jetbrains.com/help/img/idea/2021.1/artwork.studio.icons.shell.toolbar.run.svg) next to the test method or class. For more information on testing in CLion read the [documentation](https://www.jetbrains.com/help/clion/performing-tests.html).
 
 ## 4. Code Documentation
-You don't need to look at the **/sockpp**, **/rapidjson** or **/googletest** folder, as they simply contain 3rd party code that should not be changed.
 
-The code for the game can be found in **/src**, where it is separated into following folders:
-- **/client** contains only code that is used on the client side (e.g. UI, sending messages)
-- **/common** contains code that is shared between server and client.
-    - **/exceptions** contains the exception class used on server and client side. You don't need to change anything in here (unless you want to rename the TichuException class ;))
-    - **/game_state** contains the `game_state` that is synchronized between client and server. We use the [conditional pre-compile directive](https://www.cplusplus.com/doc/tutorial/preprocessor/) TICHU_SERVER to enable certain parts of the code only on the server side. Namely, these are the state update functions, as they should only happen on the server. The client simply reflects the current game state as sent by the server without modifying it directly. 
-    - **/network** contains all the messages that are being passed between client and server. We use the TICHU_CLIENT pre-compile directive to make `server_repsonses` only executable on the client side (through the function `Process()`) .
-    - **/serialization** contains base classes for serializing `game_state`, `client_request` and `server_response` objects. **Serialization** is the process of transforming an object instance into a string that can be sent over a network, where the receiver deserializes it, i.e. recreates the object from the string. If you are interested, [read me on Wikipedia](https://en.wikipedia.org/wiki/Serialization).
-- **/server** contains only code that is relevant for the server (e.g. player management, game instance management, receiving messages)
-
-The **/asset** folder stores all the images that are being used to render the GUI.
-
-The **/unit-tests** folder contains all unit tests, which validate the correct behaviour of the functions written in the source code of the game. 
-
-### 4.1 Overview
-
-First off, this project consists of a **server** and a **client**, each with their own main.cpp file. 
-
-The client renders the GUI that is presented to the player, whereas the server is a console application without a user interface. Every action a player performs in the client application (for example playing a card) is sent as a formatted message to the server application, which processes the request.   
-- If the **player's move was valid**, the server will update the game state (e.g. move a card from the player's hand to the discard pile) and broadcast this new game state to all players of the game. Whenever the client application receives a game state update, it will re-render the GUI accordingly and allow new interactions.   
-- If the **move was invalid**, the game state will not be updated and only the requesting player will get a response containing the error message. 
-
-### 4.2 Network Interface
-Everything that is passed between client and server are objects of type `client_request` and `server_response`. Since the underlying network protocol works with TCP, these `client_request` and `server_response` objects are transformed into a **[JSON](https://wiki.selfhtml.org/wiki/JSON) string**, which can then be sent over the network. The receiving end reads the JSON string and constructs an object of type `client_request` resp. `server_response` that reflects the exact parameters that are specified in the JSON string. This process is known as **serialization** (object to string) and **deserialization** (string to object). If you want to read more about serialization, [read me on Wikipedia](https://en.wikipedia.org/wiki/Serialization).
-
-![client-server-diagram](./docs/img/client-server-diagram.png?raw=true)
-
+For documentation we use doxygen ... TODO
