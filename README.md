@@ -62,3 +62,12 @@ As long as not all players have been connected yet, the waiting players will be 
 As soon as all players have joined, they will be asked to start the game.
 
 ![start_game](./assets/3_start_game.png?raw=true)
+
+
+### 3.3 Examples of game plays and situations
+
+The following pictures show a couple of exemplary situations, which one will encouter while playing a game:
+
+### 3.3.1 Calling a Grand Tichu
+
+![grand_tichu](./assets/4_call_grand_tichu.png?raw=true)
