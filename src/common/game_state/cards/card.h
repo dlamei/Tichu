@@ -88,7 +88,7 @@ public:
     [[nodiscard]] int get_suit() const noexcept { return _suit; }
     [[nodiscard]] int get_value() const noexcept { return _value; }
 
-    std::string to_string() const;
+    std::string to_string(bool print_suit) const;
 
 
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Card, _rank, _suit, _value);
