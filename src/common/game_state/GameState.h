@@ -1,5 +1,5 @@
 /*! \class GameState
-    \brief #Central class that implements the actual Tichu game play and orchestrates the other classes.
+    \brief ###Central class that implements the actual Tichu game play and orchestrates the other classes.
     
  Holds the state of the whole game as well as of each round, executes and checks state modifications of
  each round (e.g. setting up rounds, turn validation, checking and clearing tricks, checking if round is finished)

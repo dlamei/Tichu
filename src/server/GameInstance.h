@@ -1,10 +1,10 @@
 /*! \class GameInstance
+    \brief Tool to maintain a game session.
+    
 
  The GameInstance class is a wrapper around the GameState of an active instance of the game.
  This class contains functions to modify the contained GameState.
 */
-
-
 
 #ifndef TICHU_GAME_H
 #define TICHU_GAME_H

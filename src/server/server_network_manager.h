@@ -1,4 +1,6 @@
 /*! \class server_network_manager
+    \brief Handles server startup, client request and broadcasting information to all clients.
+
 
  The server_network_manager handles all incoming messages and offers functionality to broadcast messages
  to all connected players of a game.

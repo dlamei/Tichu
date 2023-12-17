@@ -9,16 +9,21 @@
 
 namespace GamePanel {
 
-    // input /output for panels that allow for swapping cards
+    /**
+     * \brief output for panels that allow for swapping cards
+    */ 
     struct SelectionData {
-        // max number of selections
+        /** max number of selections */
         int n_selections{0};
-        // indices of selected cards
+        /** indices of selected cards */
         std::deque<int> selected{};
     };
 
-    // input / output for the GamePanel
-    // is also used to store e.g animation states
+    /**
+     * \brief input / output for the GamePanel 
+     * 
+     * It is also used to store e.g animation states.
+    */ 
     struct Data {
         // read / write
         int hovered_card_index = -1;
@@ -34,12 +39,14 @@ namespace GamePanel {
         SelectionData mahjong_wish{};
 
         int my_index = -1;
-        // Swap Data for each player (minus local player)
-        // used to store data when displaying the swap window
-        // uses relative indexing
+        /**
+         * SelectionData for each player (minus local player)
+         * used to store data when displaying the swap window
+         * uses relative indexing
+        */  
         std::array<SelectionData, 3> swap_window_data{};
 
-        // store cards to be swapped at the beginning
+        /** store cards to be swapped at the beginning*/
         std::array<Card, 3> cards_for_swapping{};
 
         std::optional<Player> selected_player{};
@@ -70,7 +77,7 @@ namespace GamePanel {
 
     void load_textures();
 
-    // pass in pointer if the function will modify the value, otherwise const reference
+    /** pass in pointer if the function will modify the value, otherwise const reference */
     void show(Data *data);
 
 } // GamePanel
