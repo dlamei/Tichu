@@ -30,7 +30,7 @@ In order to build the project, navigate into the project directory and run the f
 ### 2. Run the Game
 1. go into your build folder `cd build`
 2. Run server `./Tichu-server`
-3. In new consoles 4 clients `./Tichu-client
+3. In new consoles 4 clients `./Tichu-client`
 
 ### 1.1 Compile Code
 1. In the tichu-project file, `mkdir build` create your build folder 
@@ -42,6 +42,7 @@ In order to build the project, navigate into the project directory and run the f
 1. go into your build folder `cd build`
 2. Run server `./Tichu-server`
 3. In new consoles 4 clients `./Tichu-client`
+Alternatively, in order to start 4 clients simultaneously, their is a script named **start_tichu.sh** located in the directory **scripts**.
 
 
 
@@ -62,9 +63,7 @@ After starting the client, the first screen is going to be the login screen. Her
 - their **preferred team** (Team A , Team B or a random selection)
 
 If one player choses the team selection option *random*, all players will be distributed randomely. <br>
-When all details are entered, the player clicks on the *CONNECT*-button. If the player belongs to the first 3 players joining, they will be forwarded to the game lobby.<br>
-<br>
-In order to start 4 clients simultaneously, their is a script named **start_tichu.sh** located in the directory **scripts**.
+When all details are entered, the player clicks on the *CONNECT*-button. If the player belongs to the first 3 players joining, they will be forwarded to the game lobby.
 
 ![Login-Screen](./assets/1_home.png?raw=true)
 
