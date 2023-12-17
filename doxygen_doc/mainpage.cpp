@@ -1,4 +1,3 @@
-/*! \mainpage Tichu Project SALT'D
-* \section intro_sec Introduction
-* 
+/*! \mainpage Tichu - Team SALT'D
+* https://gitlab.ethz.ch/srelling/tichu-project
 */
