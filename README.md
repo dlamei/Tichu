@@ -1,7 +1,5 @@
 # Tichu - Team SALT´D
 
-# Tichu
-
 This is a simple C++ implementation of the game "Tichu". The official game is published by Fata Morgana, you can find the official [German rules here](https://abacusspiele.de/wp-content/uploads/2021/01/Tichu_Regel.pdf) and the [English ones here](https://fatamorgana.ch/fatamorgana/tichu/english-rules).
 The implementation features a client/server architecture for multiplayer scenarios.
 It uses [Dear ImGui](https://github.com/ocornut/imgui) for the GUI, [sockpp](https://github.com/fpagliughi/sockpp) for the network interface, [nlohmann/json](https://github.com/nlohmann/json) for object serialization, and [googletest](https://github.com/google/googletest) for the unit tests. 
@@ -69,11 +67,18 @@ As soon as all players have joined, they will be asked to start the game.
 The following pictures show a couple of exemplary situations, which one will encouter while playing a round.
 
 
-##### 3.3.1 Calling a Grand Tichu
+##### Calling a Grand Tichu
 
 ![grand_tichu](./assets/4_call_grand_tichu.png?raw=true)
 
 
-##### 3.3.2 Selecting to swap cards
+##### Selecting to swap cards
 
 ![swap_cards](./assets/6_swap_cards.png?raw=true)
+
+##### Wishing for a card and the respective answer 
+
+![wish_question](./assets/7_wish.png?raw=true)
+
+![wish_question](./assets/8_not_play_the_wish.png?raw=true)
+
