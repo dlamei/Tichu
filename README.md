@@ -1,31 +1,35 @@
-# Tichu 
+# Tichu - Team SALT´D
 
-## 1. How to
-### 1.1 Compile Code
+##  How to
+### 1. Compile Code
 1. In the tichu-project file, `mkdir build` create your build folder 
 2. Go into your build folder `cd build`
 3. Use cmake to build the make file `cmake ..`
 4. Build everything you need with `make`
 
-### 1.2 Run the Game
+### 2. Run the Game
 1. go into your build folder `cd build`
 2. Run server `./Tichu-server`
-3. In new consoles 4 clients `./Tichu-client`
+3. Run `./Tichu-client` in 4 new consoles
 
 
 
 # Tichu
 
 This is a simple C++ implementation of the game "Tichu" by AMIGO. You can read the game's rules [here](https://www.amigo.games/content/ap/rule/19420--031-2019-Tichu_Manual_002_LAYOUT[1].pdf). The implementation features a client/server architecture for multiplayer scenarios.
-It uses [wxWidgets](https://www.wxwidgets.org/) for the GUI, [sockpp](https://github.com/fpagliughi/sockpp) for the network interface, [rapidjson](https://rapidjson.org/md_doc_tutorial.html) for object serialization, and [googletest](https://github.com/google/googletest) for the unit tests. 
+It uses [Dear ImGui](https://github.com/ocornut/imgui) for the GUI, [sockpp](https://github.com/fpagliughi/sockpp) for the network interface, [rapidjson](https://rapidjson.org/md_doc_tutorial.html) for object serialization, and [googletest](https://github.com/google/googletest) for the unit tests. 
 
 ![Tichu-logo](./assets/tichu_logo.png?raw=true)
 
-This is a template project for the students of the course Software Engineering. In order to adapt this template to a different game, you will only need knowledge in wxWidgets and maybe about some basic functions of rapidjson to serialize certain data types. By sticking to the template you won't need to dig into sockpp at all.
+## Explaining 
 
-## Code Reuse
-#### You may reuse as much of this code as you want!
-We even encourage it! Therefore, we also encourage you to **read through this documentation, as it explains the way this template project works and how it can be adapted to different use cases.** At the very least, we highly encourage your team to at least use the `server_network_manager` and `clientNetworkManager` to simplify (TCP) communication between client and server.
+[Login-Screen](./assets/tichu_login_screen.jpeg?raw=true)
+
+
+
+
+
+
 
 ## 1. Compile instructions
 This project only works on UNIX systems (Linux / MacOS). We recommend using [Ubuntu](https://ubuntu.com/#download), as it offers the easiest way to setup wxWidgets. Therefore, we explain installation only for Ubuntu systems. The following was tested on a Ubuntu 20.4 system, but should also work for earlier versions of Ubuntu.
@@ -60,7 +64,7 @@ Execute the following commands in a console:
 ## 2. Run the Game
 1. Open a console in the project folder, navigate into "cmake-build-debug" `cd cmake-build-debug`
 2. Run server `./Tichu-server`
-3. In new consoles run as many clients as you want players `./Tichu-client`
+3. Run `./Tichu-client` in 4 new consoles for the 4 players needed for a game
 
 ## 3. Run the Unit Tests
 1. CLion should automatically create a Google Test configuration Tichu-tests which will run all tests. See [Google Test run/debug configuration﻿](https://www.jetbrains.com/help/clion/creating-google-test-run-debug-configuration-for-test.html#gtest-config) for more information.
@@ -272,33 +276,6 @@ bool game_instance::start_game(player* player, std::string &err) {
 }
 ```
 
-#### 4.2.3 Debugging Messages
-
-By default, the server (specifically, the server_network_manager) will print every valid message that it receives to the console. In order for this to work in your project as well, you have to make sure that your CMake file contains a line, where the preprocessor variable PRINT_NETWORK_MESSAGES is defined for your server executable. 
-
-```
-target_compile_definitions(Tichu-server PRIVATE PRINT_NETWORK_MESSAGES=1)
-```
-
-If a wrongly formatted message arrives at the server, it will print an error message with the received message string to the console, no matter if PRINT_NETWORK_MESSAGES is defined or not. 
-
-If you want to manually print one of your serialized messages (or any other serialized object for that matter), you can use the helper function `json_utils::to_string(const rapidjson::Value* json)` as follows. 
-
-```cpp
-#include "src/common/serialization/json_utils.h"
-#include "rapidjson/include/rapidjson/document.h"
-
-...
-// Create a request to serialize
-join_game_request* req = new join_game_request(player->get_id(), player->get_player_name());
-
-// serialize the request object
-rapidjson::Document* req_json = req->to_json();
-
-// print serialization to the console.
-std::cout << json_utils::to_string(req_json) << std::endl;
-```
-
 
 ### 4.3 Game State
 
@@ -449,68 +426,3 @@ A similar scheme is applied in all other objects that inherit from `unique_seria
 - `draw_pile`
 - `discard_pile`
 - `serializable_value`
-
-
-### 4.4 GUI with wxWidgets
-
-The GUI of the example project was built using the cross-platform GUI library [wxWidgets](https://www.wxwidgets.org/). In order to build a project using wxWidget elements, you will first need to install wxWidgets on your system (see Section 1.1 above). 
-
-#### 4.4.1 Structure & Important Classes
-
-Here is a list of the most important elements that you will need to create your GUI. This is just meant as an overview, you will need to look up their correct usage in wxWidget's [documentation](https://docs.wxwidgets.org/3.0/index.html).
-
-* __Application core__
-    * __`wxIMPLEMENT_APP()`__: In order to properly interact with the operating system's GUI, wxWidgets takes over the control flow of your application. wxWidgets therefore has its own `main()` function, that you can reference with the macro `wxIMPLEMENT_APP(wxApp*)`.
-    * __`wxApp`__: The core class of your application must inherit from the `wxApp` class. wxWidgets will call the `OnInit()` function when starting the application. You can find the example project's implementation in `src/client/app/Tichu`.
-* __Windows__
-    * __`wxFrame`__: Each window of your application must inherit from the `wxFrame` class. The example project has one window which you can find here: `src/client/windows/GameWindow`
-* __GUI elements__
-    * __`wxPanel`__: Panels serve as containers for elements within a window. All panels must instantiate or inherit from the `wxPanel` class. A panel can contain one or more subpanels.
-    * __`wxBoxSizer`__: Box sizers allow you to layout your panels within a window, either horizontally or vertically. By nesting box sizers, you can create complex layouts. Have a look at `src/client/panels/ConnectionPanel` for an example.
-    * __`wxStaticText`__: This class displays text in your GUI.
-    * __`wxButton`__: This class creates a clickable button in your GUI.
-* __Pop-ups__
-    * __`wxMessageBox()`__: You can use this function to display a small pop-up window with text in front of the your current main window. This is useful to display error or status messages.
-
-
-#### 4.4.2 Events
-
-Like in most GUI environments, objects in wxWidgets trigger __events__ when they are interacted with by the user. For instance, a button will trigger a `wxEVT_BUTTON` event when clicked. Similarly, a panel will trigger a `wxEVT_LEFT_UP` event when clicked. There are many other events that can be triggered - for example when a keyboard key is pressed, when a window is resized, or when the cursor moves over an element.
-
-In order to make the GUI interactive, we must specify the effect of an event. The easiest way is to __bind__ an event to a lambda function. A lambda function is an unnamed function that can be used as an r-value. In C++, lambda functions have the following syntax:
-
-```
-[ external_variables... ]( function_parameters ... ) {
-    function_body...
-}
-
-```
-
-Here is an example which binds a lambda function to a button click event:
-
-```
-wxButton* myButton = new wxButton(parentPanel, wxID_ANY, "Click me!");
-int myVariable = 42;
-myButton->Bind(wxEVT_BUTTON, [myVariable](wxCommandEvent& event) {
-    doSomething(myVariable, event);
-});
-```
-
-In C++, we need to specify which variables from outside the lambda function's scope should be accessible within it. In the example above, `myVariable` is declared outside of the lambda function but is used by the `doSomething()` function call within the lambda function. We must therefore list `myVariable` within the square brackets at the beginning of the lambda function definition, in order to make it accessible from within the lambda function's scope. 
-
-#### 4.4.3 Positioning
-
-There are two ways to position elements (panels, button, etc.) within a parent element (window, panel): 
-* __Using sizers__: In this approach, you will only need to provide an element's size, but not its position. You can then add that element to a sizer, which will then determine the element's position based on the sizer's predefined behavior. The most common sizer is `wxBoxSizer`, which allows you to position a set of elements one after the other, vertically or horizontally. You can also allow sizers to change the size of elements depending on the available space. This means you can have your GUI adapt to the size of the user's window and/or screen.
-* __Using absolute positioning__: In this approach, you need to provide a position (as `wxPoint`) for each element. This position refers to the offset of the top-left corner of this element from the top-left corner of its parent. Using absolute positioning gives you much more control over the layout of your GUI. However, it is also much more work, as you will need to calculate the position for every single element. This is especially difficult if you want to adapt to changing window sizes.
-
-#### 4.4.4 Classes for reuse
-
-The example project provides two classes that you can reuse without changing anything:
-
-* __`ImagePanel`__: This behaves like a regular panel, but shows an image in the background. You should use this to display any image you need for your GUI.
-* __`InputField`__: This provides a user input field with a label in front of it. Use `getValue()` to get the user's input.
-
-#### 4.4.5 Tutorial video
-
-We encourage you to watch this well-explained tutorial video on wxWidgets. The video focuses on layouting, but also shows you how to setup a basic wxWidget application: https://www.youtube.com/watch?v=kPB5Y6ef9dw
