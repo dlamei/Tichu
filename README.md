@@ -19,7 +19,12 @@
 This is a simple C++ implementation of the game "Tichu" by AMIGO. You can read the game's rules [here](https://www.amigo.games/content/ap/rule/19420--031-2019-Tichu_Manual_002_LAYOUT[1].pdf). The implementation features a client/server architecture for multiplayer scenarios.
 It uses [Dear ImGui](https://github.com/ocornut/imgui) for the GUI, [sockpp](https://github.com/fpagliughi/sockpp) for the network interface, [rapidjson](https://rapidjson.org/md_doc_tutorial.html) for object serialization, and [googletest](https://github.com/google/googletest) for the unit tests. 
 
+<div align="center">
+
+# This is gonna be centered!
+
 ![Tichu-logo](./assets/tichu_logo.jpeg?raw=true)
+</div>
 
 ## Quick guide of the GUI
 
@@ -31,7 +36,7 @@ After starting the client, the first screen is going to be the login screen. Her
 - their **player name**
 - their **preferred team** (Team A , Team B or a random selection)
 
-When all details are entered, the player clicks on the ´CONNECT´-button. If the player belongs to the first 3 players joining, they will be forwarded to the game lobby.
+When all details are entered, the player clicks on the *CONNECT*-button. If the player belongs to the first 3 players joining, they will be forwarded to the game lobby.
 
 ![Login-Screen](./assets/login_screen.jpeg?raw=true)
 
