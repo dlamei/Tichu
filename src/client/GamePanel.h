@@ -1,4 +1,3 @@
-
 #ifndef TICHU_GAMEPANEL_H
 #define TICHU_GAMEPANEL_H
 
@@ -15,16 +14,27 @@ namespace GamePanel {
     //    GAME,
     //};
 
-    // input /output for panels that allow for swapping cards
+    /**
+     * \brief output for panels that allow for swapping cards
+    */ 
     struct SwapData {
-        // max number of selections
+
+        /**
+         * max number of selections
+        */ 
         int n_selections{0};
-        // indices of selected cards
+
+        /**
+         * indices of selected cards
+         */ 
         std::deque<int> selected{};
     };
 
-    // input / output for the GamePanel
-    // is also used to store e.g animation states
+    /**
+     * \brief input / output for the GamePanel 
+     * 
+     * It is also used to store e.g animation states.
+    */ 
     struct Data {
         // read / write
         int hovered_card_index = -1;
@@ -35,12 +45,16 @@ namespace GamePanel {
         bool can_play_bomb{false};
 
         int my_index = -1;
-        // Swap Data for each player (minus local player)
-        // used to store data when displaying the swap window
-        // uses relative indexing
+        /**
+         * Swap Data for each player (minus local player)
+         * used to store data when displaying the swap window
+         * uses relative indexing
+        */ 
         std::array<SwapData, 3> swap_window_data{};
 
-        // store cards to be swapped at the beginning
+        /**
+         * store cards to be swapped at the beginning
+        */ 
         std::array<Card, 3> cards_for_swapping{};
 
         std::optional<Player> selected_player{};

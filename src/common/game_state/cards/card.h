@@ -1,5 +1,5 @@
 /*! \class Card
-    \brief Represents a card in the Tichu game.
+    \brief ###Represents a card.
     
  Every card object has a rank, a suit and a value and every object is unique (no two objects will have the same rank
  and the same suit). The total number of class objects can never exceed 56. 
@@ -47,8 +47,8 @@ NLOHMANN_JSON_SERIALIZE_ENUM( Rank, {
 
 NLOHMANN_JSON_SERIALIZE_ENUM( Suit, {
     {GREEN, "green"},
-    {RED, "green"},
-    {BLUE, "green"},
+    {RED, "red"},
+    {BLUE, "blue"},
     {SCHWARZ, "schwarz"},
 })
 
