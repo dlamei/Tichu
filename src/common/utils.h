@@ -51,7 +51,7 @@ overloaded(Ts...) -> overloaded<Ts...>;
 
 namespace nlohmann {
     /**
-     * \struct adl_serializer<std::optional<T>>
+     * \struct nlohmann::adl_serializer<std::optional<T>>
      * \brief Serialization definition for optional types.
     */
     template<typename T>
@@ -74,7 +74,7 @@ namespace nlohmann {
     };
 
     /**
-     *  \struct adl_serializer<std::shared_ptr<T>>
+     *  \struct nlohmann::adl_serializer<std::shared_ptr<T>>
      *  \brief Serialization definition for shared pointers.
     */
     template <typename T>
@@ -151,7 +151,7 @@ namespace nlohmann {
     };
 
     /**
-     * \struct adl_serializer<std::variant<Args...>>
+     * \struct nlohmann::adl_serializer<std::variant<Args...>>
      * \brief Serialization definition for variants.
     */ 
     template <typename ...Args>
