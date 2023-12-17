@@ -39,6 +39,7 @@ namespace GamePanel {
         SelectionData mahjong_wish{};
 
         int my_index = -1;
+
         /**
          * SelectionData for each player (minus local player)
          * used to store data when displaying the swap window

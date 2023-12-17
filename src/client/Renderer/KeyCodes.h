@@ -1,7 +1,9 @@
 #ifndef KEYCODES_H
 #define KEYCODES_H
 
-// taken from glfw
+/*! \enum KeyCode
+ * Keycodes for input handling - taken from GLFW
+*/
 enum class KeyCode : int {
     KEY_UNKNOWN = -1,
     KEY_SPACE = 32,

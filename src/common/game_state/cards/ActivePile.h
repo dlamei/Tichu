@@ -1,7 +1,5 @@
 /*! \class ActivePile
     \brief Represents the active pile and stores all cards played during a trick.
-
- ###TODI
 */
 
 #ifndef TICHU_DISCARD_PILE_H

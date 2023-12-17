@@ -1,7 +1,8 @@
-/*! \class Hand
+/*! \class hand
     \brief Represents the hand of a player.
     
- ###TODO
+ This class manages the cards in a player's hand, providing functions for adding, removing, and
+ updating the state of the hand during a Tichu game.
 */
 
 #ifndef TICHU_HAND_H
@@ -16,7 +17,12 @@ class hand {
 private:
     std::vector<Card> _cards;
 
-    //removing card from fector bloat
+    /**
+     * \brief Removes a card from the hand.
+     *
+     * \param pos Iterator pointing to the position of the card to be removed.
+     * \return An optional representing the removed card.
+     */
     std::optional<Card> remove_card(std::vector<Card>::iterator pos);
 
     std::optional<Card> remove_card(int idx);
@@ -44,6 +50,12 @@ public:
 
     [[nodiscard]] const std::vector<Card> &get_cards() const { return _cards; }
 
+    /**
+     * \brief Attempts to retrieve a card with a specific ID from the hand.
+     *
+     * \param card_id The ID of the card to be retrieved.
+     * \return An optional representing the retrieved card (if found).
+     */
     [[nodiscard]] std::optional<Card> try_get_card(const Card &card_id) const;
 
 #ifdef TICHU_SERVER

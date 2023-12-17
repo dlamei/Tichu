@@ -41,7 +41,7 @@ namespace ConnectionPanel {
     };
 
 /**
- * \brief used for reading data from the connection panel
+ * \brief Used for reading data from the connection panel
 */ 
     struct Data {
         // used in panel
@@ -53,7 +53,7 @@ namespace ConnectionPanel {
         std::string status = "not connected";
 
         /**
-         * Player id
+         * Player ID
         */ 
         UUID id = UUID::create();
 
@@ -78,7 +78,7 @@ public:
     explicit Message(MessageType typ, std::string msg)
             : message(std::move(msg)), id(COUNT++), type(typ) {}
 
-    // draws the imgui widget
+    // draws the ImGui widget
     void on_imgui();
 
     static void show_windows(std::vector<Message> *messages);

@@ -37,7 +37,10 @@ public:
 
 #ifdef TICHU_SERVER
     // state update functions
-        void setup_game(std::string& err);  // Fills the stack with all cards of the game
+        /**
+         * Fills the stack with all cards of the game
+        */
+        void setup_game(std::string& err); 
         std::optional<Card> draw(Player &Player, std::string& err);
         std::optional<Card> remove_top(std::string& err);
 #endif

@@ -14,13 +14,20 @@
 #include "../cards/WonCardsPile.h"
 #include <nlohmann/json.hpp>
 
-
+/**
+ * \enum Team
+ * \brief Represents the team to which a player belongs.
+ */
 enum class Team {
     RANDOM,
     A,
     B,
 };
 
+/**
+ * \enum Tichu
+ * \brief Represents the Tichu type for a player.
+ */
 enum class Tichu {
     NONE,
     TICHU,

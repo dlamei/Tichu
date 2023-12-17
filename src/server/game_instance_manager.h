@@ -6,6 +6,7 @@
  If a new Player requests to join a game but no valid GameInstance is available, then this class
  will generate a new GameInstance and add it to the unordered_map of (active) game instances.
 */
+
 #ifndef TICHU_GAME_INSTANCE_MANAGER_H
 #define TICHU_GAME_INSTANCE_MANAGER_H
 

@@ -17,7 +17,7 @@
 class ImVec4;
 
 
-// helper class for color
+//! Helper class for color
 class RGBA {
 public:
     RGBA();
@@ -93,6 +93,7 @@ std::ostream &operator<<(std::ostream &os, const RGBA &c);
 //
 //std::ostream &operator<<(std::ostream &os, const RGB &c);
 
+//! Helper class for rendering (sets up structure with position, texture coordinates and color)
 struct Vertex {
     glm::vec3 pos;
     glm::vec2 uv;
@@ -113,7 +114,7 @@ namespace gl_utils {
     void draw_indexed(uint32_t index_count);
 }
 
-// opengl texture that internally handles creating & destroying memory
+//! OpenGL texture that internally handles creating and destroying memory
 class Texture {
 public:
 
@@ -143,6 +144,7 @@ private:
     uint32_t _width{}, _height{}, _n_channels{};
 };
 
+//! Shader using OpenGL
 class Shader {
 public:
 
@@ -180,6 +182,7 @@ enum class BufferType {
     NONE,
 };
 
+//! Buffers needed for the OpenGL graphics
 class Buffer {
 public:
 
@@ -239,7 +242,7 @@ private:
     BufferType _typ{BufferType::NONE};
 };
 
-// opengl framebuffer abstraction. currently only allows for texture2D attachments
+//! OpenGL framebuffer abstraction; currently only allows for texture2D attachments
 class FrameBuffer {
 public:
 

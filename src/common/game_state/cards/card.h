@@ -1,5 +1,5 @@
 /*! \class Card
-    \brief Represents a card in the Tichu game.
+    \brief Represents a card.
     
  Every card object has a rank, a suit and a value and every object is unique (no two objects will have the same rank
  and the same suit). The total number of class objects can never exceed 56. 
@@ -27,30 +27,6 @@ enum Suit {
     GREEN = 1, RED, BLUE, SCHWARZ
     // For Special cards: RED = Dragon, GREEN = Phoenix, BLUE = Dog, SCHWARZ = One
 };
-
-NLOHMANN_JSON_SERIALIZE_ENUM( Rank, {
-    {SPECIAL, "special"},
-    {TWO, "two"},
-    {THREE, "three"},
-    {FOUR, "four"},
-    {FIVE, "five"},
-    {SIX, "six"},
-    {SEVEN, "seven"},
-    {EIGHT, "eight"},
-    {NINE, "nine"},
-    {TEN, "ten"},
-    {JACK, "jack"},
-    {QUEEN, "queen"},
-    {KING, "king"},
-    {ACE, "ace"},
-})
-
-NLOHMANN_JSON_SERIALIZE_ENUM( Suit, {
-    {GREEN, "green"},
-    {RED, "green"},
-    {BLUE, "green"},
-    {SCHWARZ, "schwarz"},
-})
 
 class Card {
 private:
@@ -94,6 +70,28 @@ public:
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(Card, _rank, _suit, _value);
 };
 
+NLOHMANN_JSON_SERIALIZE_ENUM( Rank, {
+    {SPECIAL, "special"},
+    {TWO, "two"},
+    {THREE, "three"},
+    {FOUR, "four"},
+    {FIVE, "five"},
+    {SIX, "six"},
+    {SEVEN, "seven"},
+    {EIGHT, "eight"},
+    {NINE, "nine"},
+    {TEN, "ten"},
+    {JACK, "jack"},
+    {QUEEN, "queen"},
+    {KING, "king"},
+    {ACE, "ace"},
+})
 
+NLOHMANN_JSON_SERIALIZE_ENUM( Suit, {
+    {GREEN, "green"},
+    {RED, "red"},
+    {BLUE, "blue"},
+    {SCHWARZ, "schwarz"},
+})
 
 #endif //TICHU_CARD_H

@@ -2,9 +2,10 @@
 #define TICHU_SERVER_H
 
 /*! \class Server
-    \brief ##########TODO
+    \brief Represents the Tichu game server.
 
- ##########################TODO
+    The Server class manages the Tichu game server, handling new connections, processing messages,
+    and managing game instances. It provides functionality to send and broadcast messages to connected clients.
 */
 
 #include <sockpp/tcp_socket.h>
@@ -16,6 +17,20 @@
 #include "../common/Messages.h"
 #include "GameInstance.h"
 
+/*! \struct ConnectionData
+    \brief Represents data associated with a client connection.
+
+    This structure holds information about a connected client, including the associated player, address, socket, and a listener thread.
+
+    \var ConnectionData::player
+        \brief An optional field representing the associated player.
+    \var ConnectionData::address
+        \brief A string representing the address of the client.
+    \var ConnectionData::socket
+        \brief A shared pointer to a TCP socket used for communication with the client.
+    \var ConnectionData::_listener
+        \brief A shared pointer to the listener thread associated with the client connection.
+*/
 struct ConnectionData {
     std::optional<Player> player;
     std::string address{};
@@ -23,6 +38,16 @@ struct ConnectionData {
     std::shared_ptr<std::thread> _listener{};
 };
 
+/*! \struct GameData
+    \brief Represents data associated with a game instance.
+
+    This structure holds information about a game instance, including the associated game object and a unique identifier.
+
+    \var GameData::game
+        \brief An instance of the GameInstance class representing the game.
+    \var GameData::id
+        \brief A UUID representing the unique identifier of the game.
+*/
 struct GameData {
     GameInstance game;
     UUID id;

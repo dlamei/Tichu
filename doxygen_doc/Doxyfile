@@ -944,13 +944,13 @@ EXCLUDE_PATTERNS       =
 # Note that the wildcards are matched against the file with absolute path, so to
 # exclude all test directories use the pattern */test/*
 
-EXCLUDE_SYMBOLS        = start_game_req fold_req join_game_req grand_tichu_req small_tichu_req dragon_req swap_req play_combi_req ping server_message full_state_response dragon pong client_msg_variant server_msg_variant ClientMsgType ServerMsgType
+EXCLUDE_SYMBOLS        = 
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or directories
 # that contain example code fragments that are included (see the \include
 # command).
 
-EXAMPLE_PATH           =
+EXAMPLE_PATH           = 
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp and
