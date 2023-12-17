@@ -54,7 +54,7 @@ public:
      * \brief Attempts to retrieve a card with a specific ID from the hand.
      *
      * \param card_id The ID of the card to be retrieved.
-     * \return An optional representing the retrieved card, if found.
+     * \return An optional representing the retrieved card (if found).
      */
     [[nodiscard]] std::optional<Card> try_get_card(const Card &card_id) const;
 

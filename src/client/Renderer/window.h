@@ -1,6 +1,8 @@
-//
-// light abstraction over glfw
-//
+/*! \class Window
+    \brief Provides interface to interact with and manage a window
+
+ Uses graphics framework library "GLFW" with light abstractions.
+*/
 
 #ifndef TICHU_WINDOW_H
 #define TICHU_WINDOW_H
@@ -15,7 +17,7 @@
 
 struct GLFWwindow;
 
-// helper struct for creating a window
+//! Helper struct for creating a window (object of class Window)
 struct WindowCreateInfo {
     std::string title{"Window Title"};
     glm::uvec2 size{};
@@ -32,19 +34,19 @@ public:
 
     void destroy();
 
-    // updates the window
+    //! Updates the window
     void on_update();
 
-    // check if given key is pressed
+    //! Checks if given key is pressed
     [[nodiscard]] bool is_key_pressed(KeyCode key) const;
 
-    //check if given mouse button is pressed
+    //! Checks if given mouse button is pressed
     [[nodiscard]] bool is_mouse_pressed(KeyCode mouse_button = KeyCode::MOUSE_BUTTON_1) const;
     [[nodiscard]] bool is_mouse_released(KeyCode mouse_button = KeyCode::MOUSE_BUTTON_1) const;
 
     double get_time();
 
-    // return true if the window was closed externally
+    //! Returns true if the window was closed externally
     [[nodiscard]] bool should_close() const;
 
     void set_vsync(bool enable = true);

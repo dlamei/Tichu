@@ -43,16 +43,14 @@ public:
     virtual ~Layer() = default;
 
 
-    //! Called when pushing the layer to the app
+    //! Called when pushing the layer to the application
     virtual void on_attach() {};
 
 
     //! Called in the Application destructor
     virtual void on_detach() {};
 
-    /**
-     * can help separating gui and render code
-     */ 
+    //! Helps separating gui and render code
     virtual void on_update(TimeStep ts) {};
 
     virtual void on_imgui() {};
@@ -77,9 +75,8 @@ public:
 
     ~Application();
 
-    /*
-     * runs the app
-    */
+    //! Runs the application
+
     void run();
 
     //! Updates the application when the window is being resized
@@ -93,22 +90,17 @@ public:
         return (float) size.x / (float) size.y;
     }
 
-    /**
-     * returns the size of the viewport window
-     */
+    //! Returns the size of the viewport window
+
     [[nodiscard]] static const glm::uvec2 &get_viewport_size() { return get_instance()->_viewport_size; }
     [[nodiscard]] static const glm::uvec2 &get_viewport_pos() { return get_instance()->_viewport_pos;}
 
-    /**
-     * returns the size of the window
-     */ 
+    //! Returns the size of the window
     [[nodiscard]] static const glm::uvec2 &get_window_size() { return get_instance()->_window_size; }
 
     [[nodiscard]] static glm::vec2 get_mouse_pos();
 
-    /*
-     * returns the application instance
-     */
+    //! Returns the application instance
     [[nodiscard]] static const Application *get_instance();
 
     [[nodiscard]] static const ApplicationCreateInfo &get_info() { return get_instance()->_info; };
