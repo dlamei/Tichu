@@ -60,7 +60,6 @@ void server_network_manager::listener_loop() {
     }
 }
 
-// TODO: write listener thread once for server and client in common
 // Runs in a thread and reads anything coming in on the 'socket'.
 // Once a message is fully received, the string is passed on to the 'handle_incoming_message()' function
 void server_network_manager::read_message(sockpp::tcp_socket socket, const std::function<void(const std::string &,

@@ -1,3 +1,7 @@
+#ifndef TICHU_PANELS_H
+#define TICHU_PANELS_H
+
+
 /*! \class Message
     \brief Represents a popup message box.
 
@@ -8,9 +12,6 @@
  The class also provides functionality to draw the ImGui widget and manage 
  the display of multiple message boxes.
 */
-
-#ifndef TICHU_PANELS_H
-#define TICHU_PANELS_H
 
 #include "../common/Messages.h"
 #include "../common/game_state/GameState.h"

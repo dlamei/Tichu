@@ -1,11 +1,11 @@
+#ifndef TICHU_SERVER_H
+#define TICHU_SERVER_H
+
 /*! \class Server
     \brief ##########TODO
 
  ##########################TODO
 */
-
-#ifndef TICHU_SERVER_H
-#define TICHU_SERVER_H
 
 #include <sockpp/tcp_socket.h>
 #include <sockpp/tcp_acceptor.h>

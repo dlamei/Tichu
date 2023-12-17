@@ -1,3 +1,4 @@
+
 #ifndef TICHU_GAMEPANEL_H
 #define TICHU_GAMEPANEL_H
 
@@ -8,25 +9,13 @@
 
 namespace GamePanel {
 
-    // TODO: remove?
-    //enum State {
-    //    LOBBY,
-    //    GAME,
-    //};
-
     /**
      * \brief output for panels that allow for swapping cards
     */ 
-    struct SwapData {
-
-        /**
-         * max number of selections
-        */ 
+    struct SelectionData {
+        /** max number of selections */
         int n_selections{0};
-
-        /**
-         * indices of selected cards
-         */ 
+        /** indices of selected cards */
         std::deque<int> selected{};
     };
 
@@ -38,23 +27,26 @@ namespace GamePanel {
     struct Data {
         // read / write
         int hovered_card_index = -1;
-        long begin_hover_time = -1.f;
-        long spread_anim_start = -1.f;
-        long begin_card_collect_anim = -1.f;
+        long long begin_hover_time = -1;
+        long long spread_anim_start = -1;
+        long long begin_card_collect_anim = -1;
         std::set<Card> selected_cards{};
+        std::optional<Card> wish{};
         bool can_play_bomb{false};
+
+        bool selected_majong{true};
+        bool show_majong_selection{false};
+        SelectionData mahjong_wish{};
 
         int my_index = -1;
         /**
-         * Swap Data for each player (minus local player)
+         * SelectionData for each player (minus local player)
          * used to store data when displaying the swap window
          * uses relative indexing
-        */ 
-        std::array<SwapData, 3> swap_window_data{};
+        */  
+        std::array<SelectionData, 3> swap_window_data{};
 
-        /**
-         * store cards to be swapped at the beginning
-        */ 
+        /** store cards to be swapped at the beginning*/
         std::array<Card, 3> cards_for_swapping{};
 
         std::optional<Player> selected_player{};
@@ -85,7 +77,7 @@ namespace GamePanel {
 
     void load_textures();
 
-    // pass in pointer if the function will modify the value, otherwise const reference
+    /** pass in pointer if the function will modify the value, otherwise const reference */
     void show(Data *data);
 
 } // GamePanel

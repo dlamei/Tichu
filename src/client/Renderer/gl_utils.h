@@ -187,7 +187,7 @@ public:
 
     ~Buffer();
 
-    /**
+        /**
      * get the number of elements in the buffer
     */ 
     [[nodiscard]] uint32_t count() const { return _size / _stride; }
@@ -222,7 +222,7 @@ public:
      * index buffer constructor
     */ 
     static Buffer index32(uint32_t *data, uint32_t count);
-
+    
     void set_data(void *data, size_t size);
 
     template<typename VERTEX>

@@ -1,6 +1,7 @@
 /*! \class player_manager
     \brief Handles player management during a game instance
 
+
  The player_manager only exists on the server side. It stores all connected users since starting the server. It offers
  functionality to retrieve players by id or adding players when they first connect to the server.
 */
