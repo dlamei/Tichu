@@ -49,7 +49,7 @@ When all details are entered, the player clicks on the *CONNECT*-button. If the 
 <br>
 In order to start 4 clients simultaneously, their is a script named **start_tichu.sh** located in the directory **scripts**.
 
-![Login-Screen](./assets/login_screen.jpeg?raw=true)
+![Login-Screen](./assets/1_home.png?raw=true)
 
 ### 3.2 Lobby and starting the game
 
@@ -59,7 +59,7 @@ As long as not all players have been connected yet, the waiting players will be 
 
 As soon as all players have joined, they will be asked to start the game.
 
-![start_game](./assets/3_start_game.png?raw=true)
+![start_game](./assets/2_lobby.png?raw=true)
 
 
 ### 3.3 Examples of game plays and situations
