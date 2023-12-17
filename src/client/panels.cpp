@@ -1,6 +1,6 @@
 #include "panels.h"
 
-#include "Renderer/Application.h"
+#include "Renderer/application.h"
 #include "Renderer/imgui_build.h"
 #include "misc/cpp/imgui_stdlib.h"
 #include "Renderer/renderer.h"

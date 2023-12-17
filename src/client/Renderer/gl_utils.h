@@ -17,7 +17,7 @@
 class ImVec4;
 
 
-// helper class for color
+//! Helper class for color
 class RGBA {
 public:
     RGBA();
@@ -93,6 +93,7 @@ std::ostream &operator<<(std::ostream &os, const RGBA &c);
 //
 //std::ostream &operator<<(std::ostream &os, const RGB &c);
 
+//! Helper class for rendering (sets up structure with position, texture coordinates and color)
 struct Vertex {
     glm::vec3 pos;
     glm::vec2 uv;
@@ -113,7 +114,7 @@ namespace gl_utils {
     void draw_indexed(uint32_t index_count);
 }
 
-// opengl texture that internally handles creating & destroying memory
+//! OpenGL texture that internally handles creating and destroying memory
 class Texture {
 public:
 
@@ -143,6 +144,7 @@ private:
     uint32_t _width{}, _height{}, _n_channels{};
 };
 
+//! Shader using OpenGL
 class Shader {
 public:
 
@@ -180,6 +182,7 @@ enum class BufferType {
     NONE,
 };
 
+//! Buffers needed for the OpenGL graphics
 class Buffer {
 public:
 
@@ -187,16 +190,24 @@ public:
 
     ~Buffer();
 
-    // get the number of elements in the buffer
+        /**
+     * get the number of elements in the buffer
+    */ 
     [[nodiscard]] uint32_t count() const { return _size / _stride; }
 
-    // get the size of the entire buffer in bytes
+    /**
+     * get the size of the entire buffer in bytes
+    */ 
     [[nodiscard]] uint32_t size() const { return _size; }
 
-    // get the size of a single element in bytes
+    /**
+     * get the size of a single element in bytes
+    */ 
     [[nodiscard]] uint32_t stride() const { return _stride; }
 
-    // get the type of the buffer
+    /**
+     * get the type of the buffer
+    */ 
     [[nodiscard]] BufferType type() const { return _typ; }
 
     [[nodiscard]] uint32_t native_buffer() const { return *_gl_buffer.value(); }
@@ -205,12 +216,16 @@ public:
 
     static void unbind(BufferType typ);
 
-    // vertex buffer constructor
+    /**
+     * vertex buffer constructor
+    */ 
     static Buffer vertex(void *data, uint32_t count, uint32_t stride);
 
-    // index buffer constructor
+    /**
+     * index buffer constructor
+    */ 
     static Buffer index32(uint32_t *data, uint32_t count);
-
+    
     void set_data(void *data, size_t size);
 
     template<typename VERTEX>
@@ -227,7 +242,7 @@ private:
     BufferType _typ{BufferType::NONE};
 };
 
-// opengl framebuffer abstraction. currently only allows for texture2D attachments
+//! OpenGL framebuffer abstraction; currently only allows for texture2D attachments
 class FrameBuffer {
 public:
 

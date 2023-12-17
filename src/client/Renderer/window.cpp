@@ -8,7 +8,7 @@
 #include <iostream>
 
 //#include "../../../libs/glfw/src/internal.h"
-#include "Application.h"
+#include "application.h"
 #include "../../src/common/utils.h"
 
 static bool s_GLFWInitialized = false;

@@ -1,11 +1,12 @@
 /*! \class game_instance_manager
- \brief Stores all active games and offers game instance functionalities
+    \brief Stores all active games and offers game instance functionalities.
 
  The game_instance_manager only exists on the server side. It stores all currently active games and offers
  functionality to retrieve game instances by id and adding players to games.
  If a new Player requests to join a game but no valid GameInstance is available, then this class
  will generate a new GameInstance and add it to the unordered_map of (active) game instances.
 */
+
 #ifndef TICHU_GAME_INSTANCE_MANAGER_H
 #define TICHU_GAME_INSTANCE_MANAGER_H
 
@@ -14,7 +15,7 @@
 #include <unordered_map>
 #include <memory>
 
-#include "GameInstance.h"
+#include "game_instance.h"
 
 using game_instance_ptr = std::shared_ptr<GameInstance>;
 

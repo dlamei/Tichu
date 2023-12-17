@@ -4,13 +4,17 @@
 #include "gl_utils.h"
 
 
-// provides some basic functions for simple immediate mode rendering
+/*! \namespace Renderer
+ *  Provides some basic functions for simple immediate mode rendering
+*/
 namespace Renderer {
-    // initialize the renderer
+    //! Initializes the renderer
     void init();
     void flush();
 
-    // how to handle rectangle position
+    /*! \enum RectMode
+        Handles a rectangle position
+     */
     enum class RectMode {
         // rectangle position defined by the top left corner (default)
         CORNER,
@@ -18,6 +22,8 @@ namespace Renderer {
         CENTER,
     };
 
+    /*! \enum RotateMode
+    */
     enum class RotateMode {
         CORNER,
         CENTER,
@@ -35,19 +41,19 @@ namespace Renderer {
     void set(RectMode mode);
     void set(RotateMode mode);
 
-    // clear the screen with the given color
+    //! Clears the screen with the given color
     void clear(RGBA clear_color);
 
-    // resize the framebuffer to the current size of the viewport
+    //! Resizes the framebuffer to the current size of the viewport
     void resize_frame_buffer();
 
-    // bind the main framebuffer
+    //! Binds the main framebuffer
     void bind_frame_buffer();
 
-    // unbind framebuffer
+    //! Unbinds the framebuffer
     void unbind_frame_buffer();
 
-    // get the main framebuffer
+    //! Gets the main framebuffer
     const FrameBuffer &get_frame_buffer();
 
     void set_camera(float left, float right, float bottom, float top);

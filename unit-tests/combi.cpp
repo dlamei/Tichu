@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
-#include "../src/common/Messages.h"
-#include "../src/common/game_state/cards/CardCombination.h"
+#include "../src/common/messages.h"
+#include "../src/common/game_state/cards/card_combination.h"
 
 TEST(CombiTest, Singles){
     std::vector<Card> single_two;

@@ -1,4 +1,6 @@
 /*! \class server_network_manager
+    \brief Handles server startup, client request and broadcasting information to all clients.
+
 
  The server_network_manager handles all incoming messages and offers functionality to broadcast messages
  to all connected players of a game.
@@ -16,9 +18,9 @@
 #include "sockpp/tcp_connector.h"
 #include "sockpp/tcp_acceptor.h"
 
-#include "../common/Messages.h"
-#include "../common/game_state/player/Player.h"
-#include "../common/game_state/GameState.h"
+#include "../common/messages.h"
+#include "../common/game_state/player/player.h"
+#include "../common/game_state/game_state.h"
 
 class server_network_manager {
 private:

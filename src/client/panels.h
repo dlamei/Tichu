@@ -1,8 +1,20 @@
 #ifndef TICHU_PANELS_H
 #define TICHU_PANELS_H
 
-#include "../common/Messages.h"
-#include "../common/game_state/GameState.h"
+
+/*! \class Message
+    \brief Represents a popup message box.
+
+ The Message class is responsible for representing a popup message box
+ in the Tichu game UI. It includes information such as the message type, unique ID, 
+ message content, and a flag to indicate whether the message box should close.
+
+ The class also provides functionality to draw the ImGui widget and manage 
+ the display of multiple message boxes.
+*/
+
+#include "../common/messages.h"
+#include "../common/game_state/game_state.h"
 #include <unordered_set>
 #include <string>
 #include <utility>
@@ -10,7 +22,7 @@
 #include <chrono>
 #include <functional>
 
-#include "GamePanel.h"
+#include "game_panel.h"
 
 namespace ImGuiUtils {
     void center_next_in_window(int cond);
@@ -28,7 +40,9 @@ namespace ConnectionPanel {
         RANDOM,
     };
 
-// used for reading data from the connection panel
+/**
+ * \brief Used for reading data from the connection panel
+*/ 
     struct Data {
         // used in panel
         std::string host = "127.0.0.1";
@@ -38,7 +52,9 @@ namespace ConnectionPanel {
         bool connect = false;
         std::string status = "not connected";
 
-        // Player id
+        /**
+         * Player ID
+        */ 
         UUID id = UUID::create();
 
         bool validate() const;
@@ -62,7 +78,7 @@ public:
     explicit Message(MessageType typ, std::string msg)
             : message(std::move(msg)), id(COUNT++), type(typ) {}
 
-    // draws the imgui widget
+    // draws the ImGui widget
     void on_imgui();
 
     static void show_windows(std::vector<Message> *messages);

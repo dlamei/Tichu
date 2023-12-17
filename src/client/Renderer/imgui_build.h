@@ -1,7 +1,7 @@
 
-//
-// setup imgui with some new defaults
-//
+/*! \namespace ImGui
+    setup ImGui with some new defaults
+*/
 
 
 #ifndef TICHU_IMGUI_BUILD_H
@@ -42,8 +42,11 @@ namespace ImGui {
 
     void SetOneDarkTheme();
 
-    // helper struct for defining a style in a scope. these styles will automatically get reset when the struct goes out of scope
-    struct ScopedStyle {
+    /*!
+      \brief Helper struct for defining a style in a scope \n
+       These styles will automatically get reset when the struct goes out of scope
+     */
+     struct ScopedStyle {
         int style_count{0};
         int col_count{0};
 
@@ -70,10 +73,10 @@ namespace ImGui {
         }
     };
 
-    // initialize imgui
+    // initialize ImGui
     void init_imgui(const Window &window);
 
-    // destroy imgui context
+    // destroy ImFui context
     void destroy();
 
     // should be called at the start of every frame

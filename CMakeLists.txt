@@ -9,17 +9,17 @@ endif()
 add_subdirectory(libs)
 
 set(COMMON_SOURCE_FILES
-		src/common/Event.cpp src/common/Event.h
+		src/common/event.cpp src/common/event.h
         src/common/game_state/cards/card.cpp src/common/game_state/cards/card.h
-        src/common/game_state/GameState.cpp src/common/game_state/GameState.h
+		src/common/game_state/game_state.cpp src/common/game_state/game_state.h
         src/common/game_state/player/hand.cpp src/common/game_state/player/hand.h
-		src/common/game_state/player/Player.cpp src/common/game_state/player/Player.h
-		src/common/game_state/cards/WonCardsPile.cpp src/common/game_state/cards/WonCardsPile.h
-        src/common/game_state/cards/DrawPile.cpp src/common/game_state/cards/DrawPile.h
-        src/common/game_state/cards/ActivePile.cpp src/common/game_state/cards/ActivePile.h
-        src/common/game_state/cards/CardCombination.cpp src/common/game_state/cards/CardCombination.h
+		src/common/game_state/player/player.cpp src/common/game_state/player/player.h
+		src/common/game_state/cards/won_cards_pile.cpp src/common/game_state/cards/won_cards_pile.h
+		src/common/game_state/cards/draw_pile.cpp src/common/game_state/cards/draw_pile.h
+		src/common/game_state/cards/active_pile.cpp src/common/game_state/cards/active_pile.h
+		src/common/game_state/cards/card_combination.cpp src/common/game_state/cards/card_combination.h
 		src/common/utils.cpp
-		src/common/Messages.h
+		src/common/messages.h
 		src/common/listener.h
 )
 
@@ -28,29 +28,29 @@ set(CLIENT_SOURCE_FILES
 		src/client/Renderer/window.h
 		src/client/Renderer/gl_utils.cpp
 		src/client/Renderer/gl_utils.h
-		src/client/Renderer/Application.cpp
-		src/client/Renderer/Application.h
+        src/client/Renderer/application.cpp
+        src/client/Renderer/application.h
 		src/client/Renderer/renderer.cpp
 		src/client/Renderer/renderer.h
 		src/client/Renderer/imgui_build.cpp
 		src/client/Renderer/imgui_build.h
-        src/client/Tichu.h
-        src/client/Tichu.cpp
+		src/client/tichu.h
+		src/client/tichu.cpp
 		src/client/panels.cpp
 		src/client/panels.h
-        src/client/GamePanel.cpp
-        src/client/GamePanel.h
-		src/client/Renderer/KeyCodes.h
+        src/client/game_panel.cpp
+        src/client/game_panel.h
+		src/client/Renderer/key_codes.h
 )
 
 set(SERVER_SOURCE_FILES
-        src/server/GameInstance.cpp src/server/GameInstance.h
+		src/server/game_instance.cpp src/server/game_instance.h
 		src/server/game_instance_manager.cpp src/server/game_instance_manager.h
 		src/server/player_manager.cpp src/server/player_manager.h
 		src/server/server_network_manager.cpp src/server/server_network_manager.h
 		src/server/request_handler.h src/server/request_handler.cpp
-        src/server/Server.cpp
-        src/server/Server.h
+		src/server/server.cpp
+		src/server/server.h
 )
 
 # --- copy assets into build directory ---
@@ -65,7 +65,9 @@ target_link_libraries(Tichu-server SERVER_LIBS)
 
 
 # --- tests ---
-set(CMAKE_CXX_FLAGS "--coverage")
+if (NOT MSVC)
+	set(CMAKE_CXX_FLAGS "--coverage")
+endif()
 add_library(Tichu-lib ${SERVER_SOURCE_FILES} ${CLIENT_SOURCE_FILES} ${COMMON_SOURCE_FILES})
 target_link_libraries(Tichu-lib CLIENT_LIBS SERVER_LIBS)
 
