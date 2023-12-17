@@ -23,8 +23,7 @@ It uses [Dear ImGui](https://github.com/ocornut/imgui) for the GUI, [sockpp](htt
 
 ## Explaining 
 
-[Login-Screen](./assets/tichu_login_screen.jpeg?raw=true)
-
+![Login-Screen](./assets/tichu_login_screen.jpeg?raw=true)
 
 
 
