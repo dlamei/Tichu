@@ -27,7 +27,7 @@ In order to build the project, navigate into the project directory and run the f
 3. Use cmake to build the make file `cmake ..`
 4. Build everything you need with `make`
 
-### 1.2 Run the Game
+### 1.4 Run the Game
 1. go into your build folder `cd build`
 2. Run server `./Tichu-server`
 3. In new consoles 4 clients `./Tichu-client` <br>
