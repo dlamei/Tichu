@@ -47,6 +47,6 @@ cmake ..
 make
 ```
 
-## 3. Code Documentation
+## 3. Generating Code Documentation with Doxygen
 
-For documentation we use doxygen ... TODO
+Before the code documentation can be generated, Doxygen needs to be installed. This can be done by cloning the [git repository](https://github.com/doxygen/doxygen) and following the [install instructions](https://www.doxygen.nl/manual/install.html#google_vignette).
