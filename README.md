@@ -45,5 +45,5 @@ make
 
 ## 3. Generating Code Documentation with Doxygen
 
-Before the code documentation can be generated, Doxygen needs to be installed. This can be done by cloning the [git repository](https://github.com/doxygen/doxygen) and following the [install instructions](https://www.doxygen.nl/manual/install.html#google_vignette).
+Before the code documentation can be generated, Doxygen needs to be installed. This can be done by cloning the [git repository](https://github.com/doxygen/doxygen) and following the [install instructions](https://www.doxygen.nl/manual/install.html#google_vignette). \n
 After Doxygen has been installed, navigate into the directory **doxygen_doc**. Post the command `doxygen Doxyfile`  into the terminal (Doxyfile refers to the file name within the directory). The Doxygen documentation will be generated within a folder named **html**. 
