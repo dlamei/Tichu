@@ -10,23 +10,42 @@ It uses [Dear ImGui](https://github.com/ocornut/imgui) for the GUI, [sockpp](htt
 
 </div>
 
-## 1. Compile instructions
+## 1. How to
+
+### 1.1 Compile instructions
 This project should compile on Linux, Windows and MacOS. It was mainly tested on Ubuntu  20/22 and Windows 10/11.
 
-## 1.1 Requirements:
+### 1.2 Requirements:
 - C++20
 - OpenGL 3.2+
 - CMake 3.15+
 
-## 1.2 Build
+### 1.3 Build / Compile code
 
 In order to build the project, navigate into the project directory and run the following commands:
 ```
-mkdir build
-cd build
-cmake ..
-make
+1. In the tichu-project file, `mkdir build` create your build folder 
+2. Go into your build folder `cd build`
+3. Use cmake to build the make file `cmake ..`
+4. Build everything you need with `make`
 ```
+### 2. Run the Game
+1. go into your build folder `cd build`
+2. Run server `./Tichu-server`
+3. In new consoles 4 clients `./Tichu-client
+
+### 1.1 Compile Code
+1. In the tichu-project file, `mkdir build` create your build folder 
+2. Go into your build folder `cd build`
+3. Use cmake to build the make file `cmake ..`
+4. Build everything you need with `make`
+
+## 2. Run the Game
+1. go into your build folder `cd build`
+2. Run server `./Tichu-server`
+3. In new consoles 4 clients `./Tichu-client`
+
+
 
 ## 2. Generating Code Documentation with Doxygen
 
