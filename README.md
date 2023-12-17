@@ -66,12 +66,14 @@ As soon as all players have joined, they will be asked to start the game.
 
 ### 3.3 Examples of game plays and situations
 
-The following pictures show a couple of exemplary situations, which one will encouter while playing a game:
+The following pictures show a couple of exemplary situations, which one will encouter while playing a round.
 
-#### 3.3.1 Calling a Grand Tichu
+
+##### 3.3.1 Calling a Grand Tichu
 
 ![grand_tichu](./assets/4_call_grand_tichu.png?raw=true)
 
-#### 3.3.2 Selecting to swap cards
+
+##### 3.3.2 Selecting to swap cards
 
 ![swap_cards](./assets/6_swap_cards.png?raw=true)
