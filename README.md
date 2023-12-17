@@ -55,11 +55,11 @@ In order to start 4 clients simultaneously, their is a script named **start_tich
 
 As long as not all players have been connected yet, the waiting players will be placed in the lobby.
 
-![Lobby](./assets/lobby.png?raw=true)
+![Lobby](./assets/2_lobby.png?raw=true)
 
 As soon as all players have joined, they will be asked to start the game.
 
-![start_game](./assets/2_lobby.png?raw=true)
+![start_game](./assets/3_start_game.png?raw=true)
 
 
 ### 3.3 Examples of game plays and situations
