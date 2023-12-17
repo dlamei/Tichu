@@ -20,9 +20,6 @@ This is a simple C++ implementation of the game "Tichu" by AMIGO. You can read t
 It uses [Dear ImGui](https://github.com/ocornut/imgui) for the GUI, [sockpp](https://github.com/fpagliughi/sockpp) for the network interface, [rapidjson](https://rapidjson.org/md_doc_tutorial.html) for object serialization, and [googletest](https://github.com/google/googletest) for the unit tests. 
 
 <div align="center">
-
-# This is gonna be centered!
-
 ![Tichu-logo](./assets/tichu_logo.jpeg?raw=true)
 </div>
 
