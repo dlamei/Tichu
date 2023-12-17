@@ -13,7 +13,10 @@ std::string Event::to_string(const std::vector<player_ptr> &players, const UUID 
     }
     // card
     std::string card_string;
-    if(card) { card_string = "a " + card.value().to_string(); }
+    std::string card_string_wish;
+    if(card) { card_string = "a " + card.value().to_string(true); }
+    else { card_string = "nothing"; }
+    if(card) { card_string = "a " + card.value().to_string(false); }
     else { card_string = "nothing"; }
 
 
@@ -59,7 +62,7 @@ std::string Event::to_string(const std::vector<player_ptr> &players, const UUID 
             break;
 
         case EventType::WISH:
-            event_string += name + " wished for " + card_string;
+            event_string += name + " wished for " + card_string_wish;
             break;
 
         case EventType::SWITCH:

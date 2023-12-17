@@ -51,7 +51,7 @@ private:
 
     DrawPile _draw_pile{};
     ActivePile _active_pile{};
-    std::optional<Card> _wish;
+    std::optional<Card> _wish{};
 
     int _score_team_A{0};
     int _score_team_B{0};

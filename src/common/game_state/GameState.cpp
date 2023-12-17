@@ -240,7 +240,7 @@ bool GameState::check_wish(const CardCombination &combi, const Player &player, c
             err = "You can't wish for a special card";
             return false;
         }
-        _wish = wish;
+        _wish = wish.value();
         return true;
     }
     // there currently is no wish
@@ -248,7 +248,6 @@ bool GameState::check_wish(const CardCombination &combi, const Player &player, c
         return true;
     } 
     // there is a current active wish
-
     else {
         if(player.get_hand().count_occurances(_wish.value())) {
             if(combi.count_occurances(_wish.value())) {
@@ -256,11 +255,11 @@ bool GameState::check_wish(const CardCombination &combi, const Player &player, c
                 _wish = {};
                 return true;
             } else {
-                err = "You must play the wished for card: " + _wish.value().to_string();
+                err = "You must play the wished for card: " + _wish.value().to_string(false);
                 return false;
             }
         } 
-        // The player doesn't have the wished for car in his hand
+        // The player doesn't have the wished for card in his hand
         else {
             return true;
         }

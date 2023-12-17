@@ -14,7 +14,7 @@ Card::Card(int rank, int suit) : _rank(rank), _suit(suit) {
     _value = value;
 }
 
-std::string Card::to_string() const {
+std::string Card::to_string(bool print_suit) const {
     if(_rank == SPECIAL) {
         switch(_suit) {
             case GREEN: 
@@ -30,23 +30,23 @@ std::string Card::to_string() const {
 
     std::string card_string = "[";
 
-    switch(_suit) {
-        case GREEN:
-            card_string += "Green";
-            break;
-        case RED:
-            card_string += "Red";
-            break;
-        case BLUE:
-            card_string += "Blue";
-            break;
-        case SCHWARZ:
-            card_string += "Black";
-            break;
-    }
-
+    if(print_suit) {
+        switch(_suit) {
+            case GREEN:
+                card_string += "Green";
+                break;
+            case RED:
+                card_string += "Red";
+                break;
+            case BLUE:
+                card_string += "Blue";
+                break;
+            case SCHWARZ:
+                card_string += "Black";
+                break;
+        }
     card_string += " ";
-
+    }
     switch(_rank) {
         case TWO:
             card_string += "Two";
