@@ -26,11 +26,10 @@ It uses [Dear ImGui](https://github.com/ocornut/imgui) for the GUI, [sockpp](htt
 ### 1. Login Screen
 
 After starting the client, the first screen is going to be the login screen. Here every player enters:
-
-    1. the server address
-    2. the server port
-    3. their player name
-    4. their prefered team (Team A , Team B or a random selection)
+- the server address
+- the server port
+- their player name
+- their prefered team (Team A , Team B or a random selection)
 
 When all details are entered, the player clicks on the ´CONNECT´-button. If the player belongs to the first 3 players joining, they will be forwarded to the game lobby.
 ![Login-Screen](./assets/login_screen.jpeg?raw=true)
