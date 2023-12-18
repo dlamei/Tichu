@@ -31,7 +31,7 @@ In order to build the project, navigate into the project directory and run the f
 1. go into your build folder `cd build`
 2. Run server `./Tichu-server`
 3. In new consoles 4 clients `./Tichu-client` <br>
-Alternatively, in order to start 4 clients simultaneously, their is a script named **start_tichu.sh** located in the directory **scripts**.
+Alternatively, in order to start 4 clients simultaneously, there is a script named **start_tichu.sh** located in the directory **scripts**.
 
 
 
